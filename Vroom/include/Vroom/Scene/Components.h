@@ -51,7 +51,7 @@ namespace Vroom
 
 	private:
 		entt::entity m_Handle = entt::null;
-		Scene* m_Scene;
+		Scene* m_Scene = nullptr;
 	};
 
 	struct ScriptHandler

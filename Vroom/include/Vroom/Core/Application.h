@@ -61,14 +61,14 @@ namespace Vroom
 		 * @param eventName The event name.
 		 * @param key The event associated key.
 		*/
-		void registerKeyboardEvent(const std::string& eventName, sf::Keyboard::Key key);
+		void registerEvent(const std::string& eventName, sf::Keyboard::Key key);
 
 		/**
 		 * @brief Registers a mouse event. When the mouse button is pressed/released, all the callbacks related to the eventName will be triggered.
 		 * @param eventName The event name.
 		 * @param button The event associated mouse button.
 		*/
-		void registerMouseEvent(const std::string& eventName, sf::Mouse::Button button);
+		void registerEvent(const std::string& eventName, sf::Mouse::Button button);
 
 		/**
 		 * @brief Registers a callback associated with an event.

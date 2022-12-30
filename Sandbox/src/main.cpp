@@ -89,10 +89,10 @@ int main()
 {
 	std::unique_ptr<Vroom::Application> app = std::make_unique<Vroom::Application>(64 * 10, 64 * 10, "A Vroom game");
 
-	app->registerKeyboardEvent("MoveLeft", sf::Keyboard::Q);
-	app->registerKeyboardEvent("MoveRight", sf::Keyboard::D);
-	app->registerKeyboardEvent("MoveUp", sf::Keyboard::Z);
-	app->registerKeyboardEvent("MoveDown", sf::Keyboard::S);
+	app->registerEvent("MoveLeft", sf::Keyboard::Q);
+	app->registerEvent("MoveRight", sf::Keyboard::D);
+	app->registerEvent("MoveUp", sf::Keyboard::Z);
+	app->registerEvent("MoveDown", sf::Keyboard::S);
 
 	app->setScene(new MyScene());
 

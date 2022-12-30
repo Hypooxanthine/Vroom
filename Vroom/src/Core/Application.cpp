@@ -57,7 +57,7 @@ namespace Vroom
 		m_CurrentScene->onSceneLoaded();
 	}
 
-	void Application::registerKeyboardEvent(const std::string& eventName, sf::Keyboard::Key key)
+	void Application::registerEvent(const std::string& eventName, sf::Keyboard::Key key)
 	{
 		VR_ASSERT_MSG(!m_KeyboardEvents.contains(key)
 					  || std::find(m_KeyboardEvents.at(key).first.begin(), m_KeyboardEvents.at(key).first.end(), eventName) == m_KeyboardEvents.at(key).first.end(),
@@ -67,7 +67,7 @@ namespace Vroom
 		m_KeyboardEvents[key].first.push_back(eventName);
 	}
 
-	void Application::registerMouseEvent(const std::string& eventName, sf::Mouse::Button button)
+	void Application::registerEvent(const std::string& eventName, sf::Mouse::Button button)
 	{
 		VR_ASSERT_MSG(!m_MouseEvents.contains(button)
 					  || std::find(m_MouseEvents.at(button).first.begin(), m_MouseEvents.at(button).first.end(), eventName) == m_MouseEvents.at(button).first.end(),
