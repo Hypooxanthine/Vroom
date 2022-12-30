@@ -30,3 +30,30 @@
 *.exe
 *.out
 *.app
+
+# Visual studio files
+.vs/
+.vs/*
+*.hint
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+
+# Output folders
+x64/
+x64/*
+Vroom/bin/
+Vroom/bin/*
+Vroom/Intermediate/
+Vroom/Intermediate/*
+Sandbox/x64/
+Sandbox/x64/*
+
+# Sandbox assets
+Sandbox/Data/
+Sandbox/Data/*
+
+# External libraries
+extlibs/
+extlibs/*
