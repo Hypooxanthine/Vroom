@@ -33,6 +33,7 @@ namespace Vroom
 
 	void Application::run()
 	{
+		VR_ASSERT_MSG(!m_Window.isOpen(), "Application is already running.");
 		VR_ASSERT_MSG(m_CurrentScene != nullptr, "Can't run the Application with no scene.");
 
 		m_Window.create(sf::VideoMode(m_WindowWidth, m_WindowHeight), m_WindowTitle, sf::Style::Close |sf::Style::Titlebar);
