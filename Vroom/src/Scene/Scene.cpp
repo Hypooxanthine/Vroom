@@ -37,11 +37,11 @@ namespace Vroom
 		(
 			[](SpriteComponent& sc, TransformComponent& tc)
 			{
-				sc.sprite->getSprite().setPosition(tc.translation);
-				sc.sprite->getSprite().setScale(tc.scale);
-				sc.sprite->getSprite().setRotation(tc.rotation);
+				sc.m_Sprite->getSprite().setPosition(sc.getTranslation() + tc.getTranslation());
+				sc.m_Sprite->getSprite().setScale(sc.getScale().x * tc.getScale().x, sc.getScale().y * tc.getScale().y);
+				sc.m_Sprite->getSprite().setRotation(sc.getRotation() + tc.getRotation());
 
-				Application::Get().getWindow().draw(sc.sprite->getSprite());
+				Application::Get().getWindow().draw(sc.m_Sprite->getSprite());
 			}
 		);
 

@@ -14,6 +14,7 @@ namespace Vroom
 		using StaticType = SpriteAsset;
 
 	public:
+		Sprite() = default;
 		Sprite(const sf::Sprite& sprite);
 		virtual ~Sprite();
 

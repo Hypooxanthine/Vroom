@@ -59,8 +59,6 @@ I plan to add submodules for libraries I use.
 
 ## Known problems
 
-- Creating a sprite component with no Sprite asset crashes the application at rendering stage.
-
 ## To-do list
 
 - Create a function that tells if an event is currently triggered.

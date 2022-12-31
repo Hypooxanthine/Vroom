@@ -35,7 +35,7 @@ public:
 		}
 
 		auto& transform = getEntity().getComponent<Vroom::TransformComponent>();
-		transform.translation += moveVector;
+		transform.setTranslation(transform.getTranslation() + moveVector);
 
 		moveVector = { 0.f, 0.f };
 	}
@@ -53,34 +53,34 @@ public:
 	MyScene()
 	{
 		auto entity = createEntity();
-		auto& spriteComponent = entity.addComponent<Vroom::SpriteComponent>();
-		spriteComponent.sprite = getAssetManager().getAsset<Vroom::Sprite>("Data/Sprites/SpriteTest.sprite");
+		auto& spriteComponent = entity.addComponent<Vroom::SpriteComponent>
+			(getAssetManager().getAsset<Vroom::Sprite>("Data/Sprites/SpriteTest.sprite"));
 
-		entity.addScriptComponent<MyScript>();
+		entity.addScriptComponent<MyScript>(); 
 
 		auto& transformComponent = entity.getComponent<Vroom::TransformComponent>();
-		//transformComponent.scale = { .2f, .2f };
+		transformComponent.setScale(.2f);
 
 		// Tiles
 		for (size_t i = 0; i < 10; i++)
 		{
 			auto topBrick = createEntity();
-			topBrick.addComponent<Vroom::SpriteComponent>().sprite = getAssetManager().getAsset<Vroom::Sprite>("Data/Sprites/brick.sprite");
-			topBrick.getComponent<Vroom::TransformComponent>().translation = { 64.f * i, 0.f };
+			topBrick.addComponent<Vroom::SpriteComponent>(getAssetManager().getAsset<Vroom::Sprite>("Data/Sprites/brick.sprite"));
+			topBrick.getComponent<Vroom::TransformComponent>().setTranslation(64.f * i, 0.f);
 
 			auto botBrick = createEntity();
-			botBrick.addComponent<Vroom::SpriteComponent>().sprite = getAssetManager().getAsset<Vroom::Sprite>("Data/Sprites/brick.sprite");
-			botBrick.getComponent<Vroom::TransformComponent>().translation = { 64.f * i, 9.f * 64.f };
+			botBrick.addComponent<Vroom::SpriteComponent>(getAssetManager().getAsset<Vroom::Sprite>("Data/Sprites/brick.sprite"));
+			botBrick.getComponent<Vroom::TransformComponent>().setTranslation(64.f * i, 9.f * 64.f);
 		}
 		for (size_t i = 0; i < 10; i++)
 		{
 			auto leftBrick = createEntity();
-			leftBrick.addComponent<Vroom::SpriteComponent>().sprite = getAssetManager().getAsset<Vroom::Sprite>("Data/Sprites/brick.sprite");
-			leftBrick.getComponent<Vroom::TransformComponent>().translation = { 0.f, 64.f * i };
+			leftBrick.addComponent<Vroom::SpriteComponent>(getAssetManager().getAsset<Vroom::Sprite>("Data/Sprites/brick.sprite"));
+			leftBrick.getComponent<Vroom::TransformComponent>().setTranslation(0.f, 64.f * i);
 
 			auto rightBrick = createEntity();
-			rightBrick.addComponent<Vroom::SpriteComponent>().sprite = getAssetManager().getAsset<Vroom::Sprite>("Data/Sprites/brick.sprite");
-			rightBrick.getComponent<Vroom::TransformComponent>().translation = { 64.f * 9.f, i * 64.f };
+			rightBrick.addComponent<Vroom::SpriteComponent>(getAssetManager().getAsset<Vroom::Sprite>("Data/Sprites/brick.sprite"));
+			rightBrick.getComponent<Vroom::TransformComponent>().setTranslation(64.f * 9.f, i * 64.f);
 		}
 	}
 };

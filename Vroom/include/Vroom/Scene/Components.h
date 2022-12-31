@@ -10,24 +10,65 @@
 
 namespace Vroom
 {
-	struct NameComponent
+	class NameComponent
 	{
-		std::string name;
+	public:
+		NameComponent(const std::string& name)
+			: m_Name(name)
+		{}
+
+		NameComponent(std::string&& name)
+			: m_Name(std::move(name))
+		{}
+
+		const std::string& getName() const { return m_Name; }
+
+		void setName(const std::string& name) { m_Name = name; }
+
+	private:
+		std::string m_Name;
 	};
 
-	struct TransformComponent
+	class TransformComponent
 	{
-		sf::Vector2f translation = { 0.f, 0.f };
-		float rotation = 0.f;
-		sf::Vector2f scale = { 1.f, 1.f };
-	};
+	public:
+		TransformComponent()
+			: m_Rotation(0.f), m_Scale(1.f, 1.f)
+		{}
 
-	struct SpriteComponent
-	{
-		std::unique_ptr<Sprite> sprite;
+		const sf::Vector2f& getTranslation() const { return m_Translation; }
+		float getRotation() const { return m_Rotation; }
+		const sf::Vector2f& getScale() const { return m_Scale; }
+
+		void setTranslation(const sf::Vector2f& pos) { m_Translation = pos; }
+		void setTranslation(float x, float y) { m_Translation = { x, y }; }
+		void setScale(const sf::Vector2f& scale) { m_Scale = scale; }
+		void setScale(float x, float y) { m_Scale = { x, y }; }
+		void setScale(float xy) { m_Scale = { xy, xy }; }
+		void setRotation(float rotation) { m_Rotation = rotation; }
+
+	private:
+		sf::Vector2f m_Translation = { 0.f, 0.f };
+		float m_Rotation = 0.f;
+		sf::Vector2f m_Scale = { 1.f, 1.f };
 	};
 
 	class Scene;
+
+	class SpriteComponent : public TransformComponent
+	{
+		friend Scene;
+	public:
+		SpriteComponent(std::unique_ptr<Sprite>&& sprite)
+			: TransformComponent(), m_Sprite(std::move(sprite))
+		{}
+
+		void setSprite(std::unique_ptr<Sprite>&& sprite) { m_Sprite = std::move(sprite); }
+
+	private:
+		std::unique_ptr<Sprite> m_Sprite = std::make_unique<Sprite>();
+	};
+
 	class Entity;
 
 	class ScriptComponent
