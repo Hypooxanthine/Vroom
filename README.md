@@ -55,12 +55,16 @@ I plan to add submodules for libraries I use.
 
 ### Possible features
 
+- Simulated physics.
 - Create my own renderer with OpenGL.
 
 ## Known problems
 
+- When two inputs are bound to the same event name, the behaviour is strange (triggering input 1 triggers the event, and triggering input 2 while input 1 is triggered stops triggering the event).
+
 ## To-do list
 
+- Externalize events managing into a separate class.
 - Create a function that tells if an event is currently triggered.
 - Create a wrapper that makes class member functions easier to bind to an event.
 
