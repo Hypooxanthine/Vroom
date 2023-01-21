@@ -8,8 +8,6 @@ class MyScript : public Vroom::ScriptComponent
 public:
 	MyScript()
 	{
-		LOG_TRACE("MyScript constructor called.");
-
 		Vroom::Application::Get().registerEventCallback("MoveLeft", [this] (bool pressed) { moveLeft = pressed; });
 		Vroom::Application::Get().registerEventCallback("MoveRight", [this](bool pressed) { moveRight = pressed; });
 		Vroom::Application::Get().registerEventCallback("MoveUp", [this](bool pressed) { moveUp = pressed; });
@@ -72,7 +70,7 @@ public:
 			botBrick.addComponent<Vroom::SpriteComponent>(getAssetManager().getAsset<Vroom::Sprite>("Data/Sprites/brick.sprite"));
 			botBrick.getComponent<Vroom::TransformComponent>().setTranslation(64.f * i, 9.f * 64.f);
 		}
-		for (size_t i = 0; i < 10; i++)
+		for (size_t i = 1; i < 9; i++)
 		{
 			auto leftBrick = createEntity();
 			leftBrick.addComponent<Vroom::SpriteComponent>(getAssetManager().getAsset<Vroom::Sprite>("Data/Sprites/brick.sprite"));
@@ -89,10 +87,16 @@ int main()
 {
 	std::unique_ptr<Vroom::Application> app = std::make_unique<Vroom::Application>(64 * 10, 64 * 10, "A Vroom game");
 
-	app->registerEvent("MoveLeft", sf::Keyboard::Q);
-	app->registerEvent("MoveRight", sf::Keyboard::D);
-	app->registerEvent("MoveUp", sf::Keyboard::Z);
-	app->registerEvent("MoveDown", sf::Keyboard::S);
+	app->registerEvent("MoveLeft");
+	app->registerEvent("MoveRight");
+	app->registerEvent("MoveUp");
+	app->registerEvent("MoveDown");
+
+	app->bindEventInput("MoveLeft", sf::Keyboard::Q);
+	app->bindEventInput("MoveLeft", sf::Keyboard::Left);
+	app->bindEventInput("MoveRight", sf::Keyboard::D);
+	app->bindEventInput("MoveUp", sf::Keyboard::Z);
+	app->bindEventInput("MoveDown", sf::Keyboard::S);
 
 	app->setScene(new MyScene());
 

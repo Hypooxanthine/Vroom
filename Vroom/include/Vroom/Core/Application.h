@@ -4,8 +4,9 @@
 #include <list>
 
 #include "Vroom/Core/Minimal.h"
+#include "Vroom/Events/EventManager.h"
 
-#include "SFML/Graphics.hpp"
+#include <SFML/Graphics.hpp>
 
 namespace Vroom
 {
@@ -56,26 +57,28 @@ namespace Vroom
 
 		void setScene(Scene* scene);
 
+		void registerEvent(const std::string& eventName);
+
 		/**
-		 * @brief Registers a keyboard event. When the key is pressed/released, all the callbacks related to the eventName will be triggered.
+		 * @brief Binds a key to an event. When the key is pressed/released, all the callbacks related to the eventName will be triggered.
 		 * @param eventName The event name.
 		 * @param key The event associated key.
 		*/
-		void registerEvent(const std::string& eventName, sf::Keyboard::Key key);
+		void bindEventInput(const std::string& eventName, sf::Keyboard::Key key);
 
 		/**
-		 * @brief Registers a mouse event. When the mouse button is pressed/released, all the callbacks related to the eventName will be triggered.
+		 * @brief Binds a mouse button to an event. When the mouse button is pressed/released, all the callbacks related to the eventName will be triggered.
 		 * @param eventName The event name.
 		 * @param button The event associated mouse button.
 		*/
-		void registerEvent(const std::string& eventName, sf::Mouse::Button button);
+		void bindEventInput(const std::string& eventName, sf::Mouse::Button button);
 
 		/**
 		 * @brief Registers a callback associated with an event.
 		 * @param eventName The event name.
 		 * @param cb The callback to call when the event is detected. It has to accept a boolean as a parameter for wether the button is pressed or not.
 		*/
-		void registerEventCallback(const std::string& eventName, const std::function<void(bool)>& cb);
+		void registerEventCallback(const std::string& eventName, const Event::Callback& cb);
 
 	private: // Private methods
 		void manageEvents();
@@ -83,8 +86,6 @@ namespace Vroom
 		void render();
 
 		void updateDeltaTime();
-
-		void callEventCallbacks(const std::string& cbName, bool pressed);
 
 	private: // Private members
 		static Application* s_Instance;
@@ -96,10 +97,7 @@ namespace Vroom
 
 		// Events
 		sf::Event m_SFMLEvent;
-		std::unordered_map<sf::Keyboard::Key, std::pair<std::list<std::string>, bool>> m_KeyboardEvents;
-		std::unordered_map<sf::Mouse::Button, std::pair<std::list<std::string>, bool >> m_MouseEvents;
-
-		std::unordered_map<std::string, std::list<std::function<void(bool)>>> m_EventCallbacks;
+		Event::EventManager m_EventManager;
 
 		// Time managing
 		float m_DeltaTime;
