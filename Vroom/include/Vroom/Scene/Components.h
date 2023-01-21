@@ -87,8 +87,9 @@ namespace Vroom
 		const Scene* getScene() const;
 
 		Entity getEntity() const;
-
 		float getDeltaTime() const;
+		bool getEventState(const std::string& eventName) const;
+		void quitGame() const;
 
 	private:
 		entt::entity m_Handle = entt::null;

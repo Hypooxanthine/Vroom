@@ -49,6 +49,11 @@ namespace Vroom
 		}
 	}
 
+	void Application::close()
+	{
+		m_Window.close();
+	}
+
 	void Application::setScene(Scene* scene)
 	{
 		if (m_CurrentScene != nullptr)
@@ -78,12 +83,17 @@ namespace Vroom
 		m_EventManager.bindCallback(eventName, cb);
 	}
 
+	bool Application::getEventState(const std::string& eventName) const
+	{
+		return m_EventManager.getEventState(eventName);
+	}
+
 	void Application::manageEvents()
 	{
 		while (m_Window.pollEvent(m_SFMLEvent))
 		{
 			if (m_SFMLEvent.type == sf::Event::Closed)
-				m_Window.close();
+				close();
 
 			m_EventManager.check(m_SFMLEvent);
 		}

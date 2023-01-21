@@ -9,6 +9,8 @@
 
 #include "Vroom/Events/Event.h"
 
+#define VR_BIND_FN(function) [this] (bool triggered) { this->function(triggered); }
+
 namespace Vroom::Event
 {
 	class EventManager

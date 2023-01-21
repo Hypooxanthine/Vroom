@@ -8,21 +8,18 @@ class MyScript : public Vroom::ScriptComponent
 public:
 	MyScript()
 	{
-		Vroom::Application::Get().registerEventCallback("MoveLeft", [this] (bool pressed) { moveLeft = pressed; });
-		Vroom::Application::Get().registerEventCallback("MoveRight", [this](bool pressed) { moveRight = pressed; });
-		Vroom::Application::Get().registerEventCallback("MoveUp", [this](bool pressed) { moveUp = pressed; });
-		Vroom::Application::Get().registerEventCallback("MoveDown", [this](bool pressed) { moveDown = pressed; });
+		Vroom::Application::Get().registerEventCallback("Exit", VR_BIND_FN(onExit));
 	}
 
 	virtual void onUpdate() override
 	{
-		if(moveLeft)
+		if(getEventState("MoveLeft"))
 			moveVector += { -1.f, 0.f};
-		if(moveRight)
+		if(getEventState("MoveRight"))
 			moveVector += { 1.f, 0.f};
-		if(moveUp)
+		if(getEventState("MoveUp"))
 			moveVector += { 0.f, -1.f };
-		if(moveDown)
+		if(getEventState("MoveDown"))
 			moveVector += { 0.f, 1.f };
 
 		float moveLength = std::sqrt(moveVector.x * moveVector.x + moveVector.y * moveVector.y);
@@ -38,11 +35,14 @@ public:
 		moveVector = { 0.f, 0.f };
 	}
 
+	void onExit(bool pressed)
+	{
+		quitGame();
+	}
+
 private:
 	float moveSpeed = 100.f;
 	sf::Vector2f moveVector;
-
-	bool moveLeft = false, moveRight = false, moveUp = false, moveDown = false;
 };
 
 class MyScene : public Vroom::Scene
@@ -91,12 +91,14 @@ int main()
 	app->registerEvent("MoveRight");
 	app->registerEvent("MoveUp");
 	app->registerEvent("MoveDown");
+	app->registerEvent("Exit");
 
 	app->bindEventInput("MoveLeft", sf::Keyboard::Q);
 	app->bindEventInput("MoveLeft", sf::Keyboard::Left);
 	app->bindEventInput("MoveRight", sf::Keyboard::D);
 	app->bindEventInput("MoveUp", sf::Keyboard::Z);
 	app->bindEventInput("MoveDown", sf::Keyboard::S);
+	app->bindEventInput("Exit", sf::Keyboard::Escape);
 
 	app->setScene(new MyScene());
 

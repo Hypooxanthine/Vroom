@@ -26,4 +26,13 @@ namespace Vroom
 	{
 		return Application::Get().getDeltaTime();
 	}
+	bool ScriptComponent::getEventState(const std::string& eventName) const
+	{
+		return Application::Get().getEventState(eventName);
+	}
+
+	void ScriptComponent::quitGame() const
+	{
+		Application::Get().close();
+	}
 }

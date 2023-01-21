@@ -40,7 +40,7 @@ I plan to add submodules for libraries I use.
 
 ## Planned features
 
-- Collision box components.
+- Collision box component.
 - Physics engine (only collisions, maybe physics simulation too).
 - HUDs implementation.
 - Tilemap component.
@@ -63,8 +63,9 @@ I plan to add submodules for libraries I use.
 
 ## To-do list
 
-- Create a function that tells if an event is currently triggered.
-- Create a wrapper that makes class member functions easier to bind to an event.
+- Camera component
+- aabb algorithm based physics engine
+- Collision box component
 
 ## About me
 

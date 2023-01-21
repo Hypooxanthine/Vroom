@@ -47,6 +47,11 @@ namespace Vroom
 		void run();
 
 		/**
+		 * @brief Closes the Application.
+		*/
+		void close();
+
+		/**
 		 * @brief Gets the last frame time.
 		 * @return The last frame time as float.
 		*/
@@ -55,8 +60,18 @@ namespace Vroom
 		inline sf::RenderWindow& getWindow() { return m_Window; }
 		inline const sf::RenderWindow& getWindow() const { return m_Window; }
 
+		/**
+		 * @brief Sets the current scene to be rendered by the engine.
+		 * The ownership of the scene pointer will be taken by the engine. Just create it with the new keyword and send it as it to the function. You MUST NOT delete it yourself.
+		 * @param scene A pointer to the scene.
+		*/
 		void setScene(Scene* scene);
 
+		/**
+		 * @brief Creates an event. Keys, mouse buttons and callbacks can be bound to the event.
+		 * @see bindEventInput and registerEventCallback.
+		 * @param eventName The name of the event.
+		*/
 		void registerEvent(const std::string& eventName);
 
 		/**
@@ -79,6 +94,13 @@ namespace Vroom
 		 * @param cb The callback to call when the event is detected. It has to accept a boolean as a parameter for wether the button is pressed or not.
 		*/
 		void registerEventCallback(const std::string& eventName, const Event::Callback& cb);
+
+		/**
+		 * @brief Gets the state of an event.
+		 * @param eventName The name of the event.
+		 * @return True if the event is currently triggered, otherwise returns false.
+		*/
+		bool getEventState(const std::string& eventName) const;
 
 	private: // Private methods
 		void manageEvents();
