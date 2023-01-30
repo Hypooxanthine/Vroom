@@ -3,6 +3,7 @@
 #include <string>
 
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/View.hpp>
 #include <entt/entt.hpp>
 
 #include "Vroom/Core/Minimal.h"
@@ -10,7 +11,27 @@
 
 namespace Vroom
 {
-	class NameComponent
+	class Scene;
+	class Entity;
+	
+	class Component
+	{
+		friend Entity;
+		friend Scene;
+	public:
+		Component() = default;
+
+		Scene& getScene() { return *m_Scene; }
+		const Scene& getScene() const { return *m_Scene; }
+
+		Entity getEntity() const;
+
+	private:
+		entt::entity m_Handle = entt::null;
+		Scene* m_Scene = nullptr;
+	};
+
+	class NameComponent : public Component
 	{
 	public:
 		NameComponent(const std::string& name)
@@ -29,7 +50,7 @@ namespace Vroom
 		std::string m_Name;
 	};
 
-	class TransformComponent
+	class TransformComponent : public Component
 	{
 	public:
 		TransformComponent()
@@ -53,8 +74,6 @@ namespace Vroom
 		sf::Vector2f m_Scale = { 1.f, 1.f };
 	};
 
-	class Scene;
-
 	class SpriteComponent : public TransformComponent
 	{
 		friend Scene;
@@ -69,9 +88,25 @@ namespace Vroom
 		std::unique_ptr<Sprite> m_Sprite = std::make_unique<Sprite>();
 	};
 
-	class Entity;
+	class CameraComponent : public TransformComponent
+	{
+		friend Scene;
+	public:
+		CameraComponent();
 
-	class ScriptComponent
+		void setSize(const sf::Vector2f& size);
+		void setSize(float x, float y);
+
+		void activate();
+
+	private: // For internal use
+		void updatePosition();
+
+	private:
+		sf::View m_View;
+	};
+
+	class ScriptComponent : public Component
 	{
 		friend Scene;
 		friend Entity;
@@ -83,17 +118,12 @@ namespace Vroom
 		virtual void onUpdate() {}
 
 	protected:
-		Scene* getScene();
-		const Scene* getScene() const;
-
-		Entity getEntity() const;
+		// Core
 		float getDeltaTime() const;
-		bool getEventState(const std::string& eventName) const;
 		void quitGame() const;
 
-	private:
-		entt::entity m_Handle = entt::null;
-		Scene* m_Scene = nullptr;
+		// Events
+		bool getEventState(const std::string& eventName) const;
 	};
 
 	struct ScriptHandler

@@ -60,6 +60,10 @@ namespace Vroom
 		inline sf::RenderWindow& getWindow() { return m_Window; }
 		inline const sf::RenderWindow& getWindow() const { return m_Window; }
 
+		inline unsigned int getWidth() const { return m_WindowWidth; }
+		inline unsigned int getHeight() const { return m_WindowHeight; }
+		inline sf::Vector2u getWindowSize() const { return { getWidth(), getHeight() }; }
+
 		/**
 		 * @brief Sets the current scene to be rendered by the engine.
 		 * The ownership of the scene pointer will be taken by the engine. Just create it with the new keyword and send it as it to the function. You MUST NOT delete it yourself.

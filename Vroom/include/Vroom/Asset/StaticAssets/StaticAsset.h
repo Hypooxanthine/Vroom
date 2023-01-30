@@ -33,6 +33,7 @@ namespace Vroom
 			return std::unique_ptr<T>(dynamic_cast<T*>(instance));
 		}
 
+		inline size_t getInstancesNb() const{ return m_Instances; }
 		inline bool hasInstances() const { return m_Instances > 0; }
 		inline const std::string& getPath() const { return m_Path; }
 		inline bool isModified() const { return m_Modified; }

@@ -20,7 +20,7 @@ namespace Vroom
 
 	Sprite* SpriteAsset::onInstanciate() const
 	{
-		LOG_TRACE("Instanciating a Sprite : {}.", getPath());
+		LOG_TRACE("Instanciating a Sprite : ({}) {}.", getInstancesNb(), getPath());
 
 		return new Sprite(m_Sprite);
 	}

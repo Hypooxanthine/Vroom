@@ -9,7 +9,7 @@ namespace Vroom
 
 	Texture* TextureAsset::onInstanciate() const
 	{
-		LOG_TRACE("Instanciating a Texture : {}.", getPath());
+		LOG_TRACE("Instanciating a Texture : ({}) {}.", getInstancesNb(), getPath());
 
 		return new Texture(m_Texture);
 	}

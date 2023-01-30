@@ -7,21 +7,6 @@
 
 namespace Vroom
 {
-	Scene* ScriptComponent::getScene()
-	{
-		return m_Scene;
-	}
-
-	const Scene* ScriptComponent::getScene() const
-	{
-		return m_Scene;
-	}
-
-	Entity ScriptComponent::getEntity() const
-	{
-		return m_Scene->getEntity(m_Handle);
-	}
-
 	float ScriptComponent::getDeltaTime() const
 	{
 		return Application::Get().getDeltaTime();
@@ -34,5 +19,44 @@ namespace Vroom
 	void ScriptComponent::quitGame() const
 	{
 		Application::Get().close();
+	}
+
+	CameraComponent::CameraComponent()
+		: TransformComponent()
+	{
+		const auto windowSize = (sf::Vector2f)Application::Get().getWindowSize();
+
+		m_View = sf::View
+		(
+			sf::Vector2f((windowSize.x / 2.f), (windowSize.y / 2.f)),
+			sf::Vector2f((windowSize.x), (windowSize.y))
+		);
+	}
+
+	void CameraComponent::setSize(const sf::Vector2f& size)
+	{
+		m_View.setSize((size.x), (size.y));
+	}
+
+	void CameraComponent::setSize(float x, float y)
+	{
+		setSize({ x, y });
+	}
+
+	void CameraComponent::activate()
+	{
+		getScene().setCamera(*this);
+	}
+
+	void CameraComponent::updatePosition()
+	{
+		const auto& entityTranslation = getEntity().getComponent<TransformComponent>().getTranslation();
+
+		m_View.setCenter((entityTranslation.x), (entityTranslation.y));
+	}
+
+	Entity Component::getEntity() const 
+	{
+		return m_Scene->getEntity(m_Handle);
 	}
 }

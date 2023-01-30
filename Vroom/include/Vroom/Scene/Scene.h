@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SFML/Graphics/View.hpp>
+
 #include <entt/entt.hpp>
 
 #include "Vroom/Asset/AssetManager.h"
@@ -23,6 +25,8 @@ namespace Vroom
 
 		Entity getEntity(entt::entity handle);
 
+		void setCamera(CameraComponent& camera);
+
 	protected: // Protected methods
 
 		inline AssetManager& getAssetManager() { return m_AssetManager; }
@@ -44,5 +48,8 @@ namespace Vroom
 
 		// Assets
 		AssetManager m_AssetManager;
+
+		// Camera
+		sf::View* m_Camera = nullptr;
 	};
 }

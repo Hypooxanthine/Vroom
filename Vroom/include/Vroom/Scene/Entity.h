@@ -19,7 +19,11 @@ namespace Vroom
 		{
 			VR_ASSERT_MSG(!containsComponent<T>(), "Component already exists.");
 
-			return m_Scene->m_Registry.emplace<T>(m_Handle, std::forward<Args>(args)...);
+			T& component = m_Scene->m_Registry.emplace<T>(m_Handle, std::forward<Args>(args)...);
+			component.m_Handle = m_Handle;
+			component.m_Scene = m_Scene;
+
+			return component;
 		}
 
 		template <typename T>
