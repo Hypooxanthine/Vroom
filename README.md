@@ -37,16 +37,17 @@ I plan to add submodules for libraries I use.
 - Events management
     - Events can be created with a string name identifier and a keyboard/mouse event.
     - Callbacks can be linked to events. When an event state is updated (mouse button/key pressed/released), it will trigger all linked callbacks.
+- Chunks rendering system
+    - Sprites are stored in chunks.
+    - Only chunks coliding with the camera will have their entities drawn on the screen.
 
 ## Planned features
 
 - Collision box component.
 - Physics engine (only collisions, maybe physics simulation too).
+    - The chunk rendering system needs to be modified a little bit in order to be used for the collisions system.
 - HUDs implementation.
 - Tilemap component.
-- Camera component.
-- Only render visible sprites (related with the camera component).
-    - Maybe with some chunks manager.
 - Flipbook component (for animations).
 - Flipbook state machine (for flibooks transitions).
 - Network manager with replicated functions (as Unreal Engine does).
@@ -60,10 +61,10 @@ I plan to add submodules for libraries I use.
 
 ## Known problems
 
+- The application crashes in release mode at the end of the execution. This problem is related with the chunks rendering system.
 
 ## To-do list
 
-- Camera component
 - aabb algorithm based physics engine
 - Collision box component
 
