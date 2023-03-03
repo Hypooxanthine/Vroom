@@ -15,6 +15,6 @@ namespace Vroom::Math
 	template <typename T>
 	void Clamp(T& value, const T& min, const T& max)
 	{
-		T = std::move(Clamped(value, min, max));
+		value = std::move(Clamped(value, min, max));
 	}
 }

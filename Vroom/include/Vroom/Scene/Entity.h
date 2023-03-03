@@ -11,7 +11,7 @@ namespace Vroom
 	class Entity
 	{
 	public:
-		Entity() = delete;
+		Entity() = default;
 		Entity(entt::entity id, Scene* scene);
 
 		template <typename T, typename... Args>
@@ -38,6 +38,8 @@ namespace Vroom
 			scriptComponent->m_Handle = m_Handle;
 			scriptComponent->m_Scene = m_Scene;
 
+			scriptComponent->onSpawn();
+
 			return *component;
 		}
 
@@ -49,7 +51,14 @@ namespace Vroom
 		}
 
 		template <typename T>
-		bool containsComponent()
+		const T& getComponent() const
+		{
+			VR_ASSERT_MSG(containsComponent<T>(), "Component does not exist.");
+			return m_Scene->m_Registry.get<T>(m_Handle);
+		}
+
+		template <typename T>
+		bool containsComponent() const
 		{
 			return m_Scene->m_Registry.any_of<T>(m_Handle);
 		}
@@ -59,8 +68,23 @@ namespace Vroom
 		inline Scene* getScene() { return m_Scene; }
 		inline const Scene* getScene() const { return m_Scene; }
 
+		friend bool operator==(const Entity& left, const Entity& right)
+		{
+			return left.m_Handle == right.m_Handle;
+		}
+
+
 	private: // Private members
-		entt::entity m_Handle;
+		entt::entity m_Handle = entt::null;
 		Scene* m_Scene = nullptr;
 	};
 }
+
+template<>
+struct std::hash<Vroom::Entity>
+{
+	std::size_t operator()(const Vroom::Entity& e) const noexcept
+	{
+		return std::hash<entt::entity>()(e.getHandle());
+	}
+};

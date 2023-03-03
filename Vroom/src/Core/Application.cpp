@@ -57,10 +57,10 @@ namespace Vroom
 	void Application::setScene(Scene* scene)
 	{
 		if (m_CurrentScene != nullptr)
-			m_CurrentScene->onSceneUnloaded();
+			m_CurrentScene->end();
 
 		m_CurrentScene = std::unique_ptr<Scene>(scene);
-		m_CurrentScene->onSceneLoaded();
+		m_CurrentScene->init();
 	}
 
 	void Application::registerEvent(const std::string& eventName)

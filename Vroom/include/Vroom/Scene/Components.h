@@ -18,6 +18,7 @@ namespace Vroom
 	{
 		friend Entity;
 		friend Scene;
+		friend class ScriptComponent;
 	public:
 		Component() = default;
 
@@ -61,17 +62,22 @@ namespace Vroom
 		float getRotation() const { return m_Rotation; }
 		const sf::Vector2f& getScale() const { return m_Scale; }
 
-		void setTranslation(const sf::Vector2f& pos) { m_Translation = pos; }
-		void setTranslation(float x, float y) { m_Translation = { x, y }; }
-		void setScale(const sf::Vector2f& scale) { m_Scale = scale; }
-		void setScale(float x, float y) { m_Scale = { x, y }; }
-		void setScale(float xy) { m_Scale = { xy, xy }; }
-		void setRotation(float rotation) { m_Rotation = rotation; }
+		void setTranslation(const sf::Vector2f& pos) { m_Translation = pos; notifyMove(); }
+		void setTranslation(float x, float y) { m_Translation = { x, y }; notifyMove(); }
+		void setScale(const sf::Vector2f& scale) { m_Scale = scale; notifyMove(); }
+		void setScale(float x, float y) { m_Scale = { x, y }; notifyMove(); }
+		void setScale(float xy) { m_Scale = { xy, xy }; notifyMove(); }
+		void setRotation(float rotation) { m_Rotation = rotation; notifyMove(); }
+
+	private:
+		void notifyMove();
 
 	private:
 		sf::Vector2f m_Translation = { 0.f, 0.f };
 		float m_Rotation = 0.f;
 		sf::Vector2f m_Scale = { 1.f, 1.f };
+
+		bool m_HasMoved = false;
 	};
 
 	class SpriteComponent : public TransformComponent
@@ -83,6 +89,7 @@ namespace Vroom
 		{}
 
 		void setSprite(std::unique_ptr<Sprite>&& sprite) { m_Sprite = std::move(sprite); }
+		inline sf::FloatRect getRawBoundingBox() const { return m_Sprite->getSprite().getLocalBounds(); }
 
 	private:
 		std::unique_ptr<Sprite> m_Sprite = std::make_unique<Sprite>();
@@ -104,6 +111,23 @@ namespace Vroom
 
 	private:
 		sf::View m_View;
+	};
+
+	class ColliderComponent : public Component
+	{
+		friend Scene;
+
+	public:
+		ColliderComponent() = default;
+
+		void setPosition(const sf::Vector2f& position);
+		void setSize(const sf::Vector2f& size);
+
+		sf::Vector2f getPosition() const;
+		sf::Vector2f getSize() const;
+
+	private:
+		sf::FloatRect m_Rect;
 	};
 
 	class ScriptComponent : public Component

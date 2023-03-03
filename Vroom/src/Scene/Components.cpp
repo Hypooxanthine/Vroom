@@ -5,8 +5,16 @@
 #include "Vroom/Scene/Scene.h"
 #include "Vroom/Scene/Entity.h"
 
+#include "Vroom/Scene/ChunkManager.h"
+
 namespace Vroom
 {
+	void TransformComponent::notifyMove()
+	{
+		if (getScene().m_RenderChunks == nullptr) return;
+		getScene().m_RenderChunks->refreshEntity(getEntity());
+	}
+
 	float ScriptComponent::getDeltaTime() const
 	{
 		return Application::Get().getDeltaTime();
@@ -58,5 +66,27 @@ namespace Vroom
 	Entity Component::getEntity() const 
 	{
 		return m_Scene->getEntity(m_Handle);
+	}
+
+	void ColliderComponent::setPosition(const sf::Vector2f& position)
+	{
+		m_Rect.left = position.x;
+		m_Rect.top = position.y;
+	}
+
+	void ColliderComponent::setSize(const sf::Vector2f& size)
+	{
+		m_Rect.width = size.x;
+		m_Rect.height = size.y;
+	}
+
+	sf::Vector2f ColliderComponent::getPosition() const
+	{
+		return { m_Rect.left, m_Rect.top };
+	}
+
+	sf::Vector2f ColliderComponent::getSize() const
+	{
+		return { m_Rect.width, m_Rect.height };
 	}
 }
