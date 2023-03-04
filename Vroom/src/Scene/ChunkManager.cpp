@@ -138,6 +138,30 @@ namespace Vroom
 		return out;
 	}
 
+	ChunkPtrSet ChunkManager::getChunksInRange(float startX, float endX, float startY, float endY)
+	{
+		return std::move(
+			getChunksInRange(
+				startX / m_ChunkSizeX, endX / m_ChunkSizeX,
+				startY / m_ChunkSizeY, endY / m_ChunkSizeY
+			)
+		);
+	}
+
+	ChunkPtrSet ChunkManager::getChunksInRange(int startX, int endX, int startY, int endY)
+	{
+		ChunkPtrSet out;
+
+		for (int x = startX; x <= endX; x++)
+		{
+			for (int y = startY; y <= endY; y++)
+			{
+				auto coords = ChunkCoords{ x, y };
+				out.insert(m_Chunks.at(coords).get());
+			}
+		}
+	}
+
 	void ChunkManager::clear()
 	{
 		for (auto& [coord, chunk] : m_Chunks)

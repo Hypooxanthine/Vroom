@@ -20,7 +20,7 @@ I plan to add submodules for libraries I use.
 - [Unreal Engine](https://www.unrealengine.com/)
 - [javidx9 (YouTube)](https://www.youtube.com/channel/UC-yuWVUplUJZvieEligKBkA)
 
-## Implemented features
+## Implemented features (explained)
 
 - Assets manager with fixed size
     - Assets are designated by their on disk adress. Getting an asset only requires its adress.
@@ -40,6 +40,7 @@ I plan to add submodules for libraries I use.
 - Chunks rendering system
     - Sprites are stored in chunks.
     - Only chunks coliding with the camera will have their entities drawn on the screen.
+    - A LayerComponent allows to define a drawing order along the Z axis.
 
 ## Planned features
 
@@ -62,11 +63,6 @@ I plan to add submodules for libraries I use.
 ## Known problems
 
 - The application crashes in release mode at the end of the execution. This problem is related with the chunks rendering system.
-
-## To-do list
-
-- aabb algorithm based physics engine
-- Collision box component
 
 ## About me
 

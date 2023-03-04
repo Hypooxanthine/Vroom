@@ -163,7 +163,18 @@ namespace Vroom
 		auto& window = Application::Get().getWindow();
 		tex.create(window.getSize().x, window.getSize().y, window.getSettings());
 		tex.clear();
+
+#ifdef _DEBUG
+		if (m_ShowCamera)
+		{
+			sf::View debugView(m_Camera->getCenter(), m_Camera->getSize() * 2.f);
+			tex.setView(debugView);
+		}
+		else
+			tex.setView(*m_Camera);
+#else
 		tex.setView(*m_Camera);
+#endif
 
 		// Sprites
 		sf::FloatRect cameraViewport = {
@@ -178,21 +189,28 @@ namespace Vroom
 			cameraViewport.top, cameraViewport.top + cameraViewport.height
 		);
 
-		for (auto& entity : entities)
+		for (auto& [layer, entities] : entities) // For each layer, starting from the smallest
 		{
-			auto& sc = entity.getComponent<SpriteComponent>();
-			auto& tc = entity.getComponent<TransformComponent>();
+			for(auto& entity : entities)
+			{
+				auto& sc = entity.getComponent<SpriteComponent>();
+				auto& tc = entity.getComponent<TransformComponent>();
 
-			sc.m_Sprite->getSprite().setPosition(sc.getTranslation() + tc.getTranslation());
-			sc.m_Sprite->getSprite().setScale(sc.getScale().x * tc.getScale().x, sc.getScale().y * tc.getScale().y);
-			sc.m_Sprite->getSprite().setRotation(sc.getRotation() + tc.getRotation());
+				sc.m_Sprite->getSprite().setPosition(sc.getTranslation() + tc.getTranslation());
+				sc.m_Sprite->getSprite().setScale(sc.getScale().x * tc.getScale().x, sc.getScale().y * tc.getScale().y);
+				sc.m_Sprite->getSprite().setRotation(sc.getRotation() + tc.getRotation());
 
-			tex.draw(sc.m_Sprite->getSprite());
+				tex.draw(sc.m_Sprite->getSprite());
+			}
 		}
 
-		//renderChunksOutline(tex);
-
-		//renderCameraBox(tex, cameraViewport);
+		if (IS_DEBUG())
+		{
+			if (m_ShowChunks)
+				renderChunksOutline(tex);
+			if (m_ShowCamera)
+				renderBox(tex, cameraViewport, sf::Color::Blue);
+		}
 
 		tex.display();
 		sf::Sprite displaySprite;
@@ -204,33 +222,38 @@ namespace Vroom
 
 	void Scene::renderChunksOutline(sf::RenderTarget& target)
 	{
-		sf::RectangleShape shapeHorizontal(sf::Vector2f(m_SceneArea.width, 1.f));
+		sf::RectangleShape shapeHorizontal(sf::Vector2f(m_SceneArea.width, 0.f));
 		shapeHorizontal.setFillColor(sf::Color::Red);
 		shapeHorizontal.setOutlineColor(sf::Color::Red);
-		sf::RectangleShape shapeVertical(sf::Vector2f(1.f, m_SceneArea.height));
+		shapeHorizontal.setOutlineThickness(1.f);
+		sf::RectangleShape shapeVertical(sf::Vector2f(0.f, m_SceneArea.height));
 		shapeVertical.setFillColor(sf::Color::Red);
 		shapeVertical.setOutlineColor(sf::Color::Red);
+		shapeVertical.setOutlineThickness(1.f);
 
 		auto chunksNumber = m_RenderChunks->getChunksNumber();
+		auto chunksSize = m_RenderChunks->getChunkSize();
+		float left = chunksSize.x * (float)m_RenderChunks->getChunksStart().x;
+		float right = chunksSize.y * (float)m_RenderChunks->getChunksStart().y;
 
 		for (int i = 0; i <= chunksNumber.x; i++)
 		{
-			shapeVertical.setPosition(i * m_RenderChunks->getChunkSize().x + m_SceneArea.left, m_SceneArea.top);
+			shapeVertical.setPosition(i * chunksSize.x + left, right);
 			target.draw(shapeVertical);
 		}
 
 		for (int i = 0; i <= chunksNumber.y; i++)
 		{
-			shapeHorizontal.setPosition(m_SceneArea.left, i * m_RenderChunks->getChunkSize().y + m_SceneArea.top);
+			shapeHorizontal.setPosition(left, i * chunksSize.y + right);
 			target.draw(shapeHorizontal);
 		}
 	}
 
-	void Scene::renderCameraBox(sf::RenderTarget& target, const sf::FloatRect& cameraViewport)
+	void Scene::renderBox(sf::RenderTarget& target, const sf::FloatRect& rect, const sf::Color& color)
 	{
-		sf::RectangleShape cameraShape({ cameraViewport.width, cameraViewport.height });
-		cameraShape.setPosition(cameraViewport.left, cameraViewport.top);
-		cameraShape.setOutlineColor(sf::Color::Blue);
+		sf::RectangleShape cameraShape({ rect.width, rect.height });
+		cameraShape.setPosition(rect.left, rect.top);
+		cameraShape.setOutlineColor(color);
 		cameraShape.setOutlineThickness(1.f);
 		cameraShape.setFillColor(sf::Color::Transparent);
 		target.draw(cameraShape);

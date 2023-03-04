@@ -63,13 +63,21 @@ public:
 	MyScene()
 		: Scene({-1500.f, -1500.f, 3000.f, 3000.f })
 	{
+		// For debugging
+		if (IS_DEBUG())
+		{
+			setShowCamera(true);
+			setShowChunks(true);
+		}
+
 		// Player
-		auto player = createEntity();
+		auto player = createEntity("Player");
 		auto& spriteComponent = player.addComponent<Vroom::SpriteComponent>
 			(getAssetManager().getAsset<Vroom::Sprite>("Data/Sprites/SpriteTest.sprite"));
 		spriteComponent.setTranslation(-590.f / 2.f * .2f, -576.f / 2.f * .2f);
 
 		player.addScriptComponent<MyScript>();
+		player.addComponent<Vroom::LayerComponent>(10);
 
 		auto& transformComponent = player.getComponent<Vroom::TransformComponent>();
 		transformComponent.setScale(.2f);
@@ -84,9 +92,10 @@ public:
 		{
 			for (int j = -20; j < 20; j++)
 			{
-				auto topBrick = createEntity();
-				topBrick.addComponent<Vroom::SpriteComponent>(getAssetManager().getAsset<Vroom::Sprite>("Data/Sprites/brick.sprite"));
-				topBrick.getComponent<Vroom::TransformComponent>().setTranslation(64.f * i, 64.f * j);
+				auto brick = createEntity();
+				brick.addComponent<Vroom::SpriteComponent>(getAssetManager().getAsset<Vroom::Sprite>("Data/Sprites/brick.sprite"));
+				brick.getComponent<Vroom::TransformComponent>().setTranslation(64.f * i, 64.f * j);
+				brick.addComponent<Vroom::LayerComponent>(0);
 			}
 		}
 	}

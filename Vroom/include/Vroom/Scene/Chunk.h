@@ -1,24 +1,23 @@
 #pragma once
 
 #include <unordered_set>
+#include <map>
 
 #include <entt/entt.hpp>
 #include "Vroom/Scene/Entity.h"
 
 namespace Vroom
 {
-	using EntitySet = std::unordered_set<Entity>;
+	//using EntitySet = std::unordered_set<Entity>;
+	using EntityLayerSet = std::unordered_set<Entity>;
+	using EntitySet = std::map<int, EntityLayerSet>;
 
 	class Chunk
 	{
 	public:
-		using iterator = EntitySet::iterator;
-		using const_iterator = EntitySet::const_iterator;
-
-	public:
 		Chunk();
 		Chunk(const Chunk&) = delete;
-		Chunk(Chunk&& other);
+		Chunk(Chunk&& other) noexcept;
 
 		void addEntity(const Entity& e);
 		void removeEntity(const Entity& e);
@@ -26,13 +25,10 @@ namespace Vroom
 
 		void fillEntities(EntitySet& set) const;
 
-		iterator begin() { return m_Entities.begin(); }
-		iterator end() { return m_Entities.end(); }
-		const_iterator begin() const { return m_Entities.begin(); }
-		const_iterator end() const { return m_Entities.end(); }
-
 	private:
 		EntitySet m_Entities;
+		std::unordered_map<int, int> m_EntitiesPerLayer;
+		std::unordered_map<Entity, int> m_EntityLayers;
 	};
 
 }

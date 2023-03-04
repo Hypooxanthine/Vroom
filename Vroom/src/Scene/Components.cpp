@@ -89,4 +89,10 @@ namespace Vroom
 	{
 		return { m_Rect.width, m_Rect.height };
 	}
+
+	void LayerComponent::setLayer(int l)
+	{
+		m_Layer = l;
+		getScene().m_RenderChunks->refreshEntity(getEntity());
+	}
 }

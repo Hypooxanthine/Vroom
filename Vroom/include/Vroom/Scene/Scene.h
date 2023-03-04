@@ -7,6 +7,11 @@
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Scene/Components.h"
 
+#ifndef _DEBUG
+#define setShowChunks(x)  
+#define setShowCamera(x)  
+#endif
+
 namespace Vroom
 {
 	class Entity;
@@ -17,6 +22,7 @@ namespace Vroom
 		friend class Application;
 		friend Entity;
 		friend TransformComponent;
+		friend LayerComponent;
 
 	public: // Public methods
 		Scene(const sf::FloatRect& sceneArea = {-10000, -10000, 20000, 20000});
@@ -36,6 +42,15 @@ namespace Vroom
 
 		void setCamera(CameraComponent& camera);
 
+	// Debug
+#ifdef _DEBUG
+	public:
+		inline bool getShowChunks() const { return m_ShowChunks; }
+		inline bool getShowCamera() const { return m_ShowCamera; }
+		inline void setShowChunks(bool val) { m_ShowChunks = val; }
+		inline void setShowCamera(bool val) { m_ShowCamera = val; }
+#endif
+
 	protected: // Protected methods
 
 		inline AssetManager& getAssetManager() { return m_AssetManager; }
@@ -50,7 +65,7 @@ namespace Vroom
 	private: // Private methids
 		void setupRenderChunks();
 		void renderChunksOutline(sf::RenderTarget& target);
-		void renderCameraBox(sf::RenderTarget& target, const sf::FloatRect& cameraViewport);
+		void renderBox(sf::RenderTarget& target, const sf::FloatRect& rect, const sf::Color& color);
 
 	private: // Private methods called by the Application
 		void render();
@@ -72,5 +87,11 @@ namespace Vroom
 
 		// Camera
 		sf::View* m_Camera = nullptr;
+
+		// Debug
+#ifdef _DEBUG
+		bool m_ShowChunks = false;
+		bool m_ShowCamera = false;
+#endif
 	};
 }

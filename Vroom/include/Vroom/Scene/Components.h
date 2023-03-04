@@ -55,7 +55,7 @@ namespace Vroom
 	{
 	public:
 		TransformComponent()
-			: m_Rotation(0.f), m_Scale(1.f, 1.f)
+			: Component(), m_Rotation(0.f), m_Scale(1.f, 1.f)
 		{}
 
 		const sf::Vector2f& getTranslation() const { return m_Translation; }
@@ -78,6 +78,20 @@ namespace Vroom
 		sf::Vector2f m_Scale = { 1.f, 1.f };
 
 		bool m_HasMoved = false;
+	};
+
+	class LayerComponent : public Component
+	{
+	public:
+		LayerComponent(int layer = 0)
+			: Component(), m_Layer(layer)
+		{}
+
+		inline int getLayer() const { return m_Layer; }
+		void setLayer(int l);
+
+	private:
+		int m_Layer;
 	};
 
 	class SpriteComponent : public TransformComponent

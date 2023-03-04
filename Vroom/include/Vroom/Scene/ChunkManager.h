@@ -45,6 +45,8 @@ namespace Vroom
 
 		inline sf::Vector2f getChunkSize() const { return { m_ChunkSizeX, m_ChunkSizeY }; }
 		inline sf::Vector2i getChunksNumber() const { return { m_ChunkEndX - m_ChunkStartX, m_ChunkEndY - m_ChunkStartY }; }
+		inline sf::Vector2i getChunksStart() const { return sf::Vector2i{ m_ChunkStartX, m_ChunkStartY }; }
+		inline sf::Vector2i getChunksEnd() const { return sf::Vector2i{ m_ChunkEndX, m_ChunkEndY }; }
 
 		void addEntityBySprite(const Entity& e);
 
@@ -62,6 +64,9 @@ namespace Vroom
 		void getChunksContainingField(float startX, float endX, float startY, float endY, ConstChunkPtrSet& list) const;
 		ChunkPtrSet getChunksContainingField(float startX, float endX, float startY, float endY);
 		ConstChunkPtrSet getChunksContainingField(float startX, float endX, float startY, float endY) const;
+
+		ChunkPtrSet getChunksInRange(float startX, float endX, float startY, float endY);
+		ChunkPtrSet getChunksInRange(int startX, int endX, int startY, int endY);
 
 		void clear();
 
