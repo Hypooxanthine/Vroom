@@ -63,9 +63,3 @@ I plan to add submodules for libraries I use.
 ## Known problems
 
 - The application crashes in release mode at the end of the execution. This problem is related with the chunks rendering system.
-
-## About me
-
-I'm a 24 years old third year computer sciences student living in Dijon, France. I'm interested in rendering, software engineering, maths and game engines, that's why I'm working on this side project. For now, I am using SFML instead of designing my own rendering library, just because I am currently not in a rendering mood. No doubt it would be cool to design my own 2D renderer.
-
-I do not intend to make this engine a reference in the video game industry, I just want to have fun making it. Maybe someday I'll use it in a game jam, or maybe in one of my university assignments. It could be a great goal to be able to use it these ways.
