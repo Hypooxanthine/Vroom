@@ -37,7 +37,7 @@ void Application::run()
     while (!m_Window->requestedClose())
     {
         Event e;
-        m_Window->pollEvent(e);
+        e = m_Window->pollEvent();
 
         m_Window->swapBuffers();
     }
