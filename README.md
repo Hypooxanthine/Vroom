@@ -2,6 +2,7 @@
 # Vroom
 
 Vroom is a 2D game engine made with SFML. It is a personal project I'm doing for fun a to improve myself as a C++ developer.
+This project has been reset. Please check branch V2 (now using CMake and building my own renderer).
 
 ## Building project
 
