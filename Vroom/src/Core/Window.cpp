@@ -94,6 +94,18 @@ Event Window::pollEvent()
     return e;
 }
 
+bool Window::isKeyPressed(const KeyCode& code) const
+{
+    int GLFWCode = GLFWEventsConverter::GetGLFWFromKeyCode(code);
+    return glfwGetKey(m_Handle, GLFWCode) == GLFW_PRESS ? true : false;
+}
+
+bool Window::isMousePressed(const MouseCode& code) const
+{
+    int GLFWCode = GLFWEventsConverter::GetGLFWFromMouseCode(code);
+    return glfwGetMouseButton(m_Handle, GLFWCode) == GLFW_PRESS ? true : false;
+}
+
 void Window::swapBuffers()
 {
     glfwSwapBuffers(m_Handle);

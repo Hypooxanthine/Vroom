@@ -66,6 +66,7 @@ void Application::run()
             }
 
             LOG_TRACE("Triggered event of type {}.", type);
+
         }
 
         m_Window->swapBuffers();

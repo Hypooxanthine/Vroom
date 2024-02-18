@@ -76,6 +76,20 @@ public:
     Event pollEvent();
 
     /**
+     * @brief Check if a key is currently pressed.
+     * @param code Key to be checked.
+     * @return True if pressed. False otherwise.
+     */
+    bool isKeyPressed(const KeyCode& code) const;
+
+    /**
+     * @brief Check if a mouse button is currently pressed.
+     * @param code Mouse button to be checked.
+     * @return True if pressed. False otherwise.
+     */
+    bool isMousePressed(const MouseCode& code) const;
+
+    /**
      * @brief Displays on the window everything that has been drawn since the last buffer swapping.
      */
     void swapBuffers();
