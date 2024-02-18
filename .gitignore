@@ -46,4 +46,4 @@ out/*
 
 # Exceptions
 !dependencies/
-!dependencies/*
+!dependencies/**
