@@ -24,7 +24,7 @@ public:
      * @param argc Command line argc.
      * @param argv Command line argv.
      */
-    Application(int argc, char** argv) noexcept;
+    Application(int argc, char** argv);
     ~Application();
 
     Application() = delete;

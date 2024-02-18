@@ -20,7 +20,7 @@ public:
     /**
      * @brief Constructs an empty Window object. Call Window::create() for opening it.
      */
-    Window() noexcept;
+    Window();
 
     /**
      * @brief Constructs a Window object and opens it.
@@ -28,7 +28,7 @@ public:
      * @param width Width of the window (in pixels).
      * @param height Height of the window (in pixels).
      */
-    Window(const std::string& windowTitle, uint32_t width, uint32_t height) noexcept;
+    Window(const std::string& windowTitle, uint32_t width, uint32_t height);
 
     /**
      * @brief Destroys the window instance in the operating system.
@@ -49,6 +49,11 @@ public:
      * @return True if requested. False otherwise.
      */
     bool requestedClose() const;
+
+    /**
+     * @brief Request window closing.
+     */
+    void requestClose();
 
     /**
      * @brief Starts a new frame for events. It will reset the events queue and get all triggered events since the last call of this function.

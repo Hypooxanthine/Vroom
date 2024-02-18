@@ -1,13 +1,15 @@
 #include "Vroom/Core/Application.h"
 
 #include "Vroom/Core/Assert.h"
+#include "Vroom/Event/GLFWEventsConverter.h"
 
 namespace vrm
 {
 
-Application::Application(int argc, char** argv) noexcept
+Application::Application(int argc, char** argv)
 {
     Log::Init();
+    GLFWEventsConverter::Init();
 
     VRM_ASSERT(initGLFW());
     m_Window = std::make_unique<Window>("Vroom engine", 600, 400);

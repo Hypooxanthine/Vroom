@@ -6,7 +6,7 @@
 /**
  * @brief Request application crash with no message.
  */
-#define VRM_CRASH_NO_MSG() std::exit(EXIT_FAILURE)
+#define VRM_CRASH_NO_MSG() throw std::runtime_error("Application crash has been requested.")
 
 /**
  * @brief Request application crash. Displays a critical log with file and line where crash has been requested.

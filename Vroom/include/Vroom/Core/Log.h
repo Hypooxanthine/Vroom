@@ -1,8 +1,6 @@
 #pragma once
 
-#pragma warning(push, 0)
 #include <spdlog/spdlog.h>
-#pragma warning(pop)
 
 /**
  * @brief Static class for logging. Needs to be initialized before calling logging macros.

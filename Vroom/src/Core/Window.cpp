@@ -27,12 +27,12 @@ void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     ACTIVE_WINDOW->scrollCallback(window, xoffset, yoffset);
 }
 
-Window::Window() noexcept
+Window::Window()
 {
 
 }
 
-Window::Window(const std::string& windowTitle, uint32_t width, uint32_t height) noexcept
+Window::Window(const std::string& windowTitle, uint32_t width, uint32_t height)
 {
     create(windowTitle, width, height);
 }
@@ -65,6 +65,11 @@ bool Window::create(const std::string& windowTitle, uint32_t width, uint32_t hei
 bool Window::requestedClose() const
 {
     return glfwWindowShouldClose(m_Handle) != 0;
+}
+
+void Window::requestClose()
+{
+    glfwSetWindowShouldClose(m_Handle, true);
 }
 
 void Window::updateEvents()
