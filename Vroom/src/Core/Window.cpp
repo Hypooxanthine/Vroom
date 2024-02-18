@@ -2,6 +2,8 @@
 
 #include "Vroom/Core/Assert.h"
 
+#include "Vroom/Event/GLFWEventsConverter.h"
+
 namespace vrm
 {
 
@@ -65,11 +67,26 @@ bool Window::requestedClose() const
     return glfwWindowShouldClose(m_Handle) != 0;
 }
 
+void Window::updateEvents()
+{
+    // Clearing the queue
+    std::queue<Event> empty;
+    std::swap(m_EventQueue, empty);
+
+    glfwPollEvents();
+}
+
+bool Window::hasPendingEvents() const
+{
+    return !m_EventQueue.empty();
+}
+
 Event Window::pollEvent()
 {
-    glfwPollEvents();
+    Event e = m_EventQueue.front();
+    m_EventQueue.pop();
 
-    return Event();
+    return e;
 }
 
 void Window::swapBuffers()
@@ -79,17 +96,38 @@ void Window::swapBuffers()
 
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    LOG_TRACE("Window::keyCallback called.");
+    Event e;
+    e.keyCode = GLFWEventsConverter::GetKeyCodeFromGLFW(key);
+    e.keyEvent = true;
+    if (action == GLFW_PRESS || action == GLFW_REPEAT)
+        e.keyPressed = true;
+    else
+        e.keyReleased = true;
+
+    m_EventQueue.push(e);
 }
 
 void Window::mouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
-    LOG_TRACE("Window::mouseCallback called.");
+    Event e;
+    e.mouseCode = GLFWEventsConverter::GetMouseCodeFromGLFW(button);
+    e.mouseEvent = true;
+    if (action == GLFW_PRESS)
+        e.mouseButtonPressed = true;
+    else
+        e.mouseButtonReleased = true;
+
+    m_EventQueue.push(e);
 }
 
 void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    LOG_TRACE("Window::scrollCallback called.");
+    Event e;
+    e.scrollEvent = true;
+    e.scrollX = xoffset;
+    e.scrollY = yoffset;
+
+    m_EventQueue.push(e);
 }
 
 } // namespace vrm

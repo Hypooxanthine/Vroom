@@ -36,8 +36,35 @@ void Application::run()
 {
     while (!m_Window->requestedClose())
     {
-        Event e;
-        e = m_Window->pollEvent();
+        m_Window->updateEvents();
+        while (m_Window->hasPendingEvents())
+        {
+            Event e = m_Window->pollEvent();
+
+            std::string type;
+            if (e.keyEvent)
+            {
+                type = "KeyEvent";
+                if (e.keyPressed)
+                    type += " - pressed";
+                else
+                    type += " - released";
+            }
+            if (e.mouseEvent)
+            {
+                type = "MouseEvent";
+                if (e.mouseButtonPressed)
+                    type += " - pressed";
+                else
+                    type += " - released";
+            }
+            if (e.scrollEvent)
+            {
+                type = "ScrollEvent - x:" + std::to_string(e.scrollX) + ", y:" + std::to_string(e.scrollY);
+            }
+
+            LOG_TRACE("Triggered event of type {}.", type);
+        }
 
         m_Window->swapBuffers();
     }

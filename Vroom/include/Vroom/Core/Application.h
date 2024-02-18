@@ -3,8 +3,6 @@
 #include <memory>
 
 #include <GL/glew.h>
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
 
 #include "Vroom/Core/Window.h"
 
