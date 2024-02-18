@@ -41,19 +41,9 @@
 *.sln
 
 # Output folders
-x64/
-x64/*
-Vroom/bin/
-Vroom/bin/*
-Vroom/Intermediate/
-Vroom/Intermediate/*
-Sandbox/x64/
-Sandbox/x64/*
+out/
+out/*
 
-# Sandbox assets
-Sandbox/Data/
-Sandbox/Data/*
-
-# External libraries
-extlibs/
-extlibs/*
+# Exceptions
+!dependencies/
+!dependencies/*

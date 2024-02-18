@@ -1,15 +1,26 @@
 #pragma once
 
-#include "Vroom/Core/Platform.h"
 #include "Vroom/Core/Log.h"
-#include <iostream>
+#include <filesystem>
 
-#ifdef VR_PLATFORM_WINDOWS
-	#define VR_DEBUGBREAK __debugbreak()
-#elif defined(VR_PLATFORM_LINUX)
-	#include <signal.h>
-	#define VR_DEBUGBREAK raise(SIGTRAP)
-#endif
+/**
+ * @brief Request application crash with no message.
+ */
+#define VRM_CRASH_NO_MSG() std::exit(EXIT_FAILURE)
 
-#define VR_ASSERT(check) if(!(check)) VR_DEBUGBREAK;
-#define VR_ASSERT_MSG(check, ...) if(!(check)) { LOG_ERROR(std::string("Assertion failed : ") + __VA_ARGS__); VR_DEBUGBREAK; }
+/**
+ * @brief Request application crash. Displays a critical log with file and line where crash has been requested.
+ */
+#define VRM_CRASH() \
+    LOG_CRITICAL("Application crash has been requested at file {}, line {}.", std::filesystem::path(__FILE__).filename().string(), __LINE__); \
+    VRM_CRASH_NO_MSG()
+
+/** 
+ * @brief Vroom assertion with critical log if failed and application crash.
+ */
+#define VRM_ASSERT(x) \
+    if(!(x)) \
+    { \
+        LOG_CRITICAL("Assertion \"{}\" failed at file {}, line {}.", #x, std::filesystem::path(__FILE__).filename().string(), __LINE__); \
+        VRM_CRASH_NO_MSG(); \
+    }

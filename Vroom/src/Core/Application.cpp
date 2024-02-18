@@ -1,120 +1,46 @@
 #include "Vroom/Core/Application.h"
 
-#include "Vroom/Scene/Scene.h"
+#include "Vroom/Core/Assert.h"
 
-namespace Vroom
+namespace vrm
 {
-	Application* Application::s_Instance = nullptr;
 
-	Application::Application(unsigned int width, unsigned int height, const std::string& title)
-		: m_WindowWidth(width), m_WindowHeight(height), m_WindowTitle(title),
-		m_SFMLEvent(sf::Event()),
-		m_DeltaTime(0.f)
-	{
-		VR_ASSERT_MSG(s_Instance == nullptr, "Application class can't be instanciated twice.");
+Application::Application(int argc, char** argv) noexcept
+{
+    Log::Init();
 
-		s_Instance = this;
+    VRM_ASSERT(initGLFW());
+    m_Window = std::make_unique<Window>("Vroom engine", 600, 400);
 
-		Log::init();
-	}
+    VRM_ASSERT(glewInit() == GLEW_OK);
 
-	Application::Application()
-		: Application(300, 300, "Vroom application")
-	{}
-
-	Application::~Application()
-	{
-	}
-
-	Application& Application::Get()
-	{
-		return *s_Instance;
-	}
-
-	void Application::run()
-	{
-		VR_ASSERT_MSG(!m_Window.isOpen(), "Application is already running.");
-		VR_ASSERT_MSG(m_CurrentScene != nullptr, "Can't run the Application with no scene.");
-
-		m_Window.create(sf::VideoMode(m_WindowWidth, m_WindowHeight), m_WindowTitle, sf::Style::Close |sf::Style::Titlebar);
-
-		m_DtClock.restart();
-
-		while (m_Window.isOpen())
-		{
-			manageEvents();
-			update();
-			render();
-			updateDeltaTime();
-		}
-	}
-
-	void Application::close()
-	{
-		m_Window.close();
-	}
-
-	void Application::setScene(Scene* scene)
-	{
-		if (m_CurrentScene != nullptr)
-			m_CurrentScene->end();
-
-		m_CurrentScene = std::unique_ptr<Scene>(scene);
-		m_CurrentScene->init();
-	}
-
-	void Application::registerEvent(const std::string& eventName)
-	{
-		m_EventManager.createEvent(eventName);
-	}
-
-	void Application::bindEventInput(const std::string& eventName, sf::Keyboard::Key key)
-	{
-		m_EventManager.bindInput(eventName, key);
-	}
-
-	void Application::bindEventInput(const std::string& eventName, sf::Mouse::Button button)
-	{
-		m_EventManager.bindInput(eventName, button);
-	}
-
-	void Application::registerEventCallback(const std::string& eventName, const Event::Callback& cb)
-	{
-		m_EventManager.bindCallback(eventName, cb);
-	}
-
-	bool Application::getEventState(const std::string& eventName) const
-	{
-		return m_EventManager.getEventState(eventName);
-	}
-
-	void Application::manageEvents()
-	{
-		while (m_Window.pollEvent(m_SFMLEvent))
-		{
-			if (m_SFMLEvent.type == sf::Event::Closed)
-				close();
-
-			m_EventManager.check(m_SFMLEvent);
-		}
-	}
-
-	void Application::update()
-	{
-		m_CurrentScene->update();
-	}
-
-	void Application::render()
-	{
-		m_Window.clear();
-
-		m_CurrentScene->render();
-
-		m_Window.display();
-	}
-
-	void Application::updateDeltaTime()
-	{
-		m_DeltaTime = m_DtClock.restart().asSeconds();
-	}
+    LOG_TRACE("Vroom application created.");
 }
+
+Application::~Application()
+{
+    glfwTerminate();
+}
+
+bool Application::initGLFW()
+{
+    if (!glfwInit()) return false;
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+
+    return true;
+}
+
+void Application::run()
+{
+    while (!m_Window->requestedClose())
+    {
+        Event e;
+        m_Window->pollEvent(e);
+
+        m_Window->swapBuffers();
+    }
+}
+
+} // namespace vrm

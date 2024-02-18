@@ -1,41 +1,51 @@
-/*
-This logging system is widely inspired by TheCherno's "Hazel" game engine : https://github.com/TheCherno/Hazel .
-Thanks to him for this powerful logging class.
-*/
-
 #pragma once
 
+#pragma warning(push, 0)
 #include <spdlog/spdlog.h>
+#pragma warning(pop)
 
-#include <memory>
-
-namespace Vroom
+/**
+ * @brief Static class for logging. Needs to be initialized before calling logging macros.
+ */
+class Log
 {
-	class Log
-	{
-	public:
-		// Static class : we can delete constructor
-		Log() = delete;
+public:
+    /**
+     * @brief Sets logging level and display pattern.
+     */
+    static void Init()
+    {
+        spdlog::set_level(spdlog::level::level_enum::trace);
+        spdlog::set_pattern("[%H:%M:%S] %^[%l] %v%$");
+    }
+};
 
-	public:
-		static void init();
+/**
+ * @brief Trace level logging.
+ * Calling Log::Init() is required before usage.
+ */
+#define LOG_TRACE(...) spdlog::trace(__VA_ARGS__)
 
-		static spdlog::logger& getLogger() { return *s_Logger; }
-	private:
-		static std::shared_ptr<spdlog::logger> s_Logger;
-	};
-}
+ /**
+  * @brief Info level logging.
+  * Calling Log::Init() is required before usage.
+  */
+#define LOG_INFO(...) spdlog::info(__VA_ARGS__)
 
+ /**
+  * @brief Warning level logging.
+  * Calling Log::Init() is required before usage.
+  */
+#define LOG_WARN(...) spdlog::warn(__VA_ARGS__)
 
-/* Logging macros */
-#ifdef _DEBUG
-#define LOG_TRACE(...)    Vroom::Log::getLogger().trace(__VA_ARGS__)
-#define LOG_INFO(...)     Vroom::Log::getLogger().info(__VA_ARGS__)
-#define LOG_WARN(...)     Vroom::Log::getLogger().warn(__VA_ARGS__)
-#define LOG_ERROR(...)    Vroom::Log::getLogger().error(__VA_ARGS__)
-#else
-#define LOG_TRACE(...)
-#define LOG_INFO(...)
-#define LOG_WARN(...)
-#define LOG_ERROR(...)
-#endif
+ /**
+  * @brief Error level logging.
+  * Calling Log::Init() is required before usage.
+  */
+#define LOG_ERROR(...) spdlog::error(__VA_ARGS__)
+
+ /**
+  * @brief Critical level logging.
+  * Calling Log::Init() is required before usage.
+  */
+#define LOG_CRITICAL(...) spdlog::critical(__VA_ARGS__)
