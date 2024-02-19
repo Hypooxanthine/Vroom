@@ -14,7 +14,7 @@ static std::string LoadShader(const std::string& path)
 {
     std::ifstream ifs(path);
 
-    if (!ifs.is_open()) VRM_CRASH();
+    VRM_ASSERT(ifs.is_open());
 
     std::string out;
     
@@ -124,8 +124,7 @@ unsigned int Shader::compileShader(unsigned int type, const std::string& source)
         GLCall(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length));
         char* message = (char*)alloca(length * sizeof(char));
         GLCall(glGetShaderInfoLog(id, length, &length, message));
-        std::cout << "Failed to compiler " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader!" << std::endl;
-        std::cout << message << std::endl;
+        LOG_CRITICAL("Failed to compile {} shader: {}", (type == GL_VERTEX_SHADER ? "vertex" : "fragment"), message);
         GLCall(glDeleteShader(id));
         return 0;
     }

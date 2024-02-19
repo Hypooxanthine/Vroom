@@ -54,13 +54,7 @@ public:
 	void setViewportOrigin(const glm::vec<2, unsigned int>& o);
 	void setViewportSize(const glm::vec<2, unsigned int>& s);
 
-	inline unsigned int getRenderTextureID() const { return m_RenderTexture; }
-
 private:
 	glm::vec<2, unsigned int> m_ViewportOrigin = { 0, 0 };
 	glm::vec<2, unsigned int> m_ViewportSize = { 0, 0 };
-	
-	// For drawing onto a texture
-    unsigned int m_RenderTexture;
-	unsigned int m_Fbo, m_Rbo;
 };

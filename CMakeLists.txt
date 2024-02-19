@@ -45,4 +45,5 @@ project ("Vroom")
 
 add_subdirectory ("Vroom")
 set(VROOM ${ROOT}/Vroom/)
+set(RESOURCES ${ROOT}/Resources/)
 add_subdirectory("Sandbox")

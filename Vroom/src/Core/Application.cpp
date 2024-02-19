@@ -19,7 +19,7 @@ Application::Application(int argc, char** argv)
     VRM_ASSERT(glewInit() == GLEW_OK);
 
     m_Renderer = std::make_unique<Renderer>();
-    m_Renderer->setViewport({ 0, 0 }, { 800, 800 });
+    m_Renderer->setViewport({ 0, 0 }, { 600, 400 });
 
     LOG_TRACE("Vroom application created.");
 }
@@ -70,7 +70,6 @@ void Application::update()
 void Application::draw()
 {
     m_Renderer->beginScene();
-
 
     m_Renderer->endScene();
     m_Window->swapBuffers();

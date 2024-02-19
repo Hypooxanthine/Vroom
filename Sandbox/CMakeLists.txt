@@ -24,3 +24,9 @@ add_executable(Sandbox ${SOURCES})
 target_link_libraries(Sandbox
     Vroom
 )
+
+add_custom_target(
+    TARGET Sandbox POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+    ${RESOURCES} $<TARGET_FILE_DIR:Sandbox>/Resources/
+)
