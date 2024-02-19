@@ -61,7 +61,7 @@ void Application::update()
 
         if (e.keyEvent) type = "Key event";
         else if (e.mouseEvent) type = "Mouse event";
-        else if (e.scrollEvent) type = "Scroll event";
+        else if (e.scrollEvent) type = "Scroll event (" + std::to_string(e.scrollY) + ")";
 
         LOG_TRACE("{} triggered.", type);
     }
