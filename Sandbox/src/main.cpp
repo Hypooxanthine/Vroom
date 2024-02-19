@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include <Vroom/Core/Application.h>
-#include <Vroom/Core/Log.h>
 
 int main(int argc, char** argv)
 {

@@ -19,6 +19,7 @@ Application::Application(int argc, char** argv)
     VRM_ASSERT(glewInit() == GLEW_OK);
 
     m_Renderer = std::make_unique<Renderer>();
+    m_Renderer->setViewport({ 0, 0 }, { 800, 800 });
 
     LOG_TRACE("Vroom application created.");
 }
@@ -35,7 +36,7 @@ bool Application::initGLFW()
     if (!glfwInit()) return false;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 
     return true;
 }
@@ -44,44 +45,26 @@ void Application::run()
 {
     while (!m_Window->requestedClose())
     {
-        m_Window->updateEvents();
-        while (m_Window->hasPendingEvents())
-        {
-            Event e = m_Window->pollEvent();
-
-            std::string type;
-            if (e.keyEvent)
-            {
-                type = "KeyEvent";
-                if (e.keyPressed)
-                    type += " - pressed";
-                else
-                    type += " - released";
-            }
-            if (e.mouseEvent)
-            {
-                type = "MouseEvent";
-                if (e.mouseButtonPressed)
-                    type += " - pressed";
-                else
-                    type += " - released";
-            }
-            if (e.scrollEvent)
-            {
-                type = "ScrollEvent - x:" + std::to_string(e.scrollX) + ", y:" + std::to_string(e.scrollY);
-            }
-
-            LOG_TRACE("Triggered event of type {}.", type);
-
-        }
-
-        m_Window->swapBuffers();
+        update();
+        draw();
     }
 }
 
 void Application::update()
 {
     m_Window->updateEvents();
+    while (m_Window->hasPendingEvents())
+    {
+        Event e = m_Window->pollEvent();
+
+        std::string type;
+
+        if (e.keyEvent) type = "Key event";
+        else if (e.mouseEvent) type = "Mouse event";
+        else if (e.scrollEvent) type = "Scroll event";
+
+        LOG_TRACE("{} triggered.", type);
+    }
 }
 
 void Application::draw()
