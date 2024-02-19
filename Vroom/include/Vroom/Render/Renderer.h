@@ -15,7 +15,14 @@
 class Renderer
 {
 public:
+	/**
+	 * @brief Initializes OpenGl settings for the engine.
+	 */
 	Renderer();
+
+	/**
+	 * @brief Releases GPU memory.
+	 */
 	~Renderer();
 
 	/**
@@ -48,10 +55,29 @@ public:
 	 */
 	void drawPoints(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const;
 
+	/**
+	 * @brief Gets the viewport size.
+	 * @return The viewport size.
+	 */
 	const glm::vec<2, unsigned int>& getViewportSize() const;
 
+	/**
+	 * @brief Sets viewport settings.
+	 * @param o New viewport origin.
+	 * @param s New viewport size.
+	 */
 	void setViewport(const glm::vec<2, unsigned int>& o, const glm::vec<2, unsigned int>& s);
+
+	/**
+	 * @brief Sets viewport origin.
+	 * @param o New viewport origin.
+	 */
 	void setViewportOrigin(const glm::vec<2, unsigned int>& o);
+
+	/**
+	 * @brief Sets viewport size.
+	 * @param s New viewport size.
+	 */
 	void setViewportSize(const glm::vec<2, unsigned int>& s);
 
 private:

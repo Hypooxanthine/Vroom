@@ -3,6 +3,9 @@
 #include <vector>
 #include "Vroom/Render/Abstraction/GLCall.h"
 
+/**
+ * @brief Stores a single vertex element in layout : type of element variable, variables count, normalized or not.
+ */
 struct VertexBufferElement
 {
 	unsigned int type;
@@ -26,30 +29,53 @@ struct VertexBufferElement
 class VertexBufferLayout
 {
 public:
+	
+	/**
+	 * @brief Constructs an empty VertexBufferLayout object.
+	 */
 	VertexBufferLayout()
 		: m_Stride(0)
 	{}
 
+	/**
+	 * @brief Does nothing.
+	 */
 	virtual ~VertexBufferLayout();
 
+	/**
+	 * @brief Registers a float element to the layout.
+	 * @param count Number of floats of the element.
+	 */
 	void pushFloat(unsigned int count)
 	{
 		m_Elements.push_back({ GL_FLOAT, count, GL_FALSE });
 		m_Stride += VertexBufferElement::GetSizeOfType(GL_FLOAT) * count;
 	}
 
+	/**
+	 * @brief Registers an unsigned int element to the layout.
+	 * @param count Number of unsigned ints of the element.
+	 */
 	void pushUInt(unsigned int count)
 	{
 		m_Elements.push_back({ GL_UNSIGNED_INT, count, GL_FALSE });
 		m_Stride += VertexBufferElement::GetSizeOfType(GL_UNSIGNED_INT) * count;
 	}
 
+	/**
+	 * @brief Registers an unsigned char element to the layout.
+	 * @param count Number of unsigned chars of the element.
+	 */
 	void pushUChar(unsigned int count)
 	{
 		m_Elements.push_back({ GL_UNSIGNED_BYTE, count, GL_TRUE });
 		m_Stride += VertexBufferElement::GetSizeOfType(GL_UNSIGNED_BYTE) * count;
 	}
 
+	/**
+	 * @brief Gets the ordered list of elements of this layout.
+	 * @return The list of elements.
+	 */
 	inline const std::vector<VertexBufferElement>& getElements() const { return m_Elements; }
 	inline unsigned int getStride() const { return m_Stride; }
 
