@@ -12,16 +12,22 @@ Application::Application(int argc, char** argv)
     GLFWEventsConverter::Init();
 
     VRM_ASSERT(initGLFW());
-    m_Window = std::make_unique<Window>("Vroom engine", 600, 400);
+    m_Window = std::make_unique<Window>();
+    VRM_ASSERT(m_Window->create("Vroom engine", 600, 400));
 
+    glewExperimental = TRUE;
     VRM_ASSERT(glewInit() == GLEW_OK);
+
+    m_Renderer = std::make_unique<Renderer>();
 
     LOG_TRACE("Vroom application created.");
 }
 
 Application::~Application()
 {
+    m_Window.release();
     glfwTerminate();
+    m_Renderer.release();
 }
 
 bool Application::initGLFW()
@@ -71,6 +77,20 @@ void Application::run()
 
         m_Window->swapBuffers();
     }
+}
+
+void Application::update()
+{
+    m_Window->updateEvents();
+}
+
+void Application::draw()
+{
+    m_Renderer->beginScene();
+
+
+    m_Renderer->endScene();
+    m_Window->swapBuffers();
 }
 
 } // namespace vrm

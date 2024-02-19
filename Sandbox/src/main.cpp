@@ -9,5 +9,7 @@ int main(int argc, char** argv)
 	
 	app->run();
 
+	app.release();
+
 	return 0;
 }

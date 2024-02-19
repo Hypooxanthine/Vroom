@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 
 #include "Vroom/Core/Window.h"
+#include "Vroom/Render/Renderer.h"
 
 namespace vrm
 {
@@ -45,8 +46,13 @@ private:
      */
     bool initGLFW();
 
+    void update();
+
+    void draw();
+
 private:
     std::unique_ptr<Window> m_Window = nullptr;
+    std::unique_ptr<Renderer> m_Renderer = nullptr;
 };
 
 } // namespace vrm

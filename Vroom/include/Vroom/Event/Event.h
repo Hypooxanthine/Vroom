@@ -16,8 +16,8 @@ struct Event
     bool mouseButtonReleased = false;
 
     bool scrollEvent = false;
-    int scrollY = 0;
-    int scrollX = 0;
+    double scrollY = 0;
+    double scrollX = 0;
 
     KeyCode keyCode = KeyCode::None;
     MouseCode mouseCode = MouseCode::None;
