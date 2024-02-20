@@ -77,6 +77,11 @@ public:
 	 * @return The list of elements.
 	 */
 	inline const std::vector<VertexBufferElement>& getElements() const { return m_Elements; }
+
+	/**
+	 * @brief Gets the stride of this layout.
+	 * @return The stride of this layout.
+	 */
 	inline unsigned int getStride() const { return m_Stride; }
 
 private:
