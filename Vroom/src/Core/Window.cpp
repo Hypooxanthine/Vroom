@@ -45,12 +45,15 @@ Window::~Window()
 
 bool Window::create(const std::string& windowTitle, uint32_t width, uint32_t height)
 {
-    if (m_Handle)
-        glfwDestroyWindow(m_Handle);
+    destroy();
 
     m_Handle = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, nullptr);
 
     if (!m_Handle) return false;
+
+    m_Title = windowTitle;
+    m_Width = width;
+    m_Height = height;
 
     glfwSetKeyCallback(m_Handle, glfwKeyCallback);
     glfwSetMouseButtonCallback(m_Handle, glfwMouseCallback);
@@ -60,6 +63,32 @@ bool Window::create(const std::string& windowTitle, uint32_t width, uint32_t hei
     ACTIVE_WINDOW = this;
 
     return true;
+}
+
+void Window::destroy()
+{
+    if (!m_Handle) return;
+
+    glfwDestroyWindow(m_Handle);
+    m_Handle = nullptr;
+    m_Title = "";
+    m_Width = 0;
+    m_Height = 0;
+}
+
+const std::string& Window::getTitle() const
+{
+    return m_Title;
+}
+
+int Window::getWidth() const
+{
+    return m_Width;
+}
+
+int Window::getHeight() const
+{
+    return m_Height;
 }
 
 bool Window::requestedClose() const

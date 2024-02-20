@@ -45,6 +45,29 @@ public:
     bool create(const std::string& windowTitle, uint32_t width, uint32_t height);
 
     /**
+     * @brief Destroys the window.
+     */
+    void destroy();
+
+    /**
+     * @brief Gets window title.
+     * @return Window title.
+     */
+    const std::string& getTitle() const;
+
+    /**
+     * @brief Gets window width.
+     * @return Window width (in pixels).
+     */
+    int getWidth() const;
+
+    /**
+     * @brief Gets window height.
+     * @return Window height (in pixels).
+     */
+    int getHeight() const;
+
+    /**
      * @brief Checks if user requested the window closing.
      * @return True if requested. False otherwise.
      */
@@ -100,11 +123,14 @@ public:
     friend void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
 private:
+
     void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     void mouseCallback(GLFWwindow* window, int button, int action, int mods);
     void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
 private:
+    std::string m_Title;
+    int m_Width = 0, m_Height = 0;
     GLFWwindow* m_Handle = nullptr;
     std::queue<Event> m_EventQueue;
 };

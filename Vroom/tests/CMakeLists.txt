@@ -13,7 +13,9 @@ if (WIN32)
     FetchContent_MakeAvailable(googletest)
 endif(WIN32)
 
-include_directories(${VROOM}/include)
+include_directories(Vroom PUBLIC 
+    ${INCLUDES}
+)
 
 set(TEST_SOURCES
     "test_Window.cc"
