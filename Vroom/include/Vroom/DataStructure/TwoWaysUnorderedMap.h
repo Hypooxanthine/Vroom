@@ -17,8 +17,8 @@ public:
 	using value_type = std::pair<T1, T2>;
 
 private:
-	using value_type12 = std::pair<T1, T2*>;
-	using value_type21 = std::pair<T2, T1*>;
+	// using value_type12 = std::pair<T1, T2*>;
+	// using value_type21 = std::pair<T2, T1*>;
 
 public:
 	/**
