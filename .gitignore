@@ -47,6 +47,8 @@
 # Output folders
 out/
 out/*
+build/
+build/*
 
 # Exceptions
 !dependencies/
