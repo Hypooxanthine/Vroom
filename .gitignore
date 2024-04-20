@@ -40,6 +40,10 @@
 *.vcxproj.user
 *.sln
 
+# Visual studio code files
+.vscode/
+.vscode/*
+
 # Output folders
 out/
 out/*
