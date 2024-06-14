@@ -160,7 +160,7 @@ void Window::swapBuffers()
 
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    Event e = m_EventQueue.emplace();
+    Event& e = m_EventQueue.emplace();
     e.keyCode = GLFWEventsConverter::GetKeyCodeFromGLFW(key);
     e.keyEvent = true;
     if (action == GLFW_PRESS || (m_KeyRepeatEnabled &&  action == GLFW_REPEAT))
@@ -171,7 +171,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
 void Window::mouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
-    Event e = m_EventQueue.emplace();
+    Event& e = m_EventQueue.emplace();
     e.mouseCode = GLFWEventsConverter::GetMouseCodeFromGLFW(button);
     e.mouseEvent = true;
     if (action == GLFW_PRESS)
@@ -182,7 +182,7 @@ void Window::mouseCallback(GLFWwindow* window, int button, int action, int mods)
 
 void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    Event e = m_EventQueue.emplace();
+    Event& e = m_EventQueue.emplace();
     e.scrollEvent = true;
     e.scrollX = xoffset;
     e.scrollY = yoffset;

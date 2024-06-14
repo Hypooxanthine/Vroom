@@ -57,11 +57,17 @@ void Application::update()
     {
         Event e = m_Window->pollEvent();
 
-        std::string type;
+        std::string type = "Uknown event";
 
-        if (e.keyEvent) type = "Key event";
+        if (e.keyEvent)
+        {
+            type = "Key event (";
+            type += ('A' + static_cast<char>(static_cast<int>(e.keyCode) - static_cast<int>(KeyCode::A)));
+            type += ")";
+        }
         else if (e.mouseEvent) type = "Mouse event";
         else if (e.scrollEvent) type = "Scroll event (" + std::to_string(e.scrollY) + ")";
+        else if (e.resizeEvent) type = "Resize event (" + std::to_string(e.newWidth) + ", " + std::to_string(e.newHeight) + ")";
 
         LOG_TRACE("{} triggered.", type);
     }
