@@ -99,6 +99,16 @@ int Window::getHeight() const
     return m_Height;
 }
 
+bool Window::getKeyRepeatEnabled() const
+{
+    return m_KeyRepeatEnabled;
+}
+
+void Window::setKeyRepeatEnabled(bool keyRepeat)
+{
+    m_KeyRepeatEnabled = keyRepeat;
+}
+
 bool Window::requestedClose() const
 {
     return glfwWindowShouldClose(m_Handle) != 0;
@@ -153,7 +163,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
     Event e = m_EventQueue.emplace();
     e.keyCode = GLFWEventsConverter::GetKeyCodeFromGLFW(key);
     e.keyEvent = true;
-    if (action == GLFW_PRESS || action == GLFW_REPEAT)
+    if (action == GLFW_PRESS || (m_KeyRepeatEnabled &&  action == GLFW_REPEAT))
         e.keyPressed = true;
     else
         e.keyReleased = true;

@@ -68,6 +68,21 @@ public:
     int getHeight() const;
 
     /**
+     * @brief Get the Key Repeat value.
+     * 
+     * @return true Key repeat is enabled.
+     * @return false Key repeat is disabled.
+     */
+    bool getKeyRepeatEnabled() const;
+
+    /**
+     * @brief Set the Key Repeat value. If true, key repeat events will be treated as key pressed. If false, key repeat events will be ignored.
+     * 
+     * @param keyRepeat Key repeat value.
+     */
+    void setKeyRepeatEnabled(bool keyRepeat);
+
+    /**
      * @brief Checks if user requested the window closing.
      * @return True if requested. False otherwise.
      */
@@ -135,6 +150,8 @@ private:
     int m_Width = 0, m_Height = 0;
     GLFWwindow* m_Handle = nullptr;
     std::queue<Event> m_EventQueue;
+
+    bool m_KeyRepeatEnabled = false;
 };
 
 } // namespace vrm
