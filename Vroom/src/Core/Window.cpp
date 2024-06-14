@@ -30,6 +30,7 @@ void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 void glfwWindowSizeCallback(GLFWwindow* window, int width, int height)
 {
     VRM_ASSERT(ACTIVE_WINDOW != nullptr);
+    ACTIVE_WINDOW->resizeCallback(window, width, height);
 
 }
 
