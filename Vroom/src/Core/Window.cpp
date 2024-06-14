@@ -149,48 +149,40 @@ void Window::swapBuffers()
 
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    Event e;
+    Event e = m_EventQueue.emplace();
     e.keyCode = GLFWEventsConverter::GetKeyCodeFromGLFW(key);
     e.keyEvent = true;
     if (action == GLFW_PRESS || action == GLFW_REPEAT)
         e.keyPressed = true;
     else
         e.keyReleased = true;
-
-    m_EventQueue.push(e);
 }
 
 void Window::mouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
-    Event e;
+    Event e = m_EventQueue.emplace();
     e.mouseCode = GLFWEventsConverter::GetMouseCodeFromGLFW(button);
     e.mouseEvent = true;
     if (action == GLFW_PRESS)
         e.mouseButtonPressed = true;
     else
         e.mouseButtonReleased = true;
-
-    m_EventQueue.push(e);
 }
 
 void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    Event e;
+    Event e = m_EventQueue.emplace();
     e.scrollEvent = true;
     e.scrollX = xoffset;
     e.scrollY = yoffset;
-
-    m_EventQueue.push(e);
 }
 
 void Window::resizeCallback(GLFWwindow* window, int width, int height)
 {
-    Event e;
+    Event& e = m_EventQueue.emplace();
     e.resizeEvent = true;
     e.newWidth = width;
     e.newHeight = height;
-
-    m_EventQueue.push(e);
 }
 
 } // namespace vrm
