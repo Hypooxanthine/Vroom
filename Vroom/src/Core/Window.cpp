@@ -160,8 +160,11 @@ void Window::swapBuffers()
 
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    auto code = GLFWEventsConverter::GetKeyCodeFromGLFW(key);
+    //if (code == KeyCode::None) return;
+
     Event& e = m_EventQueue.emplace();
-    e.keyCode = GLFWEventsConverter::GetKeyCodeFromGLFW(key);
+    e.keyCode = code;
     e.keyEvent = true;
     if (action == GLFW_PRESS || (m_KeyRepeatEnabled &&  action == GLFW_REPEAT))
         e.keyPressed = true;
@@ -171,8 +174,11 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
 void Window::mouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
+    auto code = GLFWEventsConverter::GetMouseCodeFromGLFW(button);
+    if (code == MouseCode::None) return;
+
     Event& e = m_EventQueue.emplace();
-    e.mouseCode = GLFWEventsConverter::GetMouseCodeFromGLFW(button);
+    e.mouseCode = code;
     e.mouseEvent = true;
     if (action == GLFW_PRESS)
         e.mouseButtonPressed = true;

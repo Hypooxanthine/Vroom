@@ -61,11 +61,12 @@ void Application::update()
 
         if (e.keyEvent)
         {
-            type = "Key event (";
-            type += ('A' + static_cast<char>(static_cast<int>(e.keyCode) - static_cast<int>(KeyCode::A)));
-            type += ")";
+            type = "Key event (" + std::to_string(e.keyCode) + ")";
         }
-        else if (e.mouseEvent) type = "Mouse event";
+        else if (e.mouseEvent)
+        {
+            type = "Mouse event (" + std::to_string(e.mouseCode) + ")";
+        }
         else if (e.scrollEvent) type = "Scroll event (" + std::to_string(e.scrollY) + ")";
         else if (e.resizeEvent) type = "Resize event (" + std::to_string(e.newWidth) + ", " + std::to_string(e.newHeight) + ")";
 
