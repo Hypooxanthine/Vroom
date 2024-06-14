@@ -121,12 +121,14 @@ public:
     friend void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     friend void glfwMouseCallback(GLFWwindow* window, int button, int action, int mods);
     friend void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+    friend void glfwWindowSizeCallback(GLFWwindow* window, int width, int height);
 
 private:
 
     void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     void mouseCallback(GLFWwindow* window, int button, int action, int mods);
     void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+    void resizeCallback(GLFWwindow* window, int width, int height);
 
 private:
     std::string m_Title;

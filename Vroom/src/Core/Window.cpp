@@ -27,6 +27,12 @@ void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     ACTIVE_WINDOW->scrollCallback(window, xoffset, yoffset);
 }
 
+void glfwWindowSizeCallback(GLFWwindow* window, int width, int height)
+{
+    VRM_ASSERT(ACTIVE_WINDOW != nullptr);
+
+}
+
 Window::Window()
 {
 
@@ -58,6 +64,7 @@ bool Window::create(const std::string& windowTitle, uint32_t width, uint32_t hei
     glfwSetKeyCallback(m_Handle, glfwKeyCallback);
     glfwSetMouseButtonCallback(m_Handle, glfwMouseCallback);
     glfwSetScrollCallback(m_Handle, glfwScrollCallback);
+    glfwSetWindowSizeCallback(m_Handle, glfwWindowSizeCallback);
 
     glfwMakeContextCurrent(m_Handle);
     ACTIVE_WINDOW = this;
@@ -172,6 +179,16 @@ void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     e.scrollEvent = true;
     e.scrollX = xoffset;
     e.scrollY = yoffset;
+
+    m_EventQueue.push(e);
+}
+
+void Window::resizeCallback(GLFWwindow* window, int width, int height)
+{
+    Event e;
+    e.resizeEvent = true;
+    e.newWidth = width;
+    e.newHeight = height;
 
     m_EventQueue.push(e);
 }

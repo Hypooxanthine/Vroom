@@ -19,6 +19,9 @@ struct Event
     double scrollY = 0;
     double scrollX = 0;
 
+    bool resizeEvent = false;
+    int newWidth = 0, newHeight = 0;
+
     KeyCode keyCode = KeyCode::None;
     MouseCode mouseCode = MouseCode::None;
 };

@@ -24,3 +24,5 @@
         LOG_CRITICAL("Assertion \"{}\" failed at file {}, line {}.", #x, std::filesystem::path(__FILE__).filename().string(), __LINE__); \
         VRM_CRASH_NO_MSG(); \
     }
+
+#define VRM_DEBUG_ASSERT(x) VRM_ASSERT(X)

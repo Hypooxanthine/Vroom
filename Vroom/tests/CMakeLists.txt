@@ -19,6 +19,7 @@ include_directories(Vroom PUBLIC
 
 set(TEST_SOURCES
     "test_Window.cc"
+    "test_TwoWaysUnorderedMap.cc"
 )
 
 add_executable(VroomTests ${TEST_SOURCES})
