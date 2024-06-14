@@ -18,28 +18,28 @@ public:
     static void Init();
 
     /**
-     * @brief Get Vroom key code from a GLFW key code.
+     * @brief Get Vroom key code from a GLFW key code. Needs GLFWEventsConverter::Init() to be called first.
      * @param GLFWCode GLFW key code.
      * @return Vroom key code.
      */
     static KeyCode GetKeyCodeFromGLFW(int GLFWCode);
 
     /**
-     * @brief Get Vroom mouse code from a GLFW mouse code.
+     * @brief Get Vroom mouse code from a GLFW mouse code. Needs GLFWEventsConverter::Init() to be called first.
      * @param GLFWCode GLFW mouse code.
      * @return Vroom mouse code.
      */
     static MouseCode GetMouseCodeFromGLFW(int GLFWCode);
 
     /**
-     * @brief Get GLFW key code from a Vroom key code.
+     * @brief Get GLFW key code from a Vroom key code. Needs GLFWEventsConverter::Init() to be called first.
      * @param code Vroom key code.
      * @return GLFW key code.
      */
     static int GetGLFWFromKeyCode(const KeyCode& code);
 
     /**
-     * @brief Get GLFW mouse code from a Vroom key code.
+     * @brief Get GLFW mouse code from a Vroom key code. Needs GLFWEventsConverter::Init() to be called first.
      * @param code Vroom key code.
      * @return GLFW mouse code.
      */
