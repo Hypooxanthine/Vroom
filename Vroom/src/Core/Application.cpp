@@ -57,7 +57,7 @@ void Application::update()
     {
         Event e = m_Window->pollEvent();
 
-        std::string type = "Uknown event";
+        std::string type = "Unknown event";
 
         if (e.keyEvent)
         {

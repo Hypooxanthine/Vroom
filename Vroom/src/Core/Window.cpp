@@ -161,7 +161,7 @@ void Window::swapBuffers()
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     auto code = GLFWEventsConverter::GetKeyCodeFromGLFW(key);
-    //if (code == KeyCode::None) return;
+    if (code == KeyCode::None) return;
 
     Event& e = m_EventQueue.emplace();
     e.keyCode = code;
