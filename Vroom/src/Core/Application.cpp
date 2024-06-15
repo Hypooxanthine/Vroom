@@ -68,7 +68,12 @@ void Application::update()
             type = "Mouse event (" + std::to_string(e.mouseCode) + ")";
         }
         else if (e.scrollEvent) type = "Scroll event (" + std::to_string(e.scrollY) + ")";
-        else if (e.resizeEvent) type = "Resize event (" + std::to_string(e.newWidth) + ", " + std::to_string(e.newHeight) + ")";
+        else if (e.resizeEvent)
+        {
+            type = "Resize event (" + std::to_string(e.newWidth) + ", " + std::to_string(e.newHeight) + ")";
+
+            m_Renderer->setViewport({ 0.f, 0.f }, { static_cast<float>(e.newWidth), static_cast<float>(e.newHeight) });
+        }
 
         LOG_TRACE("{} triggered.", type);
     }
