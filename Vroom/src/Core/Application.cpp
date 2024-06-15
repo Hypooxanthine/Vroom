@@ -57,25 +57,32 @@ void Application::update()
     {
         Event e = m_Window->pollEvent();
 
-        std::string type = "Unknown event";
+        std::string eventStr = "Unknown event";
 
-        if (e.keyEvent)
+        switch(e.type)
         {
-            type = "Key event (" + std::to_string(e.keyCode) + ")";
-        }
-        else if (e.mouseEvent)
-        {
-            type = "Mouse event (" + std::to_string(e.mouseCode) + ")";
-        }
-        else if (e.scrollEvent) type = "Scroll event (" + std::to_string(e.scrollY) + ")";
-        else if (e.resizeEvent)
-        {
-            type = "Resize event (" + std::to_string(e.newWidth) + ", " + std::to_string(e.newHeight) + ")";
-
+        case Event::Type::KeyPressed:
+            eventStr = "KeyPressed event (" + std::to_string(e.keyCode) + ")";
+            break;
+        case Event::Type::KeyReleased:
+            eventStr = "KeyReleased event (" + std::to_string(e.keyCode) + ")";
+            break;
+        case Event::Type::MousePressed:
+            eventStr = "MousePressed event (" + std::to_string(e.mouseCode) + ")";
+            break;
+        case Event::Type::MouseReleased:
+            eventStr = "MousePressed event (" + std::to_string(e.mouseCode) + ")";
+            break;
+        case Event::Type::Scroll:
+            eventStr = "Scroll event (" + std::to_string(e.scrollY) + ")";
+            break;
+        case Event::Type::WindowsResized:
+            eventStr = "Resize event (" + std::to_string(e.newWidth) + ", " + std::to_string(e.newHeight) + ")";
             m_Renderer->setViewport({ 0.f, 0.f }, { static_cast<float>(e.newWidth), static_cast<float>(e.newHeight) });
+            break;
         }
 
-        LOG_TRACE("{} triggered.", type);
+        LOG_TRACE("{} triggered.", eventStr);
     }
 }
 

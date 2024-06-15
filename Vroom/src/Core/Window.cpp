@@ -3,7 +3,6 @@
 #include "Vroom/Core/Assert.h"
 
 #include "Vroom/Event/GLFWEventsConverter.h"
-#include "Window.h"
 
 namespace vrm
 {
