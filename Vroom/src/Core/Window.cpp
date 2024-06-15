@@ -3,6 +3,7 @@
 #include "Vroom/Core/Assert.h"
 
 #include "Vroom/Event/GLFWEventsConverter.h"
+#include "Window.h"
 
 namespace vrm
 {
@@ -12,26 +13,31 @@ static vrm::Window* ACTIVE_WINDOW = nullptr;
 void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     VRM_ASSERT(ACTIVE_WINDOW != nullptr);
-    ACTIVE_WINDOW->keyCallback(window, key, scancode, action, mods);
+    ACTIVE_WINDOW->keyCallback(key, scancode, action, mods);
 }
 
 void glfwMouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
     VRM_ASSERT(ACTIVE_WINDOW != nullptr);
-    ACTIVE_WINDOW->mouseCallback(window, button, action, mods);
+    ACTIVE_WINDOW->mouseCallback(button, action, mods);
 }
 
 void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
     VRM_ASSERT(ACTIVE_WINDOW != nullptr);
-    ACTIVE_WINDOW->scrollCallback(window, xoffset, yoffset);
+    ACTIVE_WINDOW->scrollCallback(xoffset, yoffset);
 }
 
 void glfwWindowSizeCallback(GLFWwindow* window, int width, int height)
 {
     VRM_ASSERT(ACTIVE_WINDOW != nullptr);
-    ACTIVE_WINDOW->resizeCallback(window, width, height);
+    ACTIVE_WINDOW->resizeCallback(width, height);
+}
 
+void glfwFocusedCallback(GLFWwindow* window, int focused)
+{
+    VRM_ASSERT(ACTIVE_WINDOW != nullptr);
+    ACTIVE_WINDOW->focusCallback(focused);
 }
 
 Window::Window()
@@ -66,6 +72,7 @@ bool Window::create(const std::string& windowTitle, uint32_t width, uint32_t hei
     glfwSetMouseButtonCallback(m_Handle, glfwMouseCallback);
     glfwSetScrollCallback(m_Handle, glfwScrollCallback);
     glfwSetWindowSizeCallback(m_Handle, glfwWindowSizeCallback);
+    glfwSetWindowFocusCallback(m_Handle, glfwFocusedCallback);
 
     glfwMakeContextCurrent(m_Handle);
     ACTIVE_WINDOW = this;
@@ -158,48 +165,51 @@ void Window::swapBuffers()
     glfwSwapBuffers(m_Handle);
 }
 
-void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void Window::keyCallback(int key, int scancode, int action, int mods)
 {
     auto code = GLFWEventsConverter::GetKeyCodeFromGLFW(key);
     if (code == KeyCode::None) return;
 
     Event& e = m_EventQueue.emplace();
     e.keyCode = code;
-    e.keyEvent = true;
     if (action == GLFW_PRESS || (m_KeyRepeatEnabled &&  action == GLFW_REPEAT))
-        e.keyPressed = true;
+        e.type = Event::Type::KeyPressed;
     else
-        e.keyReleased = true;
+        e.type = Event::Type::KeyReleased;
 }
 
-void Window::mouseCallback(GLFWwindow* window, int button, int action, int mods)
+void Window::mouseCallback(int button, int action, int mods)
 {
     auto code = GLFWEventsConverter::GetMouseCodeFromGLFW(button);
     if (code == MouseCode::None) return;
 
     Event& e = m_EventQueue.emplace();
     e.mouseCode = code;
-    e.mouseEvent = true;
     if (action == GLFW_PRESS)
-        e.mouseButtonPressed = true;
+        e.type = Event::Type::MousePressed;
     else
-        e.mouseButtonReleased = true;
+        e.type = Event::Type::MouseReleased;
 }
 
-void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+void Window::scrollCallback(double xoffset, double yoffset)
 {
     Event& e = m_EventQueue.emplace();
-    e.scrollEvent = true;
+    e.type = Event::Type::Scroll;
     e.scrollX = xoffset;
     e.scrollY = yoffset;
 }
 
-void Window::resizeCallback(GLFWwindow* window, int width, int height)
+void Window::resizeCallback(int width, int height)
 {
     Event& e = m_EventQueue.emplace();
-    e.resizeEvent = true;
+    e.type = Event::Type::WindowsResized;
     e.newWidth = width;
     e.newHeight = height;
 }
 
+void Window::focusCallback(int focused)
+{
+    Event& e = m_EventQueue.emplace();
+    e.type = (focused == GLFW_TRUE ? Event::Type::GainedFocus : Event::Type::LostFocus);
+}
 } // namespace vrm

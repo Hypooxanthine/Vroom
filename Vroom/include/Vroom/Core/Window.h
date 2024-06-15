@@ -137,13 +137,15 @@ public:
     friend void glfwMouseCallback(GLFWwindow* window, int button, int action, int mods);
     friend void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
     friend void glfwWindowSizeCallback(GLFWwindow* window, int width, int height);
+    friend void glfwFocusedCallback(GLFWwindow* window, int focused);
 
 private:
 
-    void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-    void mouseCallback(GLFWwindow* window, int button, int action, int mods);
-    void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-    void resizeCallback(GLFWwindow* window, int width, int height);
+    void keyCallback(int key, int scancode, int action, int mods);
+    void mouseCallback(int button, int action, int mods);
+    void scrollCallback(double xoffset, double yoffset);
+    void resizeCallback(int width, int height);
+    void focusCallback(int focused);
 
 private:
     std::string m_Title;

@@ -7,19 +7,13 @@ namespace vrm
 
 struct Event
 {
-    bool keyEvent = false;
-    bool keyPressed = false;
-    bool keyReleased = false;
+    enum class Type { None = 0, KeyPressed, KeyReleased, MousePressed, MouseReleased, Scroll, WindowsResized, GainedFocus, LostFocus };
 
-    bool mouseEvent = false;
-    bool mouseButtonPressed = false;
-    bool mouseButtonReleased = false;
+    Type type = Type::None;
 
-    bool scrollEvent = false;
     double scrollY = 0;
     double scrollX = 0;
 
-    bool resizeEvent = false;
     int newWidth = 0, newHeight = 0;
 
     KeyCode keyCode = KeyCode::None;
