@@ -71,10 +71,16 @@ void Application::update()
             eventStr = "MousePressed event (" + std::to_string(e.mouseCode) + ")";
             break;
         case Event::Type::MouseReleased:
-            eventStr = "MousePressed event (" + std::to_string(e.mouseCode) + ")";
+            eventStr = "MouseReleased event (" + std::to_string(e.mouseCode) + ")";
             break;
         case Event::Type::Scroll:
             eventStr = "Scroll event (" + std::to_string(e.scrollY) + ")";
+            break;
+        case Event::Type::GainedFocus:
+            eventStr = "GainedFocus event";
+            break;
+        case Event::Type::LostFocus:
+            eventStr = "LostFocus event";
             break;
         case Event::Type::WindowsResized:
             eventStr = "Resize event (" + std::to_string(e.newWidth) + ", " + std::to_string(e.newHeight) + ")";
