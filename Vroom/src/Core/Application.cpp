@@ -89,6 +89,8 @@ void Application::update()
         }
 
         LOG_TRACE("{} triggered.", eventStr);
+
+        m_TriggerManager.check(e);
     }
 }
 

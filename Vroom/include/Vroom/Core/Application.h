@@ -6,6 +6,7 @@
 
 #include "Vroom/Core/Window.h"
 #include "Vroom/Render/Renderer.h"
+#include "Vroom/Event/Trigger/TriggerManager.h"
 
 namespace vrm
 {
@@ -53,6 +54,8 @@ private:
 private:
     std::unique_ptr<Window> m_Window = nullptr;
     std::unique_ptr<Renderer> m_Renderer = nullptr;
+
+    TriggerManager m_TriggerManager;
 };
 
 } // namespace vrm

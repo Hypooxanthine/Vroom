@@ -166,6 +166,8 @@ void Window::swapBuffers()
 
 void Window::keyCallback(int key, int scancode, int action, int mods)
 {
+    if (action == GLFW_REPEAT && !m_KeyRepeatEnabled) return;
+    
     auto code = GLFWEventsConverter::GetKeyCodeFromGLFW(key);
     if (code == KeyCode::None) return;
 

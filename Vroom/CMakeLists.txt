@@ -19,6 +19,9 @@ set(PROJECT_IMPL
     ${SOURCE_DIR}/Core/Application.cpp
     ${SOURCE_DIR}/Core/Window.cpp
     ${SOURCE_DIR}/Event/GLFWEventsConverter.cpp
+    ${SOURCE_DIR}/Event/Trigger/Trigger.cpp
+    ${SOURCE_DIR}/Event/Trigger/TriggerCallbackList.cpp
+    ${SOURCE_DIR}/Event/Trigger/TriggerManager.cpp
     ${SOURCE_DIR}/Render/Renderer.cpp
     ${SOURCE_DIR}/Render/Abstraction/IndexBuffer.cpp
     ${SOURCE_DIR}/Render/Abstraction/Shader.cpp
