@@ -57,4 +57,3 @@ target_link_libraries(Vroom
 )
 
 add_subdirectory("tests")
-include(CTest)

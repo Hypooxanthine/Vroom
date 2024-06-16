@@ -16,8 +16,8 @@ include_directories(Vroom PUBLIC
 )
 
 set(TEST_SOURCES
-    "test_Window.cc"
-    "test_TwoWaysUnorderedMap.cc"
+    "test_TriggerCallbackList.cc"
+    "test_Trigger.cc"
 )
 
 add_executable(VroomTests ${TEST_SOURCES})
@@ -36,3 +36,5 @@ target_link_libraries(VroomTests
 
 include(GoogleTest)
 gtest_discover_tests(VroomTests)
+
+include(CTest)
