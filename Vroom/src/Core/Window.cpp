@@ -209,6 +209,11 @@ void Window::scrollCallback(double xoffset, double yoffset)
 
 void Window::resizeCallback(int width, int height)
 {
+    if (m_Width == width && m_Height == height) return;
+
+    m_Width = width;
+    m_Height = height;
+
     Event& e = m_EventQueue.emplace();
     e.type = Event::Type::WindowsResized;
     e.newWidth = width;
