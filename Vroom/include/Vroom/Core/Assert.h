@@ -25,4 +25,4 @@
         VRM_CRASH_NO_MSG(); \
     }
 
-#define VRM_DEBUG_ASSERT(x) VRM_ASSERT(X)
+#define VRM_DEBUG_ASSERT(x) VRM_ASSERT(x)
