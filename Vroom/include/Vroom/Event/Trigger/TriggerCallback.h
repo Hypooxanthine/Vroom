@@ -1,10 +1,11 @@
 #pragma once
 
-#include <functional>
+#include "Vroom/DataStructure/CallbackList.h"
+#include "Vroom/Event/CustomEvent/CustomEventCallback.h"
 
 namespace vrm
 {
 
-using TriggerCallback = std::function<void(bool)>;
+using TriggerCallback = CallbackList<CustomEventCallback>;
 
 } // namespace vrm

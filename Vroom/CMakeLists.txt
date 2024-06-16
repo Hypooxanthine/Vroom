@@ -20,7 +20,6 @@ set(PROJECT_IMPL
     ${SOURCE_DIR}/Core/Window.cpp
     ${SOURCE_DIR}/Event/GLFWEventsConverter.cpp
     ${SOURCE_DIR}/Event/Trigger/Trigger.cpp
-    ${SOURCE_DIR}/Event/Trigger/TriggerCallbackList.cpp
     ${SOURCE_DIR}/Event/Trigger/TriggerManager.cpp
     ${SOURCE_DIR}/Event/Trigger/TriggerBinder.cpp
     ${SOURCE_DIR}/Render/Renderer.cpp
