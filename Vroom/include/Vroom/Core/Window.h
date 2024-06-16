@@ -138,6 +138,7 @@ public:
     friend void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
     friend void glfwWindowSizeCallback(GLFWwindow* window, int width, int height);
     friend void glfwFocusedCallback(GLFWwindow* window, int focused);
+    friend void glfwWindowCloseCallback(GLFWwindow* window);
 
 private:
 
@@ -146,6 +147,7 @@ private:
     void scrollCallback(double xoffset, double yoffset);
     void resizeCallback(int width, int height);
     void focusCallback(int focused);
+    void closeCallback();
 
 private:
     std::string m_Title;

@@ -43,11 +43,21 @@ bool Application::initGLFW()
 
 void Application::run()
 {
-    while (!m_Window->requestedClose())
+    while (!m_PendingKilled)
     {
         update();
         draw();
     }
+}
+
+void Application::exit()
+{
+    m_PendingKilled = true;
+}
+
+TriggerBinder Application::createTrigger(const std::string& name)
+{
+    return m_TriggerManager.createTrigger(name);
 }
 
 void Application::update()
@@ -85,6 +95,9 @@ void Application::update()
         case Event::Type::WindowsResized:
             eventStr = "Resize event (" + std::to_string(e.newWidth) + ", " + std::to_string(e.newHeight) + ")";
             m_Renderer->setViewport({ 0.f, 0.f }, { static_cast<float>(e.newWidth), static_cast<float>(e.newHeight) });
+            break;
+        case Event::Type::Exit:
+            eventStr = "Exit event";
             break;
         }
 

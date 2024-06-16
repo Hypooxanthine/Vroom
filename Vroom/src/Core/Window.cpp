@@ -39,6 +39,12 @@ void glfwFocusedCallback(GLFWwindow* window, int focused)
     ACTIVE_WINDOW->focusCallback(focused);
 }
 
+void glfwWindowCloseCallback(GLFWwindow* window)
+{
+    VRM_ASSERT(ACTIVE_WINDOW != nullptr);
+    ACTIVE_WINDOW->closeCallback();
+}
+
 Window::Window()
 {
 
@@ -72,6 +78,7 @@ bool Window::create(const std::string& windowTitle, uint32_t width, uint32_t hei
     glfwSetScrollCallback(m_Handle, glfwScrollCallback);
     glfwSetWindowSizeCallback(m_Handle, glfwWindowSizeCallback);
     glfwSetWindowFocusCallback(m_Handle, glfwFocusedCallback);
+    glfwSetWindowCloseCallback(m_Handle, glfwWindowCloseCallback);
 
     glfwMakeContextCurrent(m_Handle);
     ACTIVE_WINDOW = this;
@@ -122,7 +129,7 @@ bool Window::requestedClose() const
 
 void Window::requestClose()
 {
-    glfwSetWindowShouldClose(m_Handle, true);
+    glfwSetWindowShouldClose(m_Handle, GLFW_TRUE);
 }
 
 void Window::updateEvents()
@@ -213,4 +220,12 @@ void Window::focusCallback(int focused)
     Event& e = m_EventQueue.emplace();
     e.type = (focused == GLFW_TRUE ? Event::Type::GainedFocus : Event::Type::LostFocus);
 }
+
+void vrm::Window::closeCallback()
+{
+    Event& e = m_EventQueue.emplace();
+    e.type = Event::Type::Exit;
+}
+
 } // namespace vrm
+
