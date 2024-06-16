@@ -47,6 +47,19 @@ public:
      */
     void exit();
 
+    /**
+     * @brief Create an event trigger.
+     * A trigger is a particular type of event that can be activated and deactivated.
+     * For this reason, it only works with inputs that can be pressed (activation) and released (deactivation).
+     * A trigger can be bound with multiple inputs and callbacks.
+     * For example, a trigger could be "MoveForward". When keys Q or Up arrow are pressed, trigger is activated.
+     * When trigger was activated, and Q and Up arrow aren't pressed anymore, trigger is unactivated.
+     * When a trigger is activated AND deactivated, all associated callbacks are called with a boolean value 
+     * (activated / deactivated).
+     * 
+     * @param name Trigger name
+     * @return TriggerBinder A facility class instance that helps binding multiple keys and callbacks for the same trigger.
+     */
     TriggerBinder createTrigger(const std::string& name);
 
 private:

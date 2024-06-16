@@ -98,6 +98,7 @@ void Application::update()
             break;
         case Event::Type::Exit:
             eventStr = "Exit event";
+            exit();
             break;
         }
 
