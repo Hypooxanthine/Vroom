@@ -83,6 +83,8 @@ bool Window::create(const std::string& windowTitle, uint32_t width, uint32_t hei
     glfwMakeContextCurrent(m_Handle);
     ACTIVE_WINDOW = this;
 
+    glfwSwapInterval(0);
+
     return true;
 }
 
