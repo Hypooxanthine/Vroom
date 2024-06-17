@@ -55,14 +55,24 @@ void Application::exit()
     m_PendingKilled = true;
 }
 
-TriggerBinder Application::createTrigger(const std::string& name)
+TriggerBinder Application::createTrigger(const std::string& triggerName)
 {
-    return m_TriggerManager.createTrigger(name);
+    return m_TriggerManager.createTrigger(triggerName);
 }
 
-CustomEventBinder Application::createCustomEvent(const std::string &name)
+TriggerBinder Application::getTrigger(const std::string& triggerName)
 {
-    return m_CustomEventManager.createCustomEvent(name);
+    return m_TriggerManager.getBinder(triggerName);
+}
+
+CustomEventBinder Application::createCustomEvent(const std::string &customEventName)
+{
+    return m_CustomEventManager.createCustomEvent(customEventName);
+}
+
+CustomEventBinder Application::getCustomEvent(const std::string& customEventName)
+{
+    return m_CustomEventManager.getBinder(customEventName);
 }
 
 void Application::update()

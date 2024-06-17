@@ -60,9 +60,13 @@ public:
      * @param name Trigger name
      * @return TriggerBinder A facility class instance that helps binding multiple keys and callbacks for the same trigger.
      */
-    TriggerBinder createTrigger(const std::string& name);
+    TriggerBinder createTrigger(const std::string& triggerName);
 
-    CustomEventBinder createCustomEvent(const std::string& name);
+    TriggerBinder getTrigger(const std::string& triggerName);
+
+    CustomEventBinder createCustomEvent(const std::string& customEventName);
+
+    CustomEventBinder getCustomEvent(const std::string& customEventName);
 
 private:
     /**
