@@ -20,6 +20,7 @@ public:
     void check(const Event& e);
 
     CustomEventBinder createCustomEvent(const std::string& customEventName);
+    CustomEventBinder getBinder(const std::string& customEventName);
 
     CustomEventBinder bindCallback(const std::string& customEventName, const CustomEventCallback& cb);
 
@@ -35,7 +36,7 @@ public:
 
         m_RawEventsToCustomEvents[inputType][standardizedCode].insert(customEventName);
 
-        return CustomEventBinder(*this, customEventName);
+        return getBinder(customEventName);
     }
 
     inline CustomEventBinder unbindInput(const std::string& customEventName, Event::Type inputType) { return unbindInput(customEventName, inputType, 0); }
@@ -58,7 +59,7 @@ public:
 
         customEventNameList.erase(customEventName);
 
-        return CustomEventBinder(*this, customEventName);
+        return getBinder(customEventName);
     }
 
 private:

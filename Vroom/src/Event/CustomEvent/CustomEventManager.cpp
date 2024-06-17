@@ -44,6 +44,11 @@ CustomEventBinder CustomEventManager::createCustomEvent(const std::string& custo
 
     m_CustomEvents.emplace(customEventName, CustomEvent());
 
+    return getBinder(customEventName);
+}
+
+CustomEventBinder CustomEventManager::getBinder(const std::string& customEventName)
+{
     return CustomEventBinder(*this, customEventName);
 }
 
@@ -53,7 +58,7 @@ CustomEventBinder CustomEventManager::bindCallback(const std::string& customEven
 
     m_CustomEvents.at(customEventName).addCallback(cb);
 
-    return CustomEventBinder(*this, customEventName);
+    return getBinder(customEventName);
 }
 
 } // namespace vrm

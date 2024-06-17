@@ -28,6 +28,16 @@ public:
         return bindInput(inputType, standardized);
     }
 
+    inline CustomEventBinder unbindInput(Event::Type inputType) { return bindInput(inputType, 0); }
+    CustomEventBinder unbindInput(Event::Type inputType, CodeType inputCode);
+
+    template <typename C>
+    CustomEventBinder unbindInput(Event::Type inputType, C inputCode)
+    {
+        CodeType standardized = static_cast<CodeType>(inputCode);
+        return unbindInput(inputType, standardized);
+    }
+
     CustomEventBinder bindCallback(const CustomEventCallback& cb);
 
 private:
