@@ -52,6 +52,11 @@ void Renderer::drawPoints(const VertexArray& va, const IndexBuffer& ib, const Sh
     GLCall(glDrawElements(GL_POINTS, (GLsizei)ib.getCount(), GL_UNSIGNED_INT, nullptr));
 }
 
+const glm::vec<2, unsigned int>& Renderer::getViewportOrigin() const
+{
+    return m_ViewportOrigin;
+}
+
 const glm::vec<2, unsigned int>& Renderer::getViewportSize() const
 {
     return m_ViewportSize;

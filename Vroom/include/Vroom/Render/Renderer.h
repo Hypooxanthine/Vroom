@@ -56,6 +56,12 @@ public:
 	void drawPoints(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const;
 
 	/**
+	 * @brief Gets the viewport origin.
+	 * @return The viewport origin.
+	 */
+	const glm::vec<2, unsigned int>& getViewportOrigin() const;
+
+	/**
 	 * @brief Gets the viewport size.
 	 * @return The viewport size.
 	 */
