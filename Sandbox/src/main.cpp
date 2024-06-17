@@ -5,9 +5,6 @@
 int main(int argc, char** argv)
 {
 	auto app = std::make_unique<vrm::Application>(argc, argv);
-	app->createTrigger("Exit")
-		.bindInput(vrm::KeyCode::Escape)
-		.bindCallback([&app](bool) { app->exit(); });
 	
 	app->createTrigger("test")
 		.bindInput(vrm::KeyCode::W)
@@ -16,6 +13,11 @@ int main(int argc, char** argv)
 		.bindInput(vrm::KeyCode::D)
 		.bindInput(vrm::MouseCode::Left)
 		.bindCallback([](bool triggered) { LOG_INFO("Test trigger: {}", triggered); });
+
+	app->createCustomEvent("Exit")
+		.bindInput(vrm::Event::Type::KeyPressed, vrm::KeyCode::Escape)
+		.bindInput(vrm::Event::Type::Exit)
+		.bindCallback([&app](const vrm::Event&) { LOG_INFO("Exit custom event."); app->exit(); });
 
 	app->run();
 
