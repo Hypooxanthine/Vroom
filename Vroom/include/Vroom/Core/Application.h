@@ -1,16 +1,19 @@
 #pragma once
 
 #include <memory>
+#include <chrono>
 
 #include <GL/glew.h>
 
-#include "Vroom/Core/Window.h"
-#include "Vroom/Render/Renderer.h"
 #include "Vroom/Event/Trigger/TriggerManager.h"
 #include "Vroom/Event/CustomEvent/CustomEventManager.h"
 
 namespace vrm
 {
+
+class Window;
+class Renderer;
+class Scene;
 
 /**
  * @brief This is the core class of the engine. Everything related to the engine - including static calls - need to be done
@@ -93,23 +96,46 @@ public:
      */
     CustomEventBinder getCustomEvent(const std::string& customEventName);
 
+    /**
+     * @brief Loads a scene into the application. Scene will start at the beginning of the next frame.
+     * 
+     * @tparam S Scene type. Must be a child of Scene type.
+     * @tparam Args Argument types taken by the constructor of S that needs to be called.
+     * @param args Arguments for constructing an instance of S.
+     */
+    template <typename S, typename... Args>
+    void loadScene(Args&&... args)
+    {
+        std::unique_ptr<S> scene;
+        scene = std::make_unique<S>(std::forward<Args>(args)...);
+
+        loadScene_Internal(std::move(scene));
+    }
+
 private:
     /**
      * @brief Initialization of GLFW.
      * @return True if succeeded. False otherwise.
      */
     bool initGLFW();
+    
+    void checkNextScene();
 
     void update();
 
     void draw();
+    
+    void loadScene_Internal(std::unique_ptr<Scene>&& scene);
 
 private:
-    std::unique_ptr<Window> m_Window = nullptr;
-    std::unique_ptr<Renderer> m_Renderer = nullptr;
+    std::unique_ptr<Window> m_Window;
+    std::unique_ptr<Renderer> m_Renderer;
+    std::unique_ptr<Scene> m_CurrentScene, m_NextScene;
 
     TriggerManager m_TriggerManager;
     CustomEventManager m_CustomEventManager;
+
+    std::chrono::high_resolution_clock::time_point m_LastFrameTimePoint;
 
     bool m_PendingKilled = false;
 };

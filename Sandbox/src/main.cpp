@@ -1,6 +1,35 @@
 #include <iostream>
 
 #include <Vroom/Core/Application.h>
+#include <Vroom/Scene/Scene.h>
+
+class MyScene : public vrm::Scene
+{
+public:
+	MyScene(const std::string& littleNickname) : vrm::Scene(), m_LittleNickName(littleNickname) {}
+	~MyScene() = default;
+
+protected:
+	void onInit() override
+	{
+		LOG_INFO("MyScene \"{}\" instance initialized.", m_LittleNickName);
+	}
+
+	void onUpdate(float dt) override
+	{
+		m_TimeAccumulator += dt;
+
+		if (m_TimeAccumulator < 1.f) return;
+
+		LOG_INFO("MyScene \"{}\" instance updated. fps: {}", m_LittleNickName, 1.f / dt);
+
+		m_TimeAccumulator -= 1.f;
+	}
+
+private:
+	std::string m_LittleNickName;
+	float m_TimeAccumulator = 0.f;
+};
 
 int main(int argc, char** argv)
 {
@@ -27,6 +56,8 @@ int main(int argc, char** argv)
 		.bindInput(vrm::Event::Type::KeyPressed, vrm::KeyCode::Escape)
 		.bindInput(vrm::Event::Type::Exit)
 		.bindCallback([&app](const vrm::Event&) { LOG_INFO("Exit custom event."); app->exit(); });
+
+	app->loadScene<MyScene>("A cute little scene !");
 
 	app->run();
 

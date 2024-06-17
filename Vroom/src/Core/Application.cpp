@@ -2,11 +2,15 @@
 
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Event/GLFWEventsConverter.h"
+#include "Vroom/Core/Window.h"
+#include "Vroom/Render/Renderer.h"
+#include "Vroom/Scene/Scene.h"
 
 namespace vrm
 {
 
 Application::Application(int argc, char** argv)
+    : m_Window(nullptr), m_Renderer(nullptr), m_CurrentScene(nullptr), m_LastFrameTimePoint(std::chrono::high_resolution_clock::now())
 {
     Log::Init();
     GLFWEventsConverter::Init();
@@ -43,8 +47,11 @@ bool Application::initGLFW()
 
 void Application::run()
 {
+    VRM_DEBUG_ASSERT_MSG(m_CurrentScene != nullptr, "Make sure you loaded a scene before running the application.");
+
     while (!m_PendingKilled)
     {
+        checkNextScene();
         update();
         draw();
     }
@@ -75,8 +82,30 @@ CustomEventBinder Application::getCustomEvent(const std::string& customEventName
     return m_CustomEventManager.getBinder(customEventName);
 }
 
+void Application::checkNextScene()
+{
+    // If nothing to load, just return
+    if (m_NextScene == nullptr)
+        return;
+
+    // There is a scene to load
+    // We are sure we that a scene is already loaded,
+    // because first scene detection is handled in loadScene_Impl.
+    // So we don't need to say "If currentScene exists, then currentScene.end()", we can juste end it.
+
+    m_CurrentScene->end();
+    m_CurrentScene = std::move(m_NextScene);
+    m_CurrentScene->init();
+}
+
 void Application::update()
 {
+    auto now = std::chrono::high_resolution_clock::now();
+    auto dt = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - m_LastFrameTimePoint).count()) / 1'000'000'000.f;
+    m_LastFrameTimePoint = now;
+
+    m_CurrentScene->update(dt);
+
     m_Window->updateEvents();
     while (m_Window->hasPendingEvents())
     {
@@ -85,6 +114,7 @@ void Application::update()
         m_TriggerManager.check(e);
         m_CustomEventManager.check(e);
     }
+
 }
 
 void Application::draw()
@@ -93,6 +123,19 @@ void Application::draw()
 
     m_Renderer->endScene();
     m_Window->swapBuffers();
+}
+
+void Application::loadScene_Internal(std::unique_ptr<Scene>&& scene)
+{
+    // For the first scene loading, we initialize here, so that we don't need to check for first load
+    // at each frame in the main loop
+    if (m_CurrentScene == nullptr)
+    {
+        m_CurrentScene = std::move(scene);
+        m_CurrentScene->init();
+    }
+    else
+        m_NextScene = std::move(scene);
 }
 
 } // namespace vrm

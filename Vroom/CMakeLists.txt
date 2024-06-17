@@ -31,6 +31,7 @@ set(PROJECT_IMPL
     ${SOURCE_DIR}/Render/Abstraction/VertexArray.cpp
     ${SOURCE_DIR}/Render/Abstraction/VertexBuffer.cpp
     ${SOURCE_DIR}/Render/Abstraction/VertexBufferLayout.cpp
+    ${SOURCE_DIR}/Scene/Scene.cpp
 )
 
 set(SOURCES
