@@ -60,6 +60,11 @@ TriggerBinder Application::createTrigger(const std::string& name)
     return m_TriggerManager.createTrigger(name);
 }
 
+CustomEventBinder Application::createCustomEvent(const std::string &name)
+{
+    return m_CustomEventManager.createCustomEvent(name);
+}
+
 void Application::update()
 {
     m_Window->updateEvents();
@@ -105,6 +110,7 @@ void Application::update()
         LOG_TRACE("{} triggered.", eventStr);
 
         m_TriggerManager.check(e);
+        m_CustomEventManager.check(e);
     }
 }
 

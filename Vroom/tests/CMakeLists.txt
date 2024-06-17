@@ -18,6 +18,9 @@ include_directories(Vroom PUBLIC
 set(TEST_SOURCES
     "test_TriggerCallbackList.cc"
     "test_Trigger.cc"
+    "test_TriggerManagerAndBinder.cc"
+    "test_CustomEvent.cc"
+    "test_CustomEventManagerAndBinder.cc"
 )
 
 add_executable(VroomTests ${TEST_SOURCES})

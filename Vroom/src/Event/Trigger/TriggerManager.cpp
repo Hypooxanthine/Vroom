@@ -54,14 +54,17 @@ TriggerBinder TriggerManager::createTrigger(const std::string& name)
 
 TriggerBinder TriggerManager::bindInput(const std::string& triggerName, const KeyCode& key)
 {
+    VRM_DEBUG_ASSERT(!m_Keys[key].contains(triggerName));
+    
     m_Keys[key].insert(triggerName);
     return TriggerBinder(*this, triggerName);
 }
 
 TriggerBinder TriggerManager::bindInput(const std::string& triggerName, const MouseCode& mouseButton)
 {
+    VRM_DEBUG_ASSERT(!m_MouseButtons[mouseButton].contains(triggerName));
+    
     m_MouseButtons[mouseButton].insert(triggerName);
-
     return TriggerBinder(*this, triggerName);
 }
 

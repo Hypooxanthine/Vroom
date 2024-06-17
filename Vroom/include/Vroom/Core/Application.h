@@ -7,7 +7,7 @@
 #include "Vroom/Core/Window.h"
 #include "Vroom/Render/Renderer.h"
 #include "Vroom/Event/Trigger/TriggerManager.h"
-#include "Vroom/Event/Trigger/TriggerBinder.h"
+#include "Vroom/Event/CustomEvent/CustomEventManager.h"
 
 namespace vrm
 {
@@ -62,6 +62,8 @@ public:
      */
     TriggerBinder createTrigger(const std::string& name);
 
+    CustomEventBinder createCustomEvent(const std::string& name);
+
 private:
     /**
      * @brief Initialization of GLFW.
@@ -78,6 +80,8 @@ private:
     std::unique_ptr<Renderer> m_Renderer = nullptr;
 
     TriggerManager m_TriggerManager;
+    CustomEventManager m_CustomEventManager;
+
     bool m_PendingKilled = false;
 };
 

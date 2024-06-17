@@ -23,7 +23,6 @@ enum class MouseCode : CodeType
     MB4, MB5, MB6, MB7, MB8
 };
 
-
 } // namespace vrm
 
 #include <string>
