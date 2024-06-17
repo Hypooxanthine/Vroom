@@ -72,43 +72,6 @@ void Application::update()
     {
         Event e = m_Window->pollEvent();
 
-        std::string eventStr = "Unknown event";
-
-        switch(e.type)
-        {
-        case Event::Type::KeyPressed:
-            eventStr = "KeyPressed event (" + std::to_string(e.keyCode) + ")";
-            break;
-        case Event::Type::KeyReleased:
-            eventStr = "KeyReleased event (" + std::to_string(e.keyCode) + ")";
-            break;
-        case Event::Type::MousePressed:
-            eventStr = "MousePressed event (" + std::to_string(e.mouseCode) + ")";
-            break;
-        case Event::Type::MouseReleased:
-            eventStr = "MouseReleased event (" + std::to_string(e.mouseCode) + ")";
-            break;
-        case Event::Type::Scroll:
-            eventStr = "Scroll event (" + std::to_string(e.scrollY) + ")";
-            break;
-        case Event::Type::GainedFocus:
-            eventStr = "GainedFocus event";
-            break;
-        case Event::Type::LostFocus:
-            eventStr = "LostFocus event";
-            break;
-        case Event::Type::WindowsResized:
-            eventStr = "Resize event (" + std::to_string(e.newWidth) + ", " + std::to_string(e.newHeight) + ")";
-            m_Renderer->setViewport({ 0.f, 0.f }, { static_cast<float>(e.newWidth), static_cast<float>(e.newHeight) });
-            break;
-        case Event::Type::Exit:
-            eventStr = "Exit event";
-            exit();
-            break;
-        }
-
-        LOG_TRACE("{} triggered.", eventStr);
-
         m_TriggerManager.check(e);
         m_CustomEventManager.check(e);
     }

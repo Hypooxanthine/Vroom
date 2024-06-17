@@ -50,6 +50,10 @@ out/*
 build/
 build/*
 
+# Testing temporary folders
+Testing/
+Testing/*
+
 # Exceptions
 !dependencies/
 !dependencies/**
