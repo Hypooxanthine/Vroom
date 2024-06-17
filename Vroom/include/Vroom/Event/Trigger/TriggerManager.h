@@ -26,6 +26,7 @@ public:
     void trigger(const MouseCode& mouseButton, bool value);
 
     TriggerBinder createTrigger(const std::string& name);
+    TriggerBinder getBinder(const std::string& name);
 
     TriggerBinder bindInput(const std::string& triggerName, const KeyCode& key);
     TriggerBinder bindInput(const std::string& triggerName, const MouseCode& mouseButton);

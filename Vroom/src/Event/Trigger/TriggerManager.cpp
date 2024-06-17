@@ -49,6 +49,11 @@ TriggerBinder TriggerManager::createTrigger(const std::string& name)
     // We create a new event entry : a name and its associated event.
     m_Triggers.insert(std::pair<std::string, Trigger>(name, Trigger()));
 
+    return getBinder(name);
+}
+
+TriggerBinder TriggerManager::getBinder(const std::string& name)
+{
     return TriggerBinder(*this, name);
 }
 
@@ -57,7 +62,7 @@ TriggerBinder TriggerManager::bindInput(const std::string& triggerName, const Ke
     VRM_DEBUG_ASSERT(!m_Keys[key].contains(triggerName));
     
     m_Keys[key].insert(triggerName);
-    return TriggerBinder(*this, triggerName);
+    return getBinder(triggerName);
 }
 
 TriggerBinder TriggerManager::bindInput(const std::string& triggerName, const MouseCode& mouseButton)
@@ -65,7 +70,7 @@ TriggerBinder TriggerManager::bindInput(const std::string& triggerName, const Mo
     VRM_DEBUG_ASSERT(!m_MouseButtons[mouseButton].contains(triggerName));
     
     m_MouseButtons[mouseButton].insert(triggerName);
-    return TriggerBinder(*this, triggerName);
+    return getBinder(triggerName);
 }
 
 void TriggerManager::unbindInput(const std::string& triggerName, const KeyCode& key)
@@ -88,7 +93,7 @@ TriggerBinder TriggerManager::bindCallback(const std::string& triggerName, const
 
     m_Triggers[triggerName].bindCallback(callback);
 
-    return TriggerBinder(*this, triggerName);
+    return getBinder(triggerName);
 }
 
 } // namespace vrm

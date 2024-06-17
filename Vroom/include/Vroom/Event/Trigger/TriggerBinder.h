@@ -20,6 +20,8 @@ public:
 
     TriggerBinder bindInput(const KeyCode& key);
     TriggerBinder bindInput(const MouseCode& mouse);
+    TriggerBinder unbindInput(const KeyCode& key);
+    TriggerBinder unbindInput(const MouseCode& mouse);
     TriggerBinder bindCallback(const TriggerCallback& callback);
 
 private:
