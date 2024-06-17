@@ -9,6 +9,9 @@
 #include "Vroom/Render/Abstraction/IndexBuffer.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 
+namespace vrm
+{
+
 /**
  * @brief Draws things with OpenGL.
  */
@@ -90,3 +93,5 @@ private:
 	glm::vec<2, unsigned int> m_ViewportOrigin = { 0, 0 };
 	glm::vec<2, unsigned int> m_ViewportSize = { 0, 0 };
 };
+
+} // namespace vrm

@@ -4,9 +4,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-/**
- * Frame buffer drawing setup code mostly from learnopengl.com 
- */
+namespace vrm
+{
 
 Renderer::Renderer()
 {
@@ -77,3 +76,7 @@ void Renderer::setViewportSize(const glm::vec<2, unsigned int>& s)
 {
     m_ViewportSize = s;
 }
+
+} // namespace vrm
+
+
