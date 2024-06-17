@@ -37,3 +37,5 @@ Output files will be written in Vroom/build/[Project]/[config]/ folder, where [P
 - Please check branch V1 to see previously implemented features (with SFML rendering). Most of them will be implemented in V2 too.
 
 ## Known problems
+
+- Unbinding trigger and custom event inputs is buggy.
