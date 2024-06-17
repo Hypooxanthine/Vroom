@@ -12,23 +12,35 @@ public:
 protected:
 	void onInit() override
 	{
-		LOG_INFO("MyScene \"{}\" instance initialized.", m_LittleNickName);
+		getApplication().getTrigger("Hey")
+			.bindCallback(VRM_TRIGGER_CALLBACK(heyFunction));
+
+		LOG_TRACE("MyScene \"{}\" instance initialized.", m_LittleNickName);
 	}
 
 	void onUpdate(float dt) override
 	{
 		m_TimeAccumulator += dt;
+		m_FramesAccumulator++;
 
 		if (m_TimeAccumulator < 1.f) return;
 
-		LOG_INFO("MyScene \"{}\" instance updated. fps: {}", m_LittleNickName, 1.f / dt);
+		LOG_TRACE("MyScene \"{}\" instance updated. fps: {}", m_LittleNickName, m_FramesAccumulator);
 
 		m_TimeAccumulator -= 1.f;
+		m_FramesAccumulator = 0;
+	}
+
+	void heyFunction(bool activated) const
+	{
+		if (activated)
+			LOG_INFO("Hey!");
 	}
 
 private:
 	std::string m_LittleNickName;
 	float m_TimeAccumulator = 0.f;
+	size_t m_FramesAccumulator = 0;
 };
 
 int main(int argc, char** argv)
@@ -51,6 +63,8 @@ int main(int argc, char** argv)
 		.bindInput(vrm::KeyCode::D)
 		.bindInput(vrm::KeyCode::Right)
 		.bindCallback([](bool triggered) { LOG_INFO("Moving Right    : {}", triggered); });
+	app->createTrigger("Hey")
+		.bindInput(vrm::KeyCode::H);
 
 	app->createCustomEvent("Exit")
 		.bindInput(vrm::Event::Type::KeyPressed, vrm::KeyCode::Escape)

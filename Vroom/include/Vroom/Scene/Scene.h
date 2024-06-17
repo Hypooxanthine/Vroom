@@ -3,6 +3,8 @@
 namespace vrm
 {
 
+class Application;
+
 class Scene
 {
 public:
@@ -14,8 +16,9 @@ public:
     /**
      * @brief Initialization of the scene.
      * 
+     * @param app Application pointer.
      */
-    void init();
+    void init(Application* app);
 
     /**
      * @brief Updates the scene.
@@ -63,7 +66,12 @@ protected:
      */
     virtual void onEnd() {}
 
+    inline Application& getApplication() { return *m_Application; }
+    inline const Application& getApplicaton() const { return *m_Application; }
+
 private:
+
+    Application* m_Application;
 
 };
 

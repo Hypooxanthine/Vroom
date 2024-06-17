@@ -13,8 +13,9 @@ Scene::~Scene()
 
 }
 
-void Scene::init()
+void Scene::init(Application* app)
 {
+    m_Application = app;
 
     onInit();
 }

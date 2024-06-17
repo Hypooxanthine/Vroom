@@ -95,7 +95,7 @@ void Application::checkNextScene()
 
     m_CurrentScene->end();
     m_CurrentScene = std::move(m_NextScene);
-    m_CurrentScene->init();
+    m_CurrentScene->init(this);
 }
 
 void Application::update()
@@ -132,7 +132,7 @@ void Application::loadScene_Internal(std::unique_ptr<Scene>&& scene)
     if (m_CurrentScene == nullptr)
     {
         m_CurrentScene = std::move(scene);
-        m_CurrentScene->init();
+        m_CurrentScene->init(this);
     }
     else
         m_NextScene = std::move(scene);

@@ -9,6 +9,8 @@
 #include "Vroom/Event/Codes.h"
 #include "Vroom/Event/CustomEvent/CustomEventBinder.h"
 
+#define VRM_CUSTOMEVENT_CALLBACK(function) [this] (const vrm::Event& e) { this->function(e); }
+
 namespace vrm
 {
 
