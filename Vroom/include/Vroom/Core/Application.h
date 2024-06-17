@@ -48,24 +48,49 @@ public:
     void exit();
 
     /**
-     * @brief Create an event trigger.
+     * @brief Create a trigger.
      * A trigger is a particular type of event that can be activated and deactivated.
      * For this reason, it only works with inputs that can be pressed (activation) and released (deactivation).
      * A trigger can be bound with multiple inputs and callbacks.
-     * For example, a trigger could be "MoveForward". When keys Q or Up arrow are pressed, trigger is activated.
-     * When trigger was activated, and Q and Up arrow aren't pressed anymore, trigger is unactivated.
-     * When a trigger is activated AND deactivated, all associated callbacks are called with a boolean value 
+     * For example, a trigger could be "MoveForward". When keys Q or Up arrow are pressed, the trigger is activated.
+     * When the trigger is activated, and then Q and Up arrow aren't pressed anymore, the trigger is unactivated.
+     * Whenever a trigger is activated or deactivated, all associated callbacks are called with a boolean value 
      * (activated / deactivated).
      * 
-     * @param name Trigger name
-     * @return TriggerBinder A facility class instance that helps binding multiple keys and callbacks for the same trigger.
+     * @param triggerName The name of the trigger.
+     * @return TriggerBinder The binder of the trigger. Handful for binding inputs and callbacks to a trigger after its creation.
      */
     TriggerBinder createTrigger(const std::string& triggerName);
 
+    /**
+     * @brief Get the trigger binder of a specific trigger.
+     * 
+     * @param triggerName The name of the trigger.
+     * @return TriggerBinder The binder of the trigger. Handful for binding inputs and callbacks to a trigger after its creation.
+     */
     TriggerBinder getTrigger(const std::string& triggerName);
 
+    /**
+     * @brief Create a custom event.
+     * A custom event is a particular type of event that will be triggered when specific inputs are received.
+     * When a custom event is triggered, all associated callbacks are triggered as well, given the raw event object
+     * as a parameter.
+     * A custom event can be bound with multiple inputs and callbacks.
+     * Unlike triggers, custom events don't have on/off state. Thus, there is no limitation on event types, and you can
+     * use any event type (they don't have to have a pressed/released state), such as vrm::Event::Type::Exit,
+     * vrm::Event::Type::Scroll, ...
+     * 
+     * @param customEventName The name of the custom event.
+     * @return CustomEventBinder The binder of the trigger. Handful for binding inputs and callbacks to a custom event after its creation.
+     */
     CustomEventBinder createCustomEvent(const std::string& customEventName);
 
+    /**
+     * @brief Get the custom event binder of a specific custom event.
+     * 
+     * @param customEventName The name of the trigger.
+     * @return CustomEventBinder The binder of the trigger. Handful for binding inputs and callbacks to a custom event after its creation.
+     */
     CustomEventBinder getCustomEvent(const std::string& customEventName);
 
 private:
