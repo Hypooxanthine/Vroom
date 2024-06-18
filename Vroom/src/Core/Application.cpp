@@ -47,7 +47,10 @@ bool Application::initGLFW()
 
 void Application::run()
 {
-    VRM_DEBUG_ASSERT_MSG(m_CurrentScene != nullptr, "Make sure you loaded a scene before running the application.");
+    VRM_DEBUG_ASSERT_MSG(m_NextScene != nullptr, "Make sure you loaded a scene before running the application.");
+
+    m_CurrentScene = std::move(m_NextScene);
+    m_CurrentScene->init(this);
 
     while (!m_PendingKilled)
     {
@@ -55,6 +58,8 @@ void Application::run()
         update();
         draw();
     }
+
+    m_CurrentScene->end();
 }
 
 void Application::exit()
@@ -121,21 +126,15 @@ void Application::draw()
 {
     m_Renderer->beginScene();
 
+    m_CurrentScene->render();
+
     m_Renderer->endScene();
     m_Window->swapBuffers();
 }
 
 void Application::loadScene_Internal(std::unique_ptr<Scene>&& scene)
 {
-    // For the first scene loading, we initialize here, so that we don't need to check for first load
-    // at each frame in the main loop
-    if (m_CurrentScene == nullptr)
-    {
-        m_CurrentScene = std::move(scene);
-        m_CurrentScene->init(this);
-    }
-    else
-        m_NextScene = std::move(scene);
+    m_NextScene = std::move(scene);
 }
 
 } // namespace vrm

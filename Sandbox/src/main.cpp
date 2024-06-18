@@ -27,8 +27,20 @@ protected:
 
 		LOG_TRACE("MyScene \"{}\" instance updated. fps: {}", m_LittleNickName, m_FramesAccumulator);
 
-		m_TimeAccumulator -= 1.f;
 		m_FramesAccumulator = 0;
+	}
+
+	void onRender() override
+	{
+		if (m_TimeAccumulator < 1.f) return;
+		
+		LOG_TRACE("MyScene \"{}\" instance rendered.", m_LittleNickName);
+		m_TimeAccumulator -= 1.f;
+	}
+
+	void onEnd() override
+	{
+		LOG_TRACE("MyScene \"{}\" instance ended.", m_LittleNickName);
 	}
 
 	void heyFunction(bool activated) const
@@ -45,37 +57,35 @@ private:
 
 int main(int argc, char** argv)
 {
-	auto app = std::make_unique<vrm::Application>(argc, argv);
+	vrm::Application app{argc, argv};
 	
-	app->createTrigger("MoveForward")
+	app.createTrigger("MoveForward")
 		.bindInput(vrm::KeyCode::W)
 		.bindInput(vrm::KeyCode::Up)
 		.bindCallback([](bool triggered) { LOG_INFO("Moving forward  : {}", triggered); });
-	app->createTrigger("MoveBackward")
+	app.createTrigger("MoveBackward")
 		.bindInput(vrm::KeyCode::S)
 		.bindInput(vrm::KeyCode::Down)
 		.bindCallback([](bool triggered) { LOG_INFO("Moving backward : {}", triggered); });
-	app->createTrigger("MoveLeft")
+	app.createTrigger("MoveLeft")
 		.bindInput(vrm::KeyCode::A)
 		.bindInput(vrm::KeyCode::Left)
 		.bindCallback([](bool triggered) { LOG_INFO("Moving left     : {}", triggered); });
-	app->createTrigger("MoveRight")
+	app.createTrigger("MoveRight")
 		.bindInput(vrm::KeyCode::D)
 		.bindInput(vrm::KeyCode::Right)
-		.bindCallback([](bool triggered) { LOG_INFO("Moving Right    : {}", triggered); });
-	app->createTrigger("Hey")
+		.bindCallback([](bool triggered) { LOG_INFO("Moving right    : {}", triggered); });
+	app.createTrigger("Hey")
 		.bindInput(vrm::KeyCode::H);
 
-	app->createCustomEvent("Exit")
+	app.createCustomEvent("Exit")
 		.bindInput(vrm::Event::Type::KeyPressed, vrm::KeyCode::Escape)
 		.bindInput(vrm::Event::Type::Exit)
-		.bindCallback([&app](const vrm::Event&) { LOG_INFO("Exit custom event."); app->exit(); });
+		.bindCallback([&app](const vrm::Event&) { LOG_INFO("Exit custom event."); app.exit(); });
+	
+	app.loadScene<MyScene>("A cute little scene !");
 
-	app->loadScene<MyScene>("A cute little scene !");
-
-	app->run();
-
-	app.release();
+	app.run();
 
 	return 0;
 }
