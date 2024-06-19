@@ -113,18 +113,38 @@ public:
     }
 
 private:
+    
     /**
-     * @brief Initialization of GLFW.
-     * @return True if succeeded. False otherwise.
+     * @brief Initialize GLFW.
+     * 
+     * @return true If GLFW was initialized successfully.
+     * @return false Otherwise.
      */
     bool initGLFW();
     
+    /**
+     * @brief Check if the next scene is ready to be loaded.
+     * 
+     */
     void checkNextScene();
 
+    /**
+     * @brief Update step of the application.
+     * 
+     */
     void update();
 
+    /**
+     * @brief Draw step of the application.
+     * 
+     */
     void draw();
-    
+
+    /**
+     * @brief Load a scene into the application.
+     * 
+     * @param scene The scene to load.
+     */
     void loadScene_Internal(std::unique_ptr<Scene>&& scene);
 
 private:
