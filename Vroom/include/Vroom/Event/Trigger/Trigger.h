@@ -5,6 +5,22 @@
 namespace vrm
 {
 
+/**
+ * @page triggers Triggers
+ * A trigger is a particular type of event that can be activated and deactivated.
+ * For this reason, it only works with inputs that can be pressed (activation) and released (deactivation).
+ * A trigger can be bound with multiple inputs and callbacks.
+ * For example, a trigger could be "MoveForward". When keys Q or Up arrow are pressed, the trigger is activated.
+ * When the trigger is activated, and then Q and Up arrow aren't pressed anymore, the trigger is unactivated.
+ * Whenever a trigger is activated or deactivated, all associated callbacks are called with a boolean value 
+ * (activated / deactivated).
+ */
+
+/**
+ * @brief Trigger class.
+ * 
+ * @see @ref triggers
+ */
 class Trigger
 {
 public:
