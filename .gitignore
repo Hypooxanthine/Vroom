@@ -54,6 +54,10 @@ build/*
 Testing/
 Testing/*
 
+# Docs
+docs/
+docs/*
+
 # Exceptions
 !dependencies/
 !dependencies/**
