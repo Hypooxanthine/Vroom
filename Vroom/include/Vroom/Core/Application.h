@@ -16,6 +16,7 @@ class Renderer;
 class Scene;
 
 /**
+ * @short The core class of the engine.
  * @brief This is the core class of the engine. Everything related to the engine - including static calls - need to be done
  * AFTER creation of Application instance (it will initialize everything needed).
  * 
@@ -81,7 +82,7 @@ public:
      * 
      * @param customEventName The name of the trigger.
      * @return CustomEventBinder The binder of the trigger. Handful for binding inputs and callbacks to a custom event after its creation.
-     * @see @ref custom_event
+     * @see @ref custom_events
      */
     CustomEventBinder getCustomEvent(const std::string& customEventName);
 
