@@ -32,6 +32,13 @@ set(PROJECT_IMPL
     ${SOURCE_DIR}/Render/Abstraction/VertexBuffer.cpp
     ${SOURCE_DIR}/Render/Abstraction/VertexBufferLayout.cpp
     ${SOURCE_DIR}/Scene/Scene.cpp
+    ${SOURCE_DIR}/Asset/StaticAsset/StaticAsset.cpp
+    ${SOURCE_DIR}/Asset/StaticAsset/MeshAsset.cpp
+    ${SOURCE_DIR}/Asset/StaticAsset/ImageAsset.cpp
+    ${SOURCE_DIR}/Asset/AssetInstance/AssetInstance.cpp
+    ${SOURCE_DIR}/Asset/AssetInstance/MeshInstance.cpp
+    ${SOURCE_DIR}/Asset/AssetInstance/ImageInstance.cpp
+    ${SOURCE_DIR}/Asset/AssetData/MeshData.cpp
 )
 
 set(SOURCES

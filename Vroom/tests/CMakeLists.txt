@@ -21,6 +21,7 @@ set(TEST_SOURCES
     "test_TriggerManagerAndBinder.cc"
     "test_CustomEvent.cc"
     "test_CustomEventManagerAndBinder.cc"
+    "test_AssetManager.cc"
 )
 
 add_executable(VroomTests ${TEST_SOURCES})

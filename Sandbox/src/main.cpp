@@ -28,14 +28,11 @@ protected:
 		LOG_TRACE("MyScene \"{}\" instance updated. fps: {}", m_LittleNickName, m_FramesAccumulator);
 
 		m_FramesAccumulator = 0;
+		m_TimeAccumulator -= 1.f;
 	}
 
 	void onRender() override
 	{
-		if (m_TimeAccumulator < 1.f) return;
-		
-		LOG_TRACE("MyScene \"{}\" instance rendered.", m_LittleNickName);
-		m_TimeAccumulator -= 1.f;
 	}
 
 	void onEnd() override
