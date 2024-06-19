@@ -27,7 +27,10 @@ public:
             m_Assets[assetID] = std::move(asset);
         }
 
-        return dynamic_cast<T*>(m_Assets[assetID].get())->createInstance();
+        T* asT =  dynamic_cast<T*>(m_Assets[assetID].get());
+        VRM_DEBUG_ASSERT(asT != nullptr);
+
+        return asT->createInstance();
     }
 
     bool isAssetLoaded(const std::string& assetID)
