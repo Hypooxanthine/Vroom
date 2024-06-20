@@ -36,7 +36,7 @@ protected:
 TEST_F(AssetManagerTest, IsAssetLoaded)
 {
     EXPECT_FALSE(assetManager->isAssetLoaded(pathOK));
-    vrm::MeshInstance instance = assetManager->getAsset<vrm::MeshAsset>(pathOK);
+    EXPECT_NO_THROW(assetManager->loadAsset<vrm::MeshAsset>(pathOK));
     EXPECT_TRUE(assetManager->isAssetLoaded(pathOK));
 }
 
@@ -58,9 +58,9 @@ TEST_F(AssetManagerTest, GetAssetSecondTime)
 
 TEST_F(AssetManagerTest, GetAssetDifferentType)
 {
-    vrm::MeshInstance instance = assetManager->getAsset<vrm::MeshAsset>(pathOK);
+    EXPECT_NO_THROW(assetManager->loadAsset<vrm::MeshAsset>(pathOK));
     
     EXPECT_ANY_THROW(
-        vrm::ImageInstance instance2 = assetManager->getAsset<vrm::ImageAsset>(pathOK)
+        vrm::ImageInstance instance = assetManager->getAsset<vrm::ImageAsset>(pathOK)
     );
 }
