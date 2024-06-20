@@ -5,14 +5,10 @@
 namespace vrm
 {
 
-FirstPersonCamera::FirstPersonCamera(const glm::vec3& position, const glm::vec3& rotation)
-    : m_WorldPosition(position), m_Rotation(rotation)
+FirstPersonCamera::FirstPersonCamera(float viewNear, float viewFar, float viewFov, float viewAspectRatio, const glm::vec3& position, const glm::vec3& rotation)
+    : PerspectiveCameraBasic(viewNear, viewFar, viewFov, viewAspectRatio), m_WorldPosition(position), m_Rotation(rotation)
 {
-}
-
-FirstPersonCamera::FirstPersonCamera(float near, float far, float fov, float aspectRatio, const glm::vec3& position, const glm::vec3& rotation)
-    : PerspectiveCameraBasic(near, far, fov, aspectRatio), m_WorldPosition(position), m_Rotation(rotation)
-{
+    markViewDirty();
 }
 
 void FirstPersonCamera::setWorldPosition(const glm::vec3& pos)

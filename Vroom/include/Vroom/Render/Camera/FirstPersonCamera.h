@@ -8,9 +8,7 @@ namespace vrm
 class FirstPersonCamera : public PerspectiveCameraBasic
 {
 public:
-    FirstPersonCamera() = default;
-    FirstPersonCamera(const glm::vec3& position, const glm::vec3& rotation);
-    FirstPersonCamera(float near, float far, float fov, float aspectRatio, const glm::vec3& position, const glm::vec3& rotation);
+    FirstPersonCamera(float viewNear, float viewFar, float viewFov, float viewAspectRatio, const glm::vec3& position, const glm::vec3& rotation);
     virtual ~FirstPersonCamera() = default;
 
     /* GETTERS */

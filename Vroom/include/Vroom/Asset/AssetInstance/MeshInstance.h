@@ -10,6 +10,7 @@ class MeshAsset;
 class MeshInstance : public AssetInstance
 {
 public:
+    MeshInstance();
     MeshInstance(MeshAsset* meshAsset);
     ~MeshInstance() = default;
 

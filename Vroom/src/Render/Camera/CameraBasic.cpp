@@ -74,9 +74,11 @@ void CameraBasic::computeProjection() const
 
 void CameraBasic::computeViewProjection() const
 {
-    if (!m_ViewDirty && !m_ProjectionDirty) return;
+    if (!m_ViewProjectionDirty) return;
 
     m_ViewProjection = getProjection() * getView();
+
+    m_ViewProjectionDirty = false;
 }
 
 } // namespace vrm

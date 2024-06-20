@@ -5,6 +5,11 @@
 namespace vrm
 {
 
+MeshInstance::MeshInstance()
+    : AssetInstance()
+{
+}
+
 MeshInstance::MeshInstance(MeshAsset* meshAsset)
     : AssetInstance(meshAsset)
 {

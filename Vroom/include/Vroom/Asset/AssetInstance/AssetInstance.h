@@ -12,6 +12,13 @@ class StaticAsset;
 class AssetInstance
 {
 public:
+
+    /**
+     * @brief Default constructor. No static asset is set.
+     * 
+     */
+    AssetInstance();
+
     /**
      * @brief Constructor.
      * 

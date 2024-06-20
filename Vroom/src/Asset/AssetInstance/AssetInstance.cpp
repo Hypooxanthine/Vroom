@@ -5,6 +5,11 @@
 namespace vrm
 {
 
+AssetInstance::AssetInstance()
+    : m_StaticAsset(nullptr)
+{
+}
+
 AssetInstance::AssetInstance(StaticAsset* staticAsset)
     : m_StaticAsset(staticAsset)
 {
@@ -51,8 +56,11 @@ AssetInstance& AssetInstance::operator=(AssetInstance&& other)
 
 AssetInstance::~AssetInstance()
 {
-    m_StaticAsset->notifyDeleteInstance();
-    m_StaticAsset = nullptr;
+    if (m_StaticAsset != nullptr)
+    {
+        m_StaticAsset->notifyDeleteInstance();
+        m_StaticAsset = nullptr;
+    }
 }
 
 } // namespace vrm
