@@ -19,7 +19,7 @@ Texture::Texture()
 
 Texture::~Texture()
 {
-	GLCall(glDeleteTextures(1, &m_RendererID));
+	GLCall_nothrow(glDeleteTextures(1, &m_RendererID));
 }
 
 bool Texture::loadFromFile(const std::string& path)

@@ -29,6 +29,7 @@ CustomEventBinder CustomEventBinder::bindInput(Event::Type inputType, CodeType i
 CustomEventBinder CustomEventBinder::unbindInput(Event::Type inputType, CodeType inputCode)
 {
     m_Manager.unbindInput(m_CustomEventName, inputType, inputCode);
+    return *this;
 }
 
 CustomEventBinder CustomEventBinder::bindCallback(const CustomEventCallback& cb)

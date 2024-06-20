@@ -64,7 +64,7 @@ void Shader::unload()
 {
     if (m_RendererID != 0)
     {
-        GLCall(glDeleteProgram(m_RendererID));
+        GLCall_nothrow(glDeleteProgram(m_RendererID));
         m_RendererID = 0;
     }
 }

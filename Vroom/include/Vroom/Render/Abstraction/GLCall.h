@@ -13,6 +13,10 @@
 	x;\
 	VRM_ASSERT(GLLogCall())
 
+#define GLCall_nothrow(x) GLClearError();\
+	x;\
+	GLLogCall()
+
 /**
  * @brief Clears OpenGL errors queue.
  */
