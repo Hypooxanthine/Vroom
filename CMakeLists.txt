@@ -15,6 +15,7 @@ find_package(OpenGL REQUIRED)
 set(GLM_INCLUDE_DIR ${DEPENDENCIES}/GLM/include)
 set(STB_IMAGE_INCLUDE_DIR ${DEPENDENCIES}/stb_image/include)
 set(SPDLOG_INCLUDE_DIR ${DEPENDENCIES}/spdlog/include)
+set(OBJ_LOADER_INCLUDE_DIR ${DEPENDENCIES}/OBJ_Loader/include)
 if(WIN32)
     set(GLEW_INCLUDE_DIR ${DEPENDENCIES}/GLEW/include)
     set(GLFW_INCLUDE_DIR ${DEPENDENCIES}/GLFW/include)
@@ -30,6 +31,7 @@ set(LIBS_INCLUDES
     ${GLM_INCLUDE_DIR}
     ${STB_IMAGE_INCLUDE_DIR}
     ${SPDLOG_INCLUDE_DIR}
+    ${OBJ_LOADER_INCLUDE_DIR}
 )
 
 # Dependencies lib directories

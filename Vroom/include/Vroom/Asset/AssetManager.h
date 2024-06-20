@@ -27,7 +27,7 @@ public:
             m_Assets[assetID] = std::move(asset);
         }
 
-        T* asT =  dynamic_cast<T*>(m_Assets[assetID].get());
+        T* asT = dynamic_cast<T*>(m_Assets[assetID].get());
         VRM_DEBUG_ASSERT(asT != nullptr);
 
         return asT->createInstance();

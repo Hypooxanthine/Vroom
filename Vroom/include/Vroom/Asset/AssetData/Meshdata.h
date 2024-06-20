@@ -10,7 +10,8 @@ namespace vrm
 class MeshData
 {
 public:
-    MeshData(std::vector<Vertex> vertices, std::vector<uint32_t> indices);
+    MeshData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
+    MeshData(std::vector<Vertex>&& vertices, std::vector<uint32_t>&& indices);
 
     MeshData();
     MeshData(const MeshData& other);
@@ -21,6 +22,9 @@ public:
 
     const Vertex* getRawVericesData() const { return m_Vertices.data(); }
     const uint32_t* getRawIndicesData() const { return m_Indices.data(); }
+
+    const std::vector<Vertex>& getVertices() const { return m_Vertices; }
+    const std::vector<uint32_t>& getIndices() const { return m_Indices; }
 
 private:
     std::vector<Vertex> m_Vertices;

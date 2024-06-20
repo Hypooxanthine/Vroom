@@ -1,51 +1,62 @@
 #include <gtest/gtest.h>
-#include "Vroom/Asset/Asset.h"
+#include <Vroom/Asset/Asset.h>
+
+#include <fstream>
 
 class AssetManagerTest : public testing::Test {
 protected:
     void SetUp() override {
         assetManager = new vrm::AssetManager();
+
+        // Create a fake obj file
+        std::ofstream file(pathOK);
+        file << "v 0.0 0.0 0.0\n";
+        file << "v 1.0 0.0 0.0\n";
+        file << "v 1.0 1.0 0.0\n";
+        file << "f 1 2 3\n";
+        file.close();
     }
 
     void TearDown() override {
         delete assetManager;
+
+        // Remove the fake obj file
+        std::remove(pathOK.c_str());
     }
 
     vrm::AssetManager* assetManager;
+    std::string pathOK = "test_mesh.obj";
+    std::string pathFail = "test_mesh_fail.obj";
 };
 
 TEST_F(AssetManagerTest, IsAssetLoaded)
 {
-    std::string assetPath = "Resources/test_mesh.obj";
-    EXPECT_FALSE(assetManager->isAssetLoaded(assetPath));
-    vrm::MeshInstance instance = assetManager->getAsset<vrm::MeshAsset>(assetPath);
-    EXPECT_TRUE(assetManager->isAssetLoaded(assetPath));
+    EXPECT_FALSE(assetManager->isAssetLoaded(pathOK));
+    vrm::MeshInstance instance = assetManager->getAsset<vrm::MeshAsset>(pathOK);
+    EXPECT_TRUE(assetManager->isAssetLoaded(pathOK));
 }
 
 TEST_F(AssetManagerTest, GetAssetFirstTime)
 {
-    std::string assetPath = "Resources/test_mesh.obj";
     EXPECT_NO_THROW(
-        vrm::MeshInstance instance = assetManager->getAsset<vrm::MeshAsset>(assetPath)
+        vrm::MeshInstance instance = assetManager->getAsset<vrm::MeshAsset>(pathOK)
     );
 }
 
 TEST_F(AssetManagerTest, GetAssetSecondTime)
 {
-    std::string assetPath = "Resources/test_mesh.obj";
-    vrm::MeshInstance instance = assetManager->getAsset<vrm::MeshAsset>(assetPath);
+    vrm::MeshInstance instance = assetManager->getAsset<vrm::MeshAsset>(pathOK);
     
     EXPECT_NO_THROW(
-        vrm::MeshInstance instance2 = assetManager->getAsset<vrm::MeshAsset>(assetPath)
+        vrm::MeshInstance instance2 = assetManager->getAsset<vrm::MeshAsset>(pathOK)
     );
 }
 
 TEST_F(AssetManagerTest, GetAssetDifferentType)
 {
-    std::string assetPath = "Resources/test_mesh.obj";
-    vrm::MeshInstance instance = assetManager->getAsset<vrm::MeshAsset>(assetPath);
+    vrm::MeshInstance instance = assetManager->getAsset<vrm::MeshAsset>(pathOK);
     
     EXPECT_ANY_THROW(
-        vrm::ImageInstance instance2 = assetManager->getAsset<vrm::ImageAsset>(assetPath)
+        vrm::ImageInstance instance2 = assetManager->getAsset<vrm::ImageAsset>(pathOK)
     );
 }

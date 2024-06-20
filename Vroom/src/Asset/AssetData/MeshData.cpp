@@ -3,7 +3,12 @@
 namespace vrm
 {
 
-MeshData::MeshData(std::vector<Vertex> vertices, std::vector<uint32_t> indices)
+MeshData::MeshData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
+    : m_Vertices(vertices), m_Indices(indices)
+{
+}
+
+MeshData::MeshData(std::vector<Vertex>&& vertices, std::vector<uint32_t>&& indices)
     : m_Vertices(std::move(vertices)), m_Indices(std::move(indices))
 {
 }

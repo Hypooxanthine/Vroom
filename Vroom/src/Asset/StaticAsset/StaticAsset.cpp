@@ -1,5 +1,7 @@
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
 
+#include <algorithm>
+
 #include "Vroom/Asset/AssetInstance/AssetInstance.h"
 
 namespace vrm
@@ -23,6 +25,22 @@ size_t StaticAsset::getInstanceCount() const
 bool StaticAsset::load(const std::string& filePath)
 {
     return loadImpl(filePath);
+}
+
+std::string StaticAsset::getExtension(const std::string& filePath)
+{
+    // Finding the last dot
+    size_t dotIndex = filePath.find_last_of('.');
+    if (dotIndex == std::string::npos)
+        return "";
+    
+    // Getting the extension
+    std::string extension = filePath.substr(dotIndex + 1);
+
+    // To lower case
+    std::transform(extension.begin(), extension.end(), extension.begin(), std::tolower);
+
+    return extension;
 }
 
 } // namespace vrm
