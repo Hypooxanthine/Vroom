@@ -53,6 +53,23 @@ void Renderer::drawPoints(const VertexArray& va, const IndexBuffer& ib, const Sh
     GLCall(glDrawElements(GL_POINTS, (GLsizei)ib.getCount(), GL_UNSIGNED_INT, nullptr));
 }
 
+void Renderer::drawMesh(const RenderMesh& mesh, const Shader& shader, const CameraBasic& camera, const glm::mat4& model) const
+{
+    // Binding data
+    mesh.getVertexArray().bind();
+    mesh.getIndexBuffer().bind();
+    shader.bind();
+
+    // Setting uniforms
+    shader.setUniformMat4f("u_Model", model);
+    shader.setUniformMat4f("u_View", camera.getView());
+    shader.setUniformMat4f("u_Projection", camera.getProjection());
+    shader.setUniformMat4f("u_ViewProjection", camera.getViewProjection());
+
+    // Drawing data
+    GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)mesh.getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr));
+}
+
 const glm::vec<2, unsigned int>& Renderer::getViewportOrigin() const
 {
     return m_ViewportOrigin;

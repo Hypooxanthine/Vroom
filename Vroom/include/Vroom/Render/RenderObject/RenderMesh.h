@@ -16,6 +16,9 @@ public:
     RenderMesh(const MeshData& meshData);
     ~RenderMesh();
 
+    const VertexArray& getVertexArray() const { return m_VertexArray; }
+    const IndexBuffer& getIndexBuffer() const { return m_IndexBuffer; }
+
 private:
     VertexBuffer m_VertexBuffer;
     IndexBuffer m_IndexBuffer;

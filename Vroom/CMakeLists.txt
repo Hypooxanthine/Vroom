@@ -32,6 +32,9 @@ set(PROJECT_IMPL
     ${SOURCE_DIR}/Render/Abstraction/VertexBuffer.cpp
     ${SOURCE_DIR}/Render/Abstraction/VertexBufferLayout.cpp
     ${SOURCE_DIR}/Render/RenderObject/RenderMesh.cpp
+    ${SOURCE_DIR}/Render/Camera/CameraBasic.cpp
+    ${SOURCE_DIR}/Render/Camera/PerspectiveCameraBasic.cpp
+    ${SOURCE_DIR}/Render/Camera/FirstPersonCamera.cpp
     ${SOURCE_DIR}/Scene/Scene.cpp
     ${SOURCE_DIR}/Asset/StaticAsset/StaticAsset.cpp
     ${SOURCE_DIR}/Asset/StaticAsset/MeshAsset.cpp

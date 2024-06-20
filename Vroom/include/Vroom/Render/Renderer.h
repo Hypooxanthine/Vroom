@@ -9,6 +9,9 @@
 #include "Vroom/Render/Abstraction/IndexBuffer.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 
+#include "Vroom/Render/RenderObject/RenderMesh.h"
+#include "Vroom/Render/Camera/CameraBasic.h"
+
 namespace vrm
 {
 
@@ -57,6 +60,16 @@ public:
 	 * @param shader 
 	 */
 	void drawPoints(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const;
+
+	/**
+	 * @brief  Draws a mesh with a shader and a camera.
+	 * 
+	 * @param mesh  The mesh to draw.
+	 * @param shader  The shader to use.
+	 * @param camera  The camera to use.
+	 * @param model  The model matrix.
+	 */
+	void drawMesh(const RenderMesh& mesh, const Shader& shader, const CameraBasic& camera, const glm::mat4& model) const;
 
 	/**
 	 * @brief Gets the viewport origin.
