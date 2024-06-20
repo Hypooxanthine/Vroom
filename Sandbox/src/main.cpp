@@ -14,9 +14,10 @@ public:
 protected:
 	void onInit() override
 	{
-		myMesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/cube.obj");
+		myMesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/Suzanne.obj");
 		myShader.loadFromFile("Resources/Shaders/vert_Basic.glsl", "Resources/Shaders/frag_Basic.glsl");
 		setCamera(&myCamera);
+		myCamera.move({0.f, 0.f, 5.f});
 
 		getApplication().getTrigger("MoveForward")
 			.bindCallback([this](bool triggered) { forwardValue += triggered ? 1.f : -1.f; });

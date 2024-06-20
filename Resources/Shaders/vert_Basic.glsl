@@ -9,7 +9,12 @@ uniform mat4 u_View;
 uniform mat4 u_Projection;
 uniform mat4 u_ViewProjection;
 
+out vec3 v_Normal;
+out vec3 v_Position;
+
 void main()
 {
 	gl_Position = u_ViewProjection * u_Model * vec4(position, 1.0);
+	v_Position = vec3(u_Model * vec4(position, 1.0));
+	v_Normal = normal;
 }
