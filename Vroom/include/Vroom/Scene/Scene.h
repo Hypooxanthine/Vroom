@@ -1,9 +1,16 @@
 #pragma once
 
+#include <memory>
+
+#include "Vroom/Render/Camera/FirstPersonCamera.h"
+
 namespace vrm
 {
 
 class Application;
+class CameraBasic;
+class AssetManager;
+class FirstPersonCamera;
 
 class Scene
 {
@@ -38,6 +45,12 @@ public:
      * 
      */
     void end();
+    
+    inline void setCamera(CameraBasic* camera) { m_Camera = camera; }
+    inline const CameraBasic& getCamera() const { return *m_Camera; }
+
+    inline AssetManager& getAssetManager() { return *m_AssetManager; }
+    inline const AssetManager& getAssetManager() const { return *m_AssetManager; }
 
 protected:
 
@@ -70,8 +83,12 @@ protected:
     inline const Application& getApplicaton() const { return *m_Application; }
 
 private:
+    std::unique_ptr<AssetManager> m_AssetManager;
 
     Application* m_Application;
+
+    FirstPersonCamera m_DefaultCamera = FirstPersonCamera(0.1f, 100.f, 45.f, 600.f / 400.f, glm::vec3{0.f, 0.f, 0.f}, glm::vec3{0.f, 0.f, 0.f});
+    CameraBasic* m_Camera;
 
 };
 

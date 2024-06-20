@@ -55,6 +55,7 @@ void GLFWEventsConverter::Init()
        { GLFW_KEY_ESCAPE, KeyCode::Escape },
        { GLFW_KEY_ENTER, KeyCode::Enter },
        { GLFW_KEY_TAB, KeyCode::Tab },
+       { GLFW_KEY_LEFT_SHIFT, KeyCode::LeftShift },
     };
 
     s_mouseCodeMapper = {

@@ -30,6 +30,7 @@ Application::Application(int argc, char** argv)
 
 Application::~Application()
 {
+    m_CurrentScene.release();
     m_Window.release();
     glfwTerminate();
     m_Renderer.release();

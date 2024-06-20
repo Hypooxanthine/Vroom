@@ -14,6 +14,7 @@ enum class KeyCode : CodeType
     Space, Escape, Enter, Tab,
     Right, Left, Down, Up,
     NUMPAD_0, NUMPAD_1, NUMPAD_2, NUMPAD_3, NUMPAD_4, NUMPAD_5, NUMPAD_6, NUMPAD_7, NUMPAD_8, NUMPAD_9,
+    LeftShift,
 };
 
 enum class MouseCode : CodeType
@@ -62,6 +63,9 @@ inline std::string to_string(const vrm::KeyCode& code)
         break;
     case vrm::KeyCode::Up:
         return "Up";
+        break;
+    case vrm::KeyCode::LeftShift:
+        return "Left Shift";
         break;
     case vrm::KeyCode::None:
         return "None";

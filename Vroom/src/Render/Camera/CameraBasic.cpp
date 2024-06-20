@@ -41,17 +41,20 @@ const glm::mat4 &CameraBasic::getViewProjection() const
 
 glm::vec3 CameraBasic::getForwardVector() const
 {
-    return glm::inverse(getView()) * glm::vec4{0.f, 0.f, -1.f, 1.f};
+    auto& v = getView();
+    return -glm::vec3(v[0][2], v[1][2], v[2][2]);
 }
 
 glm::vec3 CameraBasic::getUpVector() const
 {
-    return glm::inverse(getView()) * glm::vec4{0.f, 1.f, 0.f, 1.f};
+    auto& v = getView();
+    return glm::vec3(v[0][1], v[1][1], v[2][1]);
 }
 
 glm::vec3 CameraBasic::getRightVector() const
 {
-    return glm::inverse(getView()) * glm::vec4{1.f, 0.f, 0.f, 1.f};
+    auto& v = getView();
+    return glm::vec3(v[0][0], v[1][0], v[2][0]);
 }
 
 void CameraBasic::computeView() const

@@ -31,13 +31,13 @@ void FirstPersonCamera::addYaw(float yaw)
 
 void FirstPersonCamera::addPitch(float pitch)
 {
-    m_Rotation.z += pitch;
+    m_Rotation.x -= pitch;
     markViewDirty();
 }
 
 void FirstPersonCamera::addRoll(float roll)
 {
-    m_Rotation.x += roll;
+    m_Rotation.y += roll;
     markViewDirty();
 }
 

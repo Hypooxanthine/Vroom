@@ -102,6 +102,9 @@ public:
         loadScene_Internal(std::move(scene));
     }
 
+    inline const Renderer& getRenderer() const { return *m_Renderer; }
+    inline Renderer& getRenderer() { return *m_Renderer; }
+
 private:
     
     /**
