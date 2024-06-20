@@ -14,9 +14,13 @@ mkdir build
 cd build
 cmake ..
 cmake --build . --config [Release|Debug]
+ctest # If you want to run unit tests
 ```
 
 Output files will be written in Vroom/build/[Project]/[config]/ folder, where [Project] is Vroom or Sandbox, and config is Release or Debug.
+
+You may need to copy the Resources/ folder by hand, from the repository root to the same directory than the Sandbox executable.
+CMake does it by itself on vscode, I and did not take the time to fix it for command line.
 
 ## External libraries
 
