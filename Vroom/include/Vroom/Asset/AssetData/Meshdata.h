@@ -26,6 +26,10 @@ public:
     const std::vector<Vertex>& getVertices() const { return m_Vertices; }
     const std::vector<uint32_t>& getIndices() const { return m_Indices; }
 
+    size_t getIndexCount() const { return m_Indices.size(); }
+    size_t getTriangleCount() const { return getIndexCount() / 3; }
+    size_t getVertexCount() const { return m_Vertices.size(); }
+
 private:
     std::vector<Vertex> m_Vertices;
     std::vector<uint32_t> m_Indices;
