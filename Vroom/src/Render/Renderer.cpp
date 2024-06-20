@@ -22,8 +22,7 @@ Renderer::~Renderer()
 void Renderer::beginScene()
 {
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-
+    GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
 }
 
 void Renderer::endScene()

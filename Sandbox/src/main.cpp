@@ -14,11 +14,17 @@ public:
 protected:
 	void onInit() override
 	{
+		// Load the mesh and shader
 		myMesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/Suzanne.obj");
 		myShader.loadFromFile("Resources/Shaders/vert_Basic.glsl", "Resources/Shaders/frag_Basic.glsl");
-		setCamera(&myCamera);
-		myCamera.move({0.f, 0.f, 5.f});
 
+		// Set a custom camera
+		setCamera(&myCamera);
+		myCamera.move({0.f, 0.f, 5.f}); // Move the camera back a bit
+
+		// Bind triggers to the camera
+		// This is a bit ugly. I might create some facilities that do this job in the future.
+		// Maybe another event type, which will give a scalar depending on the input (moveForward in [-1, 1] for example, controlled with any input we want).
 		getApplication().getTrigger("MoveForward")
 			.bindCallback([this](bool triggered) { forwardValue += triggered ? 1.f : -1.f; });
 		getApplication().getTrigger("MoveBackward")
@@ -39,6 +45,12 @@ protected:
 			.bindCallback([this](bool triggered) { lookUpValue += triggered ? 1.f : -1.f; });
 		getApplication().getTrigger("LookDown")
 			.bindCallback([this](bool triggered) { lookUpValue -= triggered ? 1.f : -1.f; });
+
+		// Should be handled in the engine side of the scene, but for now we'll do it here
+		getApplication().getCustomEvent("WindowResize")
+			.bindCallback([this](const vrm::Event& e) {
+				myCamera.setAspectRatio((float)e.newWidth / (float)e.newHeight);
+			});
 
 		LOG_TRACE("MyScene \"{}\" instance initialized.", m_LittleNickName);
 	}
@@ -64,15 +76,22 @@ protected:
 
 	void onRender() override
 	{
+		// This shouldn't be needed at all.
+		// Scene will do it on its own with the entity component system.
 		getApplication().getRenderer().drawMesh(myMesh.getStaticAsset()->getRenderMesh(), myShader, getCamera(), glm::mat4(1.f));
 	}
 
 private:
 	std::string m_LittleNickName;
+
+	// Low cost profiler
 	float m_TimeAccumulator = 0.f;
 	size_t m_FramesAccumulator = 0;
 
+	// This should be stored in a CameraComponent.
 	vrm::FirstPersonCamera myCamera{0.1f, 100.f, 45.f, 600.f / 400.f, glm::vec3{0.f, 0.f, 0.f}, glm::vec3{0.f, 0.f, 0.f}};
+
+	// These two shouldn't be stored here but in a MeshComponent.
 	vrm::MeshInstance myMesh;
 	Shader myShader;
 
@@ -83,46 +102,46 @@ private:
 
 int main(int argc, char** argv)
 {
+	// Create the application
 	vrm::Application app{argc, argv};
 	
+	// Create some triggers so we can interact with the application
 	app.createTrigger("MoveForward")
-		.bindInput(vrm::KeyCode::W)
-		.bindCallback([](bool triggered) { LOG_INFO("Moving forward  : {}", triggered); });
+		.bindInput(vrm::KeyCode::W);
 	app.createTrigger("MoveBackward")
-		.bindInput(vrm::KeyCode::S)
-		.bindCallback([](bool triggered) { LOG_INFO("Moving backward : {}", triggered); });
+		.bindInput(vrm::KeyCode::S);
 	app.createTrigger("MoveLeft")
-		.bindInput(vrm::KeyCode::A)
-		.bindCallback([](bool triggered) { LOG_INFO("Moving left     : {}", triggered); });
+		.bindInput(vrm::KeyCode::A);
 	app.createTrigger("MoveRight")
-		.bindInput(vrm::KeyCode::D)
-		.bindCallback([](bool triggered) { LOG_INFO("Moving right    : {}", triggered); });
+		.bindInput(vrm::KeyCode::D);
 	app.createTrigger("MoveUp")
-		.bindInput(vrm::KeyCode::Space)
-		.bindCallback([](bool triggered) { LOG_INFO("Moving up       : {}", triggered); });
+		.bindInput(vrm::KeyCode::Space);
 	app.createTrigger("MoveDown")
-		.bindInput(vrm::KeyCode::LeftShift)
-		.bindCallback([](bool triggered) { LOG_INFO("Moving down     : {}", triggered); });
+		.bindInput(vrm::KeyCode::LeftShift);
 	app.createTrigger("TurnLeft")
-		.bindInput(vrm::KeyCode::Left)
-		.bindCallback([](bool triggered) { LOG_INFO("Turning left    : {}", triggered); });
+		.bindInput(vrm::KeyCode::Left);
 	app.createTrigger("TurnRight")
-		.bindInput(vrm::KeyCode::Right)
-		.bindCallback([](bool triggered) { LOG_INFO("Turning right   : {}", triggered); });
+		.bindInput(vrm::KeyCode::Right);
 	app.createTrigger("LookUp")
-		.bindInput(vrm::KeyCode::Up)
-		.bindCallback([](bool triggered) { LOG_INFO("Looking up      : {}", triggered); });
+		.bindInput(vrm::KeyCode::Up);
 	app.createTrigger("LookDown")
-		.bindInput(vrm::KeyCode::Down)
-		.bindCallback([](bool triggered) { LOG_INFO("Looking down    : {}", triggered); });
+		.bindInput(vrm::KeyCode::Down);
 
+	// Create some custom events, which are more general than triggers
 	app.createCustomEvent("Exit")
 		.bindInput(vrm::Event::Type::KeyPressed, vrm::KeyCode::Escape)
 		.bindInput(vrm::Event::Type::Exit)
-		.bindCallback([&app](const vrm::Event&) { LOG_INFO("Exit custom event."); app.exit(); });
+		.bindCallback([&app](const vrm::Event&) { LOG_INFO("Application exit has been requested by user."); app.exit(); });
+
+	// This shoud be handled by the engine, but for now we'll do it here
+	app.createCustomEvent("WindowResize")
+		.bindInput(vrm::Event::Type::WindowsResized)
+		.bindCallback([&app](const vrm::Event& e) { app.getRenderer().setViewport({ 0.f, 0.f}, { (float)e.newWidth, (float)e.newHeight }); });
 	
+	// Load the custom scene, defined above
 	app.loadScene<MyScene>("A cute little scene !");
 
+	// Run the application
 	app.run();
 
 	return 0;
