@@ -4,8 +4,8 @@ namespace vrm
 {
 
 RenderMesh::RenderMesh(const MeshData& meshData)
-    : m_VertexBuffer(meshData.getRawVericesData(), meshData.getVertexCount() * sizeof(Vertex)),
-      m_IndexBuffer(meshData.getRawIndicesData(), meshData.getIndexCount())
+    : m_VertexBuffer(meshData.getRawVericesData(), (unsigned int)meshData.getVertexCount() * sizeof(Vertex)),
+      m_IndexBuffer(meshData.getRawIndicesData(), (unsigned int)meshData.getIndexCount())
 {
     m_VertexBufferLayout.pushFloat(3);
     m_VertexBufferLayout.pushFloat(3);

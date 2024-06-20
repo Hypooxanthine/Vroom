@@ -8,6 +8,15 @@
 namespace vrm
 {
 
+MeshAsset::MeshAsset()
+    : StaticAsset(), m_RenderMesh(nullptr)
+{
+}
+
+MeshAsset::~MeshAsset()
+{
+}
+
 MeshInstance MeshAsset::createInstance()
 {
     return MeshInstance(this);
@@ -16,6 +25,12 @@ MeshInstance MeshAsset::createInstance()
 const MeshData& MeshAsset::getMeshData() const
 {
     return m_MeshData;
+}
+
+const RenderMesh& MeshAsset::getRenderMesh() const
+{
+    VRM_DEBUG_ASSERT_MSG(m_RenderMesh != nullptr, "RenderMesh is nullptr. Did you forget to load the mesh?");
+    return *m_RenderMesh;
 }
 
 bool MeshAsset::loadImpl(const std::string& filePath)
@@ -66,6 +81,8 @@ bool MeshAsset::loadObj(const std::string& filePath)
     }
 
     m_MeshData = MeshData(std::move(vertices), std::move(indices));
+    LOG_INFO("Mesh vertices: {}, triangles: {}", m_MeshData.getVertexCount(), m_MeshData.getTriangleCount());
+    m_RenderMesh = std::make_unique<RenderMesh>(m_MeshData);
 
     return true;
 }

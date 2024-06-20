@@ -10,6 +10,7 @@ protected:
 
     void SetUp() override
     {
+        app = new vrm::Application(0, nullptr);
         meshAsset = new vrm::MeshAsset();
 
         // Create a fake obj file
@@ -24,11 +25,13 @@ protected:
     void TearDown() override
     {
         delete meshAsset;
+        delete app;
 
         // Remove the fake obj file
         std::remove(pathOK.c_str());
     }
 
+    vrm::Application* app;
     vrm::MeshAsset* meshAsset;
     std::string pathOK = "test_mesh.obj";
     std::string pathFail = "test_mesh_fail.obj";
@@ -67,4 +70,15 @@ TEST_F(TestMeshAsset, LoadObjCorrect)
     EXPECT_EQ(indices[0], 0);
     EXPECT_EQ(indices[1], 1);
     EXPECT_EQ(indices[2], 2);
+}
+
+TEST_F(TestMeshAsset, GetRenderMesh)
+{
+    meshAsset->load(pathOK);
+    EXPECT_NO_THROW(const vrm::RenderMesh& renderMesh = meshAsset->getRenderMesh());
+}
+
+TEST_F(TestMeshAsset, GetRenderMeshFail)
+{
+    EXPECT_THROW(meshAsset->getRenderMesh(), std::runtime_error);
 }

@@ -17,9 +17,9 @@ public:
     ~RenderMesh();
 
 private:
-    VertexArray m_VertexArray;
-    IndexBuffer m_IndexBuffer;
     VertexBuffer m_VertexBuffer;
+    IndexBuffer m_IndexBuffer;
+    VertexArray m_VertexArray;
     VertexBufferLayout m_VertexBufferLayout;
 };
 
