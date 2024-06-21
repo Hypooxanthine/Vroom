@@ -20,4 +20,9 @@ MeshAsset* MeshInstance::getStaticAsset()
     return static_cast<MeshAsset*>(m_StaticAsset);
 }
 
+const MeshAsset* MeshInstance::getStaticAsset() const
+{
+    return static_cast<MeshAsset*>(m_StaticAsset);
+}
+
 } // namespace vrm

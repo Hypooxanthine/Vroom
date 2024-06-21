@@ -15,6 +15,7 @@ public:
     ~MeshInstance() = default;
 
     MeshAsset* getStaticAsset();
+    const MeshAsset* getStaticAsset() const;
 };
 
 } // namespace vrm

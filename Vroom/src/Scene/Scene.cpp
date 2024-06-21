@@ -1,11 +1,17 @@
 #include "Vroom/Scene/Scene.h"
 
+#include "Vroom/Core/Application.h"
+
 #include "Vroom/Asset/Asset.h"
+
+#include "Vroom/Render/Renderer.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
 #include "Vroom/Render/Camera/FirstPersonCamera.h"
-#include "Vroom/Scene/Entity.h"
 
+#include "Vroom/Scene/Entity.h"
 #include "Vroom/Scene/Components/NameComponent.h"
+#include "Vroom/Scene/Components/TransformComponent.h"
+#include "Vroom/Scene/Components/MeshComponent.h"
 
 namespace vrm
 {
@@ -29,6 +35,9 @@ void Scene::init(Application* app)
 {
     m_Application = app;
 
+    // Setting a default shader
+    m_DefaultShader.loadFromFile("Resources/Shaders/vert_Basic.glsl", "Resources/Shaders/frag_Basic.glsl");
+
     onInit();
 }
 
@@ -40,6 +49,16 @@ void Scene::update(float dt)
 
 void Scene::render()
 {
+    const auto& renderer = m_Application->getRenderer();
+
+    auto view = m_Registry.view<MeshComponent, TransformComponent>();
+    for (auto entity : view)
+    {
+        auto& meshComponent = view.get<MeshComponent>(entity);
+        auto& transformComponent = view.get<TransformComponent>(entity);
+
+        renderer.drawMesh(meshComponent.getMeshData(), m_DefaultShader, getCamera(), transformComponent.getTransform());
+    }
 
     onRender();
 }
@@ -55,6 +74,7 @@ Entity Scene::createEntity(const std::string& nameTag)
     VRM_ASSERT_MSG(!entityExists(nameTag), "Entity with name " + nameTag + " already exists.");
     auto e = getEntity(m_Registry.create());
     e.addComponent<NameComponent>(nameTag);
+    e.addComponent<TransformComponent>();
 
     return e;
 }

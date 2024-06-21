@@ -5,6 +5,9 @@
 #include <Vroom/Asset/Asset.h>
 #include <Vroom/Render/Renderer.h>
 
+#include <Vroom/Scene/Components/MeshComponent.h>
+#include <Vroom/Scene/Components/TransformComponent.h>
+
 class MyScene : public vrm::Scene
 {
 public:
@@ -14,13 +17,17 @@ public:
 protected:
 	void onInit() override
 	{
-		// Load the mesh and shader
-		myMesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/Suzanne.obj");
-		myShader.loadFromFile("Resources/Shaders/vert_Basic.glsl", "Resources/Shaders/frag_Basic.glsl");
+		// Create some suzannes
+		for (uint8_t i = 0; i < 10; i++)
+		{
+			auto entity = createEntity("Suzanne_" + std::to_string(i));
+			entity.addComponent<vrm::MeshComponent>(getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/Suzanne.obj"));
+			auto& transform = entity.getComponent<vrm::TransformComponent>();
+			transform.position = { i * 3.f, 0.f, -5.f };
+		}
 
 		// Set a custom camera
 		setCamera(&myCamera);
-		myCamera.move({0.f, 0.f, 5.f}); // Move the camera back a bit
 
 		// Bind triggers to the camera
 		// This is a bit ugly. I might create some facilities that do this job in the future.
@@ -76,9 +83,7 @@ protected:
 
 	void onRender() override
 	{
-		// This shouldn't be needed at all.
-		// Scene will do it on its own with the entity component system.
-		getApplication().getRenderer().drawMesh(myMesh.getStaticAsset()->getRenderMesh(), myShader, getCamera(), glm::mat4(1.f));
+		
 	}
 
 private:
@@ -90,10 +95,6 @@ private:
 
 	// This should be stored in a CameraComponent.
 	vrm::FirstPersonCamera myCamera{0.1f, 100.f, 45.f, 600.f / 400.f, glm::vec3{0.f, 0.f, 0.f}, glm::vec3{0.f, 0.f, 0.f}};
-
-	// These two shouldn't be stored here but in a MeshComponent.
-	vrm::MeshInstance myMesh;
-	Shader myShader;
 
 	float forwardValue = 0.f, rightValue = 0.f, upValue = 0.f;
 	float turnRightValue = 0.f, lookUpValue = 0.f;
