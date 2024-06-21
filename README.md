@@ -29,6 +29,7 @@ CMake does it by itself on vscode, I and did not take the time to fix it for com
 - [glm](https://github.com/icaven/glm)
 - [spdlog](https://github.com/gabime/spdlog)
 - [stb](https://github.com/nothings/stb)
+- [OBJ-Loader](https://github.com/Bly7/OBJ-Loader)
 - [entt](https://github.com/skypjack/entt)
 
 ## Inspirations
