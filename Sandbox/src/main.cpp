@@ -17,11 +17,12 @@ public:
 protected:
 	void onInit() override
 	{
-		// Create some suzannes
+		// Create a few suzannes
 		for (uint8_t i = 0; i < 10; i++)
 		{
 			auto entity = createEntity("Suzanne_" + std::to_string(i));
-			entity.addComponent<vrm::MeshComponent>(getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/Suzanne.obj"));
+			auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/Suzanne.obj");
+			entity.addComponent<vrm::MeshComponent>(mesh);
 			auto& transform = entity.getComponent<vrm::TransformComponent>();
 			transform.position = { i * 3.f, 0.f, -5.f };
 		}

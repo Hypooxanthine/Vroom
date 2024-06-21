@@ -8,7 +8,6 @@ namespace vrm
 MeshComponent::MeshComponent(const MeshInstance& meshInstance)
     : m_MeshInstance(meshInstance)
 {
-
 }
 
 const MeshData& MeshComponent::getMeshData() const
