@@ -1,4 +1,6 @@
 #include <iostream>
+#include <array>
+#include <cmath>
 
 #include <Vroom/Core/Application.h>
 #include <Vroom/Scene/Scene.h>
@@ -7,6 +9,7 @@
 
 #include <Vroom/Scene/Components/MeshComponent.h>
 #include <Vroom/Scene/Components/TransformComponent.h>
+#include <glm/gtx/rotate_vector.hpp>
 
 class MyScene : public vrm::Scene
 {
@@ -18,13 +21,18 @@ protected:
 	void onInit() override
 	{
 		// Create a few suzannes
-		for (uint8_t i = 0; i < 10; i++)
+		for (uint8_t i = 0; i < suzannes.size(); i++)
 		{
 			auto entity = createEntity("Suzanne_" + std::to_string(i));
 			auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/Suzanne.obj");
 			entity.addComponent<vrm::MeshComponent>(mesh);
 			auto& transform = entity.getComponent<vrm::TransformComponent>();
-			transform.position = { i * 3.f, 0.f, -5.f };
+
+			float theta = 3.14159f * 2.f * i / suzannes.size();
+			transform.position = { std::cos(theta) * suzanneRadius, 0.f, -std::sin(theta) * suzanneRadius };
+			transform.rotation = { 0.f, glm::degrees(theta), 0.f };
+
+			suzannes[i] = entity;
 		}
 
 		// Set a custom camera
@@ -65,6 +73,15 @@ protected:
 		myCamera.addYaw(turnRightValue * myCameraAngularSpeed * dt);
 		myCamera.addPitch(lookUpValue * myCameraAngularSpeed * dt);
 
+		// Rotate suzannes on their circle
+		for (auto& suzanne : suzannes)
+		{
+			auto& transform = suzanne.getComponent<vrm::TransformComponent>();
+			float theta = -suzanneSpeed * dt;
+			transform.position = glm::rotateY(transform.position, theta);
+			transform.rotation.y += glm::degrees(theta);
+		}
+
 		m_TimeAccumulator += dt;
 		m_FramesAccumulator++;
 
@@ -74,11 +91,6 @@ protected:
 
 		m_FramesAccumulator = 0;
 		m_TimeAccumulator -= 1.f;
-	}
-
-	void onRender() override
-	{
-		
 	}
 
 private:
@@ -94,6 +106,10 @@ private:
 	float forwardValue = 0.f, rightValue = 0.f, upValue = 0.f;
 	float turnRightValue = 0.f, lookUpValue = 0.f;
 	float myCameraSpeed = 10.f, myCameraAngularSpeed = 100.f;
+ 
+	std::array<vrm::Entity, 10> suzannes;
+	float suzanneRadius = 10.f;
+	float suzanneSpeed = 3.14159f / 4.f;
 };
 
 int main(int argc, char** argv)

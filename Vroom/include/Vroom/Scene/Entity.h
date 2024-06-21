@@ -107,12 +107,37 @@ public:
         m_Registry->remove<T>(m_Handle);
     }
 
+    /**
+     * @brief Check if the entity is valid.
+     * 
+     * @return true If the entity is valid.
+     * @return false If the entity is not valid.
+     */
     operator bool() const { return m_Handle != entt::null; }
 
+    /**
+     * @brief Get the entity handle.
+     * 
+     * @return entt::entity The entity handle.
+     */
     operator entt::entity() const { return m_Handle; }
 
+    /**
+     * @brief Equality operator.
+     * 
+     * @param other The entity to compare to.
+     * @return true If the entities are equal.
+     * @return false If the entities are not equal.
+     */
     bool operator==(const Entity& other) const { return m_Handle == other.m_Handle && m_Registry == other.m_Registry; }
 
+    /**
+     * @brief Inequality operator.
+     * 
+     * @param other The entity to compare to.
+     * @return true If the entities are not equal.
+     * @return false If the entities are equal.
+     */
     bool operator!=(const Entity& other) const { return !(*this == other); }
 
 private:

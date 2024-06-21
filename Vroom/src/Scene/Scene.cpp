@@ -41,7 +41,7 @@ void Scene::init(Application* app)
 	getApplication().createCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
 		.bindInput(vrm::Event::Type::WindowsResized)
 		.bindCallback([this](const vrm::Event& e) {
-            getApplication().getRenderer().setViewport({ 0.f, 0.f}, { (float)e.newWidth, (float)e.newHeight });
+            getApplication().getRenderer().setViewport({ 0.f, 0.f}, { static_cast<float>(e.newWidth), static_cast<float>(e.newHeight) });
         })
         .bindCallback([this](const vrm::Event& e) {
             getCamera().setViewportSize(static_cast<float>(e.newWidth), static_cast<float>(e.newHeight));
