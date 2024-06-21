@@ -17,6 +17,8 @@ public:
     inline float getFov() const { return m_Fov; }
     inline float getAspectRatio() const { return m_AspectRatio; }
 
+    void setViewportSize(float width, float height) override;
+
 private:
     glm::mat4 onProjectionComputed() const override; // This is now private and no longer virtual.
 

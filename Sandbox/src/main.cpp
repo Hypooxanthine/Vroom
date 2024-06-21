@@ -54,12 +54,6 @@ protected:
 		getApplication().getTrigger("LookDown")
 			.bindCallback([this](bool triggered) { lookUpValue -= triggered ? 1.f : -1.f; });
 
-		// Should be handled in the engine side of the scene, but for now we'll do it here
-		getApplication().getCustomEvent("WindowResize")
-			.bindCallback([this](const vrm::Event& e) {
-				myCamera.setAspectRatio((float)e.newWidth / (float)e.newHeight);
-			});
-
 		LOG_TRACE("MyScene \"{}\" instance initialized.", m_LittleNickName);
 	}
 
@@ -134,11 +128,6 @@ int main(int argc, char** argv)
 		.bindInput(vrm::Event::Type::KeyPressed, vrm::KeyCode::Escape)
 		.bindInput(vrm::Event::Type::Exit)
 		.bindCallback([&app](const vrm::Event&) { LOG_INFO("Application exit has been requested by user."); app.exit(); });
-
-	// This shoud be handled by the engine, but for now we'll do it here
-	app.createCustomEvent("WindowResize")
-		.bindInput(vrm::Event::Type::WindowsResized)
-		.bindCallback([&app](const vrm::Event& e) { app.getRenderer().setViewport({ 0.f, 0.f}, { (float)e.newWidth, (float)e.newHeight }); });
 	
 	// Load the custom scene, defined above
 	app.loadScene<MyScene>("A cute little scene !");

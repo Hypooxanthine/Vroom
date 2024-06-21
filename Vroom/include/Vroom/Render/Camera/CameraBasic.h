@@ -18,6 +18,8 @@ public:
     inline float getNear() const { return m_Near; }
     inline float getFar() const { return m_Far; }
 
+    virtual void setViewportSize(float width, float height) {}
+
     const glm::mat4& getView() const;
     const glm::mat4& getProjection() const;
     const glm::mat4& getViewProjection() const;

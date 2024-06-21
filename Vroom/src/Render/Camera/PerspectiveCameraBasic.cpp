@@ -23,6 +23,11 @@ void PerspectiveCameraBasic::setAspectRatio(float ratio)
     markProjectionDirty();
 }
 
+void PerspectiveCameraBasic::setViewportSize(float width, float height)
+{
+    setAspectRatio(width / height);
+}
+
 glm::mat4 PerspectiveCameraBasic::onProjectionComputed() const
 {
     return glm::perspective(m_Fov, m_AspectRatio, getNear(), getFar());

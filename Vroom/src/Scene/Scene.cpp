@@ -38,6 +38,15 @@ void Scene::init(Application* app)
     // Setting a default shader
     m_DefaultShader.loadFromFile("Resources/Shaders/vert_Basic.glsl", "Resources/Shaders/frag_Basic.glsl");
 
+	getApplication().createCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
+		.bindInput(vrm::Event::Type::WindowsResized)
+		.bindCallback([this](const vrm::Event& e) {
+            getApplication().getRenderer().setViewport({ 0.f, 0.f}, { (float)e.newWidth, (float)e.newHeight });
+        })
+        .bindCallback([this](const vrm::Event& e) {
+            getCamera().setViewportSize(static_cast<float>(e.newWidth), static_cast<float>(e.newHeight));
+        });
+
     onInit();
 }
 

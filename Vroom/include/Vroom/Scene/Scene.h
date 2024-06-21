@@ -50,6 +50,7 @@ public:
     
     inline void setCamera(CameraBasic* camera) { m_Camera = camera; }
     inline const CameraBasic& getCamera() const { return *m_Camera; }
+    inline CameraBasic& getCamera() { return *m_Camera; }
 
     inline AssetManager& getAssetManager() { return *m_AssetManager; }
     inline const AssetManager& getAssetManager() const { return *m_AssetManager; }
