@@ -6,10 +6,6 @@
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Core/Log.h"
 
-#if defined(WIN32)
-#define alloca(x) _malloca(x)
-#endif
-
 static std::string LoadShader(const std::string& path)
 {
     std::ifstream ifs(path);
@@ -122,9 +118,9 @@ unsigned int Shader::compileShader(unsigned int type, const std::string& source)
     {
         int length;
         GLCall(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length));
-        char* message = (char*)alloca(length * sizeof(char));
-        GLCall(glGetShaderInfoLog(id, length, &length, message));
-        LOG_CRITICAL("Failed to compile {} shader: {}", (type == GL_VERTEX_SHADER ? "vertex" : "fragment"), message);
+        std::string str(length, ' ');
+        GLCall(glGetShaderInfoLog(id, length, &length, str.data()));
+        LOG_CRITICAL("Failed to compile {} shader: {}", (type == GL_VERTEX_SHADER ? "vertex" : "fragment"), str);
         GLCall(glDeleteShader(id));
         return 0;
     }
