@@ -18,12 +18,14 @@ set(STB_IMAGE_IMPL ${DEPENDENCIES}/stb_image/src/stb_image.cpp)
 set(PROJECT_IMPL
     ${SOURCE_DIR}/Core/Application.cpp
     ${SOURCE_DIR}/Core/Window.cpp
+
     ${SOURCE_DIR}/Event/GLFWEventsConverter.cpp
     ${SOURCE_DIR}/Event/Trigger/Trigger.cpp
     ${SOURCE_DIR}/Event/Trigger/TriggerManager.cpp
     ${SOURCE_DIR}/Event/Trigger/TriggerBinder.cpp
     ${SOURCE_DIR}/Event/CustomEvent/CustomEventManager.cpp
     ${SOURCE_DIR}/Event/CustomEvent/CustomEventBinder.cpp
+
     ${SOURCE_DIR}/Render/Renderer.cpp
     ${SOURCE_DIR}/Render/Abstraction/IndexBuffer.cpp
     ${SOURCE_DIR}/Render/Abstraction/Shader.cpp
@@ -35,7 +37,10 @@ set(PROJECT_IMPL
     ${SOURCE_DIR}/Render/Camera/CameraBasic.cpp
     ${SOURCE_DIR}/Render/Camera/PerspectiveCameraBasic.cpp
     ${SOURCE_DIR}/Render/Camera/FirstPersonCamera.cpp
+
     ${SOURCE_DIR}/Scene/Scene.cpp
+    ${SOURCE_DIR}/Scene/Entity.cpp
+
     ${SOURCE_DIR}/Asset/StaticAsset/StaticAsset.cpp
     ${SOURCE_DIR}/Asset/StaticAsset/MeshAsset.cpp
     ${SOURCE_DIR}/Asset/StaticAsset/ImageAsset.cpp
