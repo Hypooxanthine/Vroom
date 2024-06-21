@@ -38,7 +38,7 @@ std::string StaticAsset::getExtension(const std::string& filePath)
     std::string extension = filePath.substr(dotIndex + 1);
 
     // To lower case
-    std::transform(extension.begin(), extension.end(), extension.begin(), std::tolower);
+    std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
 
     return extension;
 }

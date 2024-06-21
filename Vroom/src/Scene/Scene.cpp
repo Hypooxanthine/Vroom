@@ -28,7 +28,7 @@ Scene::Scene()
 
 Scene::~Scene()
 {
-
+    m_AssetManager.release();
 }
 
 void Scene::init(Application* app)
@@ -38,9 +38,9 @@ void Scene::init(Application* app)
     // Setting a default shader
     m_DefaultShader.loadFromFile("Resources/Shaders/vert_Basic.glsl", "Resources/Shaders/frag_Basic.glsl");
 
-	getApplication().createCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
-		.bindInput(vrm::Event::Type::WindowsResized)
-		.bindCallback([this](const vrm::Event& e) {
+    getApplication().createCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
+        .bindInput(vrm::Event::Type::WindowsResized)
+        .bindCallback([this](const vrm::Event& e) {
             getApplication().getRenderer().setViewport({ 0.f, 0.f}, { static_cast<float>(e.newWidth), static_cast<float>(e.newHeight) });
         })
         .bindCallback([this](const vrm::Event& e) {
@@ -48,6 +48,9 @@ void Scene::init(Application* app)
         });
 
     onInit();
+
+    const auto& viewportSize = getApplication().getRenderer().getViewportSize();
+    getCamera().setViewportSize(static_cast<float>(viewportSize.x), static_cast<float>(viewportSize.y));
 }
 
 void Scene::update(float dt)
@@ -74,8 +77,9 @@ void Scene::render()
 
 void Scene::end()
 {
-
     onEnd();
+
+    m_Registry.clear(); // So that entities are destroyed properly
 }
 
 Entity Scene::createEntity(const std::string& nameTag)

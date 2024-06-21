@@ -17,13 +17,13 @@ Application::Application(int argc, char** argv)
 
     VRM_ASSERT(initGLFW());
     m_Window = std::make_unique<Window>();
-    VRM_ASSERT(m_Window->create("Vroom engine", 600, 400));
+    VRM_ASSERT(m_Window->create("Vroom engine", 800, 600));
 
     glewExperimental = TRUE;
     VRM_ASSERT(glewInit() == GLEW_OK);
 
     m_Renderer = std::make_unique<Renderer>();
-    m_Renderer->setViewport({ 0, 0 }, { 600, 400 });
+    m_Renderer->setViewport({ 0, 0 }, { m_Window->getWidth(), m_Window->getHeight()});
 
     LOG_TRACE("Vroom application created.");
 }
