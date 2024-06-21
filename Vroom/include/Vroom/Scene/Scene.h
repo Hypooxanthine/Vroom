@@ -1,7 +1,9 @@
 #pragma once
 
 #include <memory>
+#include <entt/entt.hpp>
 
+#include "Vroom/Scene/Entity.h"
 #include "Vroom/Render/Camera/FirstPersonCamera.h"
 
 namespace vrm
@@ -10,7 +12,6 @@ namespace vrm
 class Application;
 class CameraBasic;
 class AssetManager;
-class FirstPersonCamera;
 
 class Scene
 {
@@ -52,6 +53,54 @@ public:
     inline AssetManager& getAssetManager() { return *m_AssetManager; }
     inline const AssetManager& getAssetManager() const { return *m_AssetManager; }
 
+    /**
+     * @brief Creates an entity.
+     * 
+     * @param name The name of the entity.
+     * @return Entity The created entity.
+     */
+    Entity createEntity(const std::string& name);
+
+    /**
+     * @brief Creates an entity with a default name.
+     * 
+     * @return Entity The created entity.
+     */
+    Entity createEntity();
+
+    /**
+     * @brief Checks if an entity exists by its name.
+     * 
+     * @param name The name of the entity.
+     * @return true If the entity exists.
+     * @return false If the entity does not exist.
+     */
+    bool entityExists(const std::string& name);
+
+    /**
+     * @brief Gets an entity by its handle.
+     * 
+     * @param handle The entity handle.
+     * @return Entity The entity.
+     */
+    Entity getEntity(entt::entity handle);
+
+    /**
+     * @brief Gets an entity by its name.
+     * 
+     * @param name The name of the entity.
+     * @return Entity The entity.
+     */
+    Entity getEntity(const std::string& name);
+
+    /**
+     * @brief Destroys an entity.
+     * 
+     * @param entity The entity to destroy.
+     */
+    void destroyEntity(Entity entity);
+
+
 protected:
 
     /**
@@ -84,6 +133,9 @@ protected:
 
 private:
     std::unique_ptr<AssetManager> m_AssetManager;
+
+    entt::registry m_Registry;
+    size_t m_EntityCounter = 0;
 
     Application* m_Application;
 

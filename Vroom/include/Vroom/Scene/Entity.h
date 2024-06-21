@@ -2,6 +2,8 @@
 
 #include <entt/entt.hpp>
 
+#include "Vroom/Core/Assert.h"
+
 namespace vrm
 {
 
@@ -14,7 +16,7 @@ namespace vrm
 class Entity
 {
 public:
-    Entity() = delete;
+    Entity() = default;
 
     /**
      * @brief Constructor.
@@ -63,7 +65,7 @@ public:
     template<typename T, typename... Args>
     T& addComponent(Args&&... args)
     {
-        VRM_ASSERT(!hasComponent<T>(), "Entity already has component.");
+        VRM_ASSERT_MSG(!hasComponent<T>(), "Entity already has component.");
         return m_Registry->emplace<T>(m_Handle, std::forward<Args>(args)...);
     }
 
@@ -76,7 +78,7 @@ public:
     template<typename T>
     T& getComponent()
     {
-        VRM_ASSERT(hasComponent<T>(), "Entity does not have component.");
+        VRM_ASSERT_MSG(hasComponent<T>(), "Entity does not have component.");
         return m_Registry->get<T>(m_Handle);
     }
 
@@ -90,7 +92,7 @@ public:
     template<typename T>
     bool hasComponent()
     {
-        return m_Registry->has<T>(m_Handle);
+        return m_Registry->try_get<T>(m_Handle) != nullptr;
     }
 
     /**
@@ -101,7 +103,7 @@ public:
     template<typename T>
     void removeComponent()
     {
-        VRM_ASSERT(hasComponent<T>(), "Entity does not have component.");
+        VRM_ASSERT_MSG(hasComponent<T>(), "Entity does not have component.");
         m_Registry->remove<T>(m_Handle);
     }
 

@@ -24,6 +24,7 @@ set(TEST_SOURCES
     "test_AssetManager.cc"
     "test_StaticAsset.cc"
     "test_MeshAsset.cc"
+    "test_Scene.cc"
 )
 
 add_executable(VroomTests ${TEST_SOURCES})
