@@ -58,6 +58,19 @@ bool MeshAsset::loadObj(const std::string& filePath)
         return false;
     }
 
+    LOG_INFO("Loading mesh from file: {}", filePath);
+    LOG_TRACE("  Meshes count: {}", loader.LoadedMeshes.size());
+    for (const auto& mesh : loader.LoadedMeshes)
+    {
+    LOG_TRACE("    Mesh: {}", mesh.MeshName);
+    LOG_TRACE("      Vertices count: {}", mesh.Vertices.size());
+    LOG_TRACE("      Indices count: {}", mesh.Indices.size());
+    LOG_TRACE("      Material: {}", mesh.MeshMaterial.name);
+    }
+    LOG_TRACE("  Vertices count: {}", loader.LoadedVertices.size());
+    LOG_TRACE("  Indices count: {}", loader.LoadedIndices.size());
+    LOG_TRACE("  Materials count: {}", loader.LoadedMaterials.size());
+
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 
@@ -80,9 +93,20 @@ bool MeshAsset::loadObj(const std::string& filePath)
         indices.emplace_back(index);
     }
 
+
+    for (const auto& material : loader.LoadedMaterials)
+    {
+        LOG_TRACE("  Material: {}", material.name);
+        LOG_TRACE("    Ambient:  ({}, {}, {})", material.Ka.X, material.Ka.Y, material.Ka.Z);
+        LOG_TRACE("    Diffuse:  ({}, {}, {})", material.Kd.X, material.Kd.Y, material.Kd.Z);
+        LOG_TRACE("    Specular: ({}, {}, {})", material.Ks.X, material.Ks.Y, material.Ks.Z);
+        LOG_TRACE("    Shininess: {}", material.Ns);
+    }
+
     m_MeshData = MeshData(std::move(vertices), std::move(indices));
-    LOG_INFO("Mesh vertices: {}, triangles: {}", m_MeshData.getVertexCount(), m_MeshData.getTriangleCount());
     m_RenderMesh = std::make_unique<RenderMesh>(m_MeshData);
+
+    LOG_INFO("Loaded mesh from file: {}", filePath);
 
     return true;
 }

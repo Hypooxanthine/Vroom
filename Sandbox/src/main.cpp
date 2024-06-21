@@ -20,6 +20,8 @@ public:
 protected:
 	void onInit() override
 	{
+		getAssetManager().loadAsset<vrm::MeshAsset>("Resources/Meshes/colored_cube.obj");
+
 		// Create a few suzannes
 		for (uint8_t i = 0; i < suzannes.size(); i++)
 		{
@@ -101,7 +103,7 @@ private:
 	size_t m_FramesAccumulator = 0;
 
 	// This should be stored in a CameraComponent.
-	vrm::FirstPersonCamera myCamera{0.1f, 100.f, 45.f, 600.f / 400.f, glm::vec3{0.f, 0.f, 0.f}, glm::vec3{0.f, 0.f, 0.f}};
+	vrm::FirstPersonCamera myCamera{0.1f, 100.f, glm::radians(90.f), 600.f / 400.f, glm::vec3{0.f, 0.f, 0.f}, glm::vec3{0.f, 0.f, 0.f}};
 
 	float forwardValue = 0.f, rightValue = 0.f, upValue = 0.f;
 	float turnRightValue = 0.f, lookUpValue = 0.f;
