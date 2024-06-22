@@ -9,6 +9,23 @@ VertexArray::VertexArray()
 	GLCall(glGenVertexArrays(1, &m_RendererID));
 }
 
+VertexArray::VertexArray(VertexArray&& other)
+	: m_RendererID(other.m_RendererID)
+{
+	other.m_RendererID = 0;
+}
+
+VertexArray& VertexArray::operator=(VertexArray&& other)
+{
+	if (this != &other)
+	{
+		m_RendererID = other.m_RendererID;
+		other.m_RendererID = 0;
+	}
+
+	return *this;
+}
+
 VertexArray::~VertexArray()
 {
 	GLCall_nothrow(glDeleteVertexArrays(1, &m_RendererID));

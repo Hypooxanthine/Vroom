@@ -10,6 +10,12 @@ public:
 	 */
 	IndexBuffer(const unsigned int* data, unsigned int count);
 
+	IndexBuffer(const IndexBuffer&) = delete;
+	IndexBuffer& operator=(const IndexBuffer&) = delete;
+
+	IndexBuffer(IndexBuffer&&);
+	IndexBuffer& operator=(IndexBuffer&&);
+
 	/**
 	 * @brief Releases GPU data.
 	 */

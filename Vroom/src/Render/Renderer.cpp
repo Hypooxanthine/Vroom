@@ -1,8 +1,14 @@
 #include "Vroom/Render/Renderer.h"
 
-#include "Vroom/Render/Abstraction/GLCall.h"
-
 #include <glm/gtc/matrix_transform.hpp>
+
+#include "Vroom/Render/Abstraction/GLCall.h"
+#include "Vroom/Asset/AssetInstance/MeshInstance.h"
+#include "Vroom/Asset/StaticAsset/MeshAsset.h"
+#include "Vroom/Asset/StaticAsset/MaterialAsset.h"
+#include "Vroom/Asset/StaticAsset/ShaderAsset.h"
+#include "Vroom/Asset/AssetData/MeshData.h"
+#include "Vroom/Asset/AssetData/MaterialData.h"
 
 namespace vrm
 {
@@ -52,21 +58,31 @@ void Renderer::drawPoints(const VertexArray& va, const IndexBuffer& ib, const Sh
     GLCall(glDrawElements(GL_POINTS, (GLsizei)ib.getCount(), GL_UNSIGNED_INT, nullptr));
 }
 
-void Renderer::drawMesh(const RenderMesh& mesh, const Shader& shader, const CameraBasic& camera, const glm::mat4& model) const
+void Renderer::drawMesh(const MeshInstance& mesh, const CameraBasic& camera, const glm::mat4& model) const
 {
-    // Binding data
-    mesh.getVertexArray().bind();
-    mesh.getIndexBuffer().bind();
-    shader.bind();
+    const auto& subMeshes = mesh.getStaticAsset()->getSubMeshes();
 
-    // Setting uniforms
-    shader.setUniformMat4f("u_Model", model);
-    shader.setUniformMat4f("u_View", camera.getView());
-    shader.setUniformMat4f("u_Projection", camera.getProjection());
-    shader.setUniformMat4f("u_ViewProjection", camera.getViewProjection());
+    for (const auto& subMesh : subMeshes)
+    {
+        // Binding data
+        subMesh.renderMesh.getVertexArray().bind();
+        subMesh.renderMesh.getIndexBuffer().bind();
 
-    // Drawing data
-    GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)mesh.getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr));
+        const Shader& shader = subMesh.materialInstance.getStaticAsset()->getShaderInstance().getStaticAsset()->getShader();
+        shader.bind();
+
+        // Setting uniforms
+        shader.setUniformMat4f("u_Model", model);
+        shader.setUniformMat4f("u_View", camera.getView());
+        shader.setUniformMat4f("u_Projection", camera.getProjection());
+        shader.setUniformMat4f("u_ViewProjection", camera.getViewProjection());
+
+        subMesh.materialInstance.getStaticAsset()->getMaterialData().applyUniforms(shader);
+
+        // Drawing data
+        GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)subMesh.renderMesh.getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr));
+    }
+
 }
 
 const glm::vec<2, unsigned int>& Renderer::getViewportOrigin() const

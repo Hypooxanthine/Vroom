@@ -17,7 +17,7 @@ public:
     [[nodiscard]] ImageInstance createInstance();
 
 protected:
-    bool loadImpl(const std::string& filePath) override;
+    bool loadImpl(const std::string& filePath, AssetManager& manager) override;
 };
 
 } // namespace vrm

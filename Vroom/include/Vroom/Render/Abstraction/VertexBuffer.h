@@ -11,6 +11,12 @@ public:
 	 */
 	VertexBuffer(const void* data, unsigned int size);
 
+	VertexBuffer(const VertexBuffer&) = delete;
+	VertexBuffer& operator=(const VertexBuffer&) = delete;
+
+	VertexBuffer(VertexBuffer&&);
+	VertexBuffer& operator=(VertexBuffer&&);
+
 	/**
 	 * @brief Releases GPU memory.
 	 */

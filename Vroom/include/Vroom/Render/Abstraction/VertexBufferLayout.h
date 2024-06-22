@@ -37,6 +37,12 @@ public:
 		: m_Stride(0)
 	{}
 
+	VertexBufferLayout(const VertexBufferLayout&) = default;
+	VertexBufferLayout& operator=(const VertexBufferLayout&) = default;
+
+	VertexBufferLayout(VertexBufferLayout&&) = default;
+	VertexBufferLayout& operator=(VertexBufferLayout&&) = default;
+
 	/**
 	 * @brief Does nothing.
 	 */

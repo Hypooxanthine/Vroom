@@ -6,6 +6,7 @@ uniform mat4 u_View;
 
 in vec3 v_Normal;
 in vec3 v_Position;
+in vec3 v_TexCoord;
 
 void main()
 {

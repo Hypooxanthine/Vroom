@@ -69,7 +69,7 @@ void Scene::render()
         auto& meshComponent = view.get<MeshComponent>(entity);
         auto& transformComponent = view.get<TransformComponent>(entity);
 
-        renderer.drawMesh(meshComponent.getMeshData(), m_DefaultShader, getCamera(), transformComponent.getTransform());
+        renderer.drawMesh(meshComponent.getMesh(), getCamera(), transformComponent.getTransform());
     }
 
     onRender();

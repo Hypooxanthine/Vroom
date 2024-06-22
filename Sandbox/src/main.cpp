@@ -20,8 +20,8 @@ public:
 protected:
 	void onInit() override
 	{
-		getAssetManager().loadAsset<vrm::MeshAsset>("Resources/Meshes/colored_cube.obj");
-
+		//getAssetManager().loadAsset<vrm::MeshAsset>("Resources/Meshes/colored_cube.obj");
+ 
 		// Create a few suzannes
 		for (uint8_t i = 0; i < suzannes.size(); i++)
 		{
@@ -66,7 +66,7 @@ protected:
 
 		LOG_TRACE("MyScene \"{}\" instance initialized.", m_LittleNickName);
 	}
-
+ 
 	void onUpdate(float dt) override
 	{
 		myCamera.move(forwardValue * myCameraSpeed * dt * myCamera.getForwardVector());

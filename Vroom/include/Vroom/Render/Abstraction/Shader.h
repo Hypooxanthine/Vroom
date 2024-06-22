@@ -61,11 +61,26 @@ public:
 	void setUniform1i(const std::string& name, int value) const;
 
 	/**
+	 * @brief Sends unsigned int data to shader.
+	 * @param name Uniform name.
+	 * @param value Data to send.
+	 */
+	void setUniform1ui(const std::string& name, unsigned int value) const;
+
+	/**
 	 * @brief Sends float data to shader.
 	 * @param name Uniform name.
 	 * @param value Data to send.
 	 */
 	void setUniform1f(const std::string& name, float value) const;
+
+	/**
+	 * @brief Sends float data to shader.
+	 * @param name Uniform name.
+	 * @param v0 First float vector component to send.
+	 * @param v1 Second float vector component to send.
+	 */
+	void setUniform2f(const std::string& name, float v0, float v1) const;
 
 	/**
 	 * @brief Sends float data to shader.

@@ -14,6 +14,13 @@ class RenderMesh
 {
 public:
     RenderMesh(const MeshData& meshData);
+
+    RenderMesh(const RenderMesh&) = delete;
+    RenderMesh& operator=(const RenderMesh&) = delete;
+
+    RenderMesh(RenderMesh&&);
+    RenderMesh& operator=(RenderMesh&&);
+
     ~RenderMesh();
 
     const VertexArray& getVertexArray() const { return m_VertexArray; }

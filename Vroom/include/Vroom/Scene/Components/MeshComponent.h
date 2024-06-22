@@ -24,8 +24,6 @@ public:
      */
     MeshComponent(const MeshInstance& meshInstance);
 
-    const MeshData& getMeshData() const;
-
     /**
      * @brief Get the mesh instance.
      * 

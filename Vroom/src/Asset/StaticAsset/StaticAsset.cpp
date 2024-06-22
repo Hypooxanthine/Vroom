@@ -22,9 +22,9 @@ size_t StaticAsset::getInstanceCount() const
     return m_InstanceCount;
 }
 
-bool StaticAsset::load(const std::string& filePath)
+bool StaticAsset::load(const std::string& filePath, AssetManager& assetManager)
 {
-    return loadImpl(filePath);
+    return loadImpl(filePath, assetManager);
 }
 
 std::string StaticAsset::getExtension(const std::string& filePath)

@@ -5,11 +5,18 @@
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Asset/AssetInstance/MeshInstance.h"
 
+#include "Vroom/Asset/AssetManager.h"
+
 namespace vrm
 {
 
+MeshAsset::SubMesh::SubMesh(RenderMesh&& render, MeshData&& data, MaterialInstance instance)
+    : renderMesh(std::move(render)), meshData(std::move(data)), materialInstance(instance)
+{
+}
+
 MeshAsset::MeshAsset()
-    : StaticAsset(), m_RenderMesh(nullptr)
+    : StaticAsset()
 {
 }
 
@@ -22,23 +29,12 @@ MeshInstance MeshAsset::createInstance()
     return MeshInstance(this);
 }
 
-const MeshData& MeshAsset::getMeshData() const
-{
-    return m_MeshData;
-}
-
-const RenderMesh& MeshAsset::getRenderMesh() const
-{
-    VRM_DEBUG_ASSERT_MSG(m_RenderMesh != nullptr, "RenderMesh is nullptr. Did you forget to load the mesh?");
-    return *m_RenderMesh;
-}
-
-bool MeshAsset::loadImpl(const std::string& filePath)
+bool MeshAsset::loadImpl(const std::string& filePath, AssetManager& manager)
 {
     std::string extension = StaticAsset::getExtension(filePath);
     if (extension == "obj")
     {
-        return loadObj(filePath);
+        return loadObj(filePath, manager);
     }
     
     if (extension == "")
@@ -49,13 +45,20 @@ bool MeshAsset::loadImpl(const std::string& filePath)
     return false;
 }
 
-bool MeshAsset::loadObj(const std::string& filePath)
+bool MeshAsset::loadObj(const std::string& filePath, AssetManager& manager)
 {
     objl::Loader loader;
     if (!loader.LoadFile(filePath))
     {
         LOG_ERROR("Failed to load obj file: {}", filePath);
         return false;
+    }
+
+    std::string fileDirectoryPath;
+    size_t lastSlashIndex = filePath.find_last_of('/');
+    if (lastSlashIndex != std::string::npos)
+    {
+        fileDirectoryPath = filePath.substr(0, lastSlashIndex + 1);
     }
 
     LOG_INFO("Loading mesh from file: {}", filePath);
@@ -71,40 +74,49 @@ bool MeshAsset::loadObj(const std::string& filePath)
     LOG_TRACE("  Indices count: {}", loader.LoadedIndices.size());
     LOG_TRACE("  Materials count: {}", loader.LoadedMaterials.size());
 
-    std::vector<Vertex> vertices;
-    std::vector<uint32_t> indices;
-
-    vertices.reserve(loader.LoadedVertices.size());
-    indices.reserve(loader.LoadedIndices.size());
-
-    for (const auto& vertex : loader.LoadedVertices)
+    for (const auto& mesh : loader.LoadedMeshes)
     {
-        vertices.emplace_back(
-            Vertex{ 
-                { vertex.Position.X         , vertex.Position.Y         , vertex.Position.Z },
-                { vertex.Normal.X           , vertex.Normal.Y           , vertex.Normal.Z },
-                { vertex.TextureCoordinate.X, vertex.TextureCoordinate.Y }
-            }
-        );
+        std::vector<Vertex> vertices;
+        std::vector<uint32_t> indices;
+
+        vertices.reserve(mesh.Vertices.size());
+        indices.reserve(mesh.Indices.size());
+
+        for (const auto& vertex : mesh.Vertices)
+        {
+            vertices.emplace_back(
+                Vertex{ 
+                    { vertex.Position.X         , vertex.Position.Y         , vertex.Position.Z },
+                    { vertex.Normal.X           , vertex.Normal.Y           , vertex.Normal.Z },
+                    { vertex.TextureCoordinate.X, vertex.TextureCoordinate.Y }
+                }
+            );
+        }
+
+        for (const auto& index : mesh.Indices)
+        {
+            indices.emplace_back(index);
+        }
+        
+        if (!mesh.MeshMaterial.name.empty())
+        {
+            MaterialInstance materialInstance = manager.getAsset<MaterialAsset>(fileDirectoryPath + mesh.MeshMaterial.name + ".asset");
+            MeshData meshData(std::move(vertices), std::move(indices));
+            RenderMesh renderMesh(meshData);
+
+            m_SubMeshes.emplace_back(std::move(renderMesh), std::move(meshData), materialInstance);
+        }
+        else
+        {
+            MaterialInstance materialInstance = manager.getAsset<MaterialAsset>("Resources/Materials/Mat_Default.asset");
+            MeshData meshData(std::move(vertices), std::move(indices));
+            RenderMesh renderMesh(meshData);
+
+            m_SubMeshes.emplace_back(std::move(renderMesh), std::move(meshData), materialInstance);
+        }
+
+        LOG_TRACE("Loaded sub mesh: {}", mesh.MeshName);
     }
-
-    for (const auto& index : loader.LoadedIndices)
-    {
-        indices.emplace_back(index);
-    }
-
-
-    for (const auto& material : loader.LoadedMaterials)
-    {
-        LOG_TRACE("  Material: {}", material.name);
-        LOG_TRACE("    Ambient:  ({}, {}, {})", material.Ka.X, material.Ka.Y, material.Ka.Z);
-        LOG_TRACE("    Diffuse:  ({}, {}, {})", material.Kd.X, material.Kd.Y, material.Kd.Z);
-        LOG_TRACE("    Specular: ({}, {}, {})", material.Ks.X, material.Ks.Y, material.Ks.Z);
-        LOG_TRACE("    Shininess: {}", material.Ns);
-    }
-
-    m_MeshData = MeshData(std::move(vertices), std::move(indices));
-    m_RenderMesh = std::make_unique<RenderMesh>(m_MeshData);
 
     LOG_INFO("Loaded mesh from file: {}", filePath);
 

@@ -10,7 +10,7 @@ ImageInstance ImageAsset::createInstance()
     return ImageInstance(this);
 }
 
-bool ImageAsset::loadImpl(const std::string& filePath)
+bool ImageAsset::loadImpl(const std::string& filePath, AssetManager& manager)
 {
     // Load image from file
     return true;

@@ -28,8 +28,8 @@
 #define VRM_ASSERT_MSG(x, ...) \
     if(!(x)) \
     { \
-        LOG_CRITICAL("Assertion \"{}\" failed at file {}, line {}.", #x, std::filesystem::path(__FILE__).filename().string(), __LINE__); \
-        LOG_CRITICAL("Message: {}", __VA_ARGS__); \
+        LOG_CRITICAL("Assertion \"{}\" failed at file {}, line {}. Message:", #x, std::filesystem::path(__FILE__).filename().string(), __LINE__); \
+        LOG_CRITICAL(__VA_ARGS__); \
         VRM_CRASH_NO_MSG(); \
     }
 

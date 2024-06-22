@@ -47,7 +47,7 @@ public:
         if (!isAssetLoaded(assetID))
         {
             auto asset = std::make_unique<T>();
-            VRM_ASSERT_MSG(asset->load(assetID), "Failed to load asset: {}", assetID);
+            VRM_ASSERT_MSG(asset->load(assetID, *this), "Failed to load asset: {}", assetID);
 
             m_Assets[assetID] = std::move(asset);
         }
