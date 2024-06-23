@@ -68,7 +68,12 @@ bool MaterialAsset::loadImpl(const std::string& filePath, AssetManager& manager)
 
     if (token == "Phong")
     {
-        return loadPhong(file, manager);
+        if (loadPhong(file, manager))
+        {
+            LOG_INFO("Successfully loaded Phong material: {}", filePath);
+            return true;
+        }
+        else return false;
     }
 
     LOG_WARN("Failed to load material file: {}", filePath);

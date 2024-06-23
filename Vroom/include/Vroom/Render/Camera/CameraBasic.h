@@ -18,6 +18,8 @@ public:
     inline float getNear() const { return m_Near; }
     inline float getFar() const { return m_Far; }
 
+    virtual glm::vec3 getPosition() const = 0;
+
     virtual void setViewportSize(float width, float height) {}
 
     const glm::mat4& getView() const;

@@ -13,7 +13,7 @@ public:
 
     /* GETTERS */
 
-    inline const glm::vec3& getWorldPosition() const { return m_WorldPosition; }
+    inline glm::vec3 getPosition() const override { return m_WorldPosition; }
     inline const glm::vec3& getRotation() const { return m_Rotation; }
 
     /* Setters */

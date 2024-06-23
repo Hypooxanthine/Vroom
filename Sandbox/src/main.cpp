@@ -20,7 +20,12 @@ public:
 protected:
 	void onInit() override
 	{
-		//getAssetManager().loadAsset<vrm::MeshAsset>("Resources/Meshes/colored_cube.obj");
+		// Place a cube in the center of the scene
+		auto entity = createEntity("ColoredCube");
+		auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/colored_cube.obj");
+		entity.addComponent<vrm::MeshComponent>(mesh);
+		auto& transform = entity.getComponent<vrm::TransformComponent>();
+		transform.position = { 0.f, 0.f, 0.f };
  
 		// Create a few suzannes
 		for (uint8_t i = 0; i < suzannes.size(); i++)

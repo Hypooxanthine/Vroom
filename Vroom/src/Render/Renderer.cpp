@@ -76,6 +76,9 @@ void Renderer::drawMesh(const MeshInstance& mesh, const CameraBasic& camera, con
         shader.setUniformMat4f("u_View", camera.getView());
         shader.setUniformMat4f("u_Projection", camera.getProjection());
         shader.setUniformMat4f("u_ViewProjection", camera.getViewProjection());
+        shader.setUniform3f("u_ViewPosition", camera.getPosition());
+        shader.setUniform3f("u_LightDirection", glm::vec3(0.5f, -1.f, 0.5f));
+        shader.setUniform3f("u_LightColor", glm::vec3(1.f, 1.f, 1.f));
 
         subMesh.materialInstance.getStaticAsset()->getMaterialData().applyUniforms(shader);
 

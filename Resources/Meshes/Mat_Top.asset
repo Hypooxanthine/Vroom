@@ -1,8 +1,8 @@
 shading-model Phong
 use-transparency 0
 
-ambient      1.000000 1.000000 1.000000
+ambient      0 0.2 0
 diffuse      0.001105 0.800339 0.000000
 specular     0.500000 0.500000 0.500000
-shininess    250.000000
+shininess    1.000000
 transparency 0.000000
