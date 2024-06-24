@@ -25,10 +25,16 @@ target_link_libraries(Sandbox
     Vroom
 )
 
-# Copy the resources to the build directory
+# Copy the resources to the build directory (engine)
 add_custom_command(TARGET Sandbox POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/Resources
     $<TARGET_FILE_DIR:Sandbox>/Resources
 )
 
+# Copy the resources to the build directory (sandbox)
+add_custom_command(TARGET Sandbox POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/Resources
+    $<TARGET_FILE_DIR:Sandbox>/Resources
+)
