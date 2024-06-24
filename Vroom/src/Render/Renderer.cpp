@@ -82,7 +82,7 @@ void Renderer::drawMesh(const MeshInstance& mesh, const glm::mat4& model) const
         shader.setUniformMat4f("u_Projection", m_Camera->getProjection());
         shader.setUniformMat4f("u_ViewProjection", m_Camera->getViewProjection());
         shader.setUniform3f("u_ViewPosition", cameraPos);
-        shader.setUniform3f("u_LightDirection", glm::vec3(0.5f, -1.f, 0.5f));
+        shader.setUniform3f("u_LightDirection", glm::vec3(0.4356f, -1.017651f, 0.514582f));
         shader.setUniform3f("u_LightColor", glm::vec3(1.f, 1.f, 1.f));
 
         // Drawing data
