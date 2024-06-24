@@ -125,11 +125,7 @@ void Application::update()
 
 void Application::draw()
 {
-    m_Renderer->beginScene();
-
     m_CurrentScene->render();
-
-    m_Renderer->endScene();
     m_Window->swapBuffers();
 }
 

@@ -36,7 +36,7 @@ public:
 	 * @brief Has to be called before any rendering of current frame.
 	 * 
 	 */
-	void beginScene();
+	void beginScene(const CameraBasic& camera);
 
 	/**
 	 * @brief Has to be called after any rendering scene.
@@ -69,7 +69,7 @@ public:
 	 * @param camera  The camera to use.
 	 * @param model  The model matrix.
 	 */
-	void drawMesh(const MeshInstance& mesh, const CameraBasic& camera, const glm::mat4& model) const;
+	void drawMesh(const MeshInstance& mesh, const glm::mat4& model) const;
 
 	/**
 	 * @brief Gets the viewport origin.
@@ -105,6 +105,8 @@ public:
 private:
 	glm::vec<2, unsigned int> m_ViewportOrigin = { 0, 0 };
 	glm::vec<2, unsigned int> m_ViewportSize = { 0, 0 };
+
+	const CameraBasic* m_Camera = nullptr;
 };
 
 } // namespace vrm

@@ -67,27 +67,18 @@ bool MeshAsset::loadObj(const std::string& filePath, AssetManager& manager)
         {
             fileDirectoryPath = filePath.substr(0, lastSlashIndex + 1);
         }
-        else
-        {
-            fileDirectoryPath = "./";
-        }
     }
 
     LOG_INFO("Loading mesh from file: {}", filePath);
-    LOG_TRACE("  Meshes count: {}", loader.LoadedMeshes.size());
-    for (const auto& mesh : loader.LoadedMeshes)
-    {
-    LOG_TRACE("    Mesh: {}", mesh.MeshName);
-    LOG_TRACE("      Vertices count: {}", mesh.Vertices.size());
-    LOG_TRACE("      Indices count: {}", mesh.Indices.size());
-    LOG_TRACE("      Material: {}", mesh.MeshMaterial.name);
-    }
-    LOG_TRACE("  Vertices count: {}", loader.LoadedVertices.size());
-    LOG_TRACE("  Indices count: {}", loader.LoadedIndices.size());
-    LOG_TRACE("  Materials count: {}", loader.LoadedMaterials.size());
+    LOG_TRACE("| Loading {} submeshes.", loader.LoadedMeshes.size());
 
     for (const auto& mesh : loader.LoadedMeshes)
     {
+        LOG_TRACE("| | SubMesh: {}", mesh.MeshName);
+        LOG_TRACE("| | | Vertices count: {}", mesh.Vertices.size());
+        LOG_TRACE("| | | Indices count: {}", mesh.Indices.size());
+        LOG_TRACE("| | | Material: {}", mesh.MeshMaterial.name);
+
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
 
@@ -127,10 +118,12 @@ bool MeshAsset::loadObj(const std::string& filePath, AssetManager& manager)
             m_SubMeshes.emplace_back(std::move(renderMesh), std::move(meshData), materialInstance);
         }
 
-        LOG_TRACE("Loaded sub mesh: {}", mesh.MeshName);
+        LOG_TRACE("| | Loaded sub mesh: {}", mesh.MeshName);
     }
 
-    LOG_INFO("Loaded mesh from file: {}", filePath);
+    LOG_TRACE("| Submeshes loaded.");
+
+    LOG_INFO("Mesh loaded.");
 
     return true;
 }

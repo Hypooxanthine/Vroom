@@ -29,6 +29,8 @@ bool MaterialAsset::loadImpl(const std::string& filePath, AssetManager& manager)
 {
     auto shadersData = MaterialParsing::Parse(filePath);
 
+    LOG_INFO("Loading material: {}", filePath);
+
     return m_Shader.loadFromSource(shadersData.vertex, shadersData.fragment);
 }
 

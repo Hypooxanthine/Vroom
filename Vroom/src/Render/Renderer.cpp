@@ -24,15 +24,17 @@ Renderer::~Renderer()
 {
 }
 
-void Renderer::beginScene()
+void Renderer::beginScene(const CameraBasic& camera)
 {
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
+
+    m_Camera = &camera;
 }
 
 void Renderer::endScene()
 {
-    
+    m_Camera = nullptr;
 }
 
 void Renderer::drawTriangles(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const
@@ -57,9 +59,13 @@ void Renderer::drawPoints(const VertexArray& va, const IndexBuffer& ib, const Sh
     GLCall(glDrawElements(GL_POINTS, (GLsizei)ib.getCount(), GL_UNSIGNED_INT, nullptr));
 }
 
-void Renderer::drawMesh(const MeshInstance& mesh, const CameraBasic& camera, const glm::mat4& model) const
+void Renderer::drawMesh(const MeshInstance& mesh, const glm::mat4& model) const
 {
+    VRM_DEBUG_ASSERT_MSG(m_Camera, "No camera set for rendering. Did you call beginScene?");
+
     const auto& subMeshes = mesh.getStaticAsset()->getSubMeshes();
+
+    const auto cameraPos = m_Camera->getPosition();
 
     for (const auto& subMesh : subMeshes)
     {
@@ -72,10 +78,10 @@ void Renderer::drawMesh(const MeshInstance& mesh, const CameraBasic& camera, con
 
         // Setting uniforms
         shader.setUniformMat4f("u_Model", model);
-        shader.setUniformMat4f("u_View", camera.getView());
-        shader.setUniformMat4f("u_Projection", camera.getProjection());
-        shader.setUniformMat4f("u_ViewProjection", camera.getViewProjection());
-        shader.setUniform3f("u_ViewPosition", camera.getPosition());
+        shader.setUniformMat4f("u_View", m_Camera->getView());
+        shader.setUniformMat4f("u_Projection", m_Camera->getProjection());
+        shader.setUniformMat4f("u_ViewProjection", m_Camera->getViewProjection());
+        shader.setUniform3f("u_ViewPosition", cameraPos);
         shader.setUniform3f("u_LightDirection", glm::vec3(0.5f, -1.f, 0.5f));
         shader.setUniform3f("u_LightColor", glm::vec3(1.f, 1.f, 1.f));
 

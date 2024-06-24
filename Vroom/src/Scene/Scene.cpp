@@ -58,6 +58,8 @@ void Scene::update(float dt)
 
 void Scene::render()
 {
+    getApplication().getRenderer().beginScene(getCamera());
+
     const auto& renderer = m_Application->getRenderer();
 
     auto view = m_Registry.view<MeshComponent, TransformComponent>();
@@ -66,10 +68,12 @@ void Scene::render()
         auto& meshComponent = view.get<MeshComponent>(entity);
         auto& transformComponent = view.get<TransformComponent>(entity);
 
-        renderer.drawMesh(meshComponent.getMesh(), getCamera(), transformComponent.getTransform());
+        renderer.drawMesh(meshComponent.getMesh(), transformComponent.getTransform());
     }
 
     onRender();
+
+    getApplication().getRenderer().endScene();
 }
 
 void Scene::end()
