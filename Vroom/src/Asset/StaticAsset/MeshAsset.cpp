@@ -77,7 +77,7 @@ bool MeshAsset::loadObj(const std::string& filePath, AssetManager& manager)
         LOG_TRACE("| | SubMesh: {}", mesh.MeshName);
         LOG_TRACE("| | | Vertices count: {}", mesh.Vertices.size());
         LOG_TRACE("| | | Indices count: {}", mesh.Indices.size());
-        LOG_TRACE("| | | Material: {}", mesh.MeshMaterial.name);
+        LOG_TRACE("| | | Material: {}", mesh.MaterialName);
 
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
@@ -101,9 +101,9 @@ bool MeshAsset::loadObj(const std::string& filePath, AssetManager& manager)
             indices.emplace_back(index);
         }
         
-        if (!mesh.MeshMaterial.name.empty())
+        if (!mesh.MaterialName.empty())
         {
-            MaterialInstance materialInstance = manager.getAsset<MaterialAsset>(fileDirectoryPath + mesh.MeshMaterial.name + ".asset");
+            MaterialInstance materialInstance = manager.getAsset<MaterialAsset>(fileDirectoryPath + mesh.MaterialName + ".asset");
             MeshData meshData(std::move(vertices), std::move(indices));
             RenderMesh renderMesh(meshData);
 

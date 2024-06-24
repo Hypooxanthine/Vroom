@@ -213,6 +213,7 @@ namespace objl
 
 		// Material
 		Material MeshMaterial;
+		std::string MaterialName;
 	};
 
 	// Namespace: Math
@@ -610,6 +611,10 @@ namespace objl
 				// Get Mesh Material Name
 				if (algorithm::firstToken(curline) == "usemtl")
 				{
+					std::string matName = "";
+					if (MeshMatNames.size() > 0)
+						matName = MeshMatNames.back();
+
 					MeshMatNames.push_back(algorithm::tail(curline));
 
 					// Create new Mesh, if Material changes within a group
@@ -618,6 +623,7 @@ namespace objl
 						// Create Mesh
 						tempMesh = Mesh(Vertices, Indices);
 						tempMesh.MeshName = meshname;
+						tempMesh.MaterialName = matName;
 						int i = 2;
 						while(1) {
 							tempMesh.MeshName = meshname + "_" + std::to_string(i);
@@ -679,9 +685,14 @@ namespace objl
 
 			if (!Indices.empty() && !Vertices.empty())
 			{
+				std::string matName = "";
+				if (MeshMatNames.size() > 0)
+					matName = MeshMatNames.back();
+				
 				// Create Mesh
 				tempMesh = Mesh(Vertices, Indices);
 				tempMesh.MeshName = meshname;
+				tempMesh.MaterialName = matName;
 
 				// Insert Mesh
 				LoadedMeshes.push_back(tempMesh);
