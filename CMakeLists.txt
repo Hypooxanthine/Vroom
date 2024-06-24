@@ -11,6 +11,21 @@ set(DEPENDENCIES ${ROOT}/dependencies/)
 
 find_package(OpenGL REQUIRED)
 
+# Preprocessor defines
+
+if (VRM_PLATFORM_WINDOWS)
+    add_compile_definitions(VRM_PLATFORM_WINDOWS=1)
+endif()
+
+if (VRM_DEBUG)
+    add_compile_definitions(VRM_DEBUG=1)
+endif()
+
+if (VRM_RELEASE)
+    add_compile_definitions(VRM_RELEASE=1)
+endif()
+
+
 # Dependencies include directories
 set(GLM_INCLUDE_DIR ${DEPENDENCIES}/GLM/include)
 set(STB_IMAGE_INCLUDE_DIR ${DEPENDENCIES}/stb_image/include)
