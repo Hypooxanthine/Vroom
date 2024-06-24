@@ -5,7 +5,6 @@
 
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Render/Camera/FirstPersonCamera.h"
-#include "Vroom/Render/Abstraction/Shader.h"
 
 namespace vrm
 {
@@ -143,8 +142,6 @@ private:
 
     FirstPersonCamera m_DefaultCamera = FirstPersonCamera(0.1f, 100.f, 45.f, 600.f / 400.f, glm::vec3{0.f, 0.f, 0.f}, glm::vec3{0.f, 0.f, 0.f});
     CameraBasic* m_Camera;
-
-    Shader m_DefaultShader;
 
 };
 

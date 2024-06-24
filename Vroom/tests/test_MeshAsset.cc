@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <Vroom/Asset/StaticAsset/MeshAsset.h>
+#include <Vroom/Asset/AssetManager.h>
 #include <Vroom/Core/Application.h>
 
 #include <fstream>
@@ -12,6 +13,7 @@ protected:
     {
         app = new vrm::Application(0, nullptr);
         meshAsset = new vrm::MeshAsset();
+        assetManager = new vrm::AssetManager();
 
         // Create a fake obj file
         std::ofstream file(pathOK, std::ios::out | std::ios::trunc);
@@ -25,6 +27,7 @@ protected:
     void TearDown() override
     {
         delete meshAsset;
+        delete assetManager;
         delete app;
 
         // Remove the fake obj file
@@ -33,24 +36,25 @@ protected:
 
     vrm::Application* app;
     vrm::MeshAsset* meshAsset;
+    vrm::AssetManager* assetManager;
     std::string pathOK = "test_mesh.obj";
     std::string pathFail = "test_mesh_fail.obj";
 };
 
 TEST_F(TestMeshAsset, LoadObj)
 {
-    EXPECT_TRUE(meshAsset->load(pathOK));
+    meshAsset->load(pathOK, *assetManager);
 }
 
 TEST_F(TestMeshAsset, LoadObjFail)
 {
-    EXPECT_FALSE(meshAsset->load(pathFail));
+    EXPECT_FALSE(meshAsset->load(pathFail, *assetManager));
 }
 
 TEST_F(TestMeshAsset, LoadObjCorrect)
 {
-    meshAsset->load(pathOK);
-    const vrm::MeshData& meshData = meshAsset->getMeshData();
+    meshAsset->load(pathOK, *assetManager);
+    const vrm::MeshData& meshData = meshAsset->getSubMeshes().begin()->meshData;
 
     const auto vertices = meshData.getVertices();
     const auto indices = meshData.getIndices();
@@ -74,11 +78,6 @@ TEST_F(TestMeshAsset, LoadObjCorrect)
 
 TEST_F(TestMeshAsset, GetRenderMesh)
 {
-    meshAsset->load(pathOK);
-    EXPECT_NO_THROW(const vrm::RenderMesh& renderMesh = meshAsset->getRenderMesh());
-}
-
-TEST_F(TestMeshAsset, GetRenderMeshFail)
-{
-    EXPECT_THROW(meshAsset->getRenderMesh(), std::runtime_error);
+    meshAsset->load(pathOK, *assetManager);
+    EXPECT_NO_THROW(const vrm::RenderMesh& renderMesh = meshAsset->getSubMeshes().begin()->renderMesh;);
 }

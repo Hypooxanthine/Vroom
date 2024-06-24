@@ -6,7 +6,6 @@
 #include "Vroom/Asset/AssetInstance/MeshInstance.h"
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
-#include "Vroom/Asset/StaticAsset/ShaderAsset.h"
 #include "Vroom/Asset/AssetData/MeshData.h"
 #include "Vroom/Asset/AssetData/MaterialData.h"
 
@@ -68,7 +67,7 @@ void Renderer::drawMesh(const MeshInstance& mesh, const CameraBasic& camera, con
         subMesh.renderMesh.getVertexArray().bind();
         subMesh.renderMesh.getIndexBuffer().bind();
 
-        const Shader& shader = subMesh.materialInstance.getStaticAsset()->getShaderInstance().getStaticAsset()->getShader();
+        const Shader& shader = subMesh.materialInstance.getStaticAsset()->getShader();
         shader.bind();
 
         // Setting uniforms
@@ -79,8 +78,6 @@ void Renderer::drawMesh(const MeshInstance& mesh, const CameraBasic& camera, con
         shader.setUniform3f("u_ViewPosition", camera.getPosition());
         shader.setUniform3f("u_LightDirection", glm::vec3(0.5f, -1.f, 0.5f));
         shader.setUniform3f("u_LightColor", glm::vec3(1.f, 1.f, 1.f));
-
-        subMesh.materialInstance.getStaticAsset()->getMaterialData().applyUniforms(shader);
 
         // Drawing data
         GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)subMesh.renderMesh.getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr));

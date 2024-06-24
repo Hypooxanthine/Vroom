@@ -20,6 +20,10 @@ public:
 protected:
 	void onInit() override
 	{
+		// Set a custom camera
+		setCamera(&myCamera);
+		myCamera.setWorldPosition({0.f, 0.f, 5.f});
+
 		// Place a cube in the center of the scene
 		auto entity = createEntity("ColoredCube");
 		auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/colored_cube.obj");
@@ -41,9 +45,6 @@ protected:
 
 			suzannes[i] = entity;
 		}
-
-		// Set a custom camera
-		setCamera(&myCamera);
 
 		// Bind triggers to the camera
 		// This is a bit ugly. I might create some facilities that do this job in the future.

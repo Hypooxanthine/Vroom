@@ -45,3 +45,10 @@ include(GoogleTest)
 gtest_discover_tests(VroomTests)
 
 include(CTest)
+
+# Copy the resources to the build directory
+add_custom_command(TARGET VroomTests POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/Resources
+    $<TARGET_FILE_DIR:VroomTests>/Resources
+)

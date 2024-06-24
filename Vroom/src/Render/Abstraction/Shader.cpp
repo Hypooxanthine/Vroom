@@ -10,7 +10,7 @@ static std::string LoadShader(const std::string& path)
 {
     std::ifstream ifs(path);
 
-    VRM_ASSERT(ifs.is_open());
+    VRM_ASSERT_MSG(ifs.is_open(), "Failed to open file: {}", path);
 
     std::string out;
     
@@ -36,11 +36,8 @@ bool Shader::loadFromFile(const std::string& vertexShaderPath, const std::string
     std::string vertexShader = LoadShader(vertexShaderPath);
     std::string fragmentShader = LoadShader(fragmentShaderPath);
     std::string geometryShader = LoadShader(geometryShaderPath);
-
-    m_RendererID = createShader(vertexShader, fragmentShader, geometryShader);
-    if (m_RendererID == 0) return false;
     
-    return true;
+    return loadFromSource(vertexShader, fragmentShader, geometryShader);
 }
 
 bool Shader::loadFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
@@ -49,8 +46,25 @@ bool Shader::loadFromFile(const std::string& vertexShaderPath, const std::string
 
     std::string vertexShader = LoadShader(vertexShaderPath);
     std::string fragmentShader = LoadShader(fragmentShaderPath);
+    
+    return loadFromSource(vertexShader, fragmentShader);
+}
 
-    m_RendererID = createShader(vertexShader, fragmentShader);
+bool Shader::loadFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const std::string& geometryShaderSource)
+{
+    unload();
+
+    m_RendererID = createShader(vertexShaderSource, fragmentShaderSource, geometryShaderSource);
+    if (m_RendererID == 0) return false;
+    
+    return true;
+}
+
+bool Shader::loadFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource)
+{
+    unload();
+
+    m_RendererID = createShader(vertexShaderSource, fragmentShaderSource);
     if (m_RendererID == 0) return false;
     
     return true;

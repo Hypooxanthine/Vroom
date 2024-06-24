@@ -38,6 +38,10 @@ public:
 	 */
 	bool loadFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 
+	bool loadFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const std::string& geometryShaderSource);
+
+	bool loadFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource);
+
 	/**
 	 * @brief Unloads the shader and releases GPU memory.
 	 */

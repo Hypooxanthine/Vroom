@@ -60,6 +60,18 @@ bool MeshAsset::loadObj(const std::string& filePath, AssetManager& manager)
     {
         fileDirectoryPath = filePath.substr(0, lastSlashIndex + 1);
     }
+    else
+    {
+        lastSlashIndex = filePath.find_last_of('\\');
+        if (lastSlashIndex != std::string::npos)
+        {
+            fileDirectoryPath = filePath.substr(0, lastSlashIndex + 1);
+        }
+        else
+        {
+            fileDirectoryPath = "./";
+        }
+    }
 
     LOG_INFO("Loading mesh from file: {}", filePath);
     LOG_TRACE("  Meshes count: {}", loader.LoadedMeshes.size());
@@ -108,7 +120,7 @@ bool MeshAsset::loadObj(const std::string& filePath, AssetManager& manager)
         }
         else
         {
-            MaterialInstance materialInstance = manager.getAsset<MaterialAsset>("Resources/Materials/Mat_Default.asset");
+            MaterialInstance materialInstance = manager.getAsset<MaterialAsset>("Resources/Engine/Material/Mat_Default.asset");
             MeshData meshData(std::move(vertices), std::move(indices));
             RenderMesh renderMesh(meshData);
 

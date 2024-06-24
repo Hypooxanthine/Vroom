@@ -2,9 +2,8 @@
 
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
 #include "Vroom/Asset/AssetInstance/MaterialInstance.h"
-#include "Vroom/Asset/AssetInstance/ShaderInstance.h"
 
-#include "Vroom/Asset/AssetData/MaterialData.h"
+#include "Vroom/Render/Abstraction/Shader.h"
 
 #include <fstream>
 
@@ -21,18 +20,13 @@ public:
 
     [[nodiscard]] MaterialInstance createInstance();
 
-    [[nodiscard]] const MaterialData& getMaterialData() const { return m_MaterialData; }
-    [[nodiscard]] const ShaderInstance& getShaderInstance() const { return m_ShaderInstance; }
+    [[nodiscard]] const Shader& getShader() const { return m_Shader; }
 
 protected:
     bool loadImpl(const std::string& filePath, AssetManager& manager) override;
 
 private:
-    bool loadPhong(std::ifstream& materialFile, AssetManager& manager);
-
-private:
-    MaterialData m_MaterialData;
-    ShaderInstance m_ShaderInstance;
+    Shader m_Shader;
 };
 
 } // namespace vrm
