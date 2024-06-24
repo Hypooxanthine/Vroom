@@ -47,6 +47,13 @@ public:
      */
     void end();
     
+    
+    /**
+     * @brief Sets the camera of the scene.
+     * @warning Scene does not take ownership of the camera, it only stores a pointer to it.
+     * 
+     * @param camera The camera to set.
+     */
     inline void setCamera(CameraBasic* camera) { m_Camera = camera; }
     inline const CameraBasic& getCamera() const { return *m_Camera; }
     inline CameraBasic& getCamera() { return *m_Camera; }
