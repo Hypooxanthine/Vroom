@@ -39,10 +39,6 @@ protected:
 			entity.addComponent<vrm::MeshComponent>(mesh);
 			auto& transform = entity.getComponent<vrm::TransformComponent>();
 
-			float theta = 3.14159f * 2.f * i / suzannes.size();
-			transform.position = { std::cos(theta) * suzanneRadius, 0.f, -std::sin(theta) * suzanneRadius };
-			transform.rotation = { 0.f, glm::degrees(theta), 0.f };
-
 			suzannes[i] = entity;
 		}
 
@@ -72,7 +68,7 @@ protected:
 
 		LOG_TRACE("MyScene \"{}\" instance initialized.", m_LittleNickName);
 	}
- 
+
 	void onUpdate(float dt) override
 	{
 		myCamera.move(forwardValue * myCameraSpeed * dt * myCamera.getForwardVector());
@@ -81,13 +77,18 @@ protected:
 		myCamera.addYaw(turnRightValue * myCameraAngularSpeed * dt);
 		myCamera.addPitch(lookUpValue * myCameraAngularSpeed * dt);
 
+		suzanneAngle = std::fmodf(suzanneAngle + suzanneSpeed * dt, 2.f * 3.14159f);
+		
 		// Rotate suzannes on their circle
-		for (auto& suzanne : suzannes)
+		for (size_t i = 0; i < suzannes.size(); i++)
 		{
+			auto& suzanne = suzannes[i];
 			auto& transform = suzanne.getComponent<vrm::TransformComponent>();
-			float theta = -suzanneSpeed * dt;
-			transform.position = glm::rotateY(transform.position, theta);
-			transform.rotation.y += glm::degrees(theta);
+			float theta = suzanneAngle + i * 2.f * 3.14159f / suzannes.size();
+			transform.position = {suzanneRadius * std::cos(theta), 0.f, suzanneRadius * std::sin(theta)};
+
+			// Rotate suzannes on themselves
+			transform.rotation.y = -glm::degrees(theta);
 		}
 
 		m_TimeAccumulator += dt;
@@ -118,6 +119,7 @@ private:
 	std::array<vrm::Entity, 10> suzannes;
 	float suzanneRadius = 10.f;
 	float suzanneSpeed = 3.14159f / 4.f;
+	float suzanneAngle = 0.f;
 };
 
 int main(int argc, char** argv)
