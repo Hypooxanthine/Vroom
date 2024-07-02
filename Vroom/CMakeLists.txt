@@ -44,11 +44,11 @@ set(PROJECT_IMPL
 
     ${SOURCE_DIR}/Asset/StaticAsset/StaticAsset.cpp
     ${SOURCE_DIR}/Asset/StaticAsset/MeshAsset.cpp
-    ${SOURCE_DIR}/Asset/StaticAsset/ImageAsset.cpp
+    ${SOURCE_DIR}/Asset/StaticAsset/TextureAsset.cpp
     ${SOURCE_DIR}/Asset/StaticAsset/MaterialAsset.cpp
     ${SOURCE_DIR}/Asset/AssetInstance/AssetInstance.cpp
     ${SOURCE_DIR}/Asset/AssetInstance/MeshInstance.cpp
-    ${SOURCE_DIR}/Asset/AssetInstance/ImageInstance.cpp
+    ${SOURCE_DIR}/Asset/AssetInstance/TextureInstance.cpp
     ${SOURCE_DIR}/Asset/AssetInstance/MaterialInstance.cpp
     ${SOURCE_DIR}/Asset/AssetData/MeshData.cpp
     ${SOURCE_DIR}/Asset/AssetData/MaterialData.cpp

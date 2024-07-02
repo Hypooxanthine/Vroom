@@ -61,6 +61,6 @@ TEST_F(AssetManagerTest, GetAssetDifferentType)
     EXPECT_NO_THROW(assetManager->loadAsset<vrm::MeshAsset>(pathOK));
     
     EXPECT_ANY_THROW(
-        vrm::ImageInstance instance = assetManager->getAsset<vrm::ImageAsset>(pathOK)
+        vrm::MaterialInstance instance = assetManager->getAsset<vrm::MaterialAsset>(pathOK)
     );
 }
