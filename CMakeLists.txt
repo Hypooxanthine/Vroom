@@ -25,6 +25,8 @@ if (VRM_RELEASE)
     add_compile_definitions(VRM_RELEASE=1)
 endif()
 
+add_compile_definitions(_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING=1)
+
 
 # Dependencies include directories
 set(GLM_INCLUDE_DIR ${DEPENDENCIES}/GLM/include)
