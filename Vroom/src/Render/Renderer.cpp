@@ -8,6 +8,7 @@
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Asset/AssetData/MeshData.h"
 #include "Vroom/Asset/AssetData/MaterialData.h"
+#include "Vroom/Asset/StaticAsset/TextureAsset.h"
 
 namespace vrm
 {
@@ -84,6 +85,21 @@ void Renderer::drawMesh(const MeshInstance& mesh, const glm::mat4& model) const
         shader.setUniform3f("u_ViewPosition", cameraPos);
         shader.setUniform3f("u_LightDirection", glm::vec3(0.4356f, -1.017651f, 0.514582f));
         shader.setUniform3f("u_LightColor", glm::vec3(1.f, 1.f, 1.f));
+
+        // Setting material textures uniforms
+        size_t textureCount = subMesh.materialInstance.getStaticAsset()->getTextureCount();
+        if (textureCount > 0)
+        {
+            std::vector<int> textureSlots(textureCount);
+            for (size_t i = 0; i < textureCount; ++i)
+            {
+                const auto& texture = subMesh.materialInstance.getStaticAsset()->getTexture(i);
+                texture.getStaticAsset()->getGPUTexture().bind((unsigned int)i);
+                textureSlots[i] = (int)i;
+            }
+
+            shader.setUniform1iv("u_Texture", (int)textureCount, textureSlots.data());
+        }
 
         // Drawing data
         GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)subMesh.renderMesh.getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr));

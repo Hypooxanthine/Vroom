@@ -11,6 +11,7 @@ uniform vec3 u_LightDirection;
 uniform vec3 u_LightColor;
 
 // For Vroom shader preprocessor
+#include Sampler2DUniform
 #include PreFragShader
 #include ShadingModelShader
 #include PostFragShader

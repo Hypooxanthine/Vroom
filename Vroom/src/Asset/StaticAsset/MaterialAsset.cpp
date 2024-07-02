@@ -27,11 +27,23 @@ MaterialInstance MaterialAsset::createInstance()
 
 bool MaterialAsset::loadImpl(const std::string& filePath, AssetManager& manager)
 {
-    auto shadersData = MaterialParsing::Parse(filePath);
-
     LOG_INFO("Loading material: {}", filePath);
 
-    return m_Shader.loadFromSource(shadersData.vertex, shadersData.fragment);
+    auto shadersData = MaterialParsing::Parse(filePath);
+
+    if (!m_Shader.loadFromSource(shadersData.vertex, shadersData.fragment))
+    {
+        LOG_ERROR("Failed to load material: {}", filePath);
+        return false;
+    }
+
+    // Loading textures
+    for (const std::string& texturePath : shadersData.texturePaths)
+    {
+        m_Textures.emplace_back(manager.getAsset<TextureAsset>(texturePath));
+    }
+
+    return true;
 }
 
 } // namespace vrm

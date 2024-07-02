@@ -9,7 +9,7 @@
 namespace vrm
 {
 
-MaterialParsing::ShadersOutput MaterialParsing::Parse(const std::string& filePath)
+MaterialParsing::ParsingResults MaterialParsing::Parse(const std::string& filePath)
 {
     // Getting material data
     std::ifstream file(filePath);
@@ -22,7 +22,7 @@ MaterialParsing::ShadersOutput MaterialParsing::Parse(const std::string& filePat
     file.open(parameters.vertex);
     VRM_ASSERT_MSG(file.is_open(), "Failed to open vertex shader file: {}", parameters.vertex);
 
-    ShadersOutput output;
+    ParsingResults output;
 
     output.vertex = std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     file.close();
@@ -66,6 +66,12 @@ MaterialParsing::ShadersOutput MaterialParsing::Parse(const std::string& filePat
 
             includeFile.close();
         }
+        else if (line == "#include Sampler2DUniform")
+        {
+            auto size = parameters.textures.size();
+            if (size > 0)
+                fragSS << "uniform sampler2D u_Texture[" << parameters.textures.size() << "];\n";
+        }
         else
         {
             fragSS << line << '\n';
@@ -74,6 +80,8 @@ MaterialParsing::ShadersOutput MaterialParsing::Parse(const std::string& filePat
     
     output.fragment = fragSS.str();
 
+    output.texturePaths = std::move(parameters.textures);
+
     return output;
 }
 
@@ -81,7 +89,8 @@ const MaterialParsing::MaterialParameters MaterialParsing::getMaterialParameters
 {
 
     static const std::unordered_set<std::string> allowedParameters = {
-        "vertex", "shading-model", "prefrag", "postfrag"
+        "vertex", "shading-model", "prefrag", "postfrag",
+        "frag-texture-slot-0", "frag-texture-slot-1", "frag-texture-slot-2", "frag-texture-slot-3", "frag-texture-slot-4", "frag-texture-slot-5", "frag-texture-slot-6", "frag-texture-slot-7"
     };
 
     static const std::unordered_map<std::string, std::string> defaultParameters = {
@@ -102,6 +111,8 @@ const MaterialParsing::MaterialParameters MaterialParsing::getMaterialParameters
 
     std::string line;
 
+    MaterialParameters out;
+
     while(std::getline(file, line))
     {
         std::istringstream iss(line);
@@ -115,6 +126,16 @@ const MaterialParsing::MaterialParameters MaterialParsing::getMaterialParameters
 
         std::string value;
         VRM_ASSERT_MSG(iss >> value, "Missing value for parameter: {}", token);
+
+        if (token.starts_with("frag-texture-slot"))
+        {
+            size_t lastDash = token.find_last_of('-');
+            size_t slot = std::stoi(token.substr(lastDash + 1));
+            VRM_ASSERT_MSG(out.textures.size() == slot, "Invalid texture slot: {}. You need to specify texture slots from 0 to 7, one by one.", slot);
+            out.textures.push_back(value);
+
+            LOG_TRACE("Texture slot {}: {}", slot, value);
+        }
 
         parameters[token] = value;
 
@@ -136,13 +157,12 @@ const MaterialParsing::MaterialParameters MaterialParsing::getMaterialParameters
 
     parameters["shading-model"] = shadingModels.at(parameters["shading-model"]);
 
-    return MaterialParameters{
-        .vertex = parameters["vertex"],
-        .shadingModel = parameters["shading-model"],
-        .prefrag = parameters["prefrag"],
-        .postfrag = parameters["postfrag"]
-    };
-
+    out.postfrag = parameters["postfrag"];
+    out.prefrag = parameters["prefrag"];
+    out.shadingModel = parameters["shading-model"];
+    out.vertex = parameters["vertex"];
+    
+    return out;
 }
     
 

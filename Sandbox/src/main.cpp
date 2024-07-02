@@ -6,7 +6,7 @@
 #include <Vroom/Scene/Scene.h>
 #include <Vroom/Asset/Asset.h>
 #include <Vroom/Render/Renderer.h>
-
+ 
 #include <Vroom/Scene/Components/MeshComponent.h>
 #include <Vroom/Scene/Components/TransformComponent.h>
 #include <glm/gtx/rotate_vector.hpp>
@@ -26,7 +26,7 @@ protected:
 
 		// Place a cube in the center of the scene
 		auto entity = createEntity("ColoredCube");
-		auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/colored_cube.obj");
+		auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/Textured_Cube.obj");
 		entity.addComponent<vrm::MeshComponent>(mesh);
 		auto& transform = entity.getComponent<vrm::TransformComponent>();
 		transform.position = { 0.f, 0.f, 0.f };

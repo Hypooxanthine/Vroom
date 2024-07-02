@@ -65,6 +65,14 @@ public:
 	void setUniform1i(const std::string& name, int value) const;
 
 	/**
+	 * @brief Sends int data to shader.
+	 * @param name Uniform name.
+	 * @param count Number of elements in the array.
+	 * @param value Data to send.
+	 */
+	void setUniform1iv(const std::string& name, int count, const int* value) const;
+
+	/**
 	 * @brief Sends unsigned int data to shader.
 	 * @param name Uniform name.
 	 * @param value Data to send.

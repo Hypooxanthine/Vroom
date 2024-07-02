@@ -52,6 +52,7 @@ set(PROJECT_IMPL
     ${SOURCE_DIR}/Asset/AssetInstance/MaterialInstance.cpp
     ${SOURCE_DIR}/Asset/AssetData/MeshData.cpp
     ${SOURCE_DIR}/Asset/AssetData/MaterialData.cpp
+    ${SOURCE_DIR}/Asset/AssetData/TextureData.cpp
     ${SOURCE_DIR}/Asset/Parsing/MaterialParsing.cpp
 )
 

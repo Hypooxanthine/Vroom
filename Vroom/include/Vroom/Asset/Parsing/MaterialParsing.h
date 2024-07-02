@@ -1,6 +1,8 @@
 #pragma once
 
 #include <fstream>
+#include <string>
+#include <vector>
 
 namespace vrm
 {
@@ -8,16 +10,17 @@ namespace vrm
 class MaterialParsing
 {
 public:
-    struct ShadersOutput
+    struct ParsingResults
     {
         std::string vertex;
         std::string fragment;
+        std::vector<std::string> texturePaths;
     };
 
 public:
     MaterialParsing() = delete;
     
-    static ShadersOutput Parse(const std::string& filePath);
+    static ParsingResults Parse(const std::string& filePath);
 
 private:
 
@@ -29,6 +32,7 @@ private:
         std::string shadingModel;
         std::string prefrag;
         std::string postfrag;
+        std::vector<std::string> textures;
     };
 
     static const MaterialParameters getMaterialParameters(std::ifstream& file);
