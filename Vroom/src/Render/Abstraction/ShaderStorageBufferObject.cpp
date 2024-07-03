@@ -9,7 +9,7 @@ ShaderStorageBufferObject::ShaderStorageBufferObject()
 
 ShaderStorageBufferObject::~ShaderStorageBufferObject()
 {
-    GLCall(glDeleteBuffers(1, &m_RendererID));
+    GLCall_nothrow(glDeleteBuffers(1, &m_RendererID));
 }
 
 void ShaderStorageBufferObject::bind()

@@ -18,6 +18,8 @@ struct PointLightComponent;
 /**
  * @brief The renderer is responsible for rendering objects on the scene, taking lights and cameras into consideration.
  * 
+ * @todo Point lights data. Currently, point lights radius and intensity are sent to the shaders but are not used. It only needs to be implemented in the shading model shader.
+ * 
  * @todo  Point lights SSBO optimization. We should probably save the data of lights for the next frame, because if no light is added/removed,
  * we don't need to recreate the SSBO from scratch. And if some light states were only changed, we could only update the SSBO with the new data.
  * 
