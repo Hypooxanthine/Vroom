@@ -20,9 +20,6 @@ public:
 protected:
 	void onInit() override
 	{
-		// Set window cursor to invisible
-		getApplication().getWindow().setCursorVisible(false);
-
 		// Set a custom camera
 		setCamera(&myCamera);
 		myCamera.setWorldPosition({0.f, 0.f, 5.f});

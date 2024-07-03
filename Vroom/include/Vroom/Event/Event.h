@@ -5,6 +5,12 @@
 namespace vrm
 {
 
+/**
+ * @brief The Event struct is a standardized event structure that will gather all the events that can be triggered by the engine.
+ * 
+ * @warning Please be careful when dealing with event values (mouseX, scrollY, newWidth, ...). This struct was meant to be lightweight, so event values are stored in a union. Only the values that are relevant to the event type will be meaningful.
+ * 
+ */
 struct Event
 {
     enum class Type
