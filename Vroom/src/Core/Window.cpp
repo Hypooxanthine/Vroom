@@ -21,6 +21,18 @@ void glfwMouseCallback(GLFWwindow* window, int button, int action, int mods)
     ACTIVE_WINDOW->mouseCallback(button, action, mods);
 }
 
+void glfwCursorPosCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    VRM_ASSERT(ACTIVE_WINDOW != nullptr);
+    ACTIVE_WINDOW->mouseMovedCallback(xpos, ypos);
+}
+
+void glfwCursorEnterCallback(GLFWwindow* window, int entered)
+{
+    VRM_ASSERT(ACTIVE_WINDOW != nullptr);
+    ACTIVE_WINDOW->mouseEnteredCallback(entered);
+}
+
 void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
     VRM_ASSERT(ACTIVE_WINDOW != nullptr);
@@ -75,6 +87,8 @@ bool Window::create(const std::string& windowTitle, uint32_t width, uint32_t hei
 
     glfwSetKeyCallback(m_Handle, glfwKeyCallback);
     glfwSetMouseButtonCallback(m_Handle, glfwMouseCallback);
+    glfwSetCursorPosCallback(m_Handle, glfwCursorPosCallback);
+    glfwSetCursorEnterCallback(m_Handle, glfwCursorEnterCallback);
     glfwSetScrollCallback(m_Handle, glfwScrollCallback);
     glfwSetWindowSizeCallback(m_Handle, glfwWindowSizeCallback);
     glfwSetWindowFocusCallback(m_Handle, glfwFocusedCallback);
@@ -117,6 +131,23 @@ int Window::getHeight() const
 bool Window::getKeyRepeatEnabled() const
 {
     return m_KeyRepeatEnabled;
+}
+
+bool Window::getCursorVisible() const
+{
+    return m_CursorVisible;
+}
+
+void Window::setCursorVisible(bool visible)
+{
+    if (m_CursorVisible == visible) return;
+
+    m_CursorVisible = visible;
+    glfwSetInputMode(m_Handle, GLFW_CURSOR, visible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+    
+    // If cursor is visible, we need to update the last mouse position because mouse will suddenly appear at its last visible position
+    if (visible)
+        glfwGetCursorPos(m_Handle, &lastMouseX, &lastMouseY);
 }
 
 void Window::setKeyRepeatEnabled(bool keyRepeat)
@@ -199,6 +230,28 @@ void Window::mouseCallback(int button, int action, int mods)
         e.type = Event::Type::MousePressed;
     else
         e.type = Event::Type::MouseReleased;
+}
+
+void Window::mouseMovedCallback(double xpos, double ypos)
+{
+    Event& e = m_EventQueue.emplace();
+    e.type = Event::Type::MouseMoved;
+    e.mouseX = xpos;
+    e.mouseY = ypos;
+    e.mouseDeltaX = xpos - lastMouseX;
+    e.mouseDeltaY = ypos - lastMouseY;
+
+    lastMouseX = xpos;
+    lastMouseY = ypos;
+}
+
+void Window::mouseEnteredCallback(int entered)
+{
+    Event& e = m_EventQueue.emplace();
+    e.type = (entered == GLFW_TRUE ? Event::Type::MouseEntered : Event::Type::MouseLeft);
+    glfwGetCursorPos(m_Handle, &lastMouseX, &lastMouseY);
+    e.mouseX = lastMouseX;
+    e.mouseY = lastMouseY;
 }
 
 void Window::scrollCallback(double xoffset, double yoffset)

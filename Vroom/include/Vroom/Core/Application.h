@@ -8,6 +8,8 @@
 #include "Vroom/Event/Trigger/TriggerManager.h"
 #include "Vroom/Event/CustomEvent/CustomEventManager.h"
 
+#include "Vroom/PublicInterfaces/WindowPublicInterface.h"
+
 namespace vrm
 {
 
@@ -101,6 +103,13 @@ public:
 
         loadScene_Internal(std::move(scene));
     }
+
+    /**
+     * @brief Get the window object.
+     * 
+     * @return WindowPublicInterface The public interface of the window.
+     */
+    inline WindowPublicInterface getWindow() { return WindowPublicInterface(*m_Window); }
 
     inline const Renderer& getRenderer() const { return *m_Renderer; }
     inline Renderer& getRenderer() { return *m_Renderer; }

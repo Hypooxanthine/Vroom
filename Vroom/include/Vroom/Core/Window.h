@@ -83,6 +83,18 @@ public:
     void setKeyRepeatEnabled(bool keyRepeat);
 
     /**
+     * @brief Gets the cursor visibility.
+     * @return True if cursor is visible. False otherwise.
+     */
+    bool getCursorVisible() const;
+
+    /**
+     * @brief Sets the cursor visibility.
+     * @param visible True if cursor should be visible. False otherwise.
+     */
+    void setCursorVisible(bool visible);
+
+    /**
      * @brief Checks if user requested the window closing.
      * @return True if requested. False otherwise.
      */
@@ -135,6 +147,8 @@ public:
 public:
     friend void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     friend void glfwMouseCallback(GLFWwindow* window, int button, int action, int mods);
+    friend void glfwCursorPosCallback(GLFWwindow* window, double xpos, double ypos);
+    friend void glfwCursorEnterCallback(GLFWwindow* window, int entered);
     friend void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
     friend void glfwWindowSizeCallback(GLFWwindow* window, int width, int height);
     friend void glfwFocusedCallback(GLFWwindow* window, int focused);
@@ -144,6 +158,8 @@ private:
 
     void keyCallback(int key, int scancode, int action, int mods);
     void mouseCallback(int button, int action, int mods);
+    void mouseMovedCallback(double xpos, double ypos);
+    void mouseEnteredCallback(int entered);
     void scrollCallback(double xoffset, double yoffset);
     void resizeCallback(int width, int height);
     void focusCallback(int focused);
@@ -156,6 +172,10 @@ private:
     std::queue<Event> m_EventQueue;
 
     bool m_KeyRepeatEnabled = false;
+
+    double lastMouseX = 0.0, lastMouseY = 0.0;
+
+    bool m_CursorVisible = true;
 };
 
 } // namespace vrm

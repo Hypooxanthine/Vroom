@@ -54,6 +54,8 @@ set(PROJECT_IMPL
     ${SOURCE_DIR}/Asset/AssetData/MaterialData.cpp
     ${SOURCE_DIR}/Asset/AssetData/TextureData.cpp
     ${SOURCE_DIR}/Asset/Parsing/MaterialParsing.cpp
+
+    ${SOURCE_DIR}/PublicInterfaces/WindowPublicInterface.cpp
 )
 
 set(SOURCES

@@ -20,6 +20,9 @@ public:
 protected:
 	void onInit() override
 	{
+		// Set window cursor to invisible
+		getApplication().getWindow().setCursorVisible(false);
+
 		// Set a custom camera
 		setCamera(&myCamera);
 		myCamera.setWorldPosition({0.f, 0.f, 5.f});
@@ -57,14 +60,12 @@ protected:
 			.bindCallback([this](bool triggered) { upValue += triggered ? 1.f : -1.f; });
 		getApplication().getTrigger("MoveDown")
 			.bindCallback([this](bool triggered) { upValue -= triggered ? 1.f : -1.f; });
-		getApplication().getTrigger("TurnRight")
-			.bindCallback([this](bool triggered) { turnRightValue += triggered ? 1.f : -1.f; });
-		getApplication().getTrigger("TurnLeft")
-			.bindCallback([this](bool triggered) { turnRightValue -= triggered ? 1.f : -1.f; });
-		getApplication().getTrigger("LookUp")
-			.bindCallback([this](bool triggered) { lookUpValue += triggered ? 1.f : -1.f; });
-		getApplication().getTrigger("LookDown")
-			.bindCallback([this](bool triggered) { lookUpValue -= triggered ? 1.f : -1.f; });
+		
+		getApplication().getCustomEvent("MouseMoved")
+			.bindCallback([this](const vrm::Event& event) {
+				turnRightValue += static_cast<float>(event.mouseDeltaX);
+				lookUpValue -= static_cast<float>(event.mouseDeltaY);
+			});
 
 		LOG_TRACE("MyScene \"{}\" instance initialized.", m_LittleNickName);
 	}
@@ -90,6 +91,9 @@ protected:
 			// Rotate suzannes on themselves
 			transform.rotation.y = -glm::degrees(theta);
 		}
+
+		lookUpValue = 0.f;
+		turnRightValue = 0.f;
 
 		m_TimeAccumulator += dt;
 		m_FramesAccumulator++;
@@ -140,20 +144,20 @@ int main(int argc, char** argv)
 		.bindInput(vrm::KeyCode::Space);
 	app.createTrigger("MoveDown")
 		.bindInput(vrm::KeyCode::LeftShift);
-	app.createTrigger("TurnLeft")
-		.bindInput(vrm::KeyCode::Left);
-	app.createTrigger("TurnRight")
-		.bindInput(vrm::KeyCode::Right);
-	app.createTrigger("LookUp")
-		.bindInput(vrm::KeyCode::Up);
-	app.createTrigger("LookDown")
-		.bindInput(vrm::KeyCode::Down);
 
 	// Create some custom events, which are more general than triggers
 	app.createCustomEvent("Exit")
 		.bindInput(vrm::Event::Type::KeyPressed, vrm::KeyCode::Escape)
 		.bindInput(vrm::Event::Type::Exit)
 		.bindCallback([&app](const vrm::Event&) { LOG_INFO("Application exit has been requested by user."); app.exit(); });
+	app.createCustomEvent("MouseMoved")
+		.bindInput(vrm::Event::Type::MouseMoved);
+	app.createCustomEvent("ReleaseMouse")
+		.bindInput(vrm::Event::Type::KeyPressed, vrm::KeyCode::LeftAlt)
+		.bindCallback([&app](const vrm::Event&) { app.getWindow().setCursorVisible(true); });
+	app.createCustomEvent("MouseEnter")
+		.bindInput(vrm::Event::Type::MouseEntered)
+		.bindCallback([&app](const vrm::Event&) { app.getWindow().setCursorVisible(false); });
 	
 	// Load the custom scene, defined above
 	app.loadScene<MyScene>("A cute little scene !");

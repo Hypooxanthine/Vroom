@@ -12,16 +12,30 @@ struct Event
         None = 0,
         KeyPressed, KeyReleased,
         MousePressed, MouseReleased, Scroll,
+        MouseMoved, MouseEntered, MouseLeft,
         WindowsResized, GainedFocus, LostFocus,
         Exit,
     };
 
     Type type = Type::None;
 
-    double scrollY = 0;
-    double scrollX = 0;
+    union
+    {
+        struct
+        {
+            double mouseX, mouseY, mouseDeltaX, mouseDeltaY;
+        };
 
-    int newWidth = 0, newHeight = 0;
+        struct
+        {
+            double scrollX, scrollY;
+        };
+
+        struct
+        {
+            int newWidth, newHeight;
+        };
+    };
 
     union
     {
