@@ -16,6 +16,8 @@ class AssetManager;
 class Scene
 {
 public:
+    friend class Renderer;
+public:
     Scene();
     virtual ~Scene();
 

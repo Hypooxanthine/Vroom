@@ -12,6 +12,7 @@
 #include "Vroom/Scene/Components/NameComponent.h"
 #include "Vroom/Scene/Components/TransformComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
+#include "Vroom/Scene/Components/PointLightComponent.h"
 
 namespace vrm
 {
@@ -58,17 +59,26 @@ void Scene::update(float dt)
 
 void Scene::render()
 {
-    getApplication().getRenderer().beginScene(getCamera());
+    getApplication().getRenderer().beginScene(*this);
 
-    const auto& renderer = m_Application->getRenderer();
-
-    auto view = m_Registry.view<MeshComponent, TransformComponent>();
-    for (auto entity : view)
+    auto& renderer = m_Application->getRenderer();
+    
+    auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent>();
+    for (auto entity : viewPointLights)
     {
-        auto& meshComponent = view.get<MeshComponent>(entity);
-        auto& transformComponent = view.get<TransformComponent>(entity);
+        auto& pointLightComponent = viewPointLights.get<PointLightComponent>(entity);
+        auto& transformComponent = viewPointLights.get<TransformComponent>(entity);
 
-        renderer.drawMesh(meshComponent.getMesh(), transformComponent.getTransform());
+        renderer.submitPointLight(transformComponent.getPosition(), pointLightComponent);
+    }
+
+    auto viewMeshes = m_Registry.view<MeshComponent, TransformComponent>();
+    for (auto entity : viewMeshes)
+    {
+        auto& meshComponent = viewMeshes.get<MeshComponent>(entity);
+        auto& transformComponent = viewMeshes.get<TransformComponent>(entity);
+
+        renderer.submitMesh(meshComponent.getMesh(), transformComponent.getTransform());
     }
 
     onRender();

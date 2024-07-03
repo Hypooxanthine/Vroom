@@ -1,23 +1,27 @@
 #pragma once
 
+#include <vector>
 #include <glm/glm.hpp>
 
-#include "Vroom/Render/Abstraction/GLCall.h"
-#include "Vroom/Render/Abstraction/VertexArray.h"
-#include "Vroom/Render/Abstraction/VertexBuffer.h"
-#include "Vroom/Render/Abstraction/VertexBufferLayout.h"
-#include "Vroom/Render/Abstraction/IndexBuffer.h"
-#include "Vroom/Render/Abstraction/Shader.h"
+#include "Vroom/Render/Abstraction/ShaderStorageBufferObject.h"
+
+#include "Vroom/Asset/AssetInstance/MeshInstance.h"
 
 #include "Vroom/Render/Camera/CameraBasic.h"
 
 namespace vrm
 {
 
-class MeshInstance;
+class Scene;
+struct PointLightComponent;
 
 /**
- * @brief Draws things with OpenGL.
+ * @brief The renderer is responsible for rendering objects on the scene, taking lights and cameras into consideration.
+ * 
+ * @todo  Point lights SSBO optimization. We should probably save the data of lights for the next frame, because if no light is added/removed,
+ * we don't need to recreate the SSBO from scratch. And if some light states were only changed, we could only update the SSBO with the new data.
+ * 
+ * @todo Forward+ rendering. Currently arbitrary number of lights are supported, but the performance is not the best because each object is taking all lights into consideration. Forward+ rendering would help with this be dividing the view space into clusters, and only taking into consideration the lights that affect the cluster. Then, when rendering an object from a cluster, only the lights that affect that cluster are taken into consideration.
  */
 class Renderer
 {
@@ -36,7 +40,7 @@ public:
 	 * @brief Has to be called before any rendering of current frame.
 	 * 
 	 */
-	void beginScene(const CameraBasic& camera);
+	void beginScene(const Scene& scene);
 
 	/**
 	 * @brief Has to be called after any rendering scene.
@@ -46,27 +50,30 @@ public:
 	void endScene();
 
 	/**
-	 * @brief Performs a draw call of triangles with OpenGL using a @ref VertexArray, an @ref IndexBuffer and a @ref Shader.
+	 * @brief Submits a mesh to be drawn.
 	 * 
-	 * @param va VertexArray instance.
-	 * @param ib IndexBuffer instance.
-	 * @param shader Shader instance.
+	 * @warning Model matrix must be still alive when calling endScene. This is needed because the renderer does not store the data, it only stores references to it.
+	 * No worries about the mesh, the mesh instance guarantees that the mesh is still alive.
+	 * 
+	 * @param mesh  The mesh to submit.
+	 * @param model  The model matrix.
 	 */
-	void drawTriangles(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const;
+	void submitMesh(const MeshInstance& mesh, const glm::mat4& model);
 
 	/**
-	 * @brief Performs a draw call of points with OpenGL using a @ref VertexArray, an @ref IndexBuffer and a @ref Shader.
+	 * @brief Submits a point light to be drawn.
 	 * 
-	 * @param va 
-	 * @param shader 
+	 * @warning Position and pointLightComponent must be still alive when calling endScene. This is needed because the renderer does not store the data, it only stores references to it.
+	 * 
+	 * @param position  The position of the light.
+	 * @param pointLight  The point light component.
 	 */
-	void drawPoints(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const;
+	void submitPointLight(const glm::vec3& position, const PointLightComponent& pointLight);
 
 	/**
 	 * @brief  Draws a mesh with a shader and a camera.
 	 * 
 	 * @param mesh  The mesh to draw.
-	 * @param camera  The camera to use.
 	 * @param model  The model matrix.
 	 */
 	void drawMesh(const MeshInstance& mesh, const glm::mat4& model) const;
@@ -103,10 +110,32 @@ public:
 	void setViewportSize(const glm::vec<2, unsigned int>& s);
 
 private:
+	void setupLights();
+
+private:
+	// Structs to store data to be drawn
+	struct QueuedMesh
+	{
+		MeshInstance mesh;
+		const glm::mat4& model;
+	};
+
+	struct QueuedPointLight
+	{
+		const glm::vec3& position;
+		const PointLightComponent& pointLight;
+	};
+
+private:
 	glm::vec<2, unsigned int> m_ViewportOrigin = { 0, 0 };
 	glm::vec<2, unsigned int> m_ViewportSize = { 0, 0 };
 
 	const CameraBasic* m_Camera = nullptr;
+
+	std::vector<QueuedMesh> m_Meshes;
+	std::vector<QueuedPointLight> m_PointLights;
+
+	ShaderStorageBufferObject m_PointLightsSSBO;
 };
 
 } // namespace vrm

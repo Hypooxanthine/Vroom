@@ -33,6 +33,7 @@ set(PROJECT_IMPL
     ${SOURCE_DIR}/Render/Abstraction/VertexArray.cpp
     ${SOURCE_DIR}/Render/Abstraction/VertexBuffer.cpp
     ${SOURCE_DIR}/Render/Abstraction/VertexBufferLayout.cpp
+    ${SOURCE_DIR}/Render/Abstraction/ShaderStorageBufferObject.cpp
     ${SOURCE_DIR}/Render/RenderObject/RenderMesh.cpp
     ${SOURCE_DIR}/Render/Camera/CameraBasic.cpp
     ${SOURCE_DIR}/Render/Camera/PerspectiveCameraBasic.cpp

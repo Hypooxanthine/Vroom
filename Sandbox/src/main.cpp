@@ -9,8 +9,9 @@
  
 #include <Vroom/Scene/Components/MeshComponent.h>
 #include <Vroom/Scene/Components/TransformComponent.h>
+#include <Vroom/Scene/Components/PointLightComponent.h>
 #include <glm/gtx/rotate_vector.hpp>
-
+ 
 class MyScene : public vrm::Scene
 {
 public:
@@ -24,12 +25,28 @@ protected:
 		setCamera(&myCamera);
 		myCamera.setWorldPosition({0.f, 0.f, 5.f});
 
+		// Lights
+		{
+			auto entity = createEntity("PointLight");
+			entity.addComponent<vrm::PointLightComponent>(glm::vec3{1.f, 1.f, 1.f}, 1.f, 10.f);
+			auto& transform = entity.getComponent<vrm::TransformComponent>();
+			transform.setPosition({10.453f, 10.345f, -10.45354f});
+		}
+		{
+			auto entity = createEntity("PointLight2");
+			entity.addComponent<vrm::PointLightComponent>(glm::vec3{1.f, 1.f, 1.f}, 1.f, 10.f);
+			auto& transform = entity.getComponent<vrm::TransformComponent>();
+			transform.setPosition({-10.45354f, 10.543254f, 10.45345f});
+		}
+
 		// Place a cube in the center of the scene
-		auto entity = createEntity("ColoredCube");
-		auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/Textured_Cube.obj");
-		entity.addComponent<vrm::MeshComponent>(mesh);
-		auto& transform = entity.getComponent<vrm::TransformComponent>();
-		transform.position = { 0.f, 0.f, 0.f };
+		{
+			auto entity = createEntity("ColoredCube");
+			auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/Textured_Cube.obj");
+			entity.addComponent<vrm::MeshComponent>(mesh);
+			auto& transform = entity.getComponent<vrm::TransformComponent>();
+			transform.setPosition({0.f, 0.f, 0.f});
+		}
  
 		// Create a few suzannes
 		for (uint8_t i = 0; i < suzannes.size(); i++)
@@ -83,10 +100,12 @@ protected:
 			auto& suzanne = suzannes[i];
 			auto& transform = suzanne.getComponent<vrm::TransformComponent>();
 			float theta = suzanneAngle + i * 2.f * 3.14159f / suzannes.size();
-			transform.position = {suzanneRadius * std::cos(theta), 0.f, suzanneRadius * std::sin(theta)};
+			transform.setPosition({suzanneRadius * std::cos(theta), 0.f, suzanneRadius * std::sin(theta)});
 
 			// Rotate suzannes on themselves
-			transform.rotation.y = -glm::degrees(theta);
+			auto rotation = transform.getRotation();
+			rotation.y = -glm::degrees(theta);
+			transform.setRotation(rotation);
 		}
 
 		lookUpValue = 0.f;

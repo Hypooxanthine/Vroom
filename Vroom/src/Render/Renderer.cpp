@@ -1,14 +1,24 @@
 #include "Vroom/Render/Renderer.h"
 
+#include <array>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Vroom/Render/Abstraction/GLCall.h"
-#include "Vroom/Asset/AssetInstance/MeshInstance.h"
+#include "Vroom/Render/Abstraction/VertexArray.h"
+#include "Vroom/Render/Abstraction/VertexBuffer.h"
+#include "Vroom/Render/Abstraction/VertexBufferLayout.h"
+#include "Vroom/Render/Abstraction/IndexBuffer.h"
+#include "Vroom/Render/Abstraction/Shader.h"
+
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Asset/AssetData/MeshData.h"
 #include "Vroom/Asset/AssetData/MaterialData.h"
 #include "Vroom/Asset/StaticAsset/TextureAsset.h"
+
+#include "Vroom/Scene/Components/PointLightComponent.h"
+
+#include "Vroom/Scene/Scene.h"
 
 namespace vrm
 {
@@ -25,39 +35,39 @@ Renderer::~Renderer()
 {
 }
 
-void Renderer::beginScene(const CameraBasic& camera)
+void Renderer::beginScene(const Scene& scene)
 {
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
 
-    m_Camera = &camera;
+    m_Camera = &scene.getCamera();
 }
 
 void Renderer::endScene()
 {
+    // Setting up lights.
+    setupLights();
+
+    // Drawing meshes.
+    for (const auto& mesh : m_Meshes)
+    {
+        drawMesh(mesh.mesh, mesh.model);
+    }
+
+    // Clearing data for next frame.
     m_Camera = nullptr;
+    m_Meshes.clear();
+    m_PointLights.clear();
 }
 
-void Renderer::drawTriangles(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const
+void Renderer::submitMesh(const MeshInstance& mesh, const glm::mat4& model)
 {
-    // Binding data
-    va.bind();
-    ib.bind();
-    shader.bind();
-
-    // Drawing data
-    GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)ib.getCount(), GL_UNSIGNED_INT, nullptr));
+    m_Meshes.push_back({ mesh, model });
 }
 
-void Renderer::drawPoints(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const
+void Renderer::submitPointLight(const glm::vec3& position, const PointLightComponent& pointLight)
 {
-    // Binding data
-    va.bind();
-    ib.bind();
-    shader.bind();
-
-    // Drawing data
-    GLCall(glDrawElements(GL_POINTS, (GLsizei)ib.getCount(), GL_UNSIGNED_INT, nullptr));
+    m_PointLights.push_back({ position, pointLight });
 }
 
 void Renderer::drawMesh(const MeshInstance& mesh, const glm::mat4& model) const
@@ -83,8 +93,6 @@ void Renderer::drawMesh(const MeshInstance& mesh, const glm::mat4& model) const
         shader.setUniformMat4f("u_Projection", m_Camera->getProjection());
         shader.setUniformMat4f("u_ViewProjection", m_Camera->getViewProjection());
         shader.setUniform3f("u_ViewPosition", cameraPos);
-        shader.setUniform3f("u_LightDirection", glm::vec3(0.4356f, -1.017651f, 0.514582f));
-        shader.setUniform3f("u_LightColor", glm::vec3(1.f, 1.f, 1.f));
 
         // Setting material textures uniforms
         size_t textureCount = subMesh.materialInstance.getStaticAsset()->getTextureCount();
@@ -133,6 +141,37 @@ void Renderer::setViewportSize(const glm::vec<2, unsigned int>& s)
     m_ViewportSize = s;
 }
 
+void Renderer::setupLights()
+{
+    // This is the formatted data for openGL std430 SSBO
+    // In the shader, we need to retrieve vec3's with float[3]'s, because of the std430 layout.
+    struct PointLightData
+    {
+        glm::vec3 position;
+        glm::vec3 color;
+        float intensity;
+        float radius;
+    };
+
+    std::vector<PointLightData> pointLightsData(m_PointLights.size());
+    for (size_t i = 0; i < m_PointLights.size(); ++i)
+    {
+        const auto& pointLight = m_PointLights[i];
+        pointLightsData[i].position = pointLight.position;
+        pointLightsData[i].color = pointLight.pointLight.color;
+        pointLightsData[i].intensity = pointLight.pointLight.intensity;
+        pointLightsData[i].radius = pointLight.pointLight.radius;
+    }
+
+    int pointLightCount = static_cast<int>(m_PointLights.size());
+
+    // SSBO for shaders
+    m_PointLightsSSBO.bind();
+    m_PointLightsSSBO.setData(nullptr, pointLightsData.size() * sizeof(PointLightData) + sizeof(int));
+    m_PointLightsSSBO.setSubData(&pointLightCount, sizeof(int), 0);
+    m_PointLightsSSBO.setSubData(pointLightsData.data(), pointLightsData.size() * sizeof(PointLightData), sizeof(int));
+    m_PointLightsSSBO.setBindingPoint(0);
+    m_PointLightsSSBO.unbind();
+}
+
 } // namespace vrm
-
-
