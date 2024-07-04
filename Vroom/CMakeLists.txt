@@ -38,6 +38,9 @@ set(PROJECT_IMPL
     ${SOURCE_DIR}/Render/Camera/CameraBasic.cpp
     ${SOURCE_DIR}/Render/Camera/PerspectiveCameraBasic.cpp
     ${SOURCE_DIR}/Render/Camera/FirstPersonCamera.cpp
+    ${SOURCE_DIR}/Render/Clustering/Cluster.cpp
+    ${SOURCE_DIR}/Render/Clustering/ClusteredLights.cpp
+    ${SOURCE_DIR}/Render/Clustering/LightRegistry.cpp
 
     ${SOURCE_DIR}/Scene/Scene.cpp
     ${SOURCE_DIR}/Scene/Entity.cpp

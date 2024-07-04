@@ -10,6 +10,8 @@
 #include "Vroom/Render/Abstraction/IndexBuffer.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 
+#include "Vroom/Render/RawShaderData/SSBOPointLightData.h"
+
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Asset/AssetData/MeshData.h"
@@ -143,17 +145,7 @@ void Renderer::setViewportSize(const glm::vec<2, unsigned int>& s)
 
 void Renderer::setupLights()
 {
-    // This is the formatted data for openGL std430 SSBO
-    // In the shader, we need to retrieve vec3's with float[3]'s, because of the std430 layout.
-    struct PointLightData
-    {
-        glm::vec3 position;
-        glm::vec3 color;
-        float intensity;
-        float radius;
-    };
-
-    std::vector<PointLightData> pointLightsData(m_PointLights.size());
+    std::vector<SSBOPointLightData> pointLightsData(m_PointLights.size());
     for (size_t i = 0; i < m_PointLights.size(); ++i)
     {
         const auto& pointLight = m_PointLights[i];
@@ -167,9 +159,9 @@ void Renderer::setupLights()
 
     // SSBO for shaders
     m_PointLightsSSBO.bind();
-    m_PointLightsSSBO.setData(nullptr, pointLightsData.size() * sizeof(PointLightData) + sizeof(int));
+    m_PointLightsSSBO.setData(nullptr, pointLightsData.size() * sizeof(SSBOPointLightData) + sizeof(int));
     m_PointLightsSSBO.setSubData(&pointLightCount, sizeof(int), 0);
-    m_PointLightsSSBO.setSubData(pointLightsData.data(), pointLightsData.size() * sizeof(PointLightData), sizeof(int));
+    m_PointLightsSSBO.setSubData(pointLightsData.data(), pointLightsData.size() * sizeof(SSBOPointLightData), sizeof(int));
     m_PointLightsSSBO.setBindingPoint(0);
     m_PointLightsSSBO.unbind();
 }
