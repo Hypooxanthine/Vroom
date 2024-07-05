@@ -38,8 +38,9 @@ void DynamicSSBO::reserve(int capacity)
         m_SSBO.unmapBuffer();
     }
 
-    if (m_SSBO.hasBindingPoint())
-        newSSBO.setBindingPoint(m_SSBO.getBindingPoint());
+    /// @todo Check this part that made the application crash
+    //if (m_SSBO.hasBindingPoint())
+    //    newSSBO.setBindingPoint(m_SSBO.getBindingPoint());
 
     // Replacing the old SSBO with the new one
     m_SSBO = std::move(newSSBO);
@@ -60,8 +61,9 @@ void DynamicSSBO::shrink()
     newSSBO.setData(data, m_SSBOSize);
     m_SSBO.unmapBuffer();
 
-    if (m_SSBO.hasBindingPoint())
-        newSSBO.setBindingPoint(m_SSBO.getBindingPoint());
+    /// @todo Check this part that made the application crash
+    //if (m_SSBO.hasBindingPoint())
+    //    newSSBO.setBindingPoint(m_SSBO.getBindingPoint());
 
     m_SSBO = std::move(newSSBO);
 

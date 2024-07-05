@@ -63,7 +63,6 @@ void Renderer::endScene()
     // Clearing data for next frame.
     m_Camera = nullptr;
     m_Meshes.clear();
-    m_PointLights.clear();
 }
 
 void Renderer::submitMesh(const MeshInstance& mesh, const glm::mat4& model)

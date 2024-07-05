@@ -8,8 +8,6 @@
 namespace vrm
 {
 
-struct SSBOPointLightData;
-
 class ClusteredLights
 {
 public:
@@ -21,15 +19,13 @@ public:
     ClusteredLights& operator=(const ClusteredLights&) = default;
     ClusteredLights& operator=(ClusteredLights&&) = default;
     
-    ClusteredLights(const glm::vec3& nearBottomLeft, const glm::vec3& farTopRight, const glm::uvec3& clusterCount);
+    ClusteredLights(const glm::vec3& nearBottomLeft, const glm::vec3& farTopRight, const glm::uvec3& clusterCount, const glm::mat4& viewProjectionMatrix);
 
-    void setupClusters(const glm::vec3& nearBottomLeft, const glm::vec3& farTopRight, unsigned int xCount, unsigned int yCount, unsigned int zCount);
+    void setupClusters(const glm::vec3& nearBottomLeft, const glm::vec3& farTopRight, const glm::uvec3& clusterCount, const glm::mat4& viewProjectionMatrix);
     const std::vector<Cluster>& getClusters() const;
     const Cluster& getCluster(unsigned int x, unsigned int y, unsigned int z) const;
 
     const SSBOClusterData* getClusterData() const;
-
-    void submitPointLights(const std::vector<SSBOPointLightData>& pointLights);
 
 private:
     std::vector<Cluster> m_Clusters;
