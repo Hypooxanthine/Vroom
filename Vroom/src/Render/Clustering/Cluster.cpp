@@ -18,6 +18,15 @@ std::array<std::tuple<size_t, size_t, size_t>, 8> Cluster::s_Neighbours = {
     std::make_tuple(3, 4, 6)  // 7: FarBottomRight
 };
 
+std::array<std::tuple<size_t, size_t, size_t>, 6> Cluster::s_FacesPointingInside = {
+    std::make_tuple(0, 1, 2), // Near
+    std::make_tuple(4, 7, 6), // Far
+    std::make_tuple(0, 3, 7), // Bottom
+    std::make_tuple(1, 5, 6), // Top
+    std::make_tuple(0, 4, 5), // Left
+    std::make_tuple(2, 6, 7)  // Right
+};
+
 Cluster::Cluster(const glm::vec3& nearBottomLeft, const glm::vec3& farTopRight, const glm::mat4& viewProjectionMatrix)
     : m_NearBottomLeft(nearBottomLeft), m_FarTopRight(farTopRight)
 {
@@ -90,9 +99,19 @@ bool Cluster::insersectsSphereNDC(const glm::vec3& center, float radius) const
     return sqrDistance < radius * radius;
 }
 
-bool Cluster::containsWS(const glm::vec3& point) const
+bool Cluster::containsWS(const glm::vec3& P) const
 {
-    VRM_ASSERT_MSG(false, "Not implemented yet.");
+    // We check if P is inside all the faces of the cluster that are pointing inside.
+    for (const auto& [iA, iB, iC] : s_FacesPointingInside)
+    {
+        const glm::vec3& AB = m_WSCorners[iB] - m_WSCorners[iA];
+        const glm::vec3& AC = m_WSCorners[iC] - m_WSCorners[iA];
+        const glm::vec3& AP = P               - m_WSCorners[iA];
+        if (glm::determinant(glm::mat3(AB, AC, AP)) < 0.f)
+            return false;
+    }
+
+    return true;
 }
 
 glm::vec3 Cluster::getClosestPointWS(const glm::vec3& P) const

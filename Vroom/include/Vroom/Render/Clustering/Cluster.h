@@ -96,6 +96,7 @@ private:
     glm::vec3 m_NearBottomLeft, m_FarTopRight; // In NDC space
     std::array<glm::vec3, 8> m_WSCorners; // NearBottomLeft, NearTopLeft, NearTopRight, NearBottomRight, FarBottomLeft, FarTopLeft, FarTopRight, FarBottomRight
     static std::array<std::tuple<size_t, size_t, size_t>, 8> s_Neighbours;
+    static std::array<std::tuple<size_t, size_t, size_t>, 6> s_FacesPointingInside;
 };
 
 } // namespace vrm
