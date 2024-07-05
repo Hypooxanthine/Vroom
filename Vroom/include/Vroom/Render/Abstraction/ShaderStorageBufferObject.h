@@ -1,21 +1,42 @@
 #pragma once
 
+#include <GL/glew.h>
+
 class ShaderStorageBufferObject
 {
 public:
+    enum class AccessType
+    {
+        READ_ONLY,
+        WRITE_ONLY,
+        READ_WRITE
+    };
+public:
     ShaderStorageBufferObject();
+    ShaderStorageBufferObject(const ShaderStorageBufferObject&) = delete;
+    ShaderStorageBufferObject(ShaderStorageBufferObject&&);
     ~ShaderStorageBufferObject();
 
-    void bind();
-    void unbind();
+    ShaderStorageBufferObject& operator=(const ShaderStorageBufferObject&) = delete;
+    ShaderStorageBufferObject& operator=(ShaderStorageBufferObject&&);
 
-    void setData(const void* data, size_t size);
+    void bind() const;
+    void unbind() const;
 
-    void setSubData(const void* data, size_t size, size_t offset);
+    void setData(const void* data, int size);
+    void setSubData(const void* data, int size, int offset);
+
+    void clear();
 
     void setBindingPoint(unsigned int bindingPoint);
 
+    void* mapBuffer(AccessType accessType);
+    void unmapBuffer();
+
     unsigned int getBindingPoint() const;
+
+private:
+    constexpr static GLenum AccessTypeToGL(AccessType accessType);
 
 private:
     unsigned int m_RendererID;

@@ -1,5 +1,7 @@
 #version 460 core
 
+#define MAX_LIGHTS_PER_CLUSTER 50
+
 // From vertex shader
 in vec3 v_Normal;
 in vec3 v_Position;
@@ -20,6 +22,25 @@ layout(std430, binding = 0) buffer LightBlock
 {
     int pointLightCount;
     PointLight pointLights[];
+};
+
+layout(std430, binding = 1) buffer ClusterIndicesBlock
+{
+    int indices[];
+};
+
+struct Cluster
+{
+    int indexCount;
+    int indexeOffset;
+};
+
+layout(std430, binding = 2) buffer ClusterInfoBlock
+{
+    int xSize;
+    int ySize;
+    int zSize;
+    Cluster clusters[];
 };
 
 // For Vroom shader preprocessor
