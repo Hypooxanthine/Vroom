@@ -23,20 +23,23 @@ int DynamicSSBO::getCapacity() const { return m_SSBOCapacity; }
 
 void DynamicSSBO::reserve(int capacity)
 {
-    if (capacity < m_SSBOCapacity)
+    if (capacity <= m_SSBOCapacity)
         return;
 
     // Creating a new SSBO with the requested capacity
-    ShaderStorageBufferObject newSSSBO;
-    newSSSBO.setData(nullptr, capacity);
+    ShaderStorageBufferObject newSSBO;
+    newSSBO.setData(nullptr, capacity);
 
-    // Copying the data from the old SSBO to the new one
-    void* data = m_SSBO.mapBuffer(ShaderStorageBufferObject::AccessType::READ_ONLY);
-    newSSSBO.setSubData(data, m_SSBOSize, 0);
-    m_SSBO.unmapBuffer();
+    if (m_SSBOSize > 0)
+    {
+        // Copying the data from the old SSBO to the new one
+        void* data = m_SSBO.mapBuffer(ShaderStorageBufferObject::AccessType::READ_ONLY);
+        newSSBO.setSubData(data, m_SSBOSize, 0);
+        m_SSBO.unmapBuffer();
+    }
 
     // Replacing the old SSBO with the new one
-    m_SSBO = std::move(newSSSBO);
+    m_SSBO = std::move(newSSBO);
 
     m_SSBOCapacity = capacity;
 }

@@ -1,9 +1,17 @@
 #include "Vroom/Render/Clustering/LightRegistry.h"
 
-#include "Vroom/Render/RawShaderData/SSBOPointLightArray.h"
-
 namespace vrm
 {
+
+void LightRegistry::setBindingPoint(int bindingPoint)
+{
+    m_SSBOPointLights.setBindingPoint(bindingPoint);
+}
+
+void LightRegistry::reserve(int lightCount)
+{
+    m_SSBOPointLights.reserve(sizeof(int) + lightCount * sizeof(SSBOPointLightData));
+}
 
 void LightRegistry::beginFrame()
 {
@@ -37,12 +45,17 @@ void LightRegistry::submitPointLight(const PointLightComponent& pointLight, cons
 }
 
 void LightRegistry::endFrame()
-{    
+{
     updateData();
 }
 
 void LightRegistry::updateData()
 {
+    int toReserve = static_cast<int>(m_PointLightAddresses.size() + m_AddedPointLights.size() - m_FreePointLightAdresses.size());
+
+    if (toReserve > 0)
+        reserve(toReserve);
+
     for (const auto& [id, pointLight] : m_AddedPointLights)
     {
         if (auto it = m_FreePointLightAdresses.begin(); it != m_FreePointLightAdresses.end())

@@ -63,20 +63,21 @@ void Scene::render()
 
     auto& renderer = m_Application->getRenderer();
     
-    auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent>();
+    auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent, NameComponent>();
     for (auto entity : viewPointLights)
     {
-        auto& pointLightComponent = viewPointLights.get<PointLightComponent>(entity);
-        auto& transformComponent = viewPointLights.get<TransformComponent>(entity);
+        const auto& pointLightComponent = viewPointLights.get<PointLightComponent>(entity);
+        const auto& transformComponent = viewPointLights.get<TransformComponent>(entity);
+        const auto& nameComponent = viewPointLights.get<NameComponent>(entity);
 
-        renderer.submitPointLight(transformComponent.getPosition(), pointLightComponent);
+        renderer.submitPointLight(transformComponent.getPosition(), pointLightComponent, nameComponent.name);
     }
 
     auto viewMeshes = m_Registry.view<MeshComponent, TransformComponent>();
     for (auto entity : viewMeshes)
     {
-        auto& meshComponent = viewMeshes.get<MeshComponent>(entity);
-        auto& transformComponent = viewMeshes.get<TransformComponent>(entity);
+        const auto& meshComponent = viewMeshes.get<MeshComponent>(entity);
+        const auto& transformComponent = viewMeshes.get<TransformComponent>(entity);
 
         renderer.submitMesh(meshComponent.getMesh(), transformComponent.getTransform());
     }

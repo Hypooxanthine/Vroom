@@ -72,7 +72,8 @@ unsigned int ShaderStorageBufferObject::getBindingPoint() const
 void* ShaderStorageBufferObject::mapBuffer(AccessType accessType)
 {
     bind();
-    return glMapBuffer(GL_SHADER_STORAGE_BUFFER, AccessTypeToGL(accessType));
+    GLCall(void* ptr = glMapBuffer(GL_SHADER_STORAGE_BUFFER, AccessTypeToGL(accessType)));
+    return ptr;
 }
 
 void ShaderStorageBufferObject::unmapBuffer()

@@ -31,6 +31,8 @@ Renderer::Renderer()
     GLCall(glEnable(GL_DEPTH_TEST));
     GLCall(glEnable(GL_BLEND));
     GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+    m_LightRegistry.setBindingPoint(0);
 }
 
 Renderer::~Renderer()
@@ -43,12 +45,14 @@ void Renderer::beginScene(const Scene& scene)
     GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
 
     m_Camera = &scene.getCamera();
+
+    m_LightRegistry.beginFrame();
 }
 
 void Renderer::endScene()
 {
     // Setting up lights.
-    setupLights();
+    m_LightRegistry.endFrame();
 
     // Drawing meshes.
     for (const auto& mesh : m_Meshes)
@@ -67,9 +71,9 @@ void Renderer::submitMesh(const MeshInstance& mesh, const glm::mat4& model)
     m_Meshes.push_back({ mesh, model });
 }
 
-void Renderer::submitPointLight(const glm::vec3& position, const PointLightComponent& pointLight)
+void Renderer::submitPointLight(const glm::vec3& position, const PointLightComponent& pointLight, const std::string& identifier)
 {
-    m_PointLights.push_back({ position, pointLight });
+    m_LightRegistry.submitPointLight(pointLight, position, identifier);
 }
 
 void Renderer::drawMesh(const MeshInstance& mesh, const glm::mat4& model) const
@@ -141,29 +145,6 @@ void Renderer::setViewportOrigin(const glm::vec<2, unsigned int>& o)
 void Renderer::setViewportSize(const glm::vec<2, unsigned int>& s)
 {
     m_ViewportSize = s;
-}
-
-void Renderer::setupLights()
-{
-    std::vector<SSBOPointLightData> pointLightsData(m_PointLights.size());
-    for (size_t i = 0; i < m_PointLights.size(); ++i)
-    {
-        const auto& pointLight = m_PointLights[i];
-        pointLightsData[i].position = pointLight.position;
-        pointLightsData[i].color = pointLight.pointLight.color;
-        pointLightsData[i].intensity = pointLight.pointLight.intensity;
-        pointLightsData[i].radius = pointLight.pointLight.radius;
-    }
-
-    int pointLightCount = static_cast<int>(m_PointLights.size());
-
-    // SSBO for shaders
-    m_PointLightsSSBO.bind();
-    m_PointLightsSSBO.setData(nullptr, pointLightsData.size() * sizeof(SSBOPointLightData) + sizeof(int));
-    m_PointLightsSSBO.setSubData(&pointLightCount, sizeof(int), 0);
-    m_PointLightsSSBO.setSubData(pointLightsData.data(), pointLightsData.size() * sizeof(SSBOPointLightData), sizeof(int));
-    m_PointLightsSSBO.setBindingPoint(0);
-    m_PointLightsSSBO.unbind();
 }
 
 } // namespace vrm

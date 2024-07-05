@@ -26,6 +26,9 @@ public:
     LightRegistry& operator=(const LightRegistry&) = default;
     LightRegistry& operator=(LightRegistry&&) = default;
 
+    void setBindingPoint(int bindingPoint);
+    void reserve(int lightCount);
+
     void beginFrame();
 
     void submitPointLight(const PointLightComponent& pointLight, const glm::vec3& position, const std::string& identifier);

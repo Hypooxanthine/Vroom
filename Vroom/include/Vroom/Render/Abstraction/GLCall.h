@@ -33,7 +33,7 @@ inline bool GLLogCall()
 {
 	while (GLenum error = glGetError())
 	{
-		LOG_WARN("[OpenGL Error] ({})", error);
+		LOG_WARN("[OpenGL Error] (0x{:04x})", error);
 		return false;
 	}
 

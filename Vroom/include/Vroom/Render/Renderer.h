@@ -3,7 +3,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 
-#include "Vroom/Render/Abstraction/ShaderStorageBufferObject.h"
+#include "Vroom/Render/Clustering/LightRegistry.h"
 
 #include "Vroom/Asset/AssetInstance/MeshInstance.h"
 
@@ -69,8 +69,9 @@ public:
 	 * 
 	 * @param position  The position of the light.
 	 * @param pointLight  The point light component.
+	 * @param identifier  The identifier of the light.
 	 */
-	void submitPointLight(const glm::vec3& position, const PointLightComponent& pointLight);
+	void submitPointLight(const glm::vec3& position, const PointLightComponent& pointLight, const std::string& identifier);
 
 	/**
 	 * @brief  Draws a mesh with a shader and a camera.
@@ -112,9 +113,6 @@ public:
 	void setViewportSize(const glm::vec<2, unsigned int>& s);
 
 private:
-	void setupLights();
-
-private:
 	// Structs to store data to be drawn
 	struct QueuedMesh
 	{
@@ -137,7 +135,7 @@ private:
 	std::vector<QueuedMesh> m_Meshes;
 	std::vector<QueuedPointLight> m_PointLights;
 
-	ShaderStorageBufferObject m_PointLightsSSBO;
+	LightRegistry m_LightRegistry;
 };
 
 } // namespace vrm
