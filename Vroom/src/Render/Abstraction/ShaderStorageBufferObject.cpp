@@ -62,6 +62,7 @@ void ShaderStorageBufferObject::setBindingPoint(unsigned int bindingPoint)
 {
     m_BindingPoint = bindingPoint;
     GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_BindingPoint, m_RendererID));
+    m_HasBindingPoint = true;
 }
 
 unsigned int ShaderStorageBufferObject::getBindingPoint() const

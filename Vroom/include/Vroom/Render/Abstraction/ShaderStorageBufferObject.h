@@ -35,10 +35,13 @@ public:
 
     unsigned int getBindingPoint() const;
 
+    bool hasBindingPoint() const { return m_HasBindingPoint; }
+
 private:
     constexpr static GLenum AccessTypeToGL(AccessType accessType);
 
 private:
     unsigned int m_RendererID;
+    bool m_HasBindingPoint = false;
     unsigned int m_BindingPoint;
 };
