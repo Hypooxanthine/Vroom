@@ -142,55 +142,51 @@ glm::vec3 Cluster::getClosestPointWS(const glm::vec3& P) const
     const glm::vec3& B = m_WSCorners[iB];
     const glm::vec3& C = m_WSCorners[iC];
 
-    // If DP.DG < 0 for G in {A, B, C}, then D is the closest point.
-    const glm::vec3 DP = P - D;
     const glm::vec3 DA = A - D;
     const glm::vec3 DB = B - D;
     const glm::vec3 DC = C - D;
 
-    const float DPDA = glm::dot(DP, DA);
-    const float DPDB = glm::dot(DP, DB);
-    const float DPDC = glm::dot(DP, DC);
+    // We will sort a collection by comparing cosines, which will be done by comparing dot products.
+    // If we do not normalize DP only, there is no problem because we will compare dot products all multiplied by
+    // ||DP||, which is a constant positive value. If we have cosines x < y z, then we have x * ||DP|| < y * ||DP|| < z * ||DP|| too.
+    // The positivity of the cosine is preserved too when multiplying by a positive constant.
+    const glm::vec3 DP = P - D;
 
-    if (DPDA < 0.f && DPDB < 0.f && DPDC < 0.f)
-        return D;
+    // We have a collection of sets { Neighbour, normalized Direction, Cosine multiplied by ||DP|| }.
+    std::array<std::tuple<glm::vec3, glm::vec3, float>, 3> candidates = {
+        std::make_tuple(A, glm::normalize(DA), glm::dot(DP, DA)),
+        std::make_tuple(B, glm::normalize(DB), glm::dot(DP, DB)),
+        std::make_tuple(C, glm::normalize(DC), glm::dot(DP, DC))
+    };
+
+    // candidates[0] has the biggest cosine, candidates[2] has the smallest cosine.
+    std::sort(s_Neighbours.begin(), s_Neighbours.end(), [](const auto& a, const auto& b)
+    {
+        return std::get<2>(a) > std::get<2>(b);
+    });
     
-    // Finding M, M' in {A, B, C} such that DP.DM / (||DP|| * ||DM||) and DP.DM' / (||DP|| * ||DM'||) are maximized.
-    /// @todo I think we can optimize this with squared cosines.
-    const float cosDPDA = DPDA / (glm::length(DP) * glm::length(DA));
-    const float cosDPDB = DPDB / (glm::length(DP) * glm::length(DB));
-    const float cosDPDC = DPDC / (glm::length(DP) * glm::length(DC));
+    // We will add to D the orthogonal projection of P on on each direction associated with a positive cosine,
+    // starting with the biggest cosine, and a maximum of two directions.
+    // The final value will be D if there is 0 positive cosine, on an edge if there is 1 positive cosine, and on a face if there are 2 positive cosines.
+    glm::vec3 out = D;
 
-    glm::vec3 DM, DMp;
+    uint8_t count = 0;
+    for (const auto& [neighbour, ndirection, cosineTimesDPLength] : candidates)
+    {
+        if (cosineTimesDPLength > 0.f)
+        {
+            out += glm::dot(DP, ndirection) * ndirection;
+            ++count;
+        }
+        else
+            // The cosine is negative, so the next ones will be too.
+            return out;
 
-    if (cosDPDA < cosDPDB && cosDPDA < cosDPDC)
-    {
-        DM = DB;
-        DMp = DC;
-    }
-    else if (cosDPDB < cosDPDA && cosDPDB < cosDPDC)
-    {
-        DM = DA;
-        DMp = DC;
-    }
-    else
-    {
-        DM = DA;
-        DMp = DB;
+        if (count == 2)
+            return out;
     }
 
-    const glm::vec3 nDM = glm::normalize(DM);
-    const glm::vec3 nDMp = glm::normalize(DMp);
-
-    // PI1 is the orthogonal projection of DP on DM.
-    // PI2 is the orthogonal projection of DP on DM'.
-    glm::vec3 PI1 = glm::dot(DP, nDM) * nDM;
-    glm::vec3 PI2 = glm::dot(DP, nDMp) * nDMp;
-
-    // PI0 is the orthogonal projection of P on the plane defined by D, M, M'.
-    glm::vec3 PI0 = D + PI1 + PI2;
-
-    return PI0;
+    return out;
 }
 
 bool Cluster::intersectsSphereWS(const glm::vec3& center, float radius) const
