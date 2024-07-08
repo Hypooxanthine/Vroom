@@ -16,6 +16,7 @@ void LightRegistry::reserve(int lightCount)
 void LightRegistry::beginFrame()
 {
     m_AddedPointLights.clear();
+    m_PointLights.clear();
 
     // At the beginning of the frame, every address is set to free.
     // If a light is added, it will remove the address from the free addresses set.
@@ -35,6 +36,8 @@ void LightRegistry::submitPointLight(const PointLightComponent& pointLight, cons
 
         // Update the light
         m_SSBOPointLights.setSubData(&pointLightData, sizeof(SSBOPointLightData), address);
+        int lightIndex = (address - sizeof(int)) / sizeof(SSBOPointLightData);
+        m_PointLights[lightIndex] = pointLightData;
     }
     else // Light doesn't exist
     {
@@ -51,11 +54,6 @@ void LightRegistry::endFrame()
 
 void LightRegistry::updateData()
 {
-    int toReserve = static_cast<int>(m_PointLightAddresses.size() + m_AddedPointLights.size() - m_FreePointLightAdresses.size());
-
-    if (toReserve > 0)
-        reserve(toReserve);
-
     for (const auto& [id, pointLight] : m_AddedPointLights)
     {
         if (auto it = m_FreePointLightAdresses.begin(); it != m_FreePointLightAdresses.end())
@@ -65,15 +63,25 @@ void LightRegistry::updateData()
             m_SSBOPointLights.setSubData(&pointLight, sizeof(SSBOPointLightData), freeAddress);
             m_PointLightAddresses[id] = freeAddress;
             m_FreePointLightAdresses.erase(it);
+            int recycledAdress = (freeAddress - sizeof(int)) / sizeof(SSBOPointLightData);
+            m_PointLights[recycledAdress] = pointLight;
         }
         else
         {
             // We need to add some new data to the SSBO
-            int address = m_SSBOPointLights.getSize();
-            m_SSBOPointLights.setSubData(&pointLight, sizeof(SSBOPointLightData), address);
-            m_PointLightAddresses[id] = address;
+            m_SSBOPointLights.setSubData(&pointLight, sizeof(SSBOPointLightData), m_NextPointLightAddress);
+            m_PointLightAddresses[id] = m_NextPointLightAddress;
+            int index = (m_NextPointLightAddress - sizeof(int)) / sizeof(SSBOPointLightData);
+            m_PointLights[index] = pointLight;
+            m_NextPointLightAddress += sizeof(SSBOPointLightData);
         }
     }
+
+    int lightCount = static_cast<int>(m_PointLights.size());
+    m_SSBOPointLights.setSubData(&lightCount, sizeof(int), 0);
+
+    //LOG_TRACE("SSBO size: {0}", m_SSBOPointLights.getCapacity());
+    //LOG_TRACE("Lights count in registry: {0}", m_PointLights.size());
 }
 
 } // namespace vrm

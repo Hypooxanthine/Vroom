@@ -24,6 +24,18 @@ void PreFrag(out vec3 ambient, out vec3 diffuse, out vec3 specular, out float sh
 
 vec4 ComputeColor()
 {
+    // Coordinates of the frag in NDC space for finding the right cluster
+    vec3 NDCPosition = v_HomogeneousNDCPosition.xyz / v_HomogeneousNDCPosition.w;
+    vec3 NormalizedLinearNDCPosition = vec3(
+        NDCPosition.xy * 0.5 + 0.5,
+        linearizeDepth(gl_FragCoord.z) / u_Far
+    );
+    
+    ivec3 clusterCoords = ivec3(   NormalizedLinearNDCPosition * vec3(xCount, yCount, zCount)   );
+    int clusterIndex = clusterCoords.z * yCount * xCount + clusterCoords.y * xCount + clusterCoords.x;
+    int lightsCount = clusters[clusterIndex].indexCount;
+    int firstLight = clusters[clusterIndex].indexOffset;
+
     // Getting values from PreFrag shader
     vec3 ambient, diffuse, specular;
     float shininess;
@@ -34,11 +46,17 @@ vec4 ComputeColor()
 
     vec3 shadeColor = ambient;
     
-    for (int i = 0; i < pointLightCount; i++)
+    for (int i = firstLight; i < firstLight + lightsCount; i++)
+    //for (int i = 0; i < pointLightCount; i++)
     {
-        PointLight pointLight = pointLights[i];
+        PointLight pointLight = pointLights[indices[i]];
         vec3 lightPos = vec3(pointLight.position[0], pointLight.position[1], pointLight.position[2]);
-        vec3 lightColor = vec3(pointLight.color[0], pointLight.color[1], pointLight.color[2]);
+
+        float lightDistance2 = dot(lightPos - v_Position, lightPos - v_Position);
+        if (lightDistance2 > pointLight.radius * pointLight.radius)
+            continue;
+
+        vec3 lightColor = vec3(pointLight.color[0], pointLight.color[1], pointLight.color[2]) * pointLight.intensity / lightDistance2;
         vec3 lightDir = normalize(lightPos - v_Position);
 
         // Diffuse factor

@@ -1,5 +1,7 @@
 #include "Vroom/Render/Abstraction/DynamicSSBO.h"
 
+#include "Vroom/Render/Abstraction/GlCall.h"
+
 namespace vrm
 {
 
@@ -18,7 +20,6 @@ void DynamicSSBO::setBindingPoint(int bindingPoint)
     m_SSBO.setBindingPoint(bindingPoint);
 }
 
-int DynamicSSBO::getSize() const { return m_SSBOSize; }
 int DynamicSSBO::getCapacity() const { return m_SSBOCapacity; }
 
 void DynamicSSBO::reserve(int capacity)
@@ -30,17 +31,20 @@ void DynamicSSBO::reserve(int capacity)
     ShaderStorageBufferObject newSSBO;
     newSSBO.setData(nullptr, capacity);
 
-    if (m_SSBOSize > 0)
+    // Copying the data from the old SSBO to the new one
+    if (m_SSBOCapacity > 0)
     {
-        // Copying the data from the old SSBO to the new one
-        void* data = m_SSBO.mapBuffer(ShaderStorageBufferObject::AccessType::READ_ONLY);
-        newSSBO.setSubData(data, m_SSBOSize, 0);
+        const void* data = m_SSBO.mapBuffer(ShaderStorageBufferObject::AccessType::READ_ONLY);
+        newSSBO.setSubData(data, m_SSBOCapacity, 0);
         m_SSBO.unmapBuffer();
     }
 
-    /// @todo Check this part that made the application crash
-    //if (m_SSBO.hasBindingPoint())
-    //    newSSBO.setBindingPoint(m_SSBO.getBindingPoint());
+    if (m_SSBO.hasBindingPoint())
+    {
+        // Releasing the binding point
+        GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_SSBO.getBindingPoint(), 0));
+        newSSBO.setBindingPoint(m_SSBO.getBindingPoint());
+    }
 
     // Replacing the old SSBO with the new one
     m_SSBO = std::move(newSSBO);
@@ -48,32 +52,9 @@ void DynamicSSBO::reserve(int capacity)
     m_SSBOCapacity = capacity;
 }
 
-void DynamicSSBO::shrink()
-{
-    if (m_SSBOSize == m_SSBOCapacity)
-        return;
-
-    ShaderStorageBufferObject newSSBO;
-
-    // Here, we just have to set the data of the new SSBO with the data of the old SSBO
-    // It will allocate the exact size of the data for us
-    void* data = m_SSBO.mapBuffer(ShaderStorageBufferObject::AccessType::READ_ONLY);
-    newSSBO.setData(data, m_SSBOSize);
-    m_SSBO.unmapBuffer();
-
-    /// @todo Check this part that made the application crash
-    //if (m_SSBO.hasBindingPoint())
-    //    newSSBO.setBindingPoint(m_SSBO.getBindingPoint());
-
-    m_SSBO = std::move(newSSBO);
-
-    m_SSBOCapacity = m_SSBOSize;
-}
-
 void DynamicSSBO::clear()
 {
     m_SSBO.clear();
-    m_SSBOSize = 0;
     m_SSBOCapacity = 0;
 }
 
@@ -85,14 +66,11 @@ void DynamicSSBO::setSubData(const void* data, int size, int offset)
         reserve((size + offset) * 2);
 
     m_SSBO.setSubData(data, size, offset);
-
-    if (size + offset > m_SSBOSize)
-        m_SSBOSize = size + offset;
 }
 
-void DynamicSSBO::setData(const void* data, int size, bool shrink)
+void DynamicSSBO::setData(const void* data, int size)
 {
-    if (size > m_SSBOCapacity || (shrink && size < m_SSBOCapacity))
+    if (size > m_SSBOCapacity)
     {
         // If the new size is bigger than the current capacity, we need to reallocate
         // If we want to shrink the SSBO, we also need to reallocate (only if the new size is strictly smaller than the current capacity,
@@ -106,8 +84,6 @@ void DynamicSSBO::setData(const void* data, int size, bool shrink)
         m_SSBO.setSubData(data, size, 0);
         // Capacity remains the same
     }
-
-    m_SSBOSize = size;
 }
 
 } // namespace vrm

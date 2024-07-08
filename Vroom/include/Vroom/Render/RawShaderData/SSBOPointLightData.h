@@ -26,6 +26,11 @@ struct SSBOPointLightData
     {
         return !(*this == other);
     }
+
+    std::vector<std::pair<const void*, size_t>> getData() const
+    {
+        return { { &position, sizeof(glm::vec3) * 2 + sizeof(float) * 2 } };
+    }
 };
 
 } // namespace vrm

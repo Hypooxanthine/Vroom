@@ -1,6 +1,7 @@
 #include "Vroom/Render/Clustering/Cluster.h"
 
 #include <glm/gtx/norm.hpp>
+#include <unordered_set>
 
 #include "Vroom/Core/Assert.h"
 
@@ -27,10 +28,9 @@ std::array<std::tuple<size_t, size_t, size_t>, 6> Cluster::s_FacesPointingInside
     std::make_tuple(2, 6, 7)  // Right
 };
 
-Cluster::Cluster(const glm::vec3& nearBottomLeft, const glm::vec3& farTopRight, const glm::mat4& viewProjectionMatrix)
-    : m_NearBottomLeft(nearBottomLeft), m_FarTopRight(farTopRight)
+Cluster::Cluster(const glm::vec3& nearBottomLeft, const glm::vec3& farTopRight, const glm::mat4& invViewProjectionMatrix, float nearVal, float farVal)
 {
-    updateWSCorners(viewProjectionMatrix);
+    setCorners(nearBottomLeft, farTopRight, invViewProjectionMatrix, nearVal, farVal);
 }
 
 const glm::vec3& Cluster::getNearBottomLeft() const
@@ -43,24 +43,24 @@ const glm::vec3& Cluster::getFarTopRight() const
     return m_FarTopRight;
 }
 
-void Cluster::setNearBottomLeft(const glm::vec3& nearBottomLeft, const glm::mat4& viewProjectionMatrix)
-{
-    m_NearBottomLeft = nearBottomLeft;
-    updateWSCorners(viewProjectionMatrix);
-
-}
-
-void Cluster::setFarTopRight(const glm::vec3& farTopRight, const glm::mat4& viewProjectionMatrix)
-{
-    m_FarTopRight = farTopRight;
-    updateWSCorners(viewProjectionMatrix);
-}
-
-void Cluster::setCorners(const glm::vec3& nearBottomLeft, const glm::vec3& farTopRight, const glm::mat4& viewProjectionMatrix)
+void Cluster::setCorners(const glm::vec3& nearBottomLeft, const glm::vec3& farTopRight, const glm::mat4& invViewProjectionMatrix, float nearVal, float farVal)
 {
     m_NearBottomLeft = nearBottomLeft;
     m_FarTopRight = farTopRight;
-    updateWSCorners(viewProjectionMatrix);
+
+    // Un-linearize the depth values.
+    const float invNear = 1.f / nearVal;
+    const float invFar = 1.f / farVal;
+
+    float z = (m_NearBottomLeft.z * 0.5f + 0.5f) * farVal;
+    float d = (1.f / z - invNear) / (invFar - invNear);
+    m_NearBottomLeft.z = d * 2.f - 1.f;
+
+    z = (m_FarTopRight.z * 0.5f + 0.5f) * farVal;
+    d = (1.f / z - invNear) / (invFar - invNear);
+    m_FarTopRight.z = d * 2.f - 1.f;
+
+    updateWSCorners(invViewProjectionMatrix);
 }
 
 bool Cluster::containsNDC(const glm::vec3& point) const
@@ -116,15 +116,39 @@ bool Cluster::containsWS(const glm::vec3& P) const
 
 glm::vec3 Cluster::getClosestPointWS(const glm::vec3& P) const
 {
-    if (containsWS(P))
+    std::unordered_set<size_t> restrictedPoints;
+    for (const auto& [iA, iB, iC] : s_FacesPointingInside)
+    {
+        const glm::vec3 AB = m_WSCorners[iB] - m_WSCorners[iA];
+        const glm::vec3 AC = m_WSCorners[iC] - m_WSCorners[iA];
+        const glm::vec3 AP = P               - m_WSCorners[iA];
+        if (glm::determinant(glm::mat3(AB, AC, AP)) < 0.f) // P is outside the face.
+        {
+            restrictedPoints.insert(iA);
+            restrictedPoints.insert(iB);
+            restrictedPoints.insert(iC);
+        }
+    }
+
+    // If P is inside the cluster, we return it (it is the closest point to itself in the cluster).
+    // <=> restrictedPoints is empty.
+    if (restrictedPoints.empty())
         return P;
+
+    // We filled restrictedPoints with the indices of the corners of the faces separating P from the inside of the cluster.
+    // Let's recall that P can't be inside the cluster at this point.
+    // If P is "inside" a face F, either P is inside the cluster, or there is at least one face between P and F. 
+    // Since P is not inside the cluster, and the cluster is convex, there is a single face F' between P and F, and P is "outside" F'.
+    // Since faces shouldn't intersect, the closest point from P to F and F' has to be on F'. So we can restrict the search to the corners of F'.
     
-    // Searching for D, the point in the cluster that is closest to P.
+    // Finally, for Fi in s_FacesPointingInside, restrictedPoints contains the corners of Fi (no repeats).
+    
+    // Searching for D, the cluster corner that is closest to P.
     // iD is the index of D.
     size_t iD = 0;
     float minDistance = glm::length2(m_WSCorners[iD] - P);
 
-    for (size_t i = 1; i < m_WSCorners.size(); ++i)
+    for (const size_t& i : restrictedPoints)
     {
         float distance = glm::length2(m_WSCorners[i] - P);
         if (distance < minDistance)
@@ -206,7 +230,7 @@ bool Cluster::intersectsSphereWS(const glm::vec3& center, float radius) const
     return sqrDistance < radius * radius;
 }
 
-void Cluster::updateWSCorners(const glm::mat4& viewProjectionMatrix)
+void Cluster::updateWSCorners(const glm::mat4& invViewProjectionMatrix)
 {
     // NearBottomLeft
     m_WSCorners[0] = glm::vec3(m_NearBottomLeft.x, m_NearBottomLeft.y, m_NearBottomLeft.z);
@@ -227,7 +251,7 @@ void Cluster::updateWSCorners(const glm::mat4& viewProjectionMatrix)
 
     for (auto& corner : m_WSCorners)
     {
-        glm::vec4 corner4 = viewProjectionMatrix * glm::vec4(corner, 1.f);
+        glm::vec4 corner4 = invViewProjectionMatrix * glm::vec4(corner, 1.f);
         corner = glm::vec3(corner4) / corner4.w;
     }
 }

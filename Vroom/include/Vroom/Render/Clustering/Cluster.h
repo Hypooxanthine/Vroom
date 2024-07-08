@@ -22,15 +22,12 @@ public:
     Cluster& operator=(const Cluster&) = default;
     Cluster& operator=(Cluster&&) = default;
     
-    Cluster(const glm::vec3& nearBottomLeft, const glm::vec3& farTopRight, const glm::mat4& viewProjectionMatrix);
+    Cluster(const glm::vec3& nearBottomLeft, const glm::vec3& farTopRight, const glm::mat4& invViewProjectionMatrix, float nearVal, float farVal);
 
     const glm::vec3& getNearBottomLeft() const;
     const glm::vec3& getFarTopRight() const;
 
-    void setNearBottomLeft(const glm::vec3& nearBottomLeft, const glm::mat4& viewProjectionMatrix);
-    void setFarTopRight(const glm::vec3& farTopRight, const glm::mat4& viewProjectionMatrix);
-
-    void setCorners(const glm::vec3& nearBottomLeft, const glm::vec3& farTopRight, const glm::mat4& viewProjectionMatrix);
+    void setCorners(const glm::vec3& nearBottomLeft, const glm::vec3& farTopRight, const glm::mat4& invViewProjectionMatrix, float nearVal, float farVal);
 
     /**
      * @brief Checks if a point is inside the cluster where the coordinates are in NDC space.
@@ -89,7 +86,7 @@ public:
     bool intersectsSphereWS(const glm::vec3& center, float radius) const;
 
 private:
-    void updateWSCorners(const glm::mat4& viewProjectionMatrix);
+    void updateWSCorners(const glm::mat4& invViewProjectionMatrix);
     
 
 private:

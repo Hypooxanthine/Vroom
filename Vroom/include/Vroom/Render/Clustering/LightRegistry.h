@@ -35,10 +35,14 @@ public:
 
     void endFrame();
 
+    const std::unordered_map<int, SSBOPointLightData>& getPointLights() const { return m_PointLights; }
+
 private:
     void updateData();
 
 private:
+    // Point lights that are currently in the scene
+    std::unordered_map<int, SSBOPointLightData> m_PointLights;
     // SSBO for point lights
     DynamicSSBO m_SSBOPointLights;
     // Identifiers point to the address of the light in the SSBO
@@ -46,6 +50,7 @@ private:
 
     std::unordered_map<std::string, SSBOPointLightData> m_AddedPointLights;
     std::unordered_set<int> m_FreePointLightAdresses;
+    int m_NextPointLightAddress = sizeof(int);
 };
 
 } // namespace vrm

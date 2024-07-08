@@ -33,6 +33,7 @@ Renderer::Renderer()
     GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     m_LightRegistry.setBindingPoint(0);
+    m_ClusteredLights.setBindingPoints(2, 1);
 }
 
 Renderer::~Renderer()
@@ -53,6 +54,21 @@ void Renderer::endScene()
 {
     // Setting up lights.
     m_LightRegistry.endFrame();
+
+    const auto& pointLights = m_LightRegistry.getPointLights();
+    
+    //for (const auto& [index, pointLight] : pointLights)
+    //    LOG_TRACE("Point light index: {}", index);
+
+    // Setting up clusters.
+    m_ClusteredLights.beginFrame({ 8, 8, 8 }, *m_Camera);
+
+    for (const auto& [index, pointLight] : pointLights)
+    {
+        m_ClusteredLights.submitLight(pointLight.position, pointLight.radius, index);
+    }
+
+    m_ClusteredLights.endFrame();
 
     // Drawing meshes.
     for (const auto& mesh : m_Meshes)
@@ -98,6 +114,8 @@ void Renderer::drawMesh(const MeshInstance& mesh, const glm::mat4& model) const
         shader.setUniformMat4f("u_Projection", m_Camera->getProjection());
         shader.setUniformMat4f("u_ViewProjection", m_Camera->getViewProjection());
         shader.setUniform3f("u_ViewPosition", cameraPos);
+        shader.setUniform1f("u_Near", m_Camera->getNear());
+        shader.setUniform1f("u_Far", m_Camera->getFar());
 
         // Setting material textures uniforms
         size_t textureCount = subMesh.materialInstance.getStaticAsset()->getTextureCount();

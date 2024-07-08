@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "Vroom/Render/Clustering/LightRegistry.h"
+#include "Vroom/Render/Clustering/ClusteredLights.h"
 
 #include "Vroom/Asset/AssetInstance/MeshInstance.h"
 
@@ -129,6 +130,7 @@ private:
 	std::vector<QueuedMesh> m_Meshes;
 
 	LightRegistry m_LightRegistry;
+	ClusteredLights m_ClusteredLights;
 };
 
 } // namespace vrm
