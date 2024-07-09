@@ -31,6 +31,9 @@ Renderer::Renderer()
     GLCall(glEnable(GL_DEPTH_TEST));
     GLCall(glEnable(GL_BLEND));
     GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    GLCall(glEnable(GL_CULL_FACE));
+    GLCall(glCullFace(GL_BACK));
+    GLCall(glFrontFace(GL_CCW));
 
     m_LightRegistry.setBindingPoint(0);
     m_ClusteredLights.setBindingPoints(2, 1);
