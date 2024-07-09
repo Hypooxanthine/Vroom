@@ -86,6 +86,10 @@ void main()
 
     //finalColor = vec4(clusterCoords / 7.0, 1.0);
     //finalColor = vec4(vec3(NormalizedLinearNDCPosition.z), 1.0);
-    //finalColor = vec4(lightsCount / 2.0, 0.0, 1.0 - lightsCount / 2.0, 1.0);
+    
+    //vec4 lightComplexity = vec4( float(lightsCount) / pointLightCount, 0.0, 1.0 - float(lightsCount) / pointLightCount, 1.0);
+
+    //finalColor = mix(processedColor, lightComplexity, 0);
+
     finalColor = processedColor;
 }

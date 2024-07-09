@@ -11,13 +11,13 @@
 #include <Vroom/Scene/Components/TransformComponent.h>
 #include <Vroom/Scene/Components/PointLightComponent.h>
 #include <glm/gtx/rotate_vector.hpp>
- 
+
 class MyScene : public vrm::Scene
 {
 public:
 	MyScene(const std::string& littleNickname) : vrm::Scene(), m_LittleNickName(littleNickname) {}
 	~MyScene() = default;
-  
+
 protected:
 	void onInit() override
 	{
@@ -25,26 +25,19 @@ protected:
 		setCamera(&myCamera);
 		myCamera.setWorldPosition({0.f, 0.f, 5.f});
 
-		// Lights
+		// Some lights in a circle of radius 10 in xz, and y = 10 and various colors (always positive colors)
+		for (uint8_t i = 0; i < 10; i++)
 		{
-			auto entity = createEntity("PointLight");
-			entity.addComponent<vrm::PointLightComponent>(glm::vec3{1.f, 1.f, 1.f}, 100.f, 15.f);
+			auto entity = createEntity("PointLight_" + std::to_string(i));
+			entity.addComponent<vrm::PointLightComponent>(glm::vec3{ 10.f * std::cos(i * 2.f * 3.14159f / 10), 10.f, 10.f * std::sin(i * 2.f * 3.14159f / 10) }, 10.f, 15.f);
 			auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/sphere.obj");
 			entity.addComponent<vrm::MeshComponent>(mesh);
 			auto& transform = entity.getComponent<vrm::TransformComponent>();
-			transform.setPosition({10.f, 10.f, 0.f});
+			float theta = i * 2.f * 3.14159f / 10;
+			transform.setPosition({10.f * std::cos(theta), 10.f, 10.f * std::sin(theta)});
 			transform.setScale({0.2f, 0.2f, 0.2f});
 		}
-		{
-			auto entity = createEntity("PointLight2");
-			entity.addComponent<vrm::PointLightComponent>(glm::vec3{1.f, 1.f, 1.f}, 100.f, 15.f);
-			auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/sphere.obj");
-			entity.addComponent<vrm::MeshComponent>(mesh);
-			auto& transform = entity.getComponent<vrm::TransformComponent>();
-			transform.setPosition({-10.f, 10.f, 0.f});
-			transform.setScale({0.2f, 0.2f, 0.2f});
-		}
- 
+
 		// Place a cube in the center of the scene
 		{
 			auto entity = createEntity("ColoredCube");
@@ -61,7 +54,7 @@ protected:
 			entity.addComponent<vrm::MeshComponent>(mesh);
 			auto& transform = entity.getComponent<vrm::TransformComponent>();
 			transform.setPosition({0.f, -1.f, 0.f});
-			transform.setScale({10.f, 0.1f, 10.f});
+			transform.setScale({50.f, 0.1f, 50.f});
 		}
  
 		// Create a few suzannes
@@ -105,8 +98,8 @@ protected:
 		myCamera.move(forwardValue * myCameraSpeed * dt * myCamera.getForwardVector());
 		myCamera.move(rightValue * myCameraSpeed * dt * myCamera.getRightVector());
 		myCamera.move(upValue * myCameraSpeed * dt * glm::vec3{0.f, 1.f, 0.f});
-		myCamera.addYaw(turnRightValue * myCameraAngularSpeed * dt);
-		myCamera.addPitch(lookUpValue * myCameraAngularSpeed * dt);
+		myCamera.addYaw(turnRightValue * myCameraAngularSpeed);
+		myCamera.addPitch(lookUpValue * myCameraAngularSpeed);
 
 		suzanneAngle = std::fmodf(suzanneAngle + suzanneSpeed * dt, 2.f * 3.14159f);
 		
@@ -150,7 +143,7 @@ private:
 
 	float forwardValue = 0.f, rightValue = 0.f, upValue = 0.f;
 	float turnRightValue = 0.f, lookUpValue = 0.f;
-	float myCameraSpeed = 10.f, myCameraAngularSpeed = 50.f;
+	float myCameraSpeed = 10.f, myCameraAngularSpeed = .1f;
  
 	std::array<vrm::Entity, 10> suzannes;
 	float suzanneRadius = 10.f;

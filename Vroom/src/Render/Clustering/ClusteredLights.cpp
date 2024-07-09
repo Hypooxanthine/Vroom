@@ -39,6 +39,7 @@ void ClusteredLights::beginFrame(const glm::uvec3& clusterCount, const CameraBas
                 glm::vec3 nearBottomLeft = { x * clusterSize.x - 1.f, y * clusterSize.y - 1.f, z * clusterSize.z - 1.f };
                 glm::vec3 farTopRight = { (x + 1) * clusterSize.x - 1.f, (y + 1) * clusterSize.y - 1.f, (z + 1) * clusterSize.z - 1.f };
                 m_Clusters.emplace_back(nearBottomLeft, farTopRight, m_InvViewProjectionMatrix, camera.getNear(), camera.getFar());
+                m_Clusters.back().setupFastSphereIntersectionWS();
                 m_ClusterIndexToSSBOLightIndices[m_Clusters.size() - 1] = std::vector<int>();
             }
         }
@@ -62,7 +63,7 @@ void ClusteredLights::submitLight(const glm::vec3& position, float radius, int S
     /// @todo Optimize this.
     for (size_t i = 0; i < m_Clusters.size(); ++i)
     {
-        if (m_Clusters[i].intersectsSphereWS(position, radius))
+        if (m_Clusters[i].intersectsSphereWSFast(position, radius))
         {
             size_t x = i % m_ClusterCount.x;
             size_t y = (i / m_ClusterCount.x) % m_ClusterCount.y;

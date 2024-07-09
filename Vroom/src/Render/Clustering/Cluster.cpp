@@ -48,19 +48,41 @@ void Cluster::setCorners(const glm::vec3& nearBottomLeft, const glm::vec3& farTo
     m_NearBottomLeft = nearBottomLeft;
     m_FarTopRight = farTopRight;
 
+#if 1
     // Un-linearize the depth values.
     const float invNear = 1.f / nearVal;
     const float invFar = 1.f / farVal;
 
-    float z = (m_NearBottomLeft.z * 0.5f + 0.5f) * farVal;
+    float z = (m_NearBottomLeft.z * 0.5f + 0.5f) * farVal - nearVal;
     float d = (1.f / z - invNear) / (invFar - invNear);
     m_NearBottomLeft.z = d * 2.f - 1.f;
 
-    z = (m_FarTopRight.z * 0.5f + 0.5f) * farVal;
+    z = (m_FarTopRight.z * 0.5f + 0.5f) * farVal - nearVal;
     d = (1.f / z - invNear) / (invFar - invNear);
     m_FarTopRight.z = d * 2.f - 1.f;
+#endif
 
     updateWSCorners(invViewProjectionMatrix);
+}
+
+void Cluster::setupFastSphereIntersectionWS()
+{
+    // Find the mean value of Ws corners
+    m_BoundingSphereCenter = glm::vec3(0.f);
+    for (const auto& corner : m_WSCorners)
+        m_BoundingSphereCenter += corner;
+    m_BoundingSphereCenter /= 8.f;
+
+    // Find the farthest corner from the mean
+    float maxDistance2 = 0.f;
+    for (const auto& corner : m_WSCorners)
+    {
+        float distance2 = glm::length2(corner - m_BoundingSphereCenter);
+        if (distance2 > maxDistance2)
+            maxDistance2 = distance2;
+    }
+
+    m_BoundingSphereRadius = glm::sqrt(maxDistance2);
 }
 
 bool Cluster::containsNDC(const glm::vec3& point) const
@@ -89,14 +111,9 @@ bool Cluster::insersectsSphereNDC(const glm::vec3& center, float radius) const
     // Getting the closest point in the cluster to the sphere center.
     auto C = getClosestPointNDC(center);
 
-    // Now we calculate the squared distance between the sphere center and C.
-    float sqrDistance = (C.x - center.x) * (C.x - center.x) +
-                        (C.y - center.y) * (C.y - center.y) +
-                        (C.z - center.z) * (C.z - center.z);
-
     // If the sphere center is outside the cluster, the radius has to be big enough to intersect the cluster.
     // If the sphere center is inside the cluster, then the distance is 0. This means it will return true for any positive radius.
-    return sqrDistance < radius * radius;
+    return glm::length2(C - center) < radius * radius;
 }
 
 bool Cluster::containsWS(const glm::vec3& P) const
@@ -122,7 +139,7 @@ glm::vec3 Cluster::getClosestPointWS(const glm::vec3& P) const
         const glm::vec3 AB = m_WSCorners[iB] - m_WSCorners[iA];
         const glm::vec3 AC = m_WSCorners[iC] - m_WSCorners[iA];
         const glm::vec3 AP = P               - m_WSCorners[iA];
-        if (glm::determinant(glm::mat3(AB, AC, AP)) < 0.f) // P is outside the face.
+        if (glm::determinant(glm::mat3(AB, AC, AP)) <= 0.f) // P is outside the face.
         {
             restrictedPoints.insert(iA);
             restrictedPoints.insert(iB);
@@ -146,7 +163,7 @@ glm::vec3 Cluster::getClosestPointWS(const glm::vec3& P) const
     // Searching for D, the cluster corner that is closest to P.
     // iD is the index of D.
     size_t iD = 0;
-    float minDistance = glm::length2(m_WSCorners[iD] - P);
+    float minDistance = std::numeric_limits<float>::max();
 
     for (const size_t& i : restrictedPoints)
     {
@@ -194,21 +211,15 @@ glm::vec3 Cluster::getClosestPointWS(const glm::vec3& P) const
     // The final value will be D if there is 0 positive cosine, on an edge if there is 1 positive cosine, and on a face if there are 2 positive cosines.
     glm::vec3 out = D;
 
-    uint8_t count = 0;
-    for (const auto& [neighbour, ndirection, cosineTimesDPLength] : candidates)
-    {
-        if (cosineTimesDPLength > 0.f)
-        {
-            out += glm::dot(DP, ndirection) * ndirection;
-            ++count;
-        }
-        else
-            // The cosine is negative, so the next ones will be too.
-            return out;
+    if (std::get<2>(candidates[0]) <= 0.f)
+        return out;
+    
+    out += glm::dot(DP, std::get<1>(candidates[0])) * std::get<1>(candidates[0]);
 
-        if (count == 2)
-            return out;
-    }
+    if (std::get<2>(candidates[1]) <= 0.f)
+        return out;
+    
+    out += glm::dot(DP, std::get<1>(candidates[1])) * std::get<1>(candidates[1]);
 
     return out;
 }
@@ -220,14 +231,17 @@ bool Cluster::intersectsSphereWS(const glm::vec3& center, float radius) const
     if (C == center)
         return true;
 
-    // Now we calculate the squared distance between the sphere center and C.
-    float sqrDistance = (C.x - center.x) * (C.x - center.x) +
-                        (C.y - center.y) * (C.y - center.y) +
-                        (C.z - center.z) * (C.z - center.z);
-
     // If the sphere center is outside the cluster, the radius has to be big enough to intersect the cluster.
     // If the sphere center is inside the cluster, then the distance is 0. This means it will return true for any positive radius.
-    return sqrDistance < radius * radius;
+    return glm::length2(C - center) < radius * radius;
+}
+
+bool Cluster::intersectsSphereWSFast(const glm::vec3& center, float radius) const
+{
+    // We have center of the light, center of the bounding sphere, radius of the light and radius of the bounding sphere.
+    // If the distance between the centers is bigger than the sum of the radii, there is no intersection.
+    const float radiiSum = radius + m_BoundingSphereRadius;
+    return glm::length2(center - m_BoundingSphereCenter) < radiiSum * radiiSum;
 }
 
 void Cluster::updateWSCorners(const glm::mat4& invViewProjectionMatrix)
