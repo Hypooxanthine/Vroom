@@ -11,64 +11,106 @@ void ClusteredLights::setBindingPoints(int clusterInfoBindingPoint, int lightInd
     m_SSBOLightIndicesSSBO.setBindingPoint(lightIndicesBindingPoint);
 }
 
-void ClusteredLights::beginFrame(const glm::uvec3& clusterCount, const CameraBasic& camera)
+glm::vec3 intersectionLineAndZPerpendicularPlane(const glm::vec3& linePoint, const glm::vec3& lineDirection, float depth)
 {
-    //LOG_INFO("Beginning frame with cluster count: {0}", glm::to_string(clusterCount));
+    glm::vec3 planeNormal = { 0.f, 0.f, -1.f };
+    return linePoint + ( (depth - dot(planeNormal, linePoint)) / dot(planeNormal, lineDirection) ) * lineDirection;
+}
+
+void ClusteredLights::setupClusters(const glm::uvec3& clusterCount, const CameraBasic& camera)
+{
+    m_ViewMatrix = camera.getView();
+    m_ClusterCount = clusterCount;
+
     m_Clusters.clear();
+    m_Clusters.reserve(clusterCount.x * clusterCount.y * clusterCount.z);
+    
     m_SSBOClusterInfoData.clusters.clear();
-    m_SSBOLightIndicesData.indices.clear();
-    m_ClusterIndexToSSBOLightIndices.clear();
+    m_SSBOClusterInfoData.clusters.assign(clusterCount.x * clusterCount.y * clusterCount.z, SSBOCluster());
     m_SSBOClusterInfoData.xCount = clusterCount.x;
     m_SSBOClusterInfoData.yCount = clusterCount.y;
     m_SSBOClusterInfoData.zCount = clusterCount.z;
-    m_ClusterCount = clusterCount;
-    m_ViewProjectionMatrix = camera.getViewProjection();
-    m_InvViewProjectionMatrix = glm::inverse(m_ViewProjectionMatrix);
 
-    m_Clusters.reserve(m_ClusterCount.x * m_ClusterCount.y * m_ClusterCount.z);
-    m_SSBOClusterInfoData.clusters.assign(m_ClusterCount.x * m_ClusterCount.y * m_ClusterCount.z, SSBOCluster());
+    glm::vec2 clusterSize_NDC_xy = { 2.f / clusterCount.x, 2.f / clusterCount.y };
+    glm::mat4 invProjectionMatrix = glm::inverse(camera.getProjection()); // Only needed for clusters setup.
 
-    glm::vec3 clusterSize = glm::vec3(2.f, 2.f, 2.f) / glm::vec3(m_ClusterCount);
-
-    for (unsigned int z = 0; z < m_ClusterCount.z; ++z)
+    for (unsigned int z = 0; z < clusterCount.z; ++z)
     {
-        for (unsigned int y = 0; y < m_ClusterCount.y; ++y)
+        for (unsigned int y = 0; y < clusterCount.y; ++y)
         {
-            for (unsigned int x = 0; x < m_ClusterCount.x; ++x)
+            for (unsigned int x = 0; x < clusterCount.x; ++x)
             {
-                glm::vec3 nearBottomLeft = { x * clusterSize.x - 1.f, y * clusterSize.y - 1.f, z * clusterSize.z - 1.f };
-                glm::vec3 farTopRight = { (x + 1) * clusterSize.x - 1.f, (y + 1) * clusterSize.y - 1.f, (z + 1) * clusterSize.z - 1.f };
-                m_Clusters.emplace_back(nearBottomLeft, farTopRight, m_InvViewProjectionMatrix, camera.getNear(), camera.getFar());
-                m_Clusters.back().setupFastSphereIntersectionWS();
-                m_ClusterIndexToSSBOLightIndices[m_Clusters.size() - 1] = std::vector<int>();
+                glm::vec4 nearBottomLeft_NDC = {
+                    -1.f + x * clusterSize_NDC_xy.x,
+                    -1.f + y * clusterSize_NDC_xy.y,
+                    -1.f, // We'll deal with depth value later
+                    1.f
+                };
+
+                glm::vec4 farTopRight_NDC = {
+                    -1.f + (x + 1) * clusterSize_NDC_xy.x,
+                    -1.f + (y + 1) * clusterSize_NDC_xy.y,
+                    -1.f, // We'll deal with depth value later
+                    1.f
+                };
+
+                glm::vec4 nearBottomLeft4_VS = invProjectionMatrix * nearBottomLeft_NDC;
+                glm::vec3 nearBottomLeft_VS = nearBottomLeft4_VS / nearBottomLeft4_VS.w;
+                glm::vec4 farTopRight4_VS = invProjectionMatrix * farTopRight_NDC;
+                glm::vec3 farTopRight_VS = farTopRight4_VS / farTopRight4_VS.w;
+
+                // Now we need to find the depth values of this cluster.
+                float nearDepth = camera.getNear() * glm::pow(camera.getFar() / camera.getNear(), static_cast<float>(z) / clusterCount.z);
+                float farDepth = camera.getNear() * glm::pow(camera.getFar() / camera.getNear(), static_cast<float>(z + 1) / clusterCount.z);
+
+                // Now we need to find the intersection from the line eyePos -> AABB corners to near and far z planes.
+                glm::vec3 nearMin = intersectionLineAndZPerpendicularPlane(
+                    glm::vec3(0.f), // View origin
+                    glm::vec3(nearBottomLeft_VS), // direction is origin -> corner
+                    nearDepth
+                );
+                glm::vec3 nearMax = intersectionLineAndZPerpendicularPlane(
+                    glm::vec3(0.f), // View origin
+                    glm::vec3(farTopRight_VS), // direction is origin -> corner
+                    nearDepth
+                );
+                glm::vec3 farMin = intersectionLineAndZPerpendicularPlane(
+                    glm::vec3(0.f), // View origin
+                    glm::vec3(nearBottomLeft_VS), // direction is origin -> corner
+                    farDepth
+                );
+                glm::vec3 farMax = intersectionLineAndZPerpendicularPlane(
+                    glm::vec3(0.f), // View origin
+                    glm::vec3(farTopRight_VS), // direction is origin -> corner
+                    farDepth
+                );
+
+                glm::vec3 minAABB_VS = glm::min(nearMin, farMin);
+                glm::vec3 maxAABB_VS = glm::max(nearMax, farMax);
+
+                m_Clusters.emplace_back(minAABB_VS, maxAABB_VS);
             }
         }
     }
 }
 
-const std::vector<Cluster>& ClusteredLights::getClusters() const
+void ClusteredLights::beginFrame()
 {
-    return m_Clusters;
-}
+    m_SSBOLightIndicesData.indices.clear();
+    m_ClusterIndexToSSBOLightIndices.clear();
 
-const Cluster& ClusteredLights::getCluster(unsigned int x, unsigned int y, unsigned int z) const
-{
-    return m_Clusters[z * m_ClusterCount.y * m_ClusterCount.x + y * m_ClusterCount.x + x];
+    for (size_t i = 0; i < m_Clusters.size(); ++i)
+        m_ClusterIndexToSSBOLightIndices.emplace(i, std::vector<int>());
 }
 
 void ClusteredLights::submitLight(const glm::vec3& position, float radius, int SSBOIndex)
 {
-    //LOG_TRACE("Submitting light at position: {0}, radius: {1}. SSBO index : {2}", glm::to_string(position), radius, SSBOIndex);
-    // Bruteforcing it for now. Later, we can find one cluster that contains the light in NDC space, then check check clusters around it.
-    /// @todo Optimize this.
+    glm::vec3 position_VS = glm::vec3(m_ViewMatrix * glm::vec4(position, 1.f));
+
     for (size_t i = 0; i < m_Clusters.size(); ++i)
     {
-        if (m_Clusters[i].intersectsSphereWSFast(position, radius))
+        if (m_Clusters[i].intersectsSphereVS(position_VS, radius).intersects)
         {
-            size_t x = i % m_ClusterCount.x;
-            size_t y = (i / m_ClusterCount.x) % m_ClusterCount.y;
-            size_t z = i / (m_ClusterCount.x * m_ClusterCount.y);
-            //LOG_TRACE("Light intersects cluster at x: {0}, y: {1}, z: {2}", x, y, z);
             m_ClusterIndexToSSBOLightIndices.at(i).push_back(SSBOIndex);
         }
     }

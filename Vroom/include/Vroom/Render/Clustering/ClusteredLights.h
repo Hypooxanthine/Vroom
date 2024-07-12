@@ -1,5 +1,13 @@
 #pragma once
 
+/**
+ * @file ClusteredLights.h
+ * @author Alexandre Beaujon
+ * @brief With the great help of https://github.com/DaveH355/clustered-shading .
+ * @date 2024-07-12
+ * 
+ */
+
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -26,11 +34,11 @@ public:
     ClusteredLights& operator=(const ClusteredLights&) = default;
     ClusteredLights& operator=(ClusteredLights&&) = default;
 
+    void setupClusters(const glm::uvec3& clusterCount, const CameraBasic& camera);
+
     void setBindingPoints(int clusterInfoBindingPoint, int lightIndicesBindingPoint);
 
-    void beginFrame(const glm::uvec3& clusterCount, const CameraBasic& camera);
-    const std::vector<Cluster>& getClusters() const;
-    const Cluster& getCluster(unsigned int x, unsigned int y, unsigned int z) const;
+    void beginFrame();
 
     void submitLight(const glm::vec3& position, float radius, int SSBOIndex);
 
@@ -44,7 +52,7 @@ private:
     DynamicSSBO m_SSBOClusterInfoSSBO, m_SSBOLightIndicesSSBO;
 
     glm::uvec3 m_ClusterCount;
-    glm::mat4 m_ViewProjectionMatrix, m_InvViewProjectionMatrix;
+    glm::mat4 m_ViewMatrix; // So that we can convert a light center from WS to VS.
 };
 
 } // namespace vrm

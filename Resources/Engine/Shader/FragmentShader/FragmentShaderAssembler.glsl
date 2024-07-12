@@ -6,14 +6,15 @@
 in vec3 v_Normal;
 in vec3 v_Position;
 in vec2 v_TexCoord;
-in vec4 v_HomogeneousNDCPosition;
 in float v_CameraDepth;
 
 // From application
 uniform vec3 u_ViewPosition;
 uniform mat4 u_ViewProjection;
+uniform mat4 u_View;
 uniform float u_Near;
 uniform float u_Far;
+uniform uvec2 u_ViewportSize;
 
 struct PointLight
 {
@@ -71,25 +72,18 @@ void main()
     vec4 processedColor;
     PostFrag(shadeColor, processedColor);
 
+    // Coordinates of the frag in VS for finding the right cluster
+    uint zCoord = uint((log(abs(v_CameraDepth) / u_Near) * zCount) / log(u_Far / u_Near));
+    vec2 clusterSizeXY = vec2(u_ViewportSize) / vec2(xCount, yCount);
+
     // Coordinates of the frag in NDC space for finding the right cluster
-    vec3 NDCPosition = v_HomogeneousNDCPosition.xyz / v_HomogeneousNDCPosition.w;
-    vec3 NormalizedLinearNDCPosition = vec3(
-        NDCPosition.xy * 0.5 + 0.5,
-        linearizeDepth(gl_FragCoord.z) / u_Far
-    );
-    
-    ivec3 clusterCoords = ivec3(   NormalizedLinearNDCPosition * vec3(xCount, yCount, zCount)   );
-    int clusterIndex = clusterCoords.z * yCount * xCount + clusterCoords.y * xCount + clusterCoords.x;
+    uvec3 clusterCoords = ivec3(gl_FragCoord.xy / clusterSizeXY, zCoord);
+    uint clusterIndex = clusterCoords.z * (yCount * xCount) + clusterCoords.y * (xCount) + clusterCoords.x;
     int lightsCount = clusters[clusterIndex].indexCount;
-
-    // Trying to convert to linearized NDC space
-
-    //finalColor = vec4(clusterCoords / 7.0, 1.0);
-    //finalColor = vec4(vec3(NormalizedLinearNDCPosition.z), 1.0);
     
-    //vec4 lightComplexity = vec4( float(lightsCount) / pointLightCount, 0.0, 1.0 - float(lightsCount) / pointLightCount, 1.0);
+    vec4 lightComplexity = vec4( float(lightsCount) / pointLightCount, 0.0, 1.0 - float(lightsCount) / pointLightCount, 1.0);
 
-    //finalColor = mix(processedColor, lightComplexity, 0);
+    finalColor = mix(processedColor, lightComplexity, 0);
 
-    finalColor = processedColor;
+    //finalColor = processedColor;
 }

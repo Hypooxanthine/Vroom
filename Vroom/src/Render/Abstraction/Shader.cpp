@@ -104,6 +104,11 @@ void Shader::setUniform1ui(const std::string& name, unsigned int value) const
     GLCall(glUniform1ui(getUniformLocation(name), value));
 }
 
+void Shader::setUniform2ui(const std::string& name, unsigned int v0, unsigned int v1) const
+{
+    GLCall(glUniform2ui(getUniformLocation(name), v0, v1));
+}
+
 void Shader::setUniform1f(const std::string& name, float value) const
 {
     GLCall(glUniform1f(getUniformLocation(name), value));
@@ -134,6 +139,18 @@ void Shader::setUniformMat4f(const std::string& name, const glm::mat4& mat) cons
     GLCall(glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &mat[0][0]));
 }
 
+void outputSource(const std::string& source)
+{
+    std::istringstream iss(source);
+    std::string line;
+    int lineCount = 1;
+    while (std::getline(iss, line))
+    {
+        LOG_TRACE("{:04d}: {}", lineCount, line);
+        lineCount++;
+    }
+}
+
 unsigned int Shader::compileShader(unsigned int type, const std::string& source)
 {
     GLCall(unsigned int id = glCreateShader(type));
@@ -151,6 +168,9 @@ unsigned int Shader::compileShader(unsigned int type, const std::string& source)
         GLCall(glGetShaderInfoLog(id, length, &length, str.data()));
         LOG_CRITICAL("Failed to compile {} shader: {}", (type == GL_VERTEX_SHADER ? "vertex" : "fragment"), str);
         GLCall(glDeleteShader(id));
+
+        LOG_INFO("Shader source:");
+        outputSource(source);
         return 0;
     }
 

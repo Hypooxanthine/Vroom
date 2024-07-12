@@ -64,7 +64,8 @@ void Renderer::endScene()
     //    LOG_TRACE("Point light index: {}", index);
 
     // Setting up clusters.
-    m_ClusteredLights.beginFrame({ 32, 32, 32 }, *m_Camera);
+    m_ClusteredLights.setupClusters({ 32, 32, 32 }, *m_Camera);
+    m_ClusteredLights.beginFrame();
 
     for (const auto& [index, pointLight] : pointLights)
     {
@@ -119,6 +120,7 @@ void Renderer::drawMesh(const MeshInstance& mesh, const glm::mat4& model) const
         shader.setUniform3f("u_ViewPosition", cameraPos);
         shader.setUniform1f("u_Near", m_Camera->getNear());
         shader.setUniform1f("u_Far", m_Camera->getFar());
+        shader.setUniform2ui("u_ViewportSize", m_ViewportSize.x, m_ViewportSize.y);
 
         // Setting material textures uniforms
         size_t textureCount = subMesh.materialInstance.getStaticAsset()->getTextureCount();

@@ -24,15 +24,13 @@ void PreFrag(out vec3 ambient, out vec3 diffuse, out vec3 specular, out float sh
 
 vec4 ComputeColor()
 {
+    // Coordinates of the frag in VS for finding the right cluster
+    uint zCoord = uint((log(abs(v_CameraDepth) / u_Near) * zCount) / log(u_Far / u_Near));
+    vec2 clusterSizeXY = vec2(u_ViewportSize) / vec2(xCount, yCount);
+
     // Coordinates of the frag in NDC space for finding the right cluster
-    vec3 NDCPosition = v_HomogeneousNDCPosition.xyz / v_HomogeneousNDCPosition.w;
-    vec3 NormalizedLinearNDCPosition = vec3(
-        NDCPosition.xy * 0.5 + 0.5,
-        linearizeDepth(gl_FragCoord.z) / u_Far
-    );
-    
-    ivec3 clusterCoords = ivec3(   NormalizedLinearNDCPosition * vec3(xCount, yCount, zCount)   );
-    int clusterIndex = clusterCoords.z * yCount * xCount + clusterCoords.y * xCount + clusterCoords.x;
+    uvec3 clusterCoords = ivec3(gl_FragCoord.xy / clusterSizeXY, zCoord);
+    uint clusterIndex = clusterCoords.z * (yCount * xCount) + clusterCoords.y * (xCount) + clusterCoords.x;
     int lightsCount = clusters[clusterIndex].indexCount;
     int firstLight = clusters[clusterIndex].indexOffset;
 

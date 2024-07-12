@@ -14,6 +14,13 @@ namespace vrm
 class Cluster
 {
 public:
+    struct IntersectionResult
+    {
+        bool intersects;
+        glm::vec3 nearestPointInAABB;
+    };
+
+public:
     Cluster() = default;
     Cluster(const Cluster&) = default;
     Cluster(Cluster&&) = default;
@@ -22,110 +29,38 @@ public:
     Cluster& operator=(const Cluster&) = default;
     Cluster& operator=(Cluster&&) = default;
     
-    Cluster(const glm::vec3& nearBottomLeft, const glm::vec3& farTopRight, const glm::mat4& invViewProjectionMatrix, float nearVal, float farVal);
-
-    const glm::vec3& getNearBottomLeft() const;
-    const glm::vec3& getFarTopRight() const;
+    Cluster(const glm::vec3& minAABB_VS, const glm::vec3& maxAABB_VS);
 
     /**
-     * @brief Sets the corners of the cluster in NDC space (not normalized, non linear depth).
+     * @brief Sets the corners of the cluster in view space.
      * 
-     * @param nearBottomLeft Near bottom left corner.
-     * @param farTopRight Far top right corner.
-     * @param invViewProjectionMatrix Inverse view projection matrix.
-     * @param nearVal Near value of the projection matrix.
-     * @param farVal Far value of the projection matrix.
+     * @param minAABB_VS The minimum corner of the cluster in view space.
+     * @param maxAABB_VS The maximum corner of the cluster in view space.
      */
-    void setCorners(const glm::vec3& nearBottomLeft, const glm::vec3& farTopRight, const glm::mat4& invViewProjectionMatrix, float nearVal, float farVal);
+    void setCorners(const glm::vec3& minAABB_VS, const glm::vec3& maxAABB_VS);
 
     /**
-     * @brief Sets up the fast sphere intersection algorithm for NDC space.
-     * It is expected that the function @ref setCorners has been called before this one.
+     * @brief Gets the nearest point in the AABB to a given point.
      * 
+     * @param point The point to find the nearest point in the AABB in view space.
+     * @return glm::vec3 The nearest point in the AABB to the given point.
      */
-    void setupFastSphereIntersectionWS();
+    glm::vec3 getNearestPointInAABB(const glm::vec3& point) const;
 
     /**
-     * @brief Checks if a point is inside the cluster where the coordinates are in NDC space.
+     * @brief Checks if a sphere in view space intersects with the cluster.
      * 
-     * @param point Point to check.
-     * @return true If the point is inside the cluster.
-     * @return false If the point is outside the cluster.
+     * @param sphereCenter_VS The center of the sphere in view space.
+     * @param sphereRadius The radius of the sphere (view space or world space).
+     * @return IntersectionResult The result of the intersection test.
      */
-    bool containsNDC(const glm::vec3& point) const;
-
-    /**
-     * @brief Returns the closest point in the cluster to a point where the coordinates are in NDC space.
-     * 
-     * @param point Point outside the cluster.
-     * @return glm::vec3 Closest point in the cluster to the input point.
-     */
-    glm::vec3 getClosestPointNDC(const glm::vec3& point) const;
-
-    /**
-     * @brief Checks if a sphere intersects the cluster where the coordinates are in NDC space. This will also return true if the sphere is fully inside the cluster.
-     * 
-     * @param center Center of the sphere.
-     * @param radius Radius of the sphere.
-     * @return true If the sphere intersects the cluster.
-     * @return false If the sphere does not intersect the cluster.
-     */
-    bool insersectsSphereNDC(const glm::vec3& center, float radius) const;
-
-    /**
-     * @brief Checks if a point is inside the cluster where the coordinates are in world space.
-     * 
-     * @param point Point to check.
-     * @return true If the point is inside the cluster.
-     * @return false If the point is outside the cluster.
-     */
-    bool containsWS(const glm::vec3& point) const;
-
-    /**
-     * @brief Returns the closest point in the cluster to a point where the coordinates are in world space.
-     * @see @ref clustered_rendering for more information about the algorithm.
-     * 
-     * @param point Point outside the cluster.
-     * @return glm::vec3 Closest point in the cluster to the input point.
-     */
-    glm::vec3 getClosestPointWS(const glm::vec3& point) const;
-
-    /**
-     * @brief Checks if a sphere intersects the cluster where the coordinates are in world space. This will also return true if the sphere is fully inside the cluster.
-     * @see @ref clustered_rendering for more information about the algorithm.
-     * 
-     * @param center Center of the sphere.
-     * @param radius Radius of the sphere.
-     * @return true If the sphere intersects the cluster.
-     * @return false If the sphere does not intersect the cluster.
-     */
-    bool intersectsSphereWS(const glm::vec3& center, float radius) const;
-
-    /**
-     * @brief Checks if a sphere intersects the cluster where the coordinates are in world space. This will also return true if the sphere is fully inside the cluster.
-     * This method is faster than @ref intersectsSphereWS, in a cost of precision. No false negatives are possible, but false positives are.
-     * @see @ref clustered_rendering for more information about the algorithm.
-     * 
-     * @param center Center of the sphere.
-     * @param radius Radius of the sphere.
-     * @return true If the sphere intersects the cluster.
-     * @return false If the sphere does not intersect the cluster.
-     */
-    bool intersectsSphereWSFast(const glm::vec3& center, float radius) const;
+    IntersectionResult intersectsSphereVS(const glm::vec3& sphereCenter_VS, float sphereRadius) const;
 
 private:
-    void updateWSCorners(const glm::mat4& invViewProjectionMatrix);
     
 
 private:
-    glm::vec3 m_NearBottomLeft, m_FarTopRight; // In NDC space
-    std::array<glm::vec3, 8> m_WSCorners; // NearBottomLeft, NearTopLeft, NearTopRight, NearBottomRight, FarBottomLeft, FarTopLeft, FarTopRight, FarBottomRight
-    static std::array<std::tuple<size_t, size_t, size_t>, 8> s_Neighbours;
-    static std::array<std::tuple<size_t, size_t, size_t>, 6> s_FacesPointingInside;
-
-    // Fast intersection data
-    glm::vec3 m_BoundingSphereCenter;
-    float m_BoundingSphereRadius;
+    glm::vec3 m_MinAABB_VS, m_MaxAABB_VS;
 };
 
 } // namespace vrm
