@@ -17,7 +17,7 @@ class MyScene : public vrm::Scene
 public:
 	MyScene(const std::string& littleNickname) : vrm::Scene(), m_LittleNickName(littleNickname) {}
 	~MyScene() = default;
- 
+
 protected:
 	void onInit() override
 	{

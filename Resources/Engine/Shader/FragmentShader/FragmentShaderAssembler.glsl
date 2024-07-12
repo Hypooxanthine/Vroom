@@ -72,6 +72,8 @@ void main()
     vec4 processedColor;
     PostFrag(shadeColor, processedColor);
 
+    /*
+
     // Coordinates of the frag in VS for finding the right cluster
     uint zCoord = uint((log(abs(v_CameraDepth) / u_Near) * zCount) / log(u_Far / u_Near));
     vec2 clusterSizeXY = vec2(u_ViewportSize) / vec2(xCount, yCount);
@@ -85,5 +87,7 @@ void main()
 
     finalColor = mix(processedColor, lightComplexity, 0);
 
-    //finalColor = processedColor;
+    */
+
+    finalColor = processedColor;
 }
