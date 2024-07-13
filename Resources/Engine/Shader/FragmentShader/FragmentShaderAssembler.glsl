@@ -35,6 +35,8 @@ layout(std430, binding = 1) buffer ClusterIndicesBlock
 
 struct Cluster
 {
+    vec4 minAABB_VS;
+    vec4 maxAABB_VS;
     int indexCount;
     int indexOffset;
 };

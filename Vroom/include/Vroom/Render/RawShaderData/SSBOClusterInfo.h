@@ -7,7 +7,7 @@
 namespace vrm
 {
 
-struct SSBOClusterInfo
+struct alignas(16) SSBOClusterInfo
 {
     int xCount = 0;
     int yCount = 0;
@@ -41,7 +41,7 @@ struct SSBOClusterInfo
 
     std::vector<std::pair<const void*, size_t>> getData() const
     {
-        return { { &xCount, sizeof(int) * 3 }, { clusters.data(), sizeof(SSBOCluster) * clusters.size() } };
+        return { { &xCount, offsetof(SSBOClusterInfo, clusters) }, { clusters.data(), sizeof(SSBOCluster) * clusters.size() } };
     }
 };
 
