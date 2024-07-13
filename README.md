@@ -15,7 +15,7 @@ cd build
 cmake ..
 cmake --build . --config [Release|Debug] # If you don't want to open Visual Studio solution
 ctest # If you want to run unit tests
-doxygen # If you need to generate documentation
+doxygen ../Doxyfile # If you need to generate documentation
 ```
 
 Output files will be written in Vroom/build/[Project]/[config]/ folder, where [Project] is Vroom or Sandbox, and config is Release or Debug.
