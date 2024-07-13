@@ -29,6 +29,7 @@ set(PROJECT_IMPL
     ${SOURCE_DIR}/Render/Renderer.cpp
     ${SOURCE_DIR}/Render/Abstraction/IndexBuffer.cpp
     ${SOURCE_DIR}/Render/Abstraction/Shader.cpp
+    ${SOURCE_DIR}/Render/Abstraction/ComputeShader.cpp
     ${SOURCE_DIR}/Render/Abstraction/Texture.cpp
     ${SOURCE_DIR}/Render/Abstraction/VertexArray.cpp
     ${SOURCE_DIR}/Render/Abstraction/VertexBuffer.cpp
