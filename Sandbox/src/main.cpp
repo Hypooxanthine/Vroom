@@ -29,7 +29,7 @@ protected:
 		for (uint8_t i = 0; i < 10; i++)
 		{
 			auto entity = createEntity("PointLight_" + std::to_string(i));
-			entity.addComponent<vrm::PointLightComponent>(glm::vec3{ 10.f * std::cos(i * 2.f * 3.14159f / 10), 10.f, 10.f * std::sin(i * 2.f * 3.14159f / 10) }, 10.f, 15.f);
+			entity.addComponent<vrm::PointLightComponent>(glm::vec3{ std::cos(i * 2.f * 3.14159f / 10), 1.f, std::sin(i * 2.f * 3.14159f / 10) }, 50.f, 15.f);
 			auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/sphere.obj");
 			entity.addComponent<vrm::MeshComponent>(mesh);
 			auto& transform = entity.getComponent<vrm::TransformComponent>();
@@ -143,7 +143,7 @@ private:
 
 	float forwardValue = 0.f, rightValue = 0.f, upValue = 0.f;
 	float turnRightValue = 0.f, lookUpValue = 0.f;
-	float myCameraSpeed = 10.f, myCameraAngularSpeed = .1f;
+	float myCameraSpeed = 10.f, myCameraAngularSpeed = .08f;
  
 	std::array<vrm::Entity, 10> suzannes;
 	float suzanneRadius = 10.f;

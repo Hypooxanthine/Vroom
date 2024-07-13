@@ -64,7 +64,7 @@ void Renderer::endScene()
     //    LOG_TRACE("Point light index: {}", index);
 
     // Setting up clusters.
-    m_ClusteredLights.setupClusters({ 32, 32, 32 }, *m_Camera);
+    m_ClusteredLights.setupClusters({ 12, 12, 24 }, *m_Camera);
     m_ClusteredLights.beginFrame();
 
     for (const auto& [index, pointLight] : pointLights)
