@@ -3,7 +3,6 @@
 #include <fstream>
 
 #include "Vroom/Core/Log.h"
-#include "Vroom/Render/Abstraction/GLCall.h"
 
 static std::string LoadShader(const std::string& path)
 {
@@ -118,5 +117,5 @@ void ComputeShader::dispatch(unsigned int x, unsigned int y, unsigned int z)
 {
     bind();
     GLCall(glDispatchCompute(x, y, z));
-    GLCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
+    GLCall(glMemoryBarrier(m_MemoryBarrier));
 }
