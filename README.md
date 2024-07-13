@@ -13,14 +13,14 @@ In repository root folder, open a terminal and type :
 mkdir build
 cd build
 cmake ..
-cmake --build . --config [Release|Debug]
+cmake --build . --config [Release|Debug] # If you don't want to open Visual Studio solution
 ctest # If you want to run unit tests
+doxygen # If you need to generate documentation
 ```
 
 Output files will be written in Vroom/build/[Project]/[config]/ folder, where [Project] is Vroom or Sandbox, and config is Release or Debug.
 
-You may need to copy the Resources/ folder by hand, from the repository root to the same directory than the Sandbox executable.
-CMake does it by itself on vscode, I and did not take the time to fix it for command line.
+You can also compile by opening the root folder on VS Code, and use the "CMake" and "CMake Tools" VS Code extensions (that is my workflow).
 
 ## External libraries
 
@@ -37,10 +37,6 @@ CMake does it by itself on vscode, I and did not take the time to fix it for com
 - [Hazel](https://github.com/TheCherno/Hazel), game engine created by TheCherno.
 - [Unreal Engine](https://www.unrealengine.com/)
 - [javidx9 (YouTube)](https://www.youtube.com/channel/UC-yuWVUplUJZvieEligKBkA)
-
-## Implemented features (explained)
-
-- Please check branch V1 to see previously implemented features (with SFML rendering). Most of them will be implemented in V2 too.
 
 ## Known problems
 
