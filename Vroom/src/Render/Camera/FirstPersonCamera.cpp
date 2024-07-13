@@ -31,7 +31,8 @@ void FirstPersonCamera::addYaw(float yaw)
 
 void FirstPersonCamera::addPitch(float pitch)
 {
-    m_Rotation.x -= pitch;
+    constexpr float epsilon = 0.0001f;
+    m_Rotation.x = glm::clamp(m_Rotation.x - pitch, -90.f + epsilon, 90.f - epsilon);
     markViewDirty();
 }
 
