@@ -14,7 +14,11 @@ struct Cluster
     int indexOffset;
 };
 
-layout(std430, binding = 1) restrict buffer ClusterInfoBlock {
+layout(std430, binding = 2) buffer ClusterInfoBlock
+{
+    int xCount;
+    int yCount;
+    int zCount;
     Cluster clusters[];
 };
 
