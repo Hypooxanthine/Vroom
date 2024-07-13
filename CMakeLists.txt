@@ -67,6 +67,8 @@ project ("Vroom")
 add_subdirectory ("Vroom")
 set(VROOM ${ROOT}/Vroom/)
 set(RESOURCES ${ROOT}/Resources/)
+
 add_subdirectory("Sandbox")
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
 
 include(CTest)

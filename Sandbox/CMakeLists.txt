@@ -25,6 +25,8 @@ target_link_libraries(Sandbox
     Vroom
 )
 
+set_property(TARGET Sandbox PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:Sandbox>)
+
 # Copy the resources to the build directory (engine)
 add_custom_command(TARGET Sandbox POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
