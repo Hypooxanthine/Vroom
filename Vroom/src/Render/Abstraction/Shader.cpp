@@ -20,6 +20,18 @@ static std::string LoadShader(const std::string& path)
     return out;
 }
 
+static void outputSource(const std::string& source)
+{
+    std::istringstream iss(source);
+    std::string line;
+    int lineCount = 1;
+    while (std::getline(iss, line))
+    {
+        LOG_TRACE("{:04d}: {}", lineCount, line);
+        lineCount++;
+    }
+}
+
 Shader::Shader()
 {
 }
@@ -137,18 +149,6 @@ void Shader::setUniform4f(const std::string& name, float v0, float v1, float v2,
 void Shader::setUniformMat4f(const std::string& name, const glm::mat4& mat) const
 {
     GLCall(glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &mat[0][0]));
-}
-
-void outputSource(const std::string& source)
-{
-    std::istringstream iss(source);
-    std::string line;
-    int lineCount = 1;
-    while (std::getline(iss, line))
-    {
-        LOG_TRACE("{:04d}: {}", lineCount, line);
-        lineCount++;
-    }
 }
 
 unsigned int Shader::compileShader(unsigned int type, const std::string& source)

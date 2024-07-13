@@ -18,7 +18,7 @@ static std::string LoadShader(const std::string& path)
     return out;
 }
 
-void outputSource(const std::string& source)
+static void outputSource(const std::string& source)
 {
     std::istringstream iss(source);
     std::string line;
