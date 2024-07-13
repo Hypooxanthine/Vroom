@@ -21,7 +21,7 @@ ComputeShaderInstance ComputeShaderAsset::createInstance()
 
 bool ComputeShaderAsset::loadImpl(const std::string& filePath, AssetManager& manager)
 {
-    return true;
+    return m_ComputeShader.loadFromFile(filePath);
 }
 
 } // namespace vrm
