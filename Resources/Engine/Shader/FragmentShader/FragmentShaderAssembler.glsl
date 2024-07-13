@@ -1,7 +1,5 @@
 #version 460 core
 
-#define MAX_LIGHTS_PER_CLUSTER 50
-
 // From vertex shader
 in vec3 v_Normal;
 in vec3 v_Position;
