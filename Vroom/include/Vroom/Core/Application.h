@@ -10,6 +10,8 @@
 
 #include "Vroom/PublicInterfaces/WindowPublicInterface.h"
 
+#include "Vroom/Asset/AssetManager.h"
+
 namespace vrm
 {
 
@@ -43,6 +45,13 @@ public:
     Application& operator=(Application&&) = delete;
 
     /**
+     * @brief Get the instance of the application.
+     * 
+     * @return Application& The instance of the application.
+     */
+    static Application& Get() { return *s_Instance; }
+
+    /**
      * @brief Starts the application main loop.
      */
     void run();
@@ -52,6 +61,9 @@ public:
      * 
      */
     void exit();
+
+    inline AssetManager& getAssetManager() { return *m_AssetManager; }
+    inline const AssetManager& getAssetManager() const { return *m_AssetManager; }
 
     /**
      * @brief Create a trigger.
@@ -111,7 +123,32 @@ public:
      */
     inline WindowPublicInterface getWindow() { return WindowPublicInterface(*m_Window); }
 
+    /**
+     * @brief Get the loaded scene.
+     * 
+     * @return const Scene& The loaded scene.
+     */
+    inline const Scene& getScene() const { return *m_CurrentScene; }
+
+    /**
+     * @brief Get the loaded scene.
+     * 
+     * @return Scene& The loaded scene.
+     */
+    inline Scene& getScene() { return *m_CurrentScene; }
+
+    /**
+     * @brief Get the renderer object.
+     * 
+     * @return Renderer& The renderer object.
+     */
     inline const Renderer& getRenderer() const { return *m_Renderer; }
+
+    /**
+     * @brief Get the renderer object.
+     * 
+     * @return Renderer& The renderer object.
+     */
     inline Renderer& getRenderer() { return *m_Renderer; }
 
 private:
@@ -150,9 +187,13 @@ private:
     void loadScene_Internal(std::unique_ptr<Scene>&& scene);
 
 private:
+    static Application* s_Instance;
+
     std::unique_ptr<Window> m_Window;
     std::unique_ptr<Renderer> m_Renderer;
     std::unique_ptr<Scene> m_CurrentScene, m_NextScene;
+
+    std::unique_ptr<AssetManager> m_AssetManager;
 
     TriggerManager m_TriggerManager;
     CustomEventManager m_CustomEventManager;

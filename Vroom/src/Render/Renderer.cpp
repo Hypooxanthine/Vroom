@@ -36,7 +36,7 @@ Renderer::Renderer()
     GLCall(glFrontFace(GL_CCW));
 
     m_LightRegistry.setBindingPoint(0);
-    m_ClusteredLights.setBindingPoints(2, 1);
+    m_ClusteredLights.setBindingPoint(1);
 }
 
 Renderer::~Renderer()
@@ -57,22 +57,10 @@ void Renderer::endScene()
 {
     // Setting up lights.
     m_LightRegistry.endFrame();
-
-    const auto& pointLights = m_LightRegistry.getPointLights();
     
-    //for (const auto& [index, pointLight] : pointLights)
-    //    LOG_TRACE("Point light index: {}", index);
-
-    // Setting up clusters.
+    // Clustered shading.
     m_ClusteredLights.setupClusters({ 12, 12, 24 }, *m_Camera);
-    m_ClusteredLights.beginFrame();
-
-    for (const auto& [index, pointLight] : pointLights)
-    {
-        m_ClusteredLights.submitLight(pointLight.position, pointLight.radius, index);
-    }
-
-    m_ClusteredLights.endFrame();
+    m_ClusteredLights.processLights(*m_Camera);
 
     // Drawing meshes.
     for (const auto& mesh : m_Meshes)

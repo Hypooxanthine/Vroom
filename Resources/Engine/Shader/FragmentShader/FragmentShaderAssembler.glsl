@@ -16,7 +16,7 @@ uniform uvec2 u_ViewportSize;
 
 struct PointLight
 {
-    float position[3]; // We need to use an array of floats instead of a vec3 because of the alignment of std430 (rounded up to 4)
+    float position[3];
     float color[3];
     float intensity;
     float radius;
@@ -24,28 +24,23 @@ struct PointLight
 
 layout(std430, binding = 0) buffer LightBlock
 {
-    int pointLightCount;
+    uint pointLightCount;
     PointLight pointLights[];
-};
-
-layout(std430, binding = 1) buffer ClusterIndicesBlock
-{
-    int indices[];
 };
 
 struct Cluster
 {
     vec4 minAABB_VS;
     vec4 maxAABB_VS;
-    int indexCount;
-    int indexOffset;
+    uint indexCount;
+    uint lightIndices[100];
 };
 
-layout(std430, binding = 2) buffer ClusterInfoBlock
+layout(std430, binding = 1) buffer ClusterInfoBlock
 {
-    int xCount;
-    int yCount;
-    int zCount;
+    uint xCount;
+    uint yCount;
+    uint zCount;
     Cluster clusters[];
 };
 
@@ -71,23 +66,6 @@ void main()
     // Apply post processing shader
     vec4 processedColor;
     PostFrag(shadeColor, processedColor);
-
-    /*
-
-    // Coordinates of the frag in VS for finding the right cluster
-    uint zCoord = uint((log(abs(v_CameraDepth) / u_Near) * zCount) / log(u_Far / u_Near));
-    vec2 clusterSizeXY = vec2(u_ViewportSize) / vec2(xCount, yCount);
-
-    // Coordinates of the frag in NDC space for finding the right cluster
-    uvec3 clusterCoords = ivec3(gl_FragCoord.xy / clusterSizeXY, zCoord);
-    uint clusterIndex = clusterCoords.z * (yCount * xCount) + clusterCoords.y * (xCount) + clusterCoords.x;
-    int lightsCount = clusters[clusterIndex].indexCount;
-    
-    vec4 lightComplexity = vec4( float(lightsCount) / pointLightCount, 0.0, 1.0 - float(lightsCount) / pointLightCount, 1.0);
-
-    finalColor = mix(processedColor, lightComplexity, 0);
-
-    */
 
     finalColor = processedColor;
 }

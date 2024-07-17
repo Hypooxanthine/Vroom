@@ -9,9 +9,9 @@ namespace vrm
 
 struct alignas(16) SSBOClusterInfo
 {
-    int xCount = 0;
-    int yCount = 0;
-    int zCount = 0;
+    unsigned int xCount = 0;
+    unsigned int yCount = 0;
+    unsigned int zCount = 0;
     std::vector<SSBOCluster> clusters;
 
     int getConstantSize() const

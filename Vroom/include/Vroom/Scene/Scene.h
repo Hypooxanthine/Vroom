@@ -60,8 +60,8 @@ public:
     inline const CameraBasic& getCamera() const { return *m_Camera; }
     inline CameraBasic& getCamera() { return *m_Camera; }
 
-    inline AssetManager& getAssetManager() { return *m_AssetManager; }
-    inline const AssetManager& getAssetManager() const { return *m_AssetManager; }
+    AssetManager& getAssetManager();
+    const AssetManager& getAssetManager() const;
 
     /**
      * @brief Creates an entity.
@@ -138,12 +138,10 @@ protected:
      */
     virtual void onEnd() {}
 
-    inline Application& getApplication() { return *m_Application; }
-    inline const Application& getApplicaton() const { return *m_Application; }
+    Application& getApplication() { return *m_Application; }
+    const Application& getApplicaton() const { return *m_Application; }
 
 private:
-    std::unique_ptr<AssetManager> m_AssetManager;
-
     entt::registry m_Registry;
     size_t m_EntityCounter = 0;
 

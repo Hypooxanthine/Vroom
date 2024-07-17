@@ -18,18 +18,14 @@ namespace vrm
 {
 
 Scene::Scene()
-    : m_AssetManager(nullptr)
 {
-    // Instanciating asset manager
-    m_AssetManager = std::make_unique<AssetManager>();
-
     // Setting a default camera
     setCamera(&m_DefaultCamera);
 }
 
 Scene::~Scene()
 {
-    m_AssetManager.release();
+
 }
 
 void Scene::init(Application* app)
@@ -92,6 +88,16 @@ void Scene::end()
     onEnd();
 
     m_Registry.clear(); // So that entities are destroyed properly
+}
+
+AssetManager& Scene::getAssetManager()
+{
+    return getApplication().getAssetManager();
+}
+
+const AssetManager& Scene::getAssetManager() const
+{
+    return getApplicaton().getAssetManager();
 }
 
 Entity Scene::createEntity(const std::string& nameTag)

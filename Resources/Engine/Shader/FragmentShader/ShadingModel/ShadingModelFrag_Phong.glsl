@@ -31,8 +31,7 @@ vec4 ComputeColor()
     // Coordinates of the frag in NDC space for finding the right cluster
     uvec3 clusterCoords = ivec3(gl_FragCoord.xy / clusterSizeXY, zCoord);
     uint clusterIndex = clusterCoords.z * (yCount * xCount) + clusterCoords.y * (xCount) + clusterCoords.x;
-    int lightsCount = clusters[clusterIndex].indexCount;
-    int firstLight = clusters[clusterIndex].indexOffset;
+    uint lightsCount = clusters[clusterIndex].indexCount;
 
     // Getting values from PreFrag shader
     vec3 ambient, diffuse, specular;
@@ -44,10 +43,10 @@ vec4 ComputeColor()
 
     vec3 shadeColor = ambient;
     
-    for (int i = firstLight; i < firstLight + lightsCount; i++)
+    for (int i = 0; i < lightsCount; i++)
     //for (int i = 0; i < pointLightCount; i++)
     {
-        PointLight pointLight = pointLights[indices[i]];
+        PointLight pointLight = pointLights[clusters[clusterIndex].lightIndices[i]];
         vec3 lightPos = vec3(pointLight.position[0], pointLight.position[1], pointLight.position[2]);
 
         float lightDistance2 = dot(lightPos - v_Position, lightPos - v_Position);

@@ -10,11 +10,11 @@
 
 #include <vector>
 #include <string>
-#include <unordered_map>
+
+#include "Vroom/Asset/AssetInstance/ComputeShaderInstance.h"
 
 #include "Vroom/Render/Clustering/Cluster.h"
 #include "Vroom/Render/RawShaderData/SSBOClusterInfo.h"
-#include "Vroom/Render/RawShaderData/SSBOLightIndices.h"
 
 #include "Vroom/Render/Abstraction/DynamicSSBO.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
@@ -26,7 +26,7 @@ namespace vrm
 class ClusteredLights
 {
 public:
-    ClusteredLights() = default;
+    ClusteredLights();
     ClusteredLights(const ClusteredLights&) = default;
     ClusteredLights(ClusteredLights&&) = default;
     ~ClusteredLights() = default;
@@ -34,25 +34,21 @@ public:
     ClusteredLights& operator=(const ClusteredLights&) = default;
     ClusteredLights& operator=(ClusteredLights&&) = default;
 
+    void setBindingPoint(int clusterInfoBindingPoint);
+
     void setupClusters(const glm::uvec3& clusterCount, const CameraBasic& camera);
 
-    void setBindingPoints(int clusterInfoBindingPoint, int lightIndicesBindingPoint);
-
-    void beginFrame();
-
-    void submitLight(const glm::vec3& position, float radius, int SSBOIndex);
-
-    void endFrame();
+    void processLights(const CameraBasic& camera);
 
 private:
-    std::vector<Cluster> m_Clusters;
-    std::unordered_map<size_t, std::vector<int>> m_ClusterIndexToSSBOLightIndices;
     SSBOClusterInfo m_SSBOClusterInfoData;
-    SSBOLightIndices m_SSBOLightIndicesData;
-    DynamicSSBO m_SSBOClusterInfoSSBO, m_SSBOLightIndicesSSBO;
+    DynamicSSBO m_SSBOClusterInfoSSBO;
 
     glm::uvec3 m_ClusterCount;
-    glm::mat4 m_ViewMatrix; // So that we can convert a light center from WS to VS.
+    unsigned int m_TotalClusters;
+    glm::mat4 m_Projection;
+
+    ComputeShaderInstance m_ClustersBuilder, m_LightsCuller;
 };
 
 } // namespace vrm

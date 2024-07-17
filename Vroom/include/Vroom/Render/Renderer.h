@@ -13,6 +13,7 @@
 namespace vrm
 {
 
+class Application;
 class Scene;
 struct PointLightComponent;
 
