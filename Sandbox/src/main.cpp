@@ -12,6 +12,8 @@
 #include <Vroom/Scene/Components/PointLightComponent.h>
 #include <glm/gtx/rotate_vector.hpp>
 
+#include "Scripts/SuzanneScript.h"
+
 class MyScene : public vrm::Scene
 {
 public:
@@ -58,14 +60,12 @@ protected:
 		}
  
 		// Create a few suzannes
-		for (uint8_t i = 0; i < suzannes.size(); i++)
+		for (uint8_t i = 0; i < 10; i++)
 		{
 			auto entity = createEntity("Suzanne_" + std::to_string(i));
 			auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/Suzanne.obj");
 			entity.addComponent<vrm::MeshComponent>(mesh);
-			auto& transform = entity.getComponent<vrm::TransformComponent>();
-
-			suzannes[i] = entity;
+			entity.addScriptComponent<SuzanneScript>(suzanneRadius, i * glm::two_pi<float>() / 10, suzanneSpeed);
 		}
 
 		// Bind triggers to the camera
@@ -101,22 +101,6 @@ protected:
 		myCamera.addYaw(turnRightValue * myCameraAngularSpeed);
 		myCamera.addPitch(lookUpValue * myCameraAngularSpeed);
 
-		suzanneAngle = std::fmodf(suzanneAngle + suzanneSpeed * dt, 2.f * 3.14159f);
-		
-		// Rotate suzannes on their circle
-		for (size_t i = 0; i < suzannes.size(); i++)
-		{
-			auto& suzanne = suzannes[i];
-			auto& transform = suzanne.getComponent<vrm::TransformComponent>();
-			float theta = suzanneAngle + i * 2.f * 3.14159f / suzannes.size();
-			transform.setPosition({suzanneRadius * std::cos(theta), 0.f, suzanneRadius * std::sin(theta)});
-
-			// Rotate suzannes on themselves
-			auto rotation = transform.getRotation();
-			rotation.y = -glm::degrees(theta);
-			transform.setRotation(rotation);
-		}
-
 		lookUpValue = 0.f;
 		turnRightValue = 0.f;
 
@@ -145,10 +129,8 @@ private:
 	float turnRightValue = 0.f, lookUpValue = 0.f;
 	float myCameraSpeed = 10.f, myCameraAngularSpeed = .08f;
  
-	std::array<vrm::Entity, 10> suzannes;
 	float suzanneRadius = 10.f;
 	float suzanneSpeed = 3.14159f / 4.f;
-	float suzanneAngle = 0.f;
 };
 
 int main(int argc, char** argv)

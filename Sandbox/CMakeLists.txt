@@ -7,6 +7,7 @@ set(INCLUDE_DIR include)
 
 set(SOURCES
     ${SOURCE_DIR}/main.cpp
+    ${SOURCE_DIR}/Scripts/SuzanneScript.cpp
 )
 
 set(INCLUDES

@@ -49,8 +49,14 @@ void Scene::init(Application* app)
 
 void Scene::update(float dt)
 {
-
     onUpdate(dt);
+
+    auto viewScripts = m_Registry.view<ScriptHandler>();
+    for (auto entity : viewScripts)
+    {
+        auto& scriptHandler = viewScripts.get<ScriptHandler>(entity);
+        scriptHandler.getScript().onUpdate(dt);
+    }
 }
 
 void Scene::render()
@@ -155,6 +161,12 @@ Entity Scene::getEntity(const std::string& name)
 void Scene::destroyEntity(Entity entity)
 {
     VRM_ASSERT_MSG(m_Registry.valid(entity), "Entity is not valid.");
+
+    if(entity.hasComponent<ScriptHandler>())
+    {
+        entity.getComponent<ScriptHandler>().getScript().onDestroy();
+    }
+
     m_Registry.destroy(entity);
 }
 

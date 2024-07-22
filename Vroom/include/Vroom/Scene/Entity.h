@@ -3,6 +3,7 @@
 #include <entt/entt.hpp>
 
 #include "Vroom/Core/Assert.h"
+#include "Vroom/Scene/Components/ScriptHandler.h"
 
 namespace vrm
 {
@@ -67,6 +68,16 @@ public:
     {
         VRM_ASSERT_MSG(!hasComponent<T>(), "Entity already has component.");
         return m_Registry->emplace<T>(m_Handle, std::forward<Args>(args)...);
+    }
+
+    template<typename T, typename... Args>
+    T& addScriptComponent(Args&&... args)
+    {
+        VRM_ASSERT_MSG(!hasComponent<ScriptHandler>(), "Entity already has component.");
+        auto& component = m_Registry->emplace<ScriptHandler>(m_Handle, std::make_unique<T>(std::forward<Args>(args)...));
+        component.getScript().setEntityHandle(m_Handle);
+        component.getScript().onSpawn();
+        return dynamic_cast<T&>(component.getScript());
     }
 
     /**

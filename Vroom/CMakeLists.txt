@@ -47,6 +47,7 @@ set(PROJECT_IMPL
     ${SOURCE_DIR}/Scene/Scene.cpp
     ${SOURCE_DIR}/Scene/Entity.cpp
     ${SOURCE_DIR}/Scene/Components/MeshComponent.cpp
+    ${SOURCE_DIR}/Scene/Components/ScriptComponent.cpp
 
     ${SOURCE_DIR}/Asset/StaticAsset/StaticAsset.cpp
     ${SOURCE_DIR}/Asset/StaticAsset/MeshAsset.cpp
