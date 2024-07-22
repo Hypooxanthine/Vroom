@@ -127,7 +127,7 @@ private:
 
 	float forwardValue = 0.f, rightValue = 0.f, upValue = 0.f;
 	float turnRightValue = 0.f, lookUpValue = 0.f;
-	float myCameraSpeed = 10.f, myCameraAngularSpeed = .08f;
+	float myCameraSpeed = 10.f, myCameraAngularSpeed = .08f * glm::two_pi<float>() / 360.f;
  
 	float suzanneRadius = 10.f;
 	float suzanneSpeed = 3.14159f / 4.f;

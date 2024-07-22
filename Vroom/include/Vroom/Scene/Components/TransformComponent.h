@@ -56,9 +56,9 @@ private:
     {
         m_Transform = glm::mat4(1.0f);
         m_Transform = glm::translate(m_Transform, position);
-        m_Transform = glm::rotate(m_Transform, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        m_Transform = glm::rotate(m_Transform, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        m_Transform = glm::rotate(m_Transform, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        m_Transform = glm::rotate(m_Transform, rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+        m_Transform = glm::rotate(m_Transform, rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+        m_Transform = glm::rotate(m_Transform, rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
         m_Transform = glm::scale(m_Transform, scale);
     }
     

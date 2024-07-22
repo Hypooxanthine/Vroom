@@ -78,7 +78,7 @@ protected:
 
 private:
     glm::vec3 m_WorldPosition = {0.f, 0.f, 0.f};
-    // In degrees
+    // In radians
     glm::vec3 m_Rotation = {0.f, 0.f, 0.f};
 };
 

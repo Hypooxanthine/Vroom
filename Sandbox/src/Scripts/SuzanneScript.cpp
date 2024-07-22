@@ -24,7 +24,7 @@ void SuzanneScript::onUpdate(float dt)
 
     auto& transform = getEntity().getComponent<vrm::TransformComponent>();
     transform.setPosition({ m_CircleRadius * cos(m_Angle), 0.f, m_CircleRadius * sin(m_Angle) });
-    transform.setRotation({ 0.f, -glm::degrees(m_Angle), 0.f });
+    transform.setRotation({ 0.f, -m_Angle, 0.f });
 }
 
 void SuzanneScript::onDestroy()

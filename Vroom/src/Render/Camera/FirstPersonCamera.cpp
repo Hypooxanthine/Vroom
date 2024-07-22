@@ -32,7 +32,7 @@ void FirstPersonCamera::addYaw(float yaw)
 void FirstPersonCamera::addPitch(float pitch)
 {
     constexpr float epsilon = 0.0001f;
-    m_Rotation.x = glm::clamp(m_Rotation.x - pitch, -90.f + epsilon, 90.f - epsilon);
+    m_Rotation.x = glm::clamp(m_Rotation.x - pitch, -glm::half_pi<float>() + epsilon, glm::half_pi<float>() - epsilon);
     markViewDirty();
 }
 
@@ -51,9 +51,9 @@ void FirstPersonCamera::move(const glm::vec3& delta)
 glm::mat4 FirstPersonCamera::onViewComputed() const
 {
     glm::mat4 view = glm::mat4(1.f);
-    view = glm::rotate(view, glm::radians(m_Rotation.x), glm::vec3(1.f, 0.f, 0.f));
-    view = glm::rotate(view, glm::radians(m_Rotation.y), glm::vec3(0.f, 1.f, 0.f));
-    view = glm::rotate(view, glm::radians(m_Rotation.z), glm::vec3(0.f, 0.f, 1.f));
+    view = glm::rotate(view, m_Rotation.x, glm::vec3(1.f, 0.f, 0.f));
+    view = glm::rotate(view, m_Rotation.y, glm::vec3(0.f, 1.f, 0.f));
+    view = glm::rotate(view, m_Rotation.z, glm::vec3(0.f, 0.f, 1.f));
     view = glm::translate(view, -m_WorldPosition);
     return view;
 }
