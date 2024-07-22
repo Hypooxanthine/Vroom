@@ -13,6 +13,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 #include "Scripts/SuzanneScript.h"
+#include "Scripts/MovingLightScript.h"
 
 class MyScene : public vrm::Scene
 {
@@ -34,9 +35,8 @@ protected:
 			entity.addComponent<vrm::PointLightComponent>(glm::vec3{ std::cos(i * 2.f * 3.14159f / 10), 1.f, std::sin(i * 2.f * 3.14159f / 10) }, 50.f, 15.f);
 			auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/sphere.obj");
 			entity.addComponent<vrm::MeshComponent>(mesh);
+			entity.addScriptComponent<MovingLightScript>(lightRadius, 10.f, i * glm::two_pi<float>() / 10, lightSpeed);
 			auto& transform = entity.getComponent<vrm::TransformComponent>();
-			float theta = i * 2.f * 3.14159f / 10;
-			transform.setPosition({10.f * std::cos(theta), 10.f, 10.f * std::sin(theta)});
 			transform.setScale({0.2f, 0.2f, 0.2f});
 		}
 
@@ -131,6 +131,9 @@ private:
  
 	float suzanneRadius = 10.f;
 	float suzanneSpeed = 3.14159f / 4.f;
+
+	float lightRadius = 10.f;
+	float lightSpeed = -3.14159f / 4.f;
 };
 
 int main(int argc, char** argv)
