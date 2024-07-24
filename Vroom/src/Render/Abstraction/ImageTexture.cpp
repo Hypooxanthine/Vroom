@@ -32,7 +32,7 @@ bool ImageTexture::loadFromFile(const std::string& path)
 
 	//std::cout << "Image loaded. Width:" << m_Width << ", Height:" << m_Height << ", BPP:" << m_BPP << std::endl;
 
-	create(width, height);
+	create(width, height, Format::RGBA);
 
 	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer));
 

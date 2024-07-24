@@ -3,13 +3,20 @@
 class Texture2D
 {
 public:
+    enum class Format
+    {
+        RGB,
+        RGBA
+    };
+
+public:
     Texture2D();
     virtual ~Texture2D();
 
     void bind(unsigned int slot = 0) const;
     void unbind() const;
 
-    void create(int width, int height);
+    void create(int width, int height, Format format);
 
 	/**
 	 * @brief Gets texture width.

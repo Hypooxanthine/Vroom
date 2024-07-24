@@ -1,6 +1,27 @@
 #include "Vroom/Render/Abstraction/Texture2D.h"
 
 #include "Vroom/Render/Abstraction/GLCall.h"
+#include "Vroom/Core/Assert.h"
+
+static constexpr GLenum toGLFormat(Texture2D::Format format)
+{
+    switch (format)
+    {
+    case Texture2D::Format::RGB: return GL_RGB;
+    case Texture2D::Format::RGBA: return GL_RGBA;
+    default: return GL_RGB;
+    }
+}
+
+static constexpr GLenum toGLInternalFormat(Texture2D::Format format)
+{
+    switch (format)
+    {
+    case Texture2D::Format::RGB: return GL_RGB8;
+    case Texture2D::Format::RGBA: return GL_RGBA8;
+    default: return GL_RGB8;
+    }
+}
 
 Texture2D::Texture2D()
 {
@@ -23,7 +44,7 @@ void Texture2D::unbind() const
     GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
-void Texture2D::create(int width, int height)
+void Texture2D::create(int width, int height, Format format)
 {
     m_Width = width;
     m_Height = height;
@@ -33,5 +54,5 @@ void Texture2D::create(int width, int height)
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-    GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
+    GLCall(glTexImage2D(GL_TEXTURE_2D, 0, toGLInternalFormat(format), m_Width, m_Height, 0, toGLFormat(format), GL_UNSIGNED_BYTE, nullptr));
 }
