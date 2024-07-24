@@ -38,6 +38,7 @@ set(PROJECT_IMPL
     ${SOURCE_DIR}/Render/Abstraction/ShaderStorageBufferObject.cpp
     ${SOURCE_DIR}/Render/Abstraction/DynamicSSBO.cpp
     ${SOURCE_DIR}/Render/Abstraction/FrameBuffer.cpp
+    ${SOURCE_DIR}/Render/Abstraction/RenderBuffer.cpp
     ${SOURCE_DIR}/Render/RenderObject/RenderMesh.cpp
     ${SOURCE_DIR}/Render/Camera/CameraBasic.cpp
     ${SOURCE_DIR}/Render/Camera/PerspectiveCameraBasic.cpp

@@ -18,6 +18,8 @@ public:
 
     void create(int width, int height, Format format);
 
+    inline unsigned int getRendererID() const { return m_RendererID; }
+
 	/**
 	 * @brief Gets texture width.
 	 * @return Texture width (in pixels).
