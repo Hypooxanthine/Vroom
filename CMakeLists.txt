@@ -14,6 +14,10 @@ endif()
 get_filename_component(ROOT "${CMAKE_SOURCE_DIR}" ABSOLUTE)
 set(DEPENDENCIES ${ROOT}/dependencies/)
 
+if (UNIX)
+    add_compile_options(-Wno-volatile)
+endif(UNIX)
+
 if (WIN32)
     find_package(OpenGL REQUIRED)
 endif(WIN32)

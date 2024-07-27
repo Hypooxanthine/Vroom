@@ -6,7 +6,20 @@ This project has been reset, the old version in 2D with SFML is still available 
 
 ## Building project
 
-Building has only been tested on Windows.
+### Linux dependencies
+
+- glew
+```bash
+sudo apt install libglew-dev
+```
+
+- glfw
+```bash
+sudo apt install libglfw3-dev
+```
+
+### Building with CMake
+
 In repository root folder, open a terminal and type :
 
 ```bash
