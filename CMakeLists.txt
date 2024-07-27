@@ -73,7 +73,7 @@ if(WIN32)
     set(GLEW_LIBRARY ${DEPENDENCIES}/GLEW/lib-vc2022/glew32s.lib opengl32)
     set(GLFW_LIBRARY ${DEPENDENCIES}/GLFW/lib-vc2022/glfw3.lib)
 elseif(UNIX)
-    set(GLFW_LIBRARY glfw3 X11)
+    set(GLFW_LIBRARY glfw X11)
     set(GLEW_LIBRARY GLEW)
 endif(WIN32)
 
