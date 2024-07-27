@@ -6,34 +6,42 @@ This project has been reset, the old version in 2D with SFML is still available 
 
 ## Building project
 
-### Linux dependencies
-
-- glew
-```bash
-sudo apt install libglew-dev
-```
-
-- glfw
-```bash
-sudo apt install libglfw3-dev
-```
-
-### Building with CMake
+### Windows
 
 In repository root folder, open a terminal and type :
 
 ```bash
 mkdir build
 cd build
-cmake ..
-cmake --build . --config [Release|Debug] # If you don't want to open Visual Studio solution
+cmake .. # This will generate a Visual Studio solution
 ctest # If you want to run unit tests
 doxygen ../Doxyfile # If you need to generate documentation
 ```
 
-Output files will be written in Vroom/build/[Project]/[config]/ folder, where [Project] is Vroom or Sandbox, and config is Release or Debug.
-
 You can also compile by opening the root folder on VS Code, and use the "CMake" and "CMake Tools" VS Code extensions (that is my workflow).
+
+### Linux
+
+> **_NOTE:_**  Vroom is actively developped for the Windows platform, but I try to keep it compatible with Linux as much as possible. Vroom may not be fully functional on Linux. Last working test was done on commit https://github.com/Hypooxanthine/Vroom/commit/ad38487641e6d7c58c45d7bcadcc1f7b14145593 .
+
+- Install required dependencies:
+```bash
+sudo apt install libglew-dev libglfw3-dev
+```
+
+- In repository root folder, open a terminal and type:
+```bash
+mkdir build
+cd build
+cmake ..
+make
+```
+
+- Launching Sandbox program:
+```bash
+cd Sandbox # Don't use ./Sandbox/Sandbox directly because the program won't be able to load resource files.
+./Sandbox
+```
 
 ## External libraries
 
