@@ -79,7 +79,13 @@ bool Window::create(const std::string& windowTitle, uint32_t width, uint32_t hei
 
     m_Handle = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, nullptr);
 
-    if (!m_Handle) return false;
+    if (!m_Handle)
+    {
+        const char* errorDesc;
+        int errorCode = glfwGetError(&errorDesc);
+        LOG_ERROR("Failed to create window. GLFW error code: {0:x}. Description: {1}.", errorCode, errorDesc);
+        return false;
+    }
 
     m_Title = windowTitle;
     m_Width = width;

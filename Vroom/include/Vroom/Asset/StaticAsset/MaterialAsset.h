@@ -7,6 +7,7 @@
 #include "Vroom/Render/Abstraction/Shader.h"
 
 #include <fstream>
+#include <vector>
 
 namespace vrm
 {

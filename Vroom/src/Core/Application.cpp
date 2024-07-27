@@ -24,7 +24,7 @@ Application::Application(int argc, char** argv)
     m_Window = std::make_unique<Window>();
     VRM_ASSERT(m_Window->create("Vroom engine", 800, 600));
 
-    glewExperimental = TRUE;
+    glewExperimental = GL_TRUE;
     VRM_ASSERT(glewInit() == GLEW_OK);
     
     // Instanciating asset manager
@@ -50,7 +50,7 @@ bool Application::initGLFW()
     if (!glfwInit()) return false;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 
     return true;
 }

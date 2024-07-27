@@ -1,4 +1,4 @@
-#version 460 core
+#version 450 core
 
 // From vertex shader
 in vec3 v_Normal;

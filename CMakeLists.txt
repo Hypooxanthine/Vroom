@@ -14,12 +14,18 @@ endif()
 get_filename_component(ROOT "${CMAKE_SOURCE_DIR}" ABSOLUTE)
 set(DEPENDENCIES ${ROOT}/dependencies/)
 
-find_package(OpenGL REQUIRED)
+if (WIN32)
+    find_package(OpenGL REQUIRED)
+endif(WIN32)
 
 # Preprocessor defines
 
 if (VRM_PLATFORM_WINDOWS)
     add_compile_definitions(VRM_PLATFORM_WINDOWS=1)
+endif()
+
+if (VRM_PLATFORM_LINUX)
+    add_compile_definitions(VRM_PLATFORM_LINUX=1)
 endif()
 
 if (VRM_DEBUG)

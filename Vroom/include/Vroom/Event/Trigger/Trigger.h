@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include "Vroom/Event/Trigger/TriggerCallbackList.h"
 
 namespace vrm
