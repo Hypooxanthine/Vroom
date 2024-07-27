@@ -27,7 +27,7 @@ void FrameBuffer::create(int width, int height)
     m_Width = width;
     m_Height = height;
 
-    m_Texture.create(width, height, Texture2D::Format::RGBA);
+    m_Texture.create(width, height, Texture2D::Format::RGB);
     m_RenderBuffer.create(width, height);
 
     bind();

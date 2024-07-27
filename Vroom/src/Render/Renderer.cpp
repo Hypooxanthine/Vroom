@@ -3,6 +3,8 @@
 #include <array>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Vroom/Core/Application.h"
+
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Render/Abstraction/VertexArray.h"
 #include "Vroom/Render/Abstraction/VertexBuffer.h"
@@ -12,31 +14,42 @@
 
 #include "Vroom/Render/RawShaderData/SSBOPointLightData.h"
 
-#include "Vroom/Asset/StaticAsset/MeshAsset.h"
-#include "Vroom/Asset/StaticAsset/MaterialAsset.h"
-#include "Vroom/Asset/AssetData/MeshData.h"
-#include "Vroom/Asset/AssetData/MaterialData.h"
-#include "Vroom/Asset/StaticAsset/TextureAsset.h"
+#include "Vroom/Asset/AssetManager.h"
 
 #include "Vroom/Scene/Components/PointLightComponent.h"
 
 #include "Vroom/Scene/Scene.h"
 
+static float SCREEN_QUAD_VERTICES[] = {
+    -1.f, -1.f, 0.f, 0.f,
+    1.f, -1.f, 1.f, 0.f,
+    1.f, 1.f, 1.f, 1.f,
+    -1.f, 1.f, 0.f, 1.f
+};
+
+static unsigned int SCREEN_QUAD_INDICES[] = {
+    0, 1, 2,
+    2, 3, 0
+};
+
 namespace vrm
 {
 
 Renderer::Renderer()
+    : m_ScreenQuadVBO(SCREEN_QUAD_VERTICES, 16 * sizeof(float)), m_ScreenQuadIBO(SCREEN_QUAD_INDICES, 6)
 {
-    GLCall(glClearColor(0.1f, 0.1f, 0.1f, 1.f));
-    GLCall(glEnable(GL_DEPTH_TEST));
-    GLCall(glEnable(GL_BLEND));
-    GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-    GLCall(glEnable(GL_CULL_FACE));
-    GLCall(glCullFace(GL_BACK));
-    GLCall(glFrontFace(GL_CCW));
+    // Initializing frame buffering data.
+    m_ScreenShader = Application::Get().getAssetManager().getAsset<ShaderAsset>("Resources/Engine/Shader/ScreenShader/RenderShader_Screen.asset");
+    m_ScreenQuadLayout.pushFloat(2);
+    m_ScreenQuadLayout.pushFloat(2);
+    m_ScreenQuadVAO.addBuffer(m_ScreenQuadVBO, m_ScreenQuadLayout);
 
     m_LightRegistry.setBindingPoint(0);
     m_ClusteredLights.setBindingPoint(1);
+
+    GLCall(glEnable(GL_CULL_FACE));
+    GLCall(glCullFace(GL_BACK));
+    GLCall(glFrontFace(GL_CCW));
 }
 
 Renderer::~Renderer()
@@ -45,8 +58,12 @@ Renderer::~Renderer()
 
 void Renderer::beginScene(const Scene& scene)
 {
-    GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-    GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
+    if (m_ViewportChanged)
+    {
+        m_FrameBuffer.create(m_ViewportSize.x, m_ViewportSize.y);
+        GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
+        m_ViewportChanged = false;
+    }
 
     m_Camera = &scene.getCamera();
 
@@ -62,11 +79,36 @@ void Renderer::endScene()
     m_ClusteredLights.setupClusters({ 12, 12, 24 }, *m_Camera);
     m_ClusteredLights.processLights(*m_Camera);
 
-    // Drawing meshes.
-    for (const auto& mesh : m_Meshes)
-    {
-        drawMesh(mesh.mesh, mesh.model);
-    }
+    // First draw pass on frame buffer.
+    m_FrameBuffer.bind();
+        GLCall(glClearColor(0.1f, 0.1f, 0.1f, 1.f));
+        GLCall(glEnable(GL_DEPTH_TEST));
+        GLCall(glEnable(GL_BLEND));
+        GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+        // Drawing meshes.
+        for (const auto& mesh : m_Meshes)
+        {
+            drawMesh(mesh.mesh, mesh.model);
+        }
+
+    // Second draw pass on screen.
+    m_FrameBuffer.unbind();
+        GLCall(glClearColor(1.f, 1.f, 1.f, 1.f));
+        GLCall(glClear(GL_COLOR_BUFFER_BIT));
+
+        const auto& screenShader = m_ScreenShader.getStaticAsset()->getShader();
+        screenShader.bind();
+        m_ScreenQuadVAO.bind();
+        GLCall(glDisable(GL_DEPTH_TEST));
+        GLCall(glDisable(GL_BLEND));
+        m_FrameBuffer.getTexture().bind(0);
+        m_ScreenQuadIBO.bind();
+        screenShader.setUniform1i("u_ScreenTexture", 0);
+
+        // Drawing screen quad.
+        GLCall(glDrawElements(GL_TRIANGLES, m_ScreenQuadIBO.getCount(), GL_UNSIGNED_INT, nullptr));
 
     // Clearing data for next frame.
     m_Camera = nullptr;
@@ -150,11 +192,13 @@ void Renderer::setViewport(const glm::vec<2, unsigned int>& o, const glm::vec<2,
 void Renderer::setViewportOrigin(const glm::vec<2, unsigned int>& o)
 {
     m_ViewportOrigin = o;
+    m_ViewportChanged = true;
 }
 
 void Renderer::setViewportSize(const glm::vec<2, unsigned int>& s)
 {
     m_ViewportSize = s;
+    m_ViewportChanged = true;
 }
 
 } // namespace vrm

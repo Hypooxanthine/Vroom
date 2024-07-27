@@ -17,8 +17,10 @@ public:
     inline unsigned int getRendererID() const { return m_RendererID; }
 
     inline int getWidth() const { return m_Width; }
-
     inline int getHeight() const { return m_Height; }
+
+    inline const Texture2D& getTexture() const { return m_Texture; }
+    inline const RenderBuffer& getRenderBuffer() const { return m_RenderBuffer; }
 
 private:
     unsigned int m_RendererID;

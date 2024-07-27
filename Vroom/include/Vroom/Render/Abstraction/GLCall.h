@@ -5,17 +5,24 @@
 #include "Vroom/Core/Log.h"
 #include "Vroom/Core/Assert.h"
 
-/** 
- * To be wrapped around an OpenGL function. Will display errors in debug mode.
- * TODO: handle debug/release modes.
- */
-#define GLCall(x) GLClearError();\
-	x;\
-	VRM_ASSERT(GLLogCall())
+#ifdef VRM_DEBUG
+	/** 
+	 * To be wrapped around an OpenGL function. Will display errors in debug mode.
+	 */
+	#define GLCall(x) GLClearError();\
+		x;\
+		VRM_ASSERT(GLLogCall())
 
-#define GLCall_nothrow(x) GLClearError();\
-	x;\
-	GLLogCall()
+	#define GLCall_nothrow(x) GLClearError();\
+		x;\
+		GLLogCall()
+#else
+	/** 
+	 * To be wrapped around an OpenGL function. Will display errors in debug mode.
+	 */
+	#define GLCall(x) x
+	#define GLCall_nothrow(x) x
+#endif
 
 /**
  * @brief Clears OpenGL errors queue.

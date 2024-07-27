@@ -3,10 +3,17 @@
 #include <vector>
 #include <glm/glm.hpp>
 
+#include "Vroom/Render/Abstraction/VertexArray.h"
+#include "Vroom/Render/Abstraction/VertexBuffer.h"
+#include "Vroom/Render/Abstraction/VertexBufferLayout.h"
+#include "Vroom/Render/Abstraction/IndexBuffer.h"
+#include "Vroom/Render/Abstraction/FrameBuffer.h"
+
 #include "Vroom/Render/Clustering/LightRegistry.h"
 #include "Vroom/Render/Clustering/ClusteredLights.h"
 
 #include "Vroom/Asset/AssetInstance/MeshInstance.h"
+#include "Vroom/Asset/AssetInstance/ShaderInstance.h"
 
 #include "Vroom/Render/Camera/CameraBasic.h"
 
@@ -123,8 +130,16 @@ private:
 	};
 
 private:
+	bool m_ViewportChanged = false;
 	glm::vec<2, unsigned int> m_ViewportOrigin = { 0, 0 };
 	glm::vec<2, unsigned int> m_ViewportSize = { 0, 0 };
+
+	VertexArray m_ScreenQuadVAO;
+	VertexBuffer m_ScreenQuadVBO;
+	VertexBufferLayout m_ScreenQuadLayout;
+	IndexBuffer m_ScreenQuadIBO;
+	FrameBuffer m_FrameBuffer;
+	ShaderInstance m_ScreenShader;
 
 	const CameraBasic* m_Camera = nullptr;
 
