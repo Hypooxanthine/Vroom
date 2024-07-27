@@ -90,7 +90,7 @@ protected:
 				lookUpValue -= static_cast<float>(event.mouseDeltaY);
 			});
 
-		LOG_TRACE("MyScene \"{}\" instance initialized.", m_LittleNickName);
+		VRM_LOG_TRACE("MyScene \"{}\" instance initialized.", m_LittleNickName);
 	}
 
 	void onUpdate(float dt) override
@@ -109,7 +109,7 @@ protected:
 
 		if (m_TimeAccumulator < 1.f) return;
 
-		LOG_TRACE("fps: {}", m_FramesAccumulator);
+		VRM_LOG_TRACE("fps: {}", m_FramesAccumulator);
 
 		m_FramesAccumulator = 0;
 		m_TimeAccumulator -= 1.f;
@@ -159,7 +159,7 @@ int main(int argc, char** argv)
 	app.createCustomEvent("Exit")
 		.bindInput(vrm::Event::Type::KeyPressed, vrm::KeyCode::Escape)
 		.bindInput(vrm::Event::Type::Exit)
-		.bindCallback([&app](const vrm::Event&) { LOG_INFO("Application exit has been requested by user."); app.exit(); });
+		.bindCallback([&app](const vrm::Event&) { VRM_LOG_INFO("Application exit has been requested by user."); app.exit(); });
 	app.createCustomEvent("MouseMoved")
 		.bindInput(vrm::Event::Type::MouseMoved);
 	app.createCustomEvent("ReleaseMouse")

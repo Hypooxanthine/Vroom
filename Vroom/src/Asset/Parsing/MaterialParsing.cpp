@@ -134,7 +134,7 @@ const MaterialParsing::MaterialParameters MaterialParsing::getMaterialParameters
             VRM_ASSERT_MSG(out.textures.size() == slot, "Invalid texture slot: {}. You need to specify texture slots from 0 to 7, one by one.", slot);
             out.textures.push_back(value);
 
-            LOG_TRACE("Texture slot {}: {}", slot, value);
+            VRM_LOG_TRACE("Texture slot {}: {}", slot, value);
         }
 
         parameters[token] = value;

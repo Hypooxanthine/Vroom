@@ -27,7 +27,7 @@ static void outputSource(const std::string& source)
     int lineCount = 1;
     while (std::getline(iss, line))
     {
-        LOG_TRACE("{:04d}: {}", lineCount, line);
+        VRM_LOG_TRACE("{:04d}: {}", lineCount, line);
         lineCount++;
     }
 }
@@ -166,10 +166,10 @@ unsigned int Shader::compileShader(unsigned int type, const std::string& source)
         GLCall(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length));
         std::string str(length, ' ');
         GLCall(glGetShaderInfoLog(id, length, &length, str.data()));
-        LOG_CRITICAL("Failed to compile {} shader: {}", (type == GL_VERTEX_SHADER ? "vertex" : "fragment"), str);
+        VRM_LOG_CRITICAL("Failed to compile {} shader: {}", (type == GL_VERTEX_SHADER ? "vertex" : "fragment"), str);
         GLCall(glDeleteShader(id));
 
-        LOG_INFO("Shader source:");
+        VRM_LOG_INFO("Shader source:");
         outputSource(source);
         return 0;
     }

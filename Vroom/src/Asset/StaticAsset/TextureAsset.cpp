@@ -24,15 +24,15 @@ TextureInstance TextureAsset::createInstance()
 
 bool TextureAsset::loadImpl(const std::string& filePath, AssetManager& manager)
 {
-    LOG_INFO("Loading texture: {}", filePath);
+    VRM_LOG_INFO("Loading texture: {}", filePath);
     
     if (!m_GPUTexture.loadFromFile(filePath))
     {
-        LOG_ERROR("Failed to load texture: {}", filePath);
+        VRM_LOG_ERROR("Failed to load texture: {}", filePath);
         return false;
     }
 
-    LOG_INFO("Texture loaded.");
+    VRM_LOG_INFO("Texture loaded.");
 
     return true;
 }

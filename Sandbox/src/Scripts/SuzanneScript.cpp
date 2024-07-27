@@ -15,7 +15,7 @@ SuzanneScript::~SuzanneScript()
 
 void SuzanneScript::onSpawn()
 {
-    LOG_INFO("Suzanne spawned!");
+    VRM_LOG_INFO("Suzanne spawned!");
 }
 
 void SuzanneScript::onUpdate(float dt)
@@ -29,5 +29,5 @@ void SuzanneScript::onUpdate(float dt)
 
 void SuzanneScript::onDestroy()
 {
-    LOG_INFO("Suzanne destroyed!");
+    VRM_LOG_INFO("Suzanne destroyed!");
 }

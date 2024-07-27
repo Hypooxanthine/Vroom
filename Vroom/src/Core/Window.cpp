@@ -83,7 +83,7 @@ bool Window::create(const std::string& windowTitle, uint32_t width, uint32_t hei
     {
         const char* errorDesc;
         int errorCode = glfwGetError(&errorDesc);
-        LOG_ERROR("Failed to create window. GLFW error code: {0:x}. Description: {1}.", errorCode, errorDesc);
+        VRM_LOG_ERROR("Failed to create window. GLFW error code: {0:x}. Description: {1}.", errorCode, errorDesc);
         return false;
     }
 

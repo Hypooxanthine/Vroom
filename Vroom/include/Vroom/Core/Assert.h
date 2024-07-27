@@ -12,7 +12,7 @@
  * @brief Request application crash. Displays a critical log with file and line where crash has been requested.
  */
 #define VRM_CRASH() \
-    LOG_CRITICAL("Application crash has been requested at file {}, line {}.", std::filesystem::path(__FILE__).filename().string(), __LINE__); \
+    VRM_LOG_CRITICAL("Application crash has been requested at file {}, line {}.", std::filesystem::path(__FILE__).filename().string(), __LINE__); \
     VRM_CRASH_NO_MSG()
 
 /** 
@@ -21,15 +21,15 @@
 #define VRM_ASSERT(x) \
     if(!(x)) \
     { \
-        LOG_CRITICAL("Assertion \"{}\" failed at file {}, line {}.", #x, std::filesystem::path(__FILE__).filename().string(), __LINE__); \
+        VRM_LOG_CRITICAL("Assertion \"{}\" failed at file {}, line {}.", #x, std::filesystem::path(__FILE__).filename().string(), __LINE__); \
         VRM_CRASH_NO_MSG(); \
     }
 
 #define VRM_ASSERT_MSG(x, ...) \
     if(!(x)) \
     { \
-        LOG_CRITICAL("Assertion \"{}\" failed at file {}, line {}. Message:", #x, std::filesystem::path(__FILE__).filename().string(), __LINE__); \
-        LOG_CRITICAL(__VA_ARGS__); \
+        VRM_LOG_CRITICAL("Assertion \"{}\" failed at file {}, line {}. Message:", #x, std::filesystem::path(__FILE__).filename().string(), __LINE__); \
+        VRM_LOG_CRITICAL(__VA_ARGS__); \
         VRM_CRASH_NO_MSG(); \
     }
 

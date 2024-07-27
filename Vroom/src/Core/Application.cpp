@@ -33,7 +33,7 @@ Application::Application(int argc, char** argv)
     m_Renderer = std::make_unique<Renderer>();
     m_Renderer->setViewport({ 0, 0 }, { m_Window->getWidth(), m_Window->getHeight()});
 
-    LOG_TRACE("Vroom application created.");
+    VRM_LOG_TRACE("Vroom application created.");
 }
 
 Application::~Application()

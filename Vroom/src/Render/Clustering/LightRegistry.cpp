@@ -80,8 +80,8 @@ void LightRegistry::updateData()
     int lightCount = static_cast<int>(m_PointLights.size());
     m_SSBOPointLights.setSubData(&lightCount, sizeof(int), 0);
 
-    //LOG_TRACE("SSBO size: {0}", m_SSBOPointLights.getCapacity());
-    //LOG_TRACE("Lights count in registry: {0}", m_PointLights.size());
+    //VRM_LOG_TRACE("SSBO size: {0}", m_SSBOPointLights.getCapacity());
+    //VRM_LOG_TRACE("Lights count in registry: {0}", m_PointLights.size());
 }
 
 } // namespace vrm

@@ -38,9 +38,9 @@ bool MeshAsset::loadImpl(const std::string& filePath, AssetManager& manager)
     }
     
     if (extension == "")
-        LOG_ERROR("Failed to get extension from file path: {}", filePath);
+        VRM_LOG_ERROR("Failed to get extension from file path: {}", filePath);
     else
-        LOG_ERROR("Unsupported file extension: {}", extension);
+        VRM_LOG_ERROR("Unsupported file extension: {}", extension);
     
     return false;
 }
@@ -50,7 +50,7 @@ bool MeshAsset::loadObj(const std::string& filePath, AssetManager& manager)
     objl::Loader loader;
     if (!loader.LoadFile(filePath))
     {
-        LOG_ERROR("Failed to load obj file: {}", filePath);
+        VRM_LOG_ERROR("Failed to load obj file: {}", filePath);
         return false;
     }
 
@@ -69,15 +69,15 @@ bool MeshAsset::loadObj(const std::string& filePath, AssetManager& manager)
         }
     }
 
-    LOG_INFO("Loading mesh from file: {}", filePath);
-    LOG_TRACE("| Loading {} submeshes.", loader.LoadedMeshes.size());
+    VRM_LOG_INFO("Loading mesh from file: {}", filePath);
+    VRM_LOG_TRACE("| Loading {} submeshes.", loader.LoadedMeshes.size());
 
     for (const auto& mesh : loader.LoadedMeshes)
     {
-        LOG_TRACE("| | SubMesh: {}", mesh.MeshName);
-        LOG_TRACE("| | | Vertices count: {}", mesh.Vertices.size());
-        LOG_TRACE("| | | Indices count: {}", mesh.Indices.size());
-        LOG_TRACE("| | | Material: {}", mesh.MaterialName);
+        VRM_LOG_TRACE("| | SubMesh: {}", mesh.MeshName);
+        VRM_LOG_TRACE("| | | Vertices count: {}", mesh.Vertices.size());
+        VRM_LOG_TRACE("| | | Indices count: {}", mesh.Indices.size());
+        VRM_LOG_TRACE("| | | Material: {}", mesh.MaterialName);
 
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
@@ -118,12 +118,12 @@ bool MeshAsset::loadObj(const std::string& filePath, AssetManager& manager)
             m_SubMeshes.emplace_back(std::move(renderMesh), std::move(meshData), materialInstance);
         }
 
-        LOG_TRACE("| | Loaded sub mesh: {}", mesh.MeshName);
+        VRM_LOG_TRACE("| | Loaded sub mesh: {}", mesh.MeshName);
     }
 
-    LOG_TRACE("| Submeshes loaded.");
+    VRM_LOG_TRACE("| Submeshes loaded.");
 
-    LOG_INFO("Mesh loaded.");
+    VRM_LOG_INFO("Mesh loaded.");
 
     return true;
 }

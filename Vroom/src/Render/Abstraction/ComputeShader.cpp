@@ -25,7 +25,7 @@ static void outputSource(const std::string& source)
     int lineCount = 1;
     while (std::getline(iss, line))
     {
-        LOG_TRACE("{:04d}: {}", lineCount, line);
+        VRM_LOG_TRACE("{:04d}: {}", lineCount, line);
         lineCount++;
     }
 }
@@ -65,10 +65,10 @@ bool ComputeShader::loadFromSource(const std::string& source)
         GLCall(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length));
         std::string str(length, ' ');
         GLCall(glGetShaderInfoLog(id, length, &length, str.data()));
-        LOG_CRITICAL("Failed to compile compute shader: {}", str);
+        VRM_LOG_CRITICAL("Failed to compile compute shader: {}", str);
         GLCall(glDeleteShader(id));
 
-        LOG_INFO("Shader source:");
+        VRM_LOG_INFO("Shader source:");
         outputSource(source);
         return false;
     }
@@ -86,7 +86,7 @@ bool ComputeShader::loadFromSource(const std::string& source)
         std::vector<GLchar> infoLog(maxLength);
         GLCall(glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]));
 
-        LOG_CRITICAL("Program link error: {}", &infoLog[0]);
+        VRM_LOG_CRITICAL("Program link error: {}", &infoLog[0]);
 
         GLCall(glDeleteProgram(program));
         return false;

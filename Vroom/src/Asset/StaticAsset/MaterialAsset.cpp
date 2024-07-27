@@ -27,13 +27,13 @@ MaterialInstance MaterialAsset::createInstance()
 
 bool MaterialAsset::loadImpl(const std::string& filePath, AssetManager& manager)
 {
-    LOG_INFO("Loading material: {}", filePath);
+    VRM_LOG_INFO("Loading material: {}", filePath);
 
     auto shadersData = MaterialParsing::Parse(filePath);
 
     if (!m_Shader.loadFromSource(shadersData.vertex, shadersData.fragment))
     {
-        LOG_ERROR("Failed to load material: {}", filePath);
+        VRM_LOG_ERROR("Failed to load material: {}", filePath);
         return false;
     }
 
