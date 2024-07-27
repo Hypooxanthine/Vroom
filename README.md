@@ -22,7 +22,7 @@ You can also compile by opening the root folder on VS Code, and use the "CMake" 
 
 ### Linux
 
-> **_NOTE:_**  Vroom is actively developped for the Windows platform, but I try to keep it compatible with Linux as much as possible. Vroom may not be fully functional on Linux. Last working test was done on commit https://github.com/Hypooxanthine/Vroom/commit/ad38487641e6d7c58c45d7bcadcc1f7b14145593 .
+> **_NOTE:_**  Vroom is actively developped for the Windows platform, but I try to keep it compatible with Linux as much as possible. Vroom may not be fully functional on Linux.
 
 - Install required dependencies:
 ```bash
