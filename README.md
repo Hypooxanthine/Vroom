@@ -20,8 +20,6 @@ ctest # If you want to run unit tests
 doxygen ../Doxyfile # If you need to generate documentation
 ```
 
-In Visual Studio, you will need to build the Resources project after building the Sandbox project to copy the resources files to the Sandbox output directory. You can also build the ALL_BUILD project or simply build the whole solution.
-
 #### VS Code
 
 You can also build the project by opening the root folder on VS Code, and use the "CMake" and "CMake Tools" VS Code extensions (that is my workflow).

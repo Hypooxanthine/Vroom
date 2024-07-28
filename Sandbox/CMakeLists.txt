@@ -33,7 +33,12 @@ project(Resources NONE)
 
 set(ENGINE_RESOURCE_DIR ${CMAKE_SOURCE_DIR}/Resources)
 set(SANDBOX_RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Resources)
-set(OUTPUT_DIR $<TARGET_FILE_DIR:Sandbox>/Resources)
+
+if (CMAKE_GENERATOR MATCHES "Visual Studio")
+    set(OUTPUT_DIR ${Sandbox_BINARY_DIR}/$<CONFIG>/Resources)
+else()
+    set(OUTPUT_DIR ${Sandbox_BINARY_DIR}/Resources)
+endif()
 
 file(GLOB_RECURSE RESOURCE_FILES
      "${ENGINE_RESOURCE_DIR}/*.*"
@@ -47,3 +52,6 @@ add_custom_target(Resources ALL
     DEPENDS ${RESOURCE_FILES}
     COMMENT "Copying resource files to output directory"
 )
+
+# Make sure Resources is built before Sandbox
+add_dependencies(Sandbox Resources)
