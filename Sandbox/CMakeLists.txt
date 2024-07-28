@@ -47,9 +47,3 @@ add_custom_target(Resources ALL
     DEPENDS ${RESOURCE_FILES}
     COMMENT "Copying resource files to output directory"
 )
-
-foreach(RESOURCE ${RESOURCE_FILES})
-    add_custom_command(TARGET Resources POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${RESOURCE} ${OUTPUT_DIR}
-    )
-endforeach()
