@@ -6,11 +6,6 @@ endif(POLICY CMP0072)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Compile options
-if (MSVC)
-    add_compile_options(/MP) # Multi-processor compilation
-endif()
-
 get_filename_component(ROOT "${CMAKE_SOURCE_DIR}" ABSOLUTE)
 set(DEPENDENCIES ${ROOT}/dependencies/)
 
@@ -89,3 +84,9 @@ add_subdirectory("Sandbox")
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
 
 include(CTest)
+
+# Compile options
+if (MSVC)
+    target_compile_options(Vroom PRIVATE /MP)
+    target_compile_options(Sandbox PRIVATE /MP)
+endif()
