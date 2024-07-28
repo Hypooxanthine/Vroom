@@ -8,17 +8,23 @@ This project has been reset, the old version in 2D with SFML is still available 
 
 ### Windows
 
+#### Visual Studio
+
 In repository root folder, open a terminal and type :
 
 ```bash
 mkdir build
 cd build
-cmake .. # This will generate a Visual Studio solution
+cmake ..
 ctest # If you want to run unit tests
 doxygen ../Doxyfile # If you need to generate documentation
 ```
 
-You can also compile by opening the root folder on VS Code, and use the "CMake" and "CMake Tools" VS Code extensions (that is my workflow).
+In Visual Studio, you will need to build the Resources project after building the Sandbox project to copy the resources files to the Sandbox output directory. You can also build the ALL_BUILD project or simply build the whole solution.
+
+#### VS Code
+
+You can also build the project by opening the root folder on VS Code, and use the "CMake" and "CMake Tools" VS Code extensions (that is my workflow).
 
 ### Linux
 
