@@ -2,10 +2,15 @@
 
 project(Sandbox)
 
+# Project directories
 set(SOURCE_DIR src)
 set(INCLUDE_DIR include)
 
-set(SOURCES
+# Headers
+file(GLOB_RECURSE PROJECT_HEADERS ${INCLUDE_DIR}/*.h)
+
+# Implementation
+set(PROJECT_IMPL
     ${SOURCE_DIR}/main.cpp
     ${SOURCE_DIR}/Scripts/SuzanneScript.cpp
     ${SOURCE_DIR}/Scripts/MovingLightScript.cpp
@@ -21,7 +26,7 @@ include_directories(Sandbox PUBLIC
     ${INCLUDES}
 )
 
-add_executable(Sandbox ${SOURCES})
+add_executable(Sandbox ${PROJECT_IMPL} ${PROJECT_HEADERS})
 
 target_link_libraries(Sandbox
     Vroom
@@ -55,3 +60,8 @@ add_custom_target(Resources ALL
 
 # Make sure Resources is built before Sandbox
 add_dependencies(Sandbox Resources)
+
+# Visual Studio specific settings
+if (CMAKE_GENERATOR MATCHES "Visual Studio")
+    source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${PROJECT_IMPL} ${PROJECT_HEADERS})
+endif()

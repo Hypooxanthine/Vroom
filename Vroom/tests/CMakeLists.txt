@@ -53,3 +53,8 @@ add_custom_command(TARGET VroomTests POST_BUILD
     ${CMAKE_SOURCE_DIR}/Resources
     $<TARGET_FILE_DIR:VroomTests>/Resources
 )
+
+# Visual Studio specific settings
+if (CMAKE_GENERATOR MATCHES "Visual Studio")
+    source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "src" FILES ${TEST_SOURCES})
+endif()

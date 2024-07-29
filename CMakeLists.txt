@@ -72,7 +72,7 @@ elseif(UNIX)
     set(GLEW_LIBRARY GLEW)
 endif(WIN32)
 
-project ("Vroom")
+project ("VroomSolution")
 
 add_subdirectory ("Vroom")
 set(VROOM ${ROOT}/Vroom/)
@@ -80,13 +80,16 @@ set(RESOURCES ${ROOT}/Resources/)
 
 add_subdirectory("Sandbox")
 
-# Make the Sandbox project the startup project
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
-
 include(CTest)
 
 # Compile options
 if (MSVC)
     target_compile_options(Vroom PRIVATE /MP)
     target_compile_options(Sandbox PRIVATE /MP)
+endif()
+
+# Visual Studio specific settings
+if (CMAKE_GENERATOR MATCHES "Visual Studio")
+    # Make the Sandbox project the startup project
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
 endif()

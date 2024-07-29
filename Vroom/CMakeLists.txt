@@ -13,6 +13,9 @@ find_package(OpenGL REQUIRED)
 set(SOURCE_DIR src)
 set(INCLUDE_DIR include)
 
+# Headers
+file(GLOB_RECURSE PROJECT_HEADERS ${INCLUDE_DIR}/*.h)
+
 # Implementation
 set(STB_IMAGE_IMPL ${DEPENDENCIES}/stb_image/src/stb_image.cpp)
 set(PROJECT_IMPL
@@ -86,7 +89,7 @@ include_directories(Vroom PUBLIC
     ${INCLUDES}
 )
 
-add_library(Vroom STATIC ${SOURCES})
+add_library(Vroom STATIC ${SOURCES} ${PROJECT_HEADERS})
 
 add_definitions(-D GLEW_STATIC)
 
@@ -99,3 +102,8 @@ target_link_libraries(Vroom
 add_subdirectory("tests")
 
 include(CTest)
+
+# Visual Studio specific settings
+if (CMAKE_GENERATOR MATCHES "Visual Studio")
+    source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${PROJECT_IMPL} ${PROJECT_HEADERS})
+endif()

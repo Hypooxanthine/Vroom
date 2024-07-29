@@ -49,6 +49,8 @@ out/
 out/*
 build/
 build/*
+VisualStudio/
+VisualStudio/*
 
 # Testing temporary folders
 Testing/
