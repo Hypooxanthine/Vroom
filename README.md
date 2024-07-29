@@ -30,7 +30,7 @@ You can also build the project by opening the root folder on VS Code, and use th
 
 - Install required dependencies:
 ```bash
-sudo apt install libglew-dev libglfw3-dev
+sudo apt install libglew-dev
 ```
 
 - In repository root folder, open a terminal and type:

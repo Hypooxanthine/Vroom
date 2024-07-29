@@ -37,14 +37,12 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(EnTT)
 
 # glew
-if (NOT UNIX) # For unix systems, glew must be installed via package manager
-    FetchContent_Declare(
-        glew
-        GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
-        GIT_TAG        origin/master
-    )
-    FetchContent_MakeAvailable(glew)
-endif()
+FetchContent_Declare(
+    glew
+    GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
+    GIT_TAG        origin/master
+)
+FetchContent_MakeAvailable(glew)
 add_compile_definitions(GLEW_STATIC)
 
 # glfw
