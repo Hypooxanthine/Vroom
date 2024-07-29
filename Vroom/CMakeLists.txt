@@ -2,108 +2,103 @@
 
 set(DART_TESTING_ENABLED OFF)
 
+# ----- Project definition -----
+
 project(Vroom)
 
 if (POLICY CMP0072)
     cmake_policy (SET CMP0072 NEW)
 endif(POLICY CMP0072)
-find_package(OpenGL REQUIRED)
+
+# ----- Dependency lib directories -----
+
+include(FetchContent)
+
+# glm
+FetchContent_Declare(
+    glm
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+)
+
+# spdlog
+FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG        v1.x
+)
+
+# entt
+FetchContent_Declare(
+    EnTT
+    GIT_REPOSITORY https://github.com/skypjack/entt.git
+)
+
+# glew
+FetchContent_Declare(
+    glew
+    GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
+    GIT_TAG        origin/master
+)
+add_compile_definitions(GLEW_STATIC)
+
+# glfw
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG master
+)
+
+FetchContent_MakeAvailable(glm spdlog EnTT glew glfw)
+
+# Grouping the libraries
+set(LIBRARIES 
+    ${OPENGL_LIBRARY}
+    glm::glm
+    spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>
+    EnTT::EnTT
+    libglew_static
+    glfw
+)
+
+# ----- Project directories -----
 
 # Project directories
-set(SOURCE_DIR src)
+set(SOURCE_DIR  src)
 set(INCLUDE_DIR include)
+set(VENDOR_DIR  vendor)
 
-# Headers
-file(GLOB_RECURSE PROJECT_HEADERS ${INCLUDE_DIR}/*.h)
+# ----- Project files -----
 
-# Implementation
-set(STB_IMAGE_IMPL ${DEPENDENCIES}/stb_image/src/stb_image.cpp)
-set(PROJECT_IMPL
-    ${SOURCE_DIR}/Core/Application.cpp
-    ${SOURCE_DIR}/Core/Window.cpp
+# Header files
+file(GLOB_RECURSE PROJECT_HEADERS   ${INCLUDE_DIR}/*.h)
+file(GLOB_RECURSE VENDOR_HEADERS    ${VENDOR_DIR}/*.h)
+set(HEADERS                         ${VENDOR_HEADERS} ${PROJECT_HEADERS})
 
-    ${SOURCE_DIR}/Event/GLFWEventsConverter.cpp
-    ${SOURCE_DIR}/Event/Trigger/Trigger.cpp
-    ${SOURCE_DIR}/Event/Trigger/TriggerManager.cpp
-    ${SOURCE_DIR}/Event/Trigger/TriggerBinder.cpp
-    ${SOURCE_DIR}/Event/CustomEvent/CustomEventManager.cpp
-    ${SOURCE_DIR}/Event/CustomEvent/CustomEventBinder.cpp
+# Source files
+file(GLOB_RECURSE VENDOR_IMPL   ${VENDOR_DIR}/*.cpp)
+file(GLOB_RECURSE PROJECT_IMPL  ${SOURCE_DIR}/*.cpp)
+set(SOURCES                     ${VENDOR_IMPL} ${PROJECT_IMPL})
 
-    ${SOURCE_DIR}/Render/Renderer.cpp
-    ${SOURCE_DIR}/Render/Abstraction/IndexBuffer.cpp
-    ${SOURCE_DIR}/Render/Abstraction/Shader.cpp
-    ${SOURCE_DIR}/Render/Abstraction/ComputeShader.cpp
-    ${SOURCE_DIR}/Render/Abstraction/Texture2D.cpp
-    ${SOURCE_DIR}/Render/Abstraction/ImageTexture.cpp
-    ${SOURCE_DIR}/Render/Abstraction/VertexArray.cpp
-    ${SOURCE_DIR}/Render/Abstraction/VertexBuffer.cpp
-    ${SOURCE_DIR}/Render/Abstraction/VertexBufferLayout.cpp
-    ${SOURCE_DIR}/Render/Abstraction/ShaderStorageBufferObject.cpp
-    ${SOURCE_DIR}/Render/Abstraction/DynamicSSBO.cpp
-    ${SOURCE_DIR}/Render/Abstraction/FrameBuffer.cpp
-    ${SOURCE_DIR}/Render/Abstraction/RenderBuffer.cpp
-    ${SOURCE_DIR}/Render/RenderObject/RenderMesh.cpp
-    ${SOURCE_DIR}/Render/Camera/CameraBasic.cpp
-    ${SOURCE_DIR}/Render/Camera/PerspectiveCameraBasic.cpp
-    ${SOURCE_DIR}/Render/Camera/FirstPersonCamera.cpp
-    ${SOURCE_DIR}/Render/Clustering/Cluster.cpp
-    ${SOURCE_DIR}/Render/Clustering/ClusteredLights.cpp
-    ${SOURCE_DIR}/Render/Clustering/LightRegistry.cpp
+# ----- Binaries building -----
+add_library(Vroom                   STATIC  ${SOURCES} ${HEADERS})
+target_include_directories(Vroom    PUBLIC  ${VENDOR_DIR} ${INCLUDE_DIR})
+target_link_libraries(Vroom                 ${LIBRARIES})
 
-    ${SOURCE_DIR}/Scene/Scene.cpp
-    ${SOURCE_DIR}/Scene/Entity.cpp
-    ${SOURCE_DIR}/Scene/Components/MeshComponent.cpp
-    ${SOURCE_DIR}/Scene/Components/ScriptComponent.cpp
+# ----- Specific settings -----
 
-    ${SOURCE_DIR}/Asset/StaticAsset/StaticAsset.cpp
-    ${SOURCE_DIR}/Asset/StaticAsset/MeshAsset.cpp
-    ${SOURCE_DIR}/Asset/StaticAsset/TextureAsset.cpp
-    ${SOURCE_DIR}/Asset/StaticAsset/MaterialAsset.cpp
-    ${SOURCE_DIR}/Asset/StaticAsset/ComputeShaderAsset.cpp
-    ${SOURCE_DIR}/Asset/StaticAsset/ShaderAsset.cpp
-    ${SOURCE_DIR}/Asset/AssetInstance/AssetInstance.cpp
-    ${SOURCE_DIR}/Asset/AssetInstance/MeshInstance.cpp
-    ${SOURCE_DIR}/Asset/AssetInstance/TextureInstance.cpp
-    ${SOURCE_DIR}/Asset/AssetInstance/MaterialInstance.cpp
-    ${SOURCE_DIR}/Asset/AssetInstance/ComputeShaderInstance.cpp
-    ${SOURCE_DIR}/Asset/AssetInstance/ShaderInstance.cpp
-    ${SOURCE_DIR}/Asset/AssetData/MeshData.cpp
-    ${SOURCE_DIR}/Asset/AssetData/MaterialData.cpp
-    ${SOURCE_DIR}/Asset/AssetData/TextureData.cpp
-    ${SOURCE_DIR}/Asset/Parsing/MaterialParsing.cpp
+# Visual Studio
+if (CMAKE_GENERATOR MATCHES "Visual Studio")
+    # Grouping project files
+    source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${PROJECT_IMPL} ${HEADERS})
+endif()
 
-    ${SOURCE_DIR}/PublicInterfaces/WindowPublicInterface.cpp
-)
+# Compile options
+if (MSVC)
+    target_compile_options(Vroom PRIVATE /MP)
+endif()
 
-set(SOURCES
-    ${STB_IMAGE_IMPL}
-    ${PROJECT_IMPL}
-)
-
-set(INCLUDES
-    ${INCLUDE_DIR}
-    ${LIBS_INCLUDES}
-)
-
-include_directories(Vroom PUBLIC 
-    ${INCLUDES}
-)
-
-add_library(Vroom STATIC ${SOURCES} ${PROJECT_HEADERS})
-
-add_definitions(-D GLEW_STATIC)
-
-target_link_libraries(Vroom
-    ${OPENGL_LIBRARY}
-    ${GLFW_LIBRARY}
-    ${GLEW_LIBRARY}
-)
+# ----- Testing -----
 
 add_subdirectory("tests")
 
 include(CTest)
-
-# Visual Studio specific settings
-if (CMAKE_GENERATOR MATCHES "Visual Studio")
-    source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${PROJECT_IMPL} ${PROJECT_HEADERS})
-endif()

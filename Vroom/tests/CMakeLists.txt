@@ -36,9 +36,6 @@ enable_testing()
 
 target_link_libraries(VroomTests
     Vroom
-    ${OPENGL_LIBRARY}
-    ${GLFW_LIBRARY}
-    ${GLEW_LIBRARY}
     GTest::gtest_main
 )
 
