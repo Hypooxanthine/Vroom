@@ -19,6 +19,7 @@ FetchContent_Declare(
     glm
     GIT_REPOSITORY https://github.com/g-truc/glm.git
 )
+FetchContent_MakeAvailable(glm)
 
 # spdlog
 FetchContent_Declare(
@@ -26,29 +27,35 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/gabime/spdlog.git
     GIT_TAG        v1.x
 )
+FetchContent_MakeAvailable(spdlog)
 
 # entt
 FetchContent_Declare(
     EnTT
     GIT_REPOSITORY https://github.com/skypjack/entt.git
 )
+FetchContent_MakeAvailable(EnTT)
 
 # glew
-FetchContent_Declare(
-    glew
-    GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
-    GIT_TAG        origin/master
-)
+if (NOT UNIX) # For unix systems, glew must be installed via package manager
+    FetchContent_Declare(
+        glew
+        GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
+        GIT_TAG        origin/master
+    )
+    FetchContent_MakeAvailable(glew)
+endif()
 add_compile_definitions(GLEW_STATIC)
 
 # glfw
-FetchContent_Declare(
-    glfw
-    GIT_REPOSITORY https://github.com/glfw/glfw.git
-    GIT_TAG master
-)
-
-FetchContent_MakeAvailable(glm spdlog EnTT glew glfw)
+if (NOT UNIX) # For unix systems, glfw must be installed via package manager
+    FetchContent_Declare(
+        glfw
+        GIT_REPOSITORY https://github.com/glfw/glfw.git
+        GIT_TAG master
+    )
+    FetchContent_MakeAvailable(glfw)
+endif()
 
 # Grouping the libraries
 set(LIBRARIES 
