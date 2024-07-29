@@ -38,7 +38,7 @@ sudo apt install libglew-dev
 mkdir build
 cd build
 cmake ..
-make
+cmake --build . --parallel
 ```
 
 - Launching Sandbox program:
