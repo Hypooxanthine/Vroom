@@ -149,11 +149,20 @@ void Window::setCursorVisible(bool visible)
     if (m_CursorVisible == visible) return;
 
     m_CursorVisible = visible;
-    glfwSetInputMode(m_Handle, GLFW_CURSOR, visible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
     
     // If cursor is visible, we need to update the last mouse position because mouse will suddenly appear at its last visible position
     if (visible)
+    {
+        glfwSetInputMode(m_Handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         glfwGetCursorPos(m_Handle, &lastMouseX, &lastMouseY);
+        glfwSetInputMode(m_Handle, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+    }
+    else
+    {
+        glfwSetInputMode(m_Handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        if (glfwRawMouseMotionSupported())
+            glfwSetInputMode(m_Handle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    }
 }
 
 void Window::setKeyRepeatEnabled(bool keyRepeat)
