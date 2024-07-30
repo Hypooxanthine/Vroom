@@ -28,10 +28,12 @@ You can also build the project by opening the root folder on VS Code, and use th
 
 > **_NOTE:_**  Vroom is actively developped for the Windows platform, but I try to keep it compatible with Linux as much as possible. Vroom may not be fully functional on Linux.
 
-- Install required dependencies:
+Install required dependencies:
 ```bash
 sudo apt install libglfw3-dev
 ```
+
+#### CMake/Make
 
 - In repository root folder, open a terminal and type:
 ```bash
@@ -45,6 +47,14 @@ cmake --build . --parallel
 ```bash
 cd Sandbox # Don't use ./Sandbox/Sandbox directly because the program won't be able to load resource files.
 ./Sandbox
+```
+
+#### VS Code
+
+You can also build the project by opening the root folder on VS Code, and use the "CMake" and "CMake Tools" VS Code extensions. You might also need to install the [Ninja build system](https://github.com/ninja-build/ninja) if it is not already installed on your system:
+
+```bash
+sudo apt install ninja-build
 ```
 
 ## External libraries
@@ -66,3 +76,4 @@ cd Sandbox # Don't use ./Sandbox/Sandbox directly because the program won't be a
 ## Known problems
 
 - Unbinding trigger and custom event inputs is buggy.
+- On my Ubuntu system, mouse movement is not detected when the cursor input mode is set to GLFW_CURSOR_DISABLED.
