@@ -36,7 +36,8 @@ namespace vrm
 {
 
 Renderer::Renderer()
-    : m_ScreenQuadVBO(SCREEN_QUAD_VERTICES, 16 * sizeof(float)), m_ScreenQuadIBO(SCREEN_QUAD_INDICES, 6)
+    : m_ViewportChanged(true), // So that we create the frame buffers on the first frame.
+    m_ScreenQuadVBO(SCREEN_QUAD_VERTICES, 16 * sizeof(float)), m_ScreenQuadIBO(SCREEN_QUAD_INDICES, 6)
 {
     // Initializing frame buffering data.
     m_ScreenShader = Application::Get().getAssetManager().getAsset<ShaderAsset>("Resources/Engine/Shader/ScreenShader/RenderShader_Screen.asset");
@@ -56,61 +57,73 @@ Renderer::~Renderer()
 {
 }
 
-void Renderer::beginScene(const Scene& scene)
+void Renderer::beginScene(const CameraBasic& camera)
 {
     if (m_ViewportChanged)
     {
-        m_FrameBuffer.create(m_ViewportSize.x, m_ViewportSize.y);
+        FrameBuffer::Specification spec = {
+            .onScreen = false,
+            .width = static_cast<int>(m_ViewportSize.x),
+            .height = static_cast<int>(m_ViewportSize.y),
+            .useBlending = true,
+            .useDepthTest = true,
+            .clearColor = { 0.1f, 0.1f, 0.1f, 1.f }
+        };
+
+        m_SceneFrameBuffer.create(spec);
+
+        spec = {
+            .onScreen = true,
+            .useBlending = false,
+            .useDepthTest = false,
+            .clearColor = { 1.f, 1.f, 1.f, 1.f }
+        };
+
+        m_ScreenFrameBuffer.create(spec);
+
         GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
         m_ViewportChanged = false;
     }
 
-    m_Camera = &scene.getCamera();
+    m_Camera = &camera;
 
     m_LightRegistry.beginFrame();
 }
 
 void Renderer::endScene()
 {
-    // Setting up lights.
+    // Setting up lights
     m_LightRegistry.endFrame();
     
-    // Clustered shading.
+    // Clustered shading
     m_ClusteredLights.setupClusters({ 12, 12, 24 }, *m_Camera);
     m_ClusteredLights.processLights(*m_Camera);
 
-    // First draw pass on frame buffer.
-    m_FrameBuffer.bind();
-        GLCall(glClearColor(0.1f, 0.1f, 0.1f, 1.f));
-        GLCall(glEnable(GL_DEPTH_TEST));
-        GLCall(glEnable(GL_BLEND));
-        GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+    /** ----- First draw pass on scene frame buffer ----- */
+    m_SceneFrameBuffer.bind();
+    m_SceneFrameBuffer.clearColorBuffer();
 
-        // Drawing meshes.
-        for (const auto& mesh : m_Meshes)
-        {
-            drawMesh(mesh.mesh, mesh.model);
-        }
+    // Drawing meshes
+    for (const auto& mesh : m_Meshes)
+    {
+        drawMesh(mesh.mesh, mesh.model);
+    }
 
-    // Second draw pass on screen.
-    m_FrameBuffer.unbind();
-        GLCall(glClearColor(1.f, 1.f, 1.f, 1.f));
-        GLCall(glClear(GL_COLOR_BUFFER_BIT));
+    /** ----- Second draw pass on screen frame buffer ----- */
+    m_ScreenFrameBuffer.bind();
+    m_ScreenFrameBuffer.clearColorBuffer();
 
-        const auto& screenShader = m_ScreenShader.getStaticAsset()->getShader();
-        screenShader.bind();
-        m_ScreenQuadVAO.bind();
-        GLCall(glDisable(GL_DEPTH_TEST));
-        GLCall(glDisable(GL_BLEND));
-        m_FrameBuffer.getTexture().bind(0);
-        m_ScreenQuadIBO.bind();
-        screenShader.setUniform1i("u_ScreenTexture", 0);
+    const auto& screenShader = m_ScreenShader.getStaticAsset()->getShader();
+    screenShader.bind();
+    m_ScreenQuadVAO.bind();
+    m_SceneFrameBuffer.getTexture().bind(0);
+    m_ScreenQuadIBO.bind();
+    screenShader.setUniform1i("u_ScreenTexture", 0);
 
-        // Drawing screen quad.
-        GLCall(glDrawElements(GL_TRIANGLES, m_ScreenQuadIBO.getCount(), GL_UNSIGNED_INT, nullptr));
+    // Drawing screen quad
+    GLCall(glDrawElements(GL_TRIANGLES, m_ScreenQuadIBO.getCount(), GL_UNSIGNED_INT, nullptr));
 
-    // Clearing data for next frame.
+    // Clearing data for next frame
     m_Camera = nullptr;
     m_Meshes.clear();
 }

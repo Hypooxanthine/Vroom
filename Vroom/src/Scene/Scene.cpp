@@ -61,7 +61,7 @@ void Scene::update(float dt)
 
 void Scene::render()
 {
-    getApplication().getRenderer().beginScene(*this);
+    getApplication().getRenderer().beginScene(getCamera());
 
     auto& renderer = m_Application->getRenderer();
     

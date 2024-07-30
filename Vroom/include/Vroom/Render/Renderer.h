@@ -51,7 +51,7 @@ public:
 	 * @brief Has to be called before any rendering of current frame.
 	 * 
 	 */
-	void beginScene(const Scene& scene);
+	void beginScene(const CameraBasic& camera);
 
 	/**
 	 * @brief Has to be called after any rendering scene.
@@ -130,7 +130,7 @@ private:
 	};
 
 private:
-	bool m_ViewportChanged = false;
+	bool m_ViewportChanged;
 	glm::vec<2, unsigned int> m_ViewportOrigin = { 0, 0 };
 	glm::vec<2, unsigned int> m_ViewportSize = { 0, 0 };
 
@@ -138,7 +138,7 @@ private:
 	VertexBuffer m_ScreenQuadVBO;
 	VertexBufferLayout m_ScreenQuadLayout;
 	IndexBuffer m_ScreenQuadIBO;
-	FrameBuffer m_FrameBuffer;
+	FrameBuffer m_SceneFrameBuffer, m_ScreenFrameBuffer;
 	ShaderInstance m_ScreenShader;
 
 	const CameraBasic* m_Camera = nullptr;
