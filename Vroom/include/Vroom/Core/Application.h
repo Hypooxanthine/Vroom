@@ -12,6 +12,8 @@
 
 #include "Vroom/Asset/AssetManager.h"
 
+#include "Vroom/Render/Abstraction/FrameBuffer.h"
+
 namespace vrm
 {
 
@@ -151,6 +153,20 @@ public:
      */
     inline Renderer& getRenderer() { return *m_Renderer; }
 
+    /**
+     * @brief Get the frame buffer of the game.
+     * 
+     * @return const FrameBuffer& The frame buffer of the game.
+     */
+    inline FrameBuffer& getGameFrameBuffer() { return *m_GameFrameBuffer; }
+
+    /**
+     * @brief Get the frame buffer of the game.
+     * 
+     * @return const FrameBuffer& The frame buffer of the game.
+     */
+    inline const FrameBuffer& getGameFrameBuffer() const { return *m_GameFrameBuffer; }
+
 private:
     
     /**
@@ -201,6 +217,8 @@ private:
     std::chrono::high_resolution_clock::time_point m_LastFrameTimePoint;
 
     bool m_PendingKilled = false;
+
+    std::unique_ptr<FrameBuffer> m_GameFrameBuffer;
 };
 
 } // namespace vrm

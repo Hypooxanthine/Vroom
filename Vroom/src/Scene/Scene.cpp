@@ -32,11 +32,7 @@ void Scene::init(Application* app)
 {
     m_Application = app;
 
-    getApplication().createCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
-        .bindInput(vrm::Event::Type::WindowsResized)
-        .bindCallback([this](const vrm::Event& e) {
-            getApplication().getRenderer().setViewport({ 0.f, 0.f}, { static_cast<float>(e.newWidth), static_cast<float>(e.newHeight) });
-        })
+    getApplication().getCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
         .bindCallback([this](const vrm::Event& e) {
             getCamera().setViewportSize(static_cast<float>(e.newWidth), static_cast<float>(e.newHeight));
         });
@@ -61,9 +57,9 @@ void Scene::update(float dt)
 
 void Scene::render()
 {
-    getApplication().getRenderer().beginScene(getCamera());
-
-    auto& renderer = m_Application->getRenderer();
+    Application& app = getApplication();
+    Renderer& renderer = app.getRenderer();
+    renderer.beginScene(getCamera());
     
     auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent, NameComponent>();
     for (auto entity : viewPointLights)
@@ -86,7 +82,7 @@ void Scene::render()
 
     onRender();
 
-    getApplication().getRenderer().endScene();
+    renderer.endScene(app.getGameFrameBuffer());
 }
 
 void Scene::end()

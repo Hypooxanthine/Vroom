@@ -33,6 +33,29 @@ Application::Application(int argc, char** argv)
     m_Renderer = std::make_unique<Renderer>();
     m_Renderer->setViewport({ 0, 0 }, { m_Window->getWidth(), m_Window->getHeight()});
 
+    m_GameFrameBuffer = std::make_unique<FrameBuffer>();
+    m_GameFrameBuffer->create({
+        .onScreen = true,
+        .width = m_Window->getWidth(),
+        .height = m_Window->getHeight(),
+        .useBlending = true,
+        .useDepthTest = true,
+        .clearColor = { 0.1f, 0.1f, 0.1f, 1.f }
+    });
+
+    createCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
+        .bindInput(Event::Type::WindowsResized)
+        .bindCallback([this](const vrm::Event& e) {
+            getRenderer().setViewport({ 0.f, 0.f}, { static_cast<float>(e.newWidth), static_cast<float>(e.newHeight) });
+        })
+        .bindCallback([this](const vrm::Event& e) {
+            auto specs = m_GameFrameBuffer->getSpecification();
+            specs.width = e.newWidth;
+            specs.height = e.newHeight;
+
+            m_GameFrameBuffer->create(specs);
+        });
+
     VRM_LOG_TRACE("Vroom application created.");
 }
 

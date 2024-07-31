@@ -7,7 +7,6 @@
 #include "Vroom/Render/Abstraction/VertexBuffer.h"
 #include "Vroom/Render/Abstraction/VertexBufferLayout.h"
 #include "Vroom/Render/Abstraction/IndexBuffer.h"
-#include "Vroom/Render/Abstraction/FrameBuffer.h"
 
 #include "Vroom/Render/Clustering/LightRegistry.h"
 #include "Vroom/Render/Clustering/ClusteredLights.h"
@@ -23,6 +22,7 @@ namespace vrm
 class Application;
 class Scene;
 struct PointLightComponent;
+class FrameBuffer;
 
 /**
  * @brief The renderer is responsible for rendering objects on the scene, taking lights and cameras into consideration.
@@ -55,10 +55,11 @@ public:
 
 	/**
 	 * @brief Has to be called after any rendering scene.
-	 * @warning Everything sent to draw functions need to be still alive when calling endScene.
+	 * 
+	 * @param target The frame buffer to render the scene to.
 	 * 
 	 */
-	void endScene();
+	void endScene(const FrameBuffer& target);
 
 	/**
 	 * @brief Submits a mesh to be drawn.
@@ -130,7 +131,6 @@ private:
 	};
 
 private:
-	bool m_ViewportChanged;
 	glm::vec<2, unsigned int> m_ViewportOrigin = { 0, 0 };
 	glm::vec<2, unsigned int> m_ViewportSize = { 0, 0 };
 
@@ -138,7 +138,6 @@ private:
 	VertexBuffer m_ScreenQuadVBO;
 	VertexBufferLayout m_ScreenQuadLayout;
 	IndexBuffer m_ScreenQuadIBO;
-	FrameBuffer m_SceneFrameBuffer, m_ScreenFrameBuffer;
 	ShaderInstance m_ScreenShader;
 
 	const CameraBasic* m_Camera = nullptr;

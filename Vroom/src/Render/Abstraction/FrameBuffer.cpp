@@ -2,6 +2,9 @@
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 
+namespace vrm
+{
+
 FrameBuffer::FrameBuffer()
 {
     GLCall(glGenFramebuffers(1, &m_RendererID));
@@ -59,7 +62,7 @@ void FrameBuffer::create(const Specification& spec)
     }
     
 
-    m_Texture.create(m_Specification.width, m_Specification.height, Texture2D::Format::RGB);
+    m_Texture.create(m_Specification.width, m_Specification.height, Texture2D::Format::RGBA);
     m_RenderBuffer.create(m_Specification.width, m_Specification.height);
 
     bind();
@@ -81,3 +84,5 @@ void FrameBuffer::clearColorBuffer() const
         
     GLCall(glClear(mask));
 }
+
+} // namespace vrm

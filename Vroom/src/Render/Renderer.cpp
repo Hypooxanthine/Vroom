@@ -11,6 +11,7 @@
 #include "Vroom/Render/Abstraction/VertexBufferLayout.h"
 #include "Vroom/Render/Abstraction/IndexBuffer.h"
 #include "Vroom/Render/Abstraction/Shader.h"
+#include "Vroom/Render/Abstraction/FrameBuffer.h"
 
 #include "Vroom/Render/RawShaderData/SSBOPointLightData.h"
 
@@ -36,8 +37,7 @@ namespace vrm
 {
 
 Renderer::Renderer()
-    : m_ViewportChanged(true), // So that we create the frame buffers on the first frame.
-    m_ScreenQuadVBO(SCREEN_QUAD_VERTICES, 16 * sizeof(float)), m_ScreenQuadIBO(SCREEN_QUAD_INDICES, 6)
+    : m_ScreenQuadVBO(SCREEN_QUAD_VERTICES, 16 * sizeof(float)), m_ScreenQuadIBO(SCREEN_QUAD_INDICES, 6)
 {
     // Initializing frame buffering data.
     m_ScreenShader = Application::Get().getAssetManager().getAsset<ShaderAsset>("Resources/Engine/Shader/ScreenShader/RenderShader_Screen.asset");
@@ -59,38 +59,12 @@ Renderer::~Renderer()
 
 void Renderer::beginScene(const CameraBasic& camera)
 {
-    if (m_ViewportChanged)
-    {
-        FrameBuffer::Specification spec = {
-            .onScreen = false,
-            .width = static_cast<int>(m_ViewportSize.x),
-            .height = static_cast<int>(m_ViewportSize.y),
-            .useBlending = true,
-            .useDepthTest = true,
-            .clearColor = { 0.1f, 0.1f, 0.1f, 1.f }
-        };
-
-        m_SceneFrameBuffer.create(spec);
-
-        spec = {
-            .onScreen = true,
-            .useBlending = false,
-            .useDepthTest = false,
-            .clearColor = { 1.f, 1.f, 1.f, 1.f }
-        };
-
-        m_ScreenFrameBuffer.create(spec);
-
-        GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
-        m_ViewportChanged = false;
-    }
-
     m_Camera = &camera;
 
     m_LightRegistry.beginFrame();
 }
 
-void Renderer::endScene()
+void Renderer::endScene(const FrameBuffer& target)
 {
     // Setting up lights
     m_LightRegistry.endFrame();
@@ -99,29 +73,16 @@ void Renderer::endScene()
     m_ClusteredLights.setupClusters({ 12, 12, 24 }, *m_Camera);
     m_ClusteredLights.processLights(*m_Camera);
 
-    /** ----- First draw pass on scene frame buffer ----- */
-    m_SceneFrameBuffer.bind();
-    m_SceneFrameBuffer.clearColorBuffer();
+    // Rendering to the requested target
+    target.bind();
+    target.clearColorBuffer();
+    GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
 
     // Drawing meshes
     for (const auto& mesh : m_Meshes)
     {
         drawMesh(mesh.mesh, mesh.model);
     }
-
-    /** ----- Second draw pass on screen frame buffer ----- */
-    m_ScreenFrameBuffer.bind();
-    m_ScreenFrameBuffer.clearColorBuffer();
-
-    const auto& screenShader = m_ScreenShader.getStaticAsset()->getShader();
-    screenShader.bind();
-    m_ScreenQuadVAO.bind();
-    m_SceneFrameBuffer.getTexture().bind(0);
-    m_ScreenQuadIBO.bind();
-    screenShader.setUniform1i("u_ScreenTexture", 0);
-
-    // Drawing screen quad
-    GLCall(glDrawElements(GL_TRIANGLES, m_ScreenQuadIBO.getCount(), GL_UNSIGNED_INT, nullptr));
 
     // Clearing data for next frame
     m_Camera = nullptr;
@@ -205,13 +166,11 @@ void Renderer::setViewport(const glm::vec<2, unsigned int>& o, const glm::vec<2,
 void Renderer::setViewportOrigin(const glm::vec<2, unsigned int>& o)
 {
     m_ViewportOrigin = o;
-    m_ViewportChanged = true;
 }
 
 void Renderer::setViewportSize(const glm::vec<2, unsigned int>& s)
 {
     m_ViewportSize = s;
-    m_ViewportChanged = true;
 }
 
 } // namespace vrm
