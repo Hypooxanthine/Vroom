@@ -3,7 +3,7 @@
 namespace vrm
 {
 
-class Event;
+struct Event;
 
 class Layer
 {
