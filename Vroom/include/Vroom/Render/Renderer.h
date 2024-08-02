@@ -27,12 +27,6 @@ class FrameBuffer;
 /**
  * @brief The renderer is responsible for rendering objects on the scene, taking lights and cameras into consideration.
  * 
- * @todo Point lights data. Currently, point lights radius and intensity are sent to the shaders but are not used. It only needs to be implemented in the shading model shader.
- * 
- * @todo  Point lights SSBO optimization. We should probably save the data of lights for the next frame, because if no light is added/removed,
- * we don't need to recreate the SSBO from scratch. And if some light states were only changed, we could only update the SSBO with the new data.
- * 
- * @todo Forward+ rendering. Currently arbitrary number of lights are supported, but the performance is not the best because each object is taking all lights into consideration. Forward+ rendering would help with this be dividing the view space into clusters, and only taking into consideration the lights that affect the cluster. Then, when rendering an object from a cluster, only the lights that affect that cluster are taken into consideration.
  */
 class Renderer
 {
