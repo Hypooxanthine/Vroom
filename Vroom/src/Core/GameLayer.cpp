@@ -5,11 +5,11 @@
 namespace vrm
 {
 
-void GameLayer::onAdd()
+void GameLayer::onInit()
 {
 }
 
-void GameLayer::onRemove()
+void GameLayer::onEnd()
 {
 }
 

@@ -11,11 +11,15 @@ public:
     GameLayer() = default;
     ~GameLayer() = default;
 
-    void onAdd() override;
-    void onRemove() override;
+protected:
+    void onInit() override;
+    void onEnd() override;
     void onUpdate(float dt) override;
     void onRender() override;
     void onEvent(Event& e) override;
+
+private:
+
 };
 
 } // namespace vr
