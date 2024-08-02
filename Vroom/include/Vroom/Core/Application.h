@@ -6,14 +6,8 @@
 
 #include <GL/glew.h>
 
-#include "Vroom/Event/Trigger/TriggerManager.h"
-#include "Vroom/Event/CustomEvent/CustomEventManager.h"
-
 #include "Vroom/PublicInterfaces/WindowPublicInterface.h"
 
-#include "Vroom/Asset/AssetManager.h"
-
-#include "Vroom/Render/Abstraction/FrameBuffer.h"
 
 namespace vrm
 {
@@ -22,6 +16,8 @@ class Window;
 class Renderer;
 class Scene;
 class Layer;
+class GameLayer;
+class AssetManager;
 
 /**
  * @short The core class of the engine.
@@ -66,110 +62,63 @@ public:
      */
     void exit();
 
-    inline AssetManager& getAssetManager() { return *m_AssetManager; }
-    inline const AssetManager& getAssetManager() const { return *m_AssetManager; }
-
-    void pushLayer(std::unique_ptr<Layer>&& layer);
-
     /**
-     * @brief Create a trigger.
-     * 
-     * @param triggerName The name of the trigger.
-     * @return TriggerBinder The binder of the trigger. Handful for binding inputs and callbacks to a trigger after its creation.
-     * @see @ref triggers
-     */
-    TriggerBinder createTrigger(const std::string& triggerName);
-
-    /**
-     * @brief Get the trigger binder of a specific trigger.
-     * 
-     * @param triggerName The name of the trigger.
-     * @return TriggerBinder The binder of the trigger. Handful for binding inputs and callbacks to a trigger after its creation.
-     */
-    TriggerBinder getTrigger(const std::string& triggerName);
-
-    /**
-     * @brief Create a custom event.
-     * 
-     * @param customEventName The name of the custom event.
-     * @return CustomEventBinder The binder of the trigger. Handful for binding inputs and callbacks to a custom event after its creation.
-     * @see @ref custom_events
-     */
-    CustomEventBinder createCustomEvent(const std::string& customEventName);
-
-    /**
-     * @brief Get the custom event binder of a specific custom event.
-     * 
-     * @param customEventName The name of the trigger.
-     * @return CustomEventBinder The binder of the trigger. Handful for binding inputs and callbacks to a custom event after its creation.
-     * @see @ref custom_events
-     */
-    CustomEventBinder getCustomEvent(const std::string& customEventName);
-
-    /**
-     * @brief Loads a scene into the application. Scene will start at the beginning of the next frame.
-     * 
-     * @tparam S Scene type. Must be a child of Scene type.
-     * @tparam Args Argument types taken by the constructor of S that needs to be called.
-     * @param args Arguments for constructing an instance of S.
-     */
-    template <typename S, typename... Args>
-    void loadScene(Args&&... args)
-    {
-        std::unique_ptr<S> scene;
-        scene = std::make_unique<S>(std::forward<Args>(args)...);
-
-        loadScene_Internal(std::move(scene));
-    }
-
-    /**
-     * @brief Get the window object.
-     * 
-     * @return WindowPublicInterface The public interface of the window.
-     */
-    inline WindowPublicInterface getWindow() { return WindowPublicInterface(*m_Window); }
-
-    /**
-     * @brief Get the loaded scene.
-     * 
-     * @return const Scene& The loaded scene.
-     */
-    inline const Scene& getScene() const { return *m_CurrentScene; }
-
-    /**
-     * @brief Get the loaded scene.
-     * 
-     * @return Scene& The loaded scene.
-     */
-    inline Scene& getScene() { return *m_CurrentScene; }
-
-    /**
-     * @brief Get the renderer object.
+     * @brief Get the renderer.
+     * @todo Make this a singleton system.
      * 
      * @return Renderer& The renderer object.
      */
     inline const Renderer& getRenderer() const { return *m_Renderer; }
 
     /**
-     * @brief Get the renderer object.
+     * @brief Get the renderer.
      * 
      * @return Renderer& The renderer object.
      */
     inline Renderer& getRenderer() { return *m_Renderer; }
 
     /**
-     * @brief Get the frame buffer of the game.
+     * @brief Get the asset manager.
+     * @todo Make this a singleton system.
      * 
-     * @return const FrameBuffer& The frame buffer of the game.
+     * @return AssetManager& The asset manager object.
      */
-    inline FrameBuffer& getGameFrameBuffer() { return *m_GameFrameBuffer; }
+    inline AssetManager& getAssetManager() { return *m_AssetManager; }
 
     /**
-     * @brief Get the frame buffer of the game.
+     * @brief Get the asset manager.
      * 
-     * @return const FrameBuffer& The frame buffer of the game.
+     * @return AssetManager& The asset manager object.
      */
-    inline const FrameBuffer& getGameFrameBuffer() const { return *m_GameFrameBuffer; }
+    inline const AssetManager& getAssetManager() const { return *m_AssetManager; }
+
+    /**
+     * @brief Push a layer to the application.
+     * 
+     * @param layer The layer to push.
+     */
+    void pushLayer(std::unique_ptr<Layer>&& layer);
+
+    /**
+     * @brief Get the game layer.
+     * 
+     * @return GameLayer& The game layer.
+     */
+    inline GameLayer& getGameLayer() { return *m_GameLayer; }
+
+    /**
+     * @brief Get the game layer.
+     * 
+     * @return GameLayer& The game layer object.
+     */
+    inline const GameLayer& getGameLayer() const { return *m_GameLayer; }
+
+    /**
+     * @brief Get the window.
+     * 
+     * @return WindowPublicInterface The public interface of the window.
+     */
+    inline WindowPublicInterface getWindow() { return WindowPublicInterface(*m_Window); }
 
 private:
     
@@ -180,12 +129,6 @@ private:
      * @return false Otherwise.
      */
     bool initGLFW();
-    
-    /**
-     * @brief Check if the next scene is ready to be loaded.
-     * 
-     */
-    void checkNextScene();
 
     /**
      * @brief Update step of the application.
@@ -199,31 +142,24 @@ private:
      */
     void draw();
 
-    /**
-     * @brief Load a scene into the application.
-     * 
-     * @param scene The scene to load.
-     */
-    void loadScene_Internal(std::unique_ptr<Scene>&& scene);
-
 private:
     static Application* s_Instance;
 
     std::unique_ptr<Window> m_Window;
-    std::unique_ptr<Renderer> m_Renderer;
-    std::stack<std::unique_ptr<Layer>> m_LayerStack;
-    std::unique_ptr<Scene> m_CurrentScene, m_NextScene;
 
+    // Systems
+    std::unique_ptr<Renderer> m_Renderer;
     std::unique_ptr<AssetManager> m_AssetManager;
 
-    TriggerManager m_TriggerManager;
-    CustomEventManager m_CustomEventManager;
+    // Layers
+    /// @todo A LayerStack class will be needed since reverse iteration is required for rendering.
+    std::stack<std::unique_ptr<Layer>> m_LayerStack;
+    GameLayer* m_GameLayer;
 
     std::chrono::high_resolution_clock::time_point m_LastFrameTimePoint;
 
     bool m_PendingKilled = false;
 
-    std::unique_ptr<FrameBuffer> m_GameFrameBuffer;
 };
 
 } // namespace vrm
