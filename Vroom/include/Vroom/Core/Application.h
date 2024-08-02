@@ -2,9 +2,11 @@
 
 #include <memory>
 #include <chrono>
+#include <stack>
 
 #include <GL/glew.h>
 
+#include "Vroom/Core/Layer.h"
 #include "Vroom/Event/Trigger/TriggerManager.h"
 #include "Vroom/Event/CustomEvent/CustomEventManager.h"
 
@@ -66,6 +68,8 @@ public:
 
     inline AssetManager& getAssetManager() { return *m_AssetManager; }
     inline const AssetManager& getAssetManager() const { return *m_AssetManager; }
+
+    void pushLayer(std::unique_ptr<Layer>&& layer);
 
     /**
      * @brief Create a trigger.
@@ -207,6 +211,7 @@ private:
 
     std::unique_ptr<Window> m_Window;
     std::unique_ptr<Renderer> m_Renderer;
+    std::stack<std::unique_ptr<Layer>> m_LayerStack;
     std::unique_ptr<Scene> m_CurrentScene, m_NextScene;
 
     std::unique_ptr<AssetManager> m_AssetManager;

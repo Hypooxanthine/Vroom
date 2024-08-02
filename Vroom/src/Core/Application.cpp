@@ -100,6 +100,11 @@ void Application::exit()
     m_PendingKilled = true;
 }
 
+void Application::pushLayer(std::unique_ptr<Layer>&& layer)
+{
+    m_LayerStack.push(std::move(layer));
+}
+
 TriggerBinder Application::createTrigger(const std::string& triggerName)
 {
     return m_TriggerManager.createTrigger(triggerName);
