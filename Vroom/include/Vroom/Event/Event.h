@@ -49,6 +49,8 @@ struct Event
         KeyCode keyCode;
         MouseCode mouseCode;
     };
+
+    bool handled = false;
     
 };
 
