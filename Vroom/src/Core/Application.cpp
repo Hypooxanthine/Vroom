@@ -4,6 +4,7 @@
 #include "Vroom/Event/GLFWEventsConverter.h"
 #include "Vroom/Core/Window.h"
 #include "Vroom/Render/Renderer.h"
+#include "Vroom/Core/GameLayer.h"
 #include "Vroom/Scene/Scene.h"
 
 namespace vrm
@@ -32,6 +33,9 @@ Application::Application(int argc, char** argv)
 
     m_Renderer = std::make_unique<Renderer>();
     m_Renderer->setViewport({ 0, 0 }, { m_Window->getWidth(), m_Window->getHeight()});
+
+    // Pushing the game layer
+    pushLayer(std::make_unique<GameLayer>());
 
     m_GameFrameBuffer = std::make_unique<FrameBuffer>();
     m_GameFrameBuffer->create({

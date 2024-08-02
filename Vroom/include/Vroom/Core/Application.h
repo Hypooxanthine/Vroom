@@ -6,7 +6,6 @@
 
 #include <GL/glew.h>
 
-#include "Vroom/Core/Layer.h"
 #include "Vroom/Event/Trigger/TriggerManager.h"
 #include "Vroom/Event/CustomEvent/CustomEventManager.h"
 
@@ -22,6 +21,7 @@ namespace vrm
 class Window;
 class Renderer;
 class Scene;
+class Layer;
 
 /**
  * @short The core class of the engine.
