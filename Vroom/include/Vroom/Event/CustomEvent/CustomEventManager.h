@@ -14,20 +14,67 @@
 namespace vrm
 {
 
+/**
+ * @brief Custom event manager class.
+ * 
+ * This class is used to manage custom events. It allows to create, bind and trigger custom events.
+ * 
+ */
 class CustomEventManager
 {
 public:
     CustomEventManager() = default;
 
+    /**
+     * @brief Check if the event triggers any custom event and trigger them.
+     * 
+     * @param e Event to check.
+     */
     void check(Event& e);
 
+    /**
+     * @brief Create a new custom event.
+     * 
+     * @param customEventName Name of the custom event.
+     * @return CustomEventBinder Custom event binder to bind inputs and callbacks to the custom event.
+     */
     CustomEventBinder createCustomEvent(const std::string& customEventName);
+
+    /**
+     * @brief Get the custom event binder for the given custom event.
+     * 
+     * @param customEventName Name of the custom event.
+     * @return CustomEventBinder Custom event binder to bind inputs and callbacks to the custom event.
+     */
     CustomEventBinder getBinder(const std::string& customEventName);
 
+    /**
+     * @brief Bind a callback to the given custom event.
+     * 
+     * @param customEventName Name of the custom event.
+     * @param cb Callback to bind.
+     * @return CustomEventBinder Custom event binder to bind inputs and callbacks to the custom event.
+     */
     CustomEventBinder bindCallback(const std::string& customEventName, const CustomEventCallback& cb);
 
+    /**
+     * @brief Binds an input to the custom event. Since no code is provided, all inputs of the given type will trigger the custom event, regardless of their code.
+     * 
+     * @param customEventName Name of the custom event.
+     * @param inputType Input type to bind.
+     * @return CustomEventBinder Custom event binder to bind inputs and callbacks to the custom event.
+     */
     inline CustomEventBinder bindInput(const std::string& customEventName, Event::Type inputType) { return bindInput(customEventName, inputType, 0); }
 
+    /**
+     * @brief Binds an input to the custom event.
+     * 
+     * @tparam C Type of the input code.
+     * @param customEventName Name of the custom event.
+     * @param inputType Input type to bind.
+     * @param inputCode Input code to bind.
+     * @return CustomEventBinder Custom event binder to bind inputs and callbacks to the custom event.
+     */
     template <typename C>
     CustomEventBinder bindInput(const std::string& customEventName, Event::Type inputType, C inputCode)
     {
@@ -41,8 +88,23 @@ public:
         return getBinder(customEventName);
     }
 
+    /**
+     * @brief Unbind an input from the custom event. Since no code is provided, all inputs of the given type will be unbound.
+     * 
+     * @param customEventName Name of the custom event.
+     * @param inputType Input type to unbind.
+     * @return CustomEventBinder Custom event binder to bind inputs and callbacks to the custom event.
+     */
     inline CustomEventBinder unbindInput(const std::string& customEventName, Event::Type inputType) { return unbindInput(customEventName, inputType, 0); }
 
+    /**
+     * @brief Unbind an input from the custom event.
+     * 
+     * @param customEventName Name of the custom event.
+     * @param inputType Input type to unbind.
+     * @param inputCode Input code to unbind.
+     * @return CustomEventBinder Custom event binder to bind inputs and callbacks to the custom event.
+     */
     template <typename C>
     CustomEventBinder unbindInput(const std::string& customEventName, Event::Type inputType, C inputCode)
     {

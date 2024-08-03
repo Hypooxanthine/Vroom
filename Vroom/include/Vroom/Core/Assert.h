@@ -16,7 +16,7 @@
     VRM_CRASH_NO_MSG()
 
 /** 
- * @brief Vroom assertion with critical log if failed and application crash.
+ * @brief Vroom assertion. Makes application crash if condition is false.
  */
 #define VRM_ASSERT(x) \
     if(!(x)) \
@@ -25,6 +25,10 @@
         VRM_CRASH_NO_MSG(); \
     }
 
+/**
+ * @brief Vroom assertion with critical log if failed and application crash.
+ * 
+ */
 #define VRM_ASSERT_MSG(x, ...) \
     if(!(x)) \
     { \
@@ -33,7 +37,11 @@
         VRM_CRASH_NO_MSG(); \
     }
 
-#define VRM_DEBUG_ASSERT(x) VRM_ASSERT(x)
+#ifdef VRM_DEBUG
+#   define VRM_DEBUG_ASSERT(x) VRM_ASSERT(x)
+#else
+#   define VRM_DEBUG_ASSERT(x)
+#endif
 
 #ifdef VRM_DEBUG
 #   define VRM_DEBUG_ASSERT_MSG(x, ...) VRM_ASSERT_MSG(x, __VA_ARGS__)

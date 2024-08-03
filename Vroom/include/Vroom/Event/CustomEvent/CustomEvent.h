@@ -27,7 +27,18 @@ class CustomEvent
 public:
     CustomEvent() = default;
 
+    /**
+     * @brief Add a callback to the custom event.
+     * 
+     * @param cb Callback to add.
+     */
     void addCallback(const CustomEventCallback& cb) { m_Callbacks.addCallback(cb); }
+
+    /**
+     * @brief Trigger the custom event. All associated callbacks are triggered.
+     * 
+     * @param e Event to pass to the callbacks.
+     */
     void trigger(const Event& e) { m_Callbacks.triggerAll(e); }
 
 private:

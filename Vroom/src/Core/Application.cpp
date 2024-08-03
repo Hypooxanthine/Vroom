@@ -48,9 +48,9 @@ Application::~Application()
     m_LayerStack.clear(); // Layer destructors called before shutting down the rendering context.
 
     Renderer::Shutdown();
+    AssetManager::Shutdown();
     m_Window.release();
     glfwTerminate();
-    AssetManager::Shutdown();
 }
 
 bool Application::initGLFW()

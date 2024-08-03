@@ -13,6 +13,10 @@ namespace vrm
 
 class Scene;
 
+/**
+ * @brief The game layer of the application.
+ * 
+ */
 class GameLayer : public Layer
 {
 public:

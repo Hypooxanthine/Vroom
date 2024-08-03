@@ -7,6 +7,10 @@
 namespace vrm
 {
 
+/**
+ * @brief Class used to convert GLFW events to Vroom events and vice versa.
+ * 
+ */
 class GLFWEventsConverter
 {
 public:

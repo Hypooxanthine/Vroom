@@ -28,14 +28,29 @@ class Trigger
 public:
     Trigger() = default;
 
+    /**
+     * @brief Add a callback to the trigger.
+     * 
+     * @param cb Callback to add.
+     */
     inline void bindCallback(const TriggerCallback& cb) { m_Callbacks.addCallback(cb); }
 
+    /**
+     * @brief Trigger the trigger. All associated callbacks are triggered.
+     * 
+     * @param value Value to pass to the callbacks (true if activated, false if deactivated).
+     */
     void trigger(bool value);
 
+    /**
+     * @brief Check if the trigger is activated.
+     * 
+     * @return true if the trigger is activated.
+     */
     inline bool isTriggered() const { return m_Triggers > 0; }
 
 private:
-    // The number of triggers currently used
+    // How many times the trigger was activated. If it's 0, the trigger is deactivated.
     uint8_t m_Triggers = 0;
 
     // Callbacks of the trigger.

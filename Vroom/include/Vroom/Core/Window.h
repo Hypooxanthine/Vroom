@@ -155,7 +155,6 @@ public:
     friend void glfwWindowCloseCallback(GLFWwindow* window);
 
 private:
-
     void keyCallback(int key, int scancode, int action, int mods);
     void mouseCallback(int button, int action, int mods);
     void mouseMovedCallback(double xpos, double ypos);
