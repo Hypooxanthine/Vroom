@@ -35,22 +35,19 @@ Application::Application(int argc, char** argv)
     m_Renderer = std::make_unique<Renderer>();
     m_Renderer->setViewport({ 0, 0 }, { m_Window->getWidth(), m_Window->getHeight()});
 
-    // Pushing the game layer
-    auto gameLayerUniquePtr = std::make_unique<GameLayer>();
-    // The game layer should NOT be deleted, since it is the main purpose of the application.
+    // Pushing the game layer and storing it in a pointer (GameLayer is a special layer that can always be accessed)
     /// @todo Make sure the game layer is never deleted.
-    m_GameLayer = gameLayerUniquePtr.get();
-    // We want to initialize the game layer in the run method, so that user can load a scene before the game starts.
-    pushLayer(std::move(gameLayerUniquePtr), false);
+    m_GameLayer = &pushLayer<GameLayer>();
 
     VRM_LOG_TRACE("Vroom application created.");
 }
 
 Application::~Application()
 {
-    /// @todo End all layers.
-    m_GameLayer->end();
-    m_LayerStack.pop();
+    for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
+        it->end();
+    m_LayerStack.clear();
+
     m_Window.release();
     glfwTerminate();
     m_Renderer.release();
@@ -67,9 +64,15 @@ bool Application::initGLFW()
     return true;
 }
 
+void Application::initLayers()
+{
+    for (Layer& layer : m_LayerStack)
+        layer.init();
+}
+
 void Application::run()
 {
-    m_GameLayer->init();
+    initLayers();
 
     while (!m_PendingKilled)
     {
@@ -83,37 +86,32 @@ void Application::exit()
     m_PendingKilled = true;
 }
 
-void Application::pushLayer(std::unique_ptr<Layer>&& layer, bool init)
-{
-    m_LayerStack.push(std::move(layer));
-    if (init)
-        m_LayerStack.top()->init();
-}
-
 void Application::update()
 {
     auto now = std::chrono::high_resolution_clock::now();
     auto dt = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - m_LastFrameTimePoint).count()) / 1'000'000'000.f;
     m_LastFrameTimePoint = now;
 
-    /// @todo Update layers from top to bottom.
-    m_GameLayer->update(dt);
+    // Updating from top to bottom
+    for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
+        it->update(dt);
 
     m_Window->updateEvents();
+
     while (m_Window->hasPendingEvents())
     {
         Event e = m_Window->pollEvent();
         
-        /// @todo Submit the event to layers from top to bottom.
-        m_GameLayer->submitEvent(e);
+        for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
+            it->submitEvent(e);
     }
 
 }
 
 void Application::draw()
 {
-    /// @todo Draw layers from bottom to top.
-    m_GameLayer->render();
+    for (Layer& layer : m_LayerStack)
+        layer.render();
 
     m_Window->swapBuffers();
 }

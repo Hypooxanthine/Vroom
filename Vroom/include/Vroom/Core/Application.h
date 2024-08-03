@@ -6,6 +6,7 @@
 
 #include <GL/glew.h>
 
+#include "Vroom/Core/LayerStack.h"
 #include "Vroom/PublicInterfaces/WindowPublicInterface.h"
 
 
@@ -95,10 +96,21 @@ public:
     /**
      * @brief Push a layer to the application.
      * 
-     * @param layer The layer to push.
-     * @param init If the layer should be initialized.
+     * @tparam L The type of the layer.
+     * @tparam Args The types of the arguments to pass to the layer constructor.
+     * @param args The arguments to pass to the layer constructor.
      */
-    void pushLayer(std::unique_ptr<Layer>&& layer, bool init = true);
+    template <typename L, typename... Args>
+    L& pushLayer(Args&&... args)
+    {
+        std::unique_ptr<L> layer;
+        layer = std::make_unique<L>(std::forward<Args>(args)...);
+        L* layerPtr = layer.get();
+
+        m_LayerStack.push(std::move(layer));
+
+        return *layerPtr;
+    }
 
     /**
      * @brief Get the game layer.
@@ -132,6 +144,12 @@ private:
     bool initGLFW();
 
     /**
+     * @brief Initialize the layers.
+     * 
+     */
+    void initLayers();
+
+    /**
      * @brief Update step of the application.
      * 
      */
@@ -153,8 +171,7 @@ private:
     std::unique_ptr<AssetManager> m_AssetManager;
 
     // Layers
-    /// @todo A LayerStack class will be needed since reverse iteration is required for rendering.
-    std::stack<std::unique_ptr<Layer>> m_LayerStack;
+    LayerStack m_LayerStack;
     GameLayer* m_GameLayer;
 
     std::chrono::high_resolution_clock::time_point m_LastFrameTimePoint;
