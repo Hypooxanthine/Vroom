@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 #include <glm/glm.hpp>
 
@@ -31,10 +32,27 @@ class FrameBuffer;
 class Renderer
 {
 public:
+
 	/**
-	 * @brief Initializes OpenGl settings for the engine.
+	 * @brief Initializes the renderer.
 	 */
-	Renderer();
+	static void Init();
+
+	/**
+	 * @brief Shuts down the renderer.
+	 */
+	static void Shutdown();
+
+	/**
+	 * @brief Gets the renderer instance.
+	 * @return The renderer instance.
+	 */
+	static Renderer& Get();
+
+	Renderer(const Renderer&) = delete;
+	Renderer(Renderer&&) = delete;
+	Renderer& operator=(const Renderer&) = delete;
+	Renderer& operator=(Renderer&&) = delete;
 
 	/**
 	 * @brief Releases GPU memory.
@@ -117,6 +135,13 @@ public:
 	void setViewportSize(const glm::vec<2, unsigned int>& s);
 
 private:
+
+	/**
+	 * @brief Initializes OpenGl settings for the engine.
+	 */
+	Renderer();
+
+private:
 	// Structs to store data to be drawn
 	struct QueuedMesh
 	{
@@ -125,6 +150,8 @@ private:
 	};
 
 private:
+	static std::unique_ptr<Renderer> s_Instance;
+
 	glm::vec<2, unsigned int> m_ViewportOrigin = { 0, 0 };
 	glm::vec<2, unsigned int> m_ViewportSize = { 0, 0 };
 

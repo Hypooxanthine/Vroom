@@ -64,21 +64,6 @@ public:
     void exit();
 
     /**
-     * @brief Get the renderer.
-     * @todo Make this a singleton system.
-     * 
-     * @return Renderer& The renderer object.
-     */
-    inline const Renderer& getRenderer() const { return *m_Renderer; }
-
-    /**
-     * @brief Get the renderer.
-     * 
-     * @return Renderer& The renderer object.
-     */
-    inline Renderer& getRenderer() { return *m_Renderer; }
-
-    /**
      * @brief Get the asset manager.
      * @todo Make this a singleton system.
      * 
@@ -167,7 +152,6 @@ private:
     std::unique_ptr<Window> m_Window;
 
     // Systems
-    std::unique_ptr<Renderer> m_Renderer;
     std::unique_ptr<AssetManager> m_AssetManager;
 
     // Layers

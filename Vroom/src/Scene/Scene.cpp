@@ -40,7 +40,7 @@ void Scene::init(Application* app)
 
     onInit();
 
-    const auto& viewportSize = getApplication().getRenderer().getViewportSize();
+    const auto& viewportSize = Renderer::Get().getViewportSize();
     getCamera().setViewportSize(static_cast<float>(viewportSize.x), static_cast<float>(viewportSize.y));
 }
 
@@ -59,7 +59,7 @@ void Scene::update(float dt)
 void Scene::render()
 {
     Application& app = getApplication();
-    Renderer& renderer = app.getRenderer();
+    Renderer& renderer = Renderer::Get();
     renderer.beginScene(getCamera());
     
     auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent, NameComponent>();

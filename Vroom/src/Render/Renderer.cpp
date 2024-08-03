@@ -36,6 +36,8 @@ static unsigned int SCREEN_QUAD_INDICES[] = {
 namespace vrm
 {
 
+std::unique_ptr<Renderer> Renderer::s_Instance = nullptr;
+
 Renderer::Renderer()
     : m_ScreenQuadVBO(SCREEN_QUAD_VERTICES, 16 * sizeof(float)), m_ScreenQuadIBO(SCREEN_QUAD_INDICES, 6)
 {
@@ -55,6 +57,24 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {
+}
+
+void Renderer::Init()
+{
+    VRM_ASSERT_MSG(s_Instance == nullptr, "Renderer already initialized.");
+    auto* privateRenderer = new Renderer();
+    s_Instance = std::unique_ptr<Renderer>(privateRenderer);
+}
+
+void Renderer::Shutdown()
+{
+    s_Instance.reset();
+}
+
+Renderer& Renderer::Get()
+{
+    VRM_ASSERT_MSG(s_Instance != nullptr, "Renderer not initialized.");
+    return *s_Instance;
 }
 
 void Renderer::beginScene(const CameraBasic& camera)

@@ -12,7 +12,7 @@ namespace vrm
 GameLayer::GameLayer()
     : m_CurrentScene(nullptr), m_NextScene(nullptr)
 {
-    Renderer& renderer = Application::Get().getRenderer();
+    Renderer& renderer = Renderer::Get();
 
     m_FrameBuffer.create({
         .onScreen = true,

@@ -14,7 +14,7 @@ namespace vrm
 Application* Application::s_Instance = nullptr;
 
 Application::Application(int argc, char** argv)
-    : m_Window(nullptr), m_Renderer(nullptr), m_LastFrameTimePoint(std::chrono::high_resolution_clock::now())
+    : m_Window(nullptr), m_LastFrameTimePoint(std::chrono::high_resolution_clock::now())
 {
     VRM_ASSERT_MSG(s_Instance == nullptr, "Application already exists.");
     s_Instance = this;
@@ -32,8 +32,8 @@ Application::Application(int argc, char** argv)
     // Instanciating asset manager
     m_AssetManager = std::make_unique<AssetManager>();
 
-    m_Renderer = std::make_unique<Renderer>();
-    m_Renderer->setViewport({ 0, 0 }, { m_Window->getWidth(), m_Window->getHeight()});
+    Renderer::Init();
+    Renderer::Get().setViewport({ 0, 0 }, { m_Window->getWidth(), m_Window->getHeight()});
 
     // Pushing the game layer and storing it in a pointer (GameLayer is a special layer that can always be accessed)
     /// @todo Make sure the game layer is never deleted.
@@ -48,9 +48,9 @@ Application::~Application()
         it->end();
     m_LayerStack.clear();
 
+    Renderer::Shutdown();
     m_Window.release();
     glfwTerminate();
-    m_Renderer.release();
     m_AssetManager.release();
 }
 
