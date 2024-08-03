@@ -1,6 +1,7 @@
 #include "Vroom/Scene/Scene.h"
 
 #include "Vroom/Core/Application.h"
+#include "Vroom/Core/GameLayer.h"
 
 #include "Vroom/Asset/Asset.h"
 
@@ -32,7 +33,7 @@ void Scene::init(Application* app)
 {
     m_Application = app;
 
-    getApplication().getCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
+    getApplication().getGameLayer().getCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
         .bindCallback([this](const vrm::Event& e) {
             getCamera().setViewportSize(static_cast<float>(e.newWidth), static_cast<float>(e.newHeight));
         });
@@ -82,7 +83,7 @@ void Scene::render()
 
     onRender();
 
-    renderer.endScene(app.getGameFrameBuffer());
+    renderer.endScene(app.getGameLayer().getFrameBuffer());
 }
 
 void Scene::end()

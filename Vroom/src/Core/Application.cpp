@@ -6,6 +6,7 @@
 #include "Vroom/Render/Renderer.h"
 #include "Vroom/Core/GameLayer.h"
 #include "Vroom/Scene/Scene.h"
+#include "Vroom/Asset/AssetManager.h"
 
 namespace vrm
 {
@@ -39,13 +40,17 @@ Application::Application(int argc, char** argv)
     // The game layer should NOT be deleted, since it is the main purpose of the application.
     /// @todo Make sure the game layer is never deleted.
     m_GameLayer = gameLayerUniquePtr.get();
-    pushLayer(std::move(gameLayerUniquePtr));
+    // We want to initialize the game layer in the run method, so that user can load a scene before the game starts.
+    pushLayer(std::move(gameLayerUniquePtr), false);
 
     VRM_LOG_TRACE("Vroom application created.");
 }
 
 Application::~Application()
 {
+    /// @todo End all layers.
+    m_GameLayer->end();
+    m_LayerStack.pop();
     m_Window.release();
     glfwTerminate();
     m_Renderer.release();
@@ -64,7 +69,7 @@ bool Application::initGLFW()
 
 void Application::run()
 {
-    VRM_DEBUG_ASSERT_MSG(m_NextScene != nullptr, "Make sure you loaded a scene before running the application.");
+    m_GameLayer->init();
 
     while (!m_PendingKilled)
     {
@@ -78,10 +83,11 @@ void Application::exit()
     m_PendingKilled = true;
 }
 
-void Application::pushLayer(std::unique_ptr<Layer>&& layer)
+void Application::pushLayer(std::unique_ptr<Layer>&& layer, bool init)
 {
     m_LayerStack.push(std::move(layer));
-    m_LayerStack.top()->init();
+    if (init)
+        m_LayerStack.top()->init();
 }
 
 void Application::update()
@@ -90,12 +96,16 @@ void Application::update()
     auto dt = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - m_LastFrameTimePoint).count()) / 1'000'000'000.f;
     m_LastFrameTimePoint = now;
 
+    /// @todo Update layers from top to bottom.
+    m_GameLayer->update(dt);
+
     m_Window->updateEvents();
     while (m_Window->hasPendingEvents())
     {
         Event e = m_Window->pollEvent();
         
         /// @todo Submit the event to layers from top to bottom.
+        m_GameLayer->submitEvent(e);
     }
 
 }
@@ -103,6 +113,7 @@ void Application::update()
 void Application::draw()
 {
     /// @todo Draw layers from bottom to top.
+    m_GameLayer->render();
 
     m_Window->swapBuffers();
 }

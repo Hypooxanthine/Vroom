@@ -96,8 +96,9 @@ public:
      * @brief Push a layer to the application.
      * 
      * @param layer The layer to push.
+     * @param init If the layer should be initialized.
      */
-    void pushLayer(std::unique_ptr<Layer>&& layer);
+    void pushLayer(std::unique_ptr<Layer>&& layer, bool init = true);
 
     /**
      * @brief Get the game layer.

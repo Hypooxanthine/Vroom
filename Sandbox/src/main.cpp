@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include <Vroom/Core/Application.h>
+#include <Vroom/Core/GameLayer.h>
 #include <Vroom/Scene/Scene.h>
 #include <Vroom/Asset/Asset.h>
 #include <Vroom/Render/Renderer.h>
@@ -68,23 +69,25 @@ protected:
 			entity.addScriptComponent<SuzanneScript>(suzanneRadius, i * glm::two_pi<float>() / 10, suzanneSpeed);
 		}
 
+		auto& gameLayer = getApplication().getGameLayer();
+
 		// Bind triggers to the camera
 		// This is a bit ugly. I might create some facilities that do this job in the future.
 		// Maybe another event type, which will give a scalar depending on the input (moveForward in [-1, 1] for example, controlled with any input we want).
-		getApplication().getTrigger("MoveForward")
+		gameLayer.getTrigger("MoveForward")
 			.bindCallback([this](bool triggered) { forwardValue += triggered ? 1.f : -1.f; });
-		getApplication().getTrigger("MoveBackward")
+		gameLayer.getTrigger("MoveBackward")
 			.bindCallback([this](bool triggered) { forwardValue -= triggered ? 1.f : -1.f; });
-		getApplication().getTrigger("MoveRight")
+		gameLayer.getTrigger("MoveRight")
 			.bindCallback([this](bool triggered) { rightValue += triggered ? 1.f : -1.f; });
-		getApplication().getTrigger("MoveLeft")
+		gameLayer.getTrigger("MoveLeft")
 			.bindCallback([this](bool triggered) { rightValue -= triggered ? 1.f : -1.f; });
-		getApplication().getTrigger("MoveUp")
+		gameLayer.getTrigger("MoveUp")
 			.bindCallback([this](bool triggered) { upValue += triggered ? 1.f : -1.f; });
-		getApplication().getTrigger("MoveDown")
+		gameLayer.getTrigger("MoveDown")
 			.bindCallback([this](bool triggered) { upValue -= triggered ? 1.f : -1.f; });
 		
-		getApplication().getCustomEvent("MouseMoved")
+		gameLayer.getCustomEvent("MouseMoved")
 			.bindCallback([this](const vrm::Event& event) {
 				turnRightValue += static_cast<float>(event.mouseDeltaX);
 				lookUpValue -= static_cast<float>(event.mouseDeltaY);
@@ -140,37 +143,39 @@ int main(int argc, char** argv)
 {
 	// Create the application
 	vrm::Application app{argc, argv};
+
+	auto& gameLayer = app.getGameLayer();
 	
 	// Create some triggers so we can interact with the application
-	app.createTrigger("MoveForward")
+	gameLayer.createTrigger("MoveForward")
 		.bindInput(vrm::KeyCode::W);
-	app.createTrigger("MoveBackward")
+	gameLayer.createTrigger("MoveBackward")
 		.bindInput(vrm::KeyCode::S);
-	app.createTrigger("MoveLeft")
+	gameLayer.createTrigger("MoveLeft")
 		.bindInput(vrm::KeyCode::A);
-	app.createTrigger("MoveRight")
+	gameLayer.createTrigger("MoveRight")
 		.bindInput(vrm::KeyCode::D);
-	app.createTrigger("MoveUp")
+	gameLayer.createTrigger("MoveUp")
 		.bindInput(vrm::KeyCode::Space);
-	app.createTrigger("MoveDown")
+	gameLayer.createTrigger("MoveDown")
 		.bindInput(vrm::KeyCode::LeftShift);
 
 	// Create some custom events, which are more general than triggers
-	app.createCustomEvent("Exit")
+	gameLayer.createCustomEvent("Exit")
 		.bindInput(vrm::Event::Type::KeyPressed, vrm::KeyCode::Escape)
 		.bindInput(vrm::Event::Type::Exit)
 		.bindCallback([&app](const vrm::Event&) { VRM_LOG_INFO("Application exit has been requested by user."); app.exit(); });
-	app.createCustomEvent("MouseMoved")
+	gameLayer.createCustomEvent("MouseMoved")
 		.bindInput(vrm::Event::Type::MouseMoved);
-	app.createCustomEvent("ReleaseMouse")
+	gameLayer.createCustomEvent("ReleaseMouse")
 		.bindInput(vrm::Event::Type::KeyPressed, vrm::KeyCode::LeftAlt)
 		.bindCallback([&app](const vrm::Event&) { app.getWindow().setCursorVisible(true); });
-	app.createCustomEvent("MouseEnter")
+	gameLayer.createCustomEvent("MouseEnter")
 		.bindInput(vrm::Event::Type::MouseEntered)
 		.bindCallback([&app](const vrm::Event&) { app.getWindow().setCursorVisible(false); });
 	
 	// Load the custom scene, defined above
-	app.loadScene<MyScene>("A cute little scene !");
+	gameLayer.loadScene<MyScene>("A cute little scene !");
 
 	// Run the application
 	app.run();

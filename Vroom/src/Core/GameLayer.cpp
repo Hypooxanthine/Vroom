@@ -12,14 +12,6 @@ namespace vrm
 GameLayer::GameLayer()
     : m_CurrentScene(nullptr), m_NextScene(nullptr)
 {
-}
-
-GameLayer::~GameLayer()
-{
-}
-
-void GameLayer::onInit()
-{
     Renderer& renderer = Application::Get().getRenderer();
 
     m_FrameBuffer.create({
@@ -43,7 +35,16 @@ void GameLayer::onInit()
 
             m_FrameBuffer.create(specs);
         });
+}
 
+GameLayer::~GameLayer()
+{
+}
+
+void GameLayer::onInit()
+{
+
+    VRM_DEBUG_ASSERT_MSG(m_NextScene != nullptr, "Make sure you loaded a scene before running the application.");
     m_CurrentScene = std::move(m_NextScene);
     /// @todo Scene shouldn't be initialized with an application ref/pointer, since Application is a singleton.
     m_CurrentScene->init(&Application::Get());

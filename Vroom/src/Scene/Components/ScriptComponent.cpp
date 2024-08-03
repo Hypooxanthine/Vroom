@@ -3,6 +3,7 @@
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Scene/Scene.h"
 #include "Vroom/Core/Application.h"
+#include "Vroom/Core/GameLayer.h"
 
 namespace vrm
 {
@@ -14,7 +15,7 @@ Entity ScriptComponent::getEntity() const
 
 Scene& ScriptComponent::getScene() const
 {
-    return Application::Get().getScene();
+    return Application::Get().getGameLayer().getScene();
 }
 
 void ScriptComponent::setEntityHandle(entt::entity handle)
