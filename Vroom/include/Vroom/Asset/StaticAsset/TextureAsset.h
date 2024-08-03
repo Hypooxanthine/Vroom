@@ -21,7 +21,7 @@ public:
     [[nodiscard]] inline const ImageTexture& getGPUTexture() const { return m_GPUTexture; }
 
 protected:
-    bool loadImpl(const std::string& filePath, AssetManager& manager) override;
+    bool loadImpl(const std::string& filePath) override;
 
 private:
     ImageTexture m_GPUTexture;

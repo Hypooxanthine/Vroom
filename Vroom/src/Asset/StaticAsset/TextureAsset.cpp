@@ -4,7 +4,6 @@
 
 #include "Vroom/Core/Log.h"
 #include "Vroom/Asset/AssetInstance/TextureInstance.h"
-#include "Vroom/Asset/AssetManager.h"
 
 namespace vrm
 {
@@ -22,7 +21,7 @@ TextureInstance TextureAsset::createInstance()
     return TextureInstance(this);
 }
 
-bool TextureAsset::loadImpl(const std::string& filePath, AssetManager& manager)
+bool TextureAsset::loadImpl(const std::string& filePath)
 {
     VRM_LOG_INFO("Loading texture: {}", filePath);
     

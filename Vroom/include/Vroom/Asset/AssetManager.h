@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 #include "Vroom/Core/Assert.h"
-#include "Vroom/Asset/Asset.h"
+#include "Vroom/Asset/StaticAsset/StaticAsset.h"
 
 namespace vrm
 {
@@ -13,8 +13,30 @@ namespace vrm
 class AssetManager
 {
 public:
-    AssetManager() = default;
+    AssetManager(const AssetManager&) = delete;
+    AssetManager(AssetManager&&) = delete;
+    AssetManager& operator=(const AssetManager&) = delete;
+    AssetManager& operator=(AssetManager&&) = delete;
     ~AssetManager() = default;
+
+    /**
+     * @brief Initialize the asset manager.
+     * 
+     */
+    static void Init();
+
+    /**
+     * @brief Shutdown the asset manager.
+     * 
+     */
+    static void Shutdown();
+
+    /**
+     * @brief Get the instance of the asset manager.
+     * 
+     * @return AssetManager& The instance of the asset manager.
+     */
+    static AssetManager& Get();
 
     /**
      * @brief Get an asset by its ID. If the asset is not loaded, it will be loaded first.
@@ -47,18 +69,30 @@ public:
         if (!isAssetLoaded(assetID))
         {
             auto asset = std::make_unique<T>();
-            VRM_ASSERT_MSG(asset->load(assetID, *this), "Failed to load asset: {}", assetID);
+            VRM_ASSERT_MSG(asset->load(assetID), "Failed to load asset: {}", assetID);
 
             m_Assets[assetID] = std::move(asset);
         }
     }
 
+    /**
+     * @brief Check if an asset is loaded.
+     * 
+     * @param assetID The ID of the asset to check.
+     * @return true If the asset is loaded.
+     * @return false If the asset is not loaded.
+     */
     bool isAssetLoaded(const std::string& assetID)
     {
         return m_Assets.contains(assetID);
     }
 
 private:
+    AssetManager() = default;
+
+private:
+    static std::unique_ptr<AssetManager> s_Instance;
+
     std::unordered_map<std::string, std::unique_ptr<StaticAsset>> m_Assets;
 
 };

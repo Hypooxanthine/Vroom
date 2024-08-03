@@ -26,9 +26,8 @@ public:
     /**
      * @brief Initialization of the scene.
      * 
-     * @param app Application pointer.
      */
-    void init(Application* app);
+    void init();
 
     /**
      * @brief Updates the scene.
@@ -59,9 +58,6 @@ public:
     inline void setCamera(CameraBasic* camera) { m_Camera = camera; }
     inline const CameraBasic& getCamera() const { return *m_Camera; }
     inline CameraBasic& getCamera() { return *m_Camera; }
-
-    AssetManager& getAssetManager();
-    const AssetManager& getAssetManager() const;
 
     entt::registry& getRegistry() { return m_Registry; }
     const entt::registry& getRegistry() const { return m_Registry; }
@@ -141,14 +137,9 @@ protected:
      */
     virtual void onEnd() {}
 
-    Application& getApplication() { return *m_Application; }
-    const Application& getApplicaton() const { return *m_Application; }
-
 private:
     entt::registry m_Registry;
     size_t m_EntityCounter = 0;
-
-    Application* m_Application;
 
     FirstPersonCamera m_DefaultCamera = FirstPersonCamera(0.1f, 100.f, 45.f, 600.f / 400.f, glm::vec3{0.f, 0.f, 0.f}, glm::vec3{0.f, 0.f, 0.f});
     CameraBasic* m_Camera;

@@ -46,7 +46,7 @@ void GameLayer::onInit()
     VRM_DEBUG_ASSERT_MSG(m_NextScene != nullptr, "Make sure you loaded a scene before running the application.");
     m_CurrentScene = std::move(m_NextScene);
     /// @todo Scene shouldn't be initialized with an application ref/pointer, since Application is a singleton.
-    m_CurrentScene->init(&Application::Get());
+    m_CurrentScene->init();
 }
 
 void GameLayer::onEnd()
@@ -105,7 +105,7 @@ void GameLayer::checkNextScene()
 
     m_CurrentScene->end();
     m_CurrentScene = std::move(m_NextScene);
-    m_CurrentScene->init(&Application::Get());
+    m_CurrentScene->init();
 }
 
 void GameLayer::loadScene_Internal(std::unique_ptr<Scene>&& scene)

@@ -8,6 +8,8 @@
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/Parsing/MaterialParsing.h"
 
+#include "Vroom/Asset/StaticAsset/TextureAsset.h"
+
 namespace vrm
 {
 
@@ -25,7 +27,7 @@ MaterialInstance MaterialAsset::createInstance()
     return MaterialInstance(this);
 }
 
-bool MaterialAsset::loadImpl(const std::string& filePath, AssetManager& manager)
+bool MaterialAsset::loadImpl(const std::string& filePath)
 {
     VRM_LOG_INFO("Loading material: {}", filePath);
 
@@ -40,7 +42,7 @@ bool MaterialAsset::loadImpl(const std::string& filePath, AssetManager& manager)
     // Loading textures
     for (const std::string& texturePath : shadersData.texturePaths)
     {
-        m_Textures.emplace_back(manager.getAsset<TextureAsset>(texturePath));
+        m_Textures.emplace_back(AssetManager::Get().getAsset<TextureAsset>(texturePath));
     }
 
     return true;

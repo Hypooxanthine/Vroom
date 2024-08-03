@@ -13,7 +13,6 @@ protected:
     {
         app = new vrm::Application(0, nullptr);
         meshAsset = new vrm::MeshAsset();
-        assetManager = new vrm::AssetManager();
 
         // Create a fake obj file
         std::ofstream file(pathOK, std::ios::out | std::ios::trunc);
@@ -27,7 +26,6 @@ protected:
     void TearDown() override
     {
         delete meshAsset;
-        delete assetManager;
         delete app;
 
         // Remove the fake obj file
@@ -36,24 +34,23 @@ protected:
 
     vrm::Application* app;
     vrm::MeshAsset* meshAsset;
-    vrm::AssetManager* assetManager;
     std::string pathOK = "test_mesh.obj";
     std::string pathFail = "test_mesh_fail.obj";
 };
 
 TEST_F(TestMeshAsset, LoadObj)
 {
-    meshAsset->load(pathOK, *assetManager);
+    meshAsset->load(pathOK);
 }
 
 TEST_F(TestMeshAsset, LoadObjFail)
 {
-    EXPECT_FALSE(meshAsset->load(pathFail, *assetManager));
+    EXPECT_FALSE(meshAsset->load(pathFail));
 }
 
 TEST_F(TestMeshAsset, LoadObjCorrect)
 {
-    meshAsset->load(pathOK, *assetManager);
+    meshAsset->load(pathOK);
     const vrm::MeshData& meshData = meshAsset->getSubMeshes().begin()->meshData;
 
     const auto vertices = meshData.getVertices();
@@ -78,6 +75,6 @@ TEST_F(TestMeshAsset, LoadObjCorrect)
 
 TEST_F(TestMeshAsset, GetRenderMesh)
 {
-    meshAsset->load(pathOK, *assetManager);
+    meshAsset->load(pathOK);
     EXPECT_NO_THROW(const vrm::RenderMesh& renderMesh = meshAsset->getSubMeshes().begin()->renderMesh;);
 }

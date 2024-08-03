@@ -6,6 +6,7 @@
 #include "Vroom/Asset/AssetInstance/MeshInstance.h"
 
 #include "Vroom/Asset/AssetManager.h"
+#include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 
 namespace vrm
 {
@@ -29,12 +30,12 @@ MeshInstance MeshAsset::createInstance()
     return MeshInstance(this);
 }
 
-bool MeshAsset::loadImpl(const std::string& filePath, AssetManager& manager)
+bool MeshAsset::loadImpl(const std::string& filePath)
 {
     std::string extension = StaticAsset::getExtension(filePath);
     if (extension == "obj")
     {
-        return loadObj(filePath, manager);
+        return loadObj(filePath);
     }
     
     if (extension == "")
@@ -45,7 +46,7 @@ bool MeshAsset::loadImpl(const std::string& filePath, AssetManager& manager)
     return false;
 }
 
-bool MeshAsset::loadObj(const std::string& filePath, AssetManager& manager)
+bool MeshAsset::loadObj(const std::string& filePath)
 {
     objl::Loader loader;
     if (!loader.LoadFile(filePath))
@@ -103,7 +104,7 @@ bool MeshAsset::loadObj(const std::string& filePath, AssetManager& manager)
         
         if (!mesh.MaterialName.empty())
         {
-            MaterialInstance materialInstance = manager.getAsset<MaterialAsset>(fileDirectoryPath + mesh.MaterialName + ".asset");
+            MaterialInstance materialInstance = AssetManager::Get().getAsset<MaterialAsset>(fileDirectoryPath + mesh.MaterialName + ".asset");
             MeshData meshData(std::move(vertices), std::move(indices));
             RenderMesh renderMesh(meshData);
 
@@ -111,7 +112,7 @@ bool MeshAsset::loadObj(const std::string& filePath, AssetManager& manager)
         }
         else
         {
-            MaterialInstance materialInstance = manager.getAsset<MaterialAsset>("Resources/Engine/Material/Mat_Default.asset");
+            MaterialInstance materialInstance = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/Mat_Default.asset");
             MeshData meshData(std::move(vertices), std::move(indices));
             RenderMesh renderMesh(meshData);
 

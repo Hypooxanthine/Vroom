@@ -1,7 +1,5 @@
 #include "Vroom/Asset/StaticAsset/ComputeShaderAsset.h"
 
-#include "Vroom/Asset/AssetManager.h"
-
 namespace vrm
 {
 
@@ -19,7 +17,7 @@ ComputeShaderInstance ComputeShaderAsset::createInstance()
     return ComputeShaderInstance(this);
 }
 
-bool ComputeShaderAsset::loadImpl(const std::string& filePath, AssetManager& manager)
+bool ComputeShaderAsset::loadImpl(const std::string& filePath)
 {
     return m_ComputeShader.loadFromFile(filePath);
 }

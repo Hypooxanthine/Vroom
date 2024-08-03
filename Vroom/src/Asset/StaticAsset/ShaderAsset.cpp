@@ -6,8 +6,6 @@
 
 #include "Vroom/Core/Assert.h"
 
-#include "Vroom/Asset/AssetManager.h"
-
 namespace vrm
 {
 
@@ -28,7 +26,7 @@ ShaderInstance ShaderAsset::createInstance()
 // This will log an error message and return false if the file couldn't be opened (doesn't crash the application)
 #define SOFT_ASSERT_MSG(x, ...) if(!(x)) { VRM_LOG_ERROR(__VA_ARGS__); return false; }
 
-bool ShaderAsset::loadImpl(const std::string& filePath, AssetManager& manager)
+bool ShaderAsset::loadImpl(const std::string& filePath)
 {
     std::ifstream file(filePath);
     SOFT_ASSERT_MSG(file.is_open(), "Failed to open file: {}", filePath);

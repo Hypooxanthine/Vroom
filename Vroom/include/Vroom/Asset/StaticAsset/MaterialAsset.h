@@ -50,7 +50,7 @@ public:
     [[nodiscard]] inline const TextureInstance& getTexture(size_t slot) const { return m_Textures[slot]; }
 
 protected:
-    bool loadImpl(const std::string& filePath, AssetManager& manager) override;
+    bool loadImpl(const std::string& filePath) override;
 
 private:
     Shader m_Shader;

@@ -29,11 +29,9 @@ Scene::~Scene()
 
 }
 
-void Scene::init(Application* app)
+void Scene::init()
 {
-    m_Application = app;
-
-    getApplication().getGameLayer().getCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
+    Application::Get().getGameLayer().getCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
         .bindCallback([this](const vrm::Event& e) {
             getCamera().setViewportSize(static_cast<float>(e.newWidth), static_cast<float>(e.newHeight));
         });
@@ -58,7 +56,7 @@ void Scene::update(float dt)
 
 void Scene::render()
 {
-    Application& app = getApplication();
+    Application& app = Application::Get();
     Renderer& renderer = Renderer::Get();
     renderer.beginScene(getCamera());
     
@@ -91,16 +89,6 @@ void Scene::end()
     onEnd();
 
     m_Registry.clear(); // So that entities are destroyed properly
-}
-
-AssetManager& Scene::getAssetManager()
-{
-    return getApplication().getAssetManager();
-}
-
-const AssetManager& Scene::getAssetManager() const
-{
-    return getApplicaton().getAssetManager();
 }
 
 Entity Scene::createEntity(const std::string& nameTag)

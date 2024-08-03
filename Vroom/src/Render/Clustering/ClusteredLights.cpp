@@ -3,6 +3,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include "Vroom/Asset/AssetManager.h"
+#include "Vroom/Asset/StaticAsset/ComputeShaderAsset.h"
 #include "Vroom/Core/Application.h"
 #include "Vroom/Scene/Scene.h"
 
@@ -11,8 +12,8 @@ namespace vrm
 
 ClusteredLights::ClusteredLights()
 {
-    m_ClustersBuilder = Application::Get().getAssetManager().getAsset<ComputeShaderAsset>("Resources/Engine/Shader/ComputeShader/ClusterGridCompute.glsl");
-    m_LightsCuller = Application::Get().getAssetManager().getAsset<ComputeShaderAsset>("Resources/Engine/Shader/ComputeShader/ClusterCullingCompute.glsl");
+    m_ClustersBuilder = AssetManager::Get().getAsset<ComputeShaderAsset>("Resources/Engine/Shader/ComputeShader/ClusterGridCompute.glsl");
+    m_LightsCuller = AssetManager::Get().getAsset<ComputeShaderAsset>("Resources/Engine/Shader/ComputeShader/ClusterCullingCompute.glsl");
 }
 
 void ClusteredLights::setBindingPoint(int clusterInfoBindingPoint)

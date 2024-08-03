@@ -34,7 +34,7 @@ protected:
 		{
 			auto entity = createEntity("PointLight_" + std::to_string(i));
 			entity.addComponent<vrm::PointLightComponent>(glm::vec3{ std::cos(i * 2.f * 3.14159f / 10), 1.f, std::sin(i * 2.f * 3.14159f / 10) }, 50.f, 15.f);
-			auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/sphere.obj");
+			auto mesh = vrm::AssetManager::Get().getAsset<vrm::MeshAsset>("Resources/Meshes/sphere.obj");
 			entity.addComponent<vrm::MeshComponent>(mesh);
 			entity.addScriptComponent<MovingLightScript>(lightRadius, 10.f, i * glm::two_pi<float>() / 10, lightSpeed);
 			auto& transform = entity.getComponent<vrm::TransformComponent>();
@@ -44,7 +44,7 @@ protected:
 		// Place a cube in the center of the scene
 		{
 			auto entity = createEntity("ColoredCube");
-			auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/Textured_Cube.obj");
+			auto mesh = vrm::AssetManager::Get().getAsset<vrm::MeshAsset>("Resources/Meshes/Textured_Cube.obj");
 			entity.addComponent<vrm::MeshComponent>(mesh);
 			auto& transform = entity.getComponent<vrm::TransformComponent>();
 			transform.setPosition({0.f, 0.f, 0.f});
@@ -53,7 +53,7 @@ protected:
 		// Place a plane under the cube
 		{
 			auto entity = createEntity("Plane");
-			auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/Textured_Cube.obj");
+			auto mesh = vrm::AssetManager::Get().getAsset<vrm::MeshAsset>("Resources/Meshes/Textured_Cube.obj");
 			entity.addComponent<vrm::MeshComponent>(mesh);
 			auto& transform = entity.getComponent<vrm::TransformComponent>();
 			transform.setPosition({0.f, -1.f, 0.f});
@@ -64,12 +64,12 @@ protected:
 		for (uint8_t i = 0; i < 10; i++)
 		{
 			auto entity = createEntity("Suzanne_" + std::to_string(i));
-			auto mesh = getAssetManager().getAsset<vrm::MeshAsset>("Resources/Meshes/Suzanne.obj");
+			auto mesh = vrm::AssetManager::Get().getAsset<vrm::MeshAsset>("Resources/Meshes/Suzanne.obj");
 			entity.addComponent<vrm::MeshComponent>(mesh);
 			entity.addScriptComponent<SuzanneScript>(suzanneRadius, i * glm::two_pi<float>() / 10, suzanneSpeed);
 		}
 
-		auto& gameLayer = getApplication().getGameLayer();
+		auto& gameLayer = vrm::Application::Get().getGameLayer();
 
 		// Bind triggers to the camera
 		// This is a bit ugly. I might create some facilities that do this job in the future.

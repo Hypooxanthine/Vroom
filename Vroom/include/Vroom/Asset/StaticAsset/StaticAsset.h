@@ -6,8 +6,6 @@
 namespace vrm
 {
 
-class AssetManager;
-
 class StaticAsset
 {
 public:
@@ -23,7 +21,7 @@ public:
     void notifyNewInstance();
     void notifyDeleteInstance();
 
-    bool load(const std::string& filePath, AssetManager& assetManager);
+    bool load(const std::string& filePath);
 
 protected:
 
@@ -35,7 +33,7 @@ protected:
      */
     static std::string getExtension(const std::string& filePath);
 
-    virtual bool loadImpl(const std::string& filePath, AssetManager& assetManager) = 0;
+    virtual bool loadImpl(const std::string& filePath) = 0;
 
 protected:
     size_t m_InstanceCount = 0;

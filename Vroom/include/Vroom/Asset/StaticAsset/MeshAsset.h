@@ -34,10 +34,10 @@ public:
     const std::list<SubMesh>& getSubMeshes() const { return m_SubMeshes; }
 
 protected: 
-    bool loadImpl(const std::string& filePath, AssetManager& manager) override;
+    bool loadImpl(const std::string& filePath) override;
 
 private:
-    bool loadObj(const std::string& filePath, AssetManager& manager);
+    bool loadObj(const std::string& filePath);
 
 private:
     std::list<SubMesh> m_SubMeshes;

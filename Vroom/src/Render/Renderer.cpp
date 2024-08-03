@@ -16,6 +16,10 @@
 #include "Vroom/Render/RawShaderData/SSBOPointLightData.h"
 
 #include "Vroom/Asset/AssetManager.h"
+#include "Vroom/Asset/StaticAsset/ShaderAsset.h"
+#include "Vroom/Asset/StaticAsset/MaterialAsset.h"
+#include "Vroom/Asset/StaticAsset/TextureAsset.h"
+#include "Vroom/Asset/StaticAsset/MeshAsset.h"
 
 #include "Vroom/Scene/Components/PointLightComponent.h"
 
@@ -42,7 +46,7 @@ Renderer::Renderer()
     : m_ScreenQuadVBO(SCREEN_QUAD_VERTICES, 16 * sizeof(float)), m_ScreenQuadIBO(SCREEN_QUAD_INDICES, 6)
 {
     // Initializing frame buffering data.
-    m_ScreenShader = Application::Get().getAssetManager().getAsset<ShaderAsset>("Resources/Engine/Shader/ScreenShader/RenderShader_Screen.asset");
+    m_ScreenShader = AssetManager::Get().getAsset<ShaderAsset>("Resources/Engine/Shader/ScreenShader/RenderShader_Screen.asset");
     m_ScreenQuadLayout.pushFloat(2);
     m_ScreenQuadLayout.pushFloat(2);
     m_ScreenQuadVAO.addBuffer(m_ScreenQuadVBO, m_ScreenQuadLayout);

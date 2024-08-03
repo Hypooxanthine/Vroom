@@ -22,7 +22,7 @@ public:
     inline const ComputeShader& getComputeShader() const { return m_ComputeShader; }
 
 protected: 
-    bool loadImpl(const std::string& filePath, AssetManager& manager) override;
+    bool loadImpl(const std::string& filePath) override;
 
 private:
     ComputeShader m_ComputeShader;

@@ -29,8 +29,7 @@ Application::Application(int argc, char** argv)
     glewExperimental = GL_TRUE;
     VRM_ASSERT(glewInit() == GLEW_OK);
     
-    // Instanciating asset manager
-    m_AssetManager = std::make_unique<AssetManager>();
+    AssetManager::Init();
 
     Renderer::Init();
     Renderer::Get().setViewport({ 0, 0 }, { m_Window->getWidth(), m_Window->getHeight()});
@@ -46,12 +45,12 @@ Application::~Application()
 {
     for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
         it->end();
-    m_LayerStack.clear();
+    m_LayerStack.clear(); // Layer destructors called before shutting down the rendering context.
 
     Renderer::Shutdown();
     m_Window.release();
     glfwTerminate();
-    m_AssetManager.release();
+    AssetManager::Shutdown();
 }
 
 bool Application::initGLFW()

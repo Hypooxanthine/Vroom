@@ -14,11 +14,8 @@ namespace vrm
 {
 
 class Window;
-class Renderer;
-class Scene;
 class Layer;
 class GameLayer;
-class AssetManager;
 
 /**
  * @short The core class of the engine.
@@ -62,21 +59,6 @@ public:
      * 
      */
     void exit();
-
-    /**
-     * @brief Get the asset manager.
-     * @todo Make this a singleton system.
-     * 
-     * @return AssetManager& The asset manager object.
-     */
-    inline AssetManager& getAssetManager() { return *m_AssetManager; }
-
-    /**
-     * @brief Get the asset manager.
-     * 
-     * @return AssetManager& The asset manager object.
-     */
-    inline const AssetManager& getAssetManager() const { return *m_AssetManager; }
 
     /**
      * @brief Push a layer to the application.
@@ -150,9 +132,6 @@ private:
     static Application* s_Instance;
 
     std::unique_ptr<Window> m_Window;
-
-    // Systems
-    std::unique_ptr<AssetManager> m_AssetManager;
 
     // Layers
     LayerStack m_LayerStack;
