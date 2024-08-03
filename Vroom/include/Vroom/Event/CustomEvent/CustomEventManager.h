@@ -19,7 +19,7 @@ class CustomEventManager
 public:
     CustomEventManager() = default;
 
-    void check(const Event& e);
+    void check(Event& e);
 
     CustomEventBinder createCustomEvent(const std::string& customEventName);
     CustomEventBinder getBinder(const std::string& customEventName);

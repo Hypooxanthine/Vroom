@@ -10,10 +10,10 @@ void TriggerManager::check(Event& event)
     switch (event.type)
     {
     case Event::Type::KeyPressed:
-        trigger(event.keyCode, true);
+        event.handled = trigger(event.keyCode, true);
         break;
     case Event::Type::KeyReleased:
-        trigger(event.keyCode, false);
+        event.handled = trigger(event.keyCode, false);
         break;
     case Event::Type::MousePressed:
         trigger(event.mouseCode, true);
@@ -26,20 +26,24 @@ void TriggerManager::check(Event& event)
     }
 }
 
-void TriggerManager::trigger(const KeyCode& key, bool value)
+bool TriggerManager::trigger(const KeyCode& key, bool value)
 {
-    if (!m_Keys.contains(key)) return;
+    if (!m_Keys.contains(key)) return false;
 
     for (const auto& triggerName : m_Keys[key])
         m_Triggers[triggerName].trigger(value);
+    
+    return true;
 }
 
-void TriggerManager::trigger(const MouseCode& mouseButton, bool value)
+bool TriggerManager::trigger(const MouseCode& mouseButton, bool value)
 {
-    if (!m_MouseButtons.contains(mouseButton)) return;
+    if (!m_MouseButtons.contains(mouseButton)) return false;
 
     for (const auto& triggerName : m_MouseButtons[mouseButton])
         m_Triggers[triggerName].trigger(value);
+
+    return true;
 }
 
 TriggerBinder TriggerManager::createTrigger(const std::string& name)

@@ -22,8 +22,8 @@ public:
 
     void check(Event& event);
 
-    void trigger(const KeyCode& key, bool value);
-    void trigger(const MouseCode& mouseButton, bool value);
+    bool trigger(const KeyCode& key, bool value);
+    bool trigger(const MouseCode& mouseButton, bool value);
 
     TriggerBinder createTrigger(const std::string& name);
     TriggerBinder getBinder(const std::string& name);
