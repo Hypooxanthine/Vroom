@@ -42,7 +42,7 @@ void EditorLayer::onInit()
 
     // Engine setup
     Application::Get().getGameLayer().getFrameBuffer().setOnScreenRender(false);
-    Application::Get().getGameLayer().setShouldHandleEvents(true);
+    Application::Get().getGameLayer().setShouldHandleEvents(false);
     Application::Get().getGameLayer().setShouldUpdate(true);
     Application::Get().getGameLayer().setShouldRender(true);
 
@@ -101,7 +101,14 @@ void EditorLayer::onUpdate(float dt)
         e.type = Event::Type::WindowsResized;
         e.newWidth = static_cast<int>(m_Viewport.getLastViewportSize().x);
         e.newHeight = static_cast<int>(m_Viewport.getLastViewportSize().y);
-        Application::Get().getGameLayer().submitEvent(e);
+        auto& gameLayer = Application::Get().getGameLayer();
+
+        // We trick the game layer to handle resize event even if it is not handling events
+        // because we want the viewport to be smooth on resize, even when the game isn't playing.
+        bool handledEvents = gameLayer.isHandlingEvents();
+        gameLayer.setShouldHandleEvents(true);
+        gameLayer.submitEvent(e);
+        gameLayer.setShouldHandleEvents(handledEvents);
     }
 }
 

@@ -23,6 +23,10 @@ protected:
 public: // Public ImGui related variables
     FrameBuffer* frameBuffer;
 
+    bool pressedPlay;
+    bool pressedPause;
+    bool pressedStop;
+
 private:
     bool m_DidSizeChangeLastFrame;
     ImVec2 m_LastViewportSize;

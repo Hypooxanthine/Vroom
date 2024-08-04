@@ -1,0 +1,2 @@
+shading-model Phong
+prefrag Resources/Shaders/Mat_Bot_PreFrag.glsl

@@ -1,0 +1,5 @@
+shading-model Phong
+
+prefrag Resources/Shaders/Mat_Textured_Cube_PreFrag.glsl
+
+frag-texture-slot-0 Resources/Textures/Texture_Textured_Cube.png

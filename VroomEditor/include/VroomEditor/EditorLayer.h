@@ -8,7 +8,7 @@
 #include "VroomEditor/UserInterface/StatisticsPanel.h"
 #include "VroomEditor/UserInterface/Viewport.h"
 
-class ImFont;
+struct ImFont;
 
 namespace vrm
 {

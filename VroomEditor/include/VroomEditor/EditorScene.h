@@ -5,17 +5,12 @@
 namespace vrm
 {
 
-class EditorScene : public vrm::Scene
+class EditorScene : public Scene
 {
 public:
     EditorScene() = default;
     ~EditorScene() = default;
 
-protected:
-    void onInit() override;
-    void onUpdate(float deltaTime) override;
-    void onRender() override;
-    void onEnd() override;
 };
 
 } // namespace vrm
