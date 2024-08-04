@@ -42,7 +42,7 @@ void EditorLayer::onInit()
 
     // Engine setup
     Application::Get().getGameLayer().getFrameBuffer().setOnScreenRender(false);
-    Application::Get().getGameLayer().setShouldHandleEvents(false);
+    Application::Get().getGameLayer().setShouldHandleEvents(true);
     Application::Get().getGameLayer().setShouldUpdate(true);
     Application::Get().getGameLayer().setShouldRender(true);
 
