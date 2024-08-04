@@ -65,8 +65,8 @@ bool Application::initGLFW()
 
 void Application::initLayers()
 {
-    for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
-        it->init();
+    for (Layer& layer : m_LayerStack)
+        layer.init();
 }
 
 void Application::run()
