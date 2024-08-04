@@ -15,6 +15,13 @@ namespace vrm
 
 
 EditorLayer::EditorLayer()
+    : m_MainMenuBar(),
+      m_StatisticsPanel(),
+      m_Viewport(),
+      m_Font(nullptr),
+      m_FrameAccumulator(0),
+      m_TimeAccumulator(0.f),
+      m_TimeSample(1.f)
 {
     // We need to load a first scene before initialization of layers, because game layer will be initialized first.
     Application::Get().getGameLayer().loadScene<EditorScene>();
@@ -35,6 +42,9 @@ void EditorLayer::onInit()
 
     // Engine setup
     Application::Get().getGameLayer().getFrameBuffer().setOnScreenRender(false);
+    Application::Get().getGameLayer().setShouldHandleEvents(false);
+    Application::Get().getGameLayer().setShouldUpdate(true);
+    Application::Get().getGameLayer().setShouldRender(true);
 
     // Frame buffer
     FrameBuffer::Specification specs = {
@@ -57,6 +67,12 @@ void EditorLayer::onInit()
 
     ImGui_ImplGlfw_InitForOpenGL(Application::Get().getWindow().getGLFWHandle(), true);
     ImGui_ImplOpenGL3_Init("#version 450");
+
+    m_Font = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Regular.ttf", 24.0f);
+    VRM_ASSERT_MSG(m_Font, "Failed to load font.");
+
+    // UI setup
+    m_Viewport.frameBuffer = &Application::Get().getGameLayer().getFrameBuffer();
 }
 
 void EditorLayer::onEnd()
@@ -68,6 +84,14 @@ void EditorLayer::onEnd()
 
 void EditorLayer::onUpdate(float dt)
 {
+    m_FrameAccumulator++;
+    m_TimeAccumulator += dt;
+    if (m_TimeAccumulator >= m_TimeSample)
+    {
+        m_StatisticsPanel.frameTime = m_TimeSample / m_FrameAccumulator;
+        m_FrameAccumulator = 0;
+        m_TimeAccumulator -= m_TimeSample;
+    }
 }
 
 void EditorLayer::onRender()
@@ -89,9 +113,15 @@ void EditorLayer::onImgui()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
+    ImGui::PushFont(m_Font);
+
     ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
     
     m_MainMenuBar.renderImgui();
+    m_StatisticsPanel.renderImgui();
+    m_Viewport.renderImgui();
+
+    ImGui::PopFont();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

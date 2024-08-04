@@ -5,6 +5,10 @@
 #include <Vroom/Event/CustomEvent/CustomEventManager.h>
 
 #include "VroomEditor/UserInterface/MainMenuBar.h"
+#include "VroomEditor/UserInterface/StatisticsPanel.h"
+#include "VroomEditor/UserInterface/Viewport.h"
+
+class ImFont;
 
 namespace vrm
 {
@@ -29,9 +33,17 @@ private:
 private:
     FrameBuffer m_FrameBuffer;
     CustomEventManager m_CustomEventManager;
+    ImFont* m_Font;
 
     // UI
     MainMenuBar m_MainMenuBar;
+    StatisticsPanel m_StatisticsPanel;
+    Viewport m_Viewport;
+
+    // Frame time management
+    size_t m_FrameAccumulator;
+    float m_TimeAccumulator;
+    const float m_TimeSample;
 
 };
 
