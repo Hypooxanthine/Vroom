@@ -56,6 +56,7 @@ project ("VroomSolution")
 
 add_subdirectory ("Vroom")
 add_subdirectory("Sandbox")
+add_subdirectory("VroomEditor")
 
 # ----- Testing -----
 

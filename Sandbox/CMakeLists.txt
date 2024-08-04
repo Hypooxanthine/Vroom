@@ -55,7 +55,7 @@ else()
     set(OUTPUT_DIR ${Sandbox_BINARY_DIR}/Resources)
 endif()
 
-add_custom_target(Resources ALL
+add_custom_target(SandboxResources ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTPUT_DIR}
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${ENGINE_RESOURCE_DIR} ${OUTPUT_DIR}
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${SANDBOX_RESOURCE_DIR} ${OUTPUT_DIR}
@@ -63,4 +63,4 @@ add_custom_target(Resources ALL
 )
 
 # Make sure Resources is built before Sandbox
-add_dependencies(Sandbox Resources)
+add_dependencies(Sandbox SandboxResources)
