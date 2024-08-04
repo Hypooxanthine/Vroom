@@ -27,6 +27,7 @@ public:
     void unbind() const;
 
     void create(const Specification& spec);
+    void reset();
 
     inline unsigned int getRendererID() const { return m_RendererID; }
     
@@ -34,6 +35,8 @@ public:
 
     inline const Texture2D& getTexture() const { return m_Texture; }
     inline const RenderBuffer& getRenderBuffer() const { return m_RenderBuffer; }
+
+    void setOnScreenRender(bool onScreen);
 
     void clearColorBuffer() const;
 

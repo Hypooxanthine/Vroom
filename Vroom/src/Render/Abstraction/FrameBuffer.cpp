@@ -7,7 +7,6 @@ namespace vrm
 
 FrameBuffer::FrameBuffer()
 {
-    GLCall(glGenFramebuffers(1, &m_RendererID));
 }
 
 FrameBuffer::FrameBuffer(const Specification& spec)
@@ -61,6 +60,7 @@ void FrameBuffer::create(const Specification& spec)
         return;
     }
     
+    GLCall(glGenFramebuffers(1, &m_RendererID));
 
     m_Texture.create(m_Specification.width, m_Specification.height, Texture2D::Format::RGBA);
     m_RenderBuffer.create(m_Specification.width, m_Specification.height);
@@ -72,6 +72,28 @@ void FrameBuffer::create(const Specification& spec)
     VRM_ASSERT_MSG(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is incomplete!");
 
     unbind();
+}
+
+void FrameBuffer::reset()
+{
+    /// @todo This should also reset the texture and renderbuffer.
+    GLCall(glDeleteFramebuffers(1, &m_RendererID));
+}
+
+void FrameBuffer::setOnScreenRender(bool onScreen)
+{
+    if (onScreen == m_Specification.onScreen)
+        return;
+    
+    // If we are switching from off screen to on screen, we need to reset the framebuffer
+    // because we had allocated a framebuffer for off screen rendering.
+    if (!m_Specification.onScreen)
+        reset();
+        
+    auto newSpec = m_Specification;
+    newSpec.onScreen = onScreen;
+
+    create(newSpec);
 }
 
 void FrameBuffer::clearColorBuffer() const
