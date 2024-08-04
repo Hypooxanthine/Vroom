@@ -7,7 +7,6 @@
 #include <GL/glew.h>
 
 #include "Vroom/Core/LayerStack.h"
-#include "Vroom/PublicInterfaces/WindowPublicInterface.h"
 
 
 namespace vrm
@@ -96,9 +95,16 @@ public:
     /**
      * @brief Get the window.
      * 
-     * @return WindowPublicInterface The public interface of the window.
+     * @return Window& The window object.
      */
-    inline WindowPublicInterface getWindow() { return WindowPublicInterface(*m_Window); }
+    inline Window& getWindow() { return *m_Window; }
+
+    /**
+     * @brief Get the window.
+     * 
+     * @return const Window& The window object.
+     */
+    inline const Window& getWindow() const { return *m_Window; }
 
 private:
     

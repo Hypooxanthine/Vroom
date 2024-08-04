@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include <Vroom/Core/Application.h>
+#include <Vroom/Core/Window.h>
 #include <Vroom/Core/GameLayer.h>
 #include <Vroom/Scene/Scene.h>
 #include <Vroom/Asset/Asset.h>

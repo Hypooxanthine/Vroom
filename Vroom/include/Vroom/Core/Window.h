@@ -50,6 +50,12 @@ public:
     void destroy();
 
     /**
+     * @brief Gets the glfw handle of the window.
+     * @return The glfw handle of the window.
+     */
+    inline GLFWwindow* getGLFWHandle() const { return m_Handle; }
+
+    /**
      * @brief Gets window title.
      * @return Window title.
      */
