@@ -29,11 +29,7 @@ GameLayer::GameLayer()
             renderer.setViewport({ 0.f, 0.f}, { static_cast<float>(e.newWidth), static_cast<float>(e.newHeight) });
         })
         .bindCallback([this](const vrm::Event& e) {
-            auto specs = m_FrameBuffer.getSpecification();
-            specs.width = e.newWidth;
-            specs.height = e.newHeight;
-
-            m_FrameBuffer.create(specs);
+            this->m_FrameBuffer.resize(e.newWidth, e.newHeight);
         });
 }
 

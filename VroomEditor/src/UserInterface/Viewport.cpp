@@ -8,7 +8,7 @@ namespace vrm
 {
 
 Viewport::Viewport()
-    : frameBuffer(nullptr)
+    : frameBuffer(nullptr), m_LastViewportSize(ImVec2(0.f, 0.f)), m_DidSizeChangeLastFrame(false)
 {
 }
 
@@ -18,7 +18,21 @@ Viewport::~Viewport()
 
 void Viewport::onImgui()
 {
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+
     ImGui::Begin("Viewport");
+
+    auto size = ImGui::GetContentRegionAvail();
+
+    if (size.x != m_LastViewportSize.x || size.y != m_LastViewportSize.y)
+    {
+        m_DidSizeChangeLastFrame = true;
+        m_LastViewportSize = size;
+    }
+    else
+    {
+        m_DidSizeChangeLastFrame = false;
+    }
 
     if (frameBuffer)
     {
@@ -31,6 +45,8 @@ void Viewport::onImgui()
     }
 
     ImGui::End();
+
+    ImGui::PopStyleVar();
 }
 
 } // namespace vrm

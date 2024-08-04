@@ -84,6 +84,7 @@ void EditorLayer::onEnd()
 
 void EditorLayer::onUpdate(float dt)
 {
+    // Frame time management
     m_FrameAccumulator++;
     m_TimeAccumulator += dt;
     if (m_TimeAccumulator >= m_TimeSample)
@@ -91,6 +92,16 @@ void EditorLayer::onUpdate(float dt)
         m_StatisticsPanel.frameTime = m_TimeSample / m_FrameAccumulator;
         m_FrameAccumulator = 0;
         m_TimeAccumulator -= m_TimeSample;
+    }
+
+    // Handling viewport resize
+    if (m_Viewport.didSizeChangeLastFrame())
+    {
+        Event e;
+        e.type = Event::Type::WindowsResized;
+        e.newWidth = static_cast<int>(m_Viewport.getLastViewportSize().x);
+        e.newHeight = static_cast<int>(m_Viewport.getLastViewportSize().y);
+        Application::Get().getGameLayer().submitEvent(e);
     }
 }
 

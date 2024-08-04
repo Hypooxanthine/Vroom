@@ -74,12 +74,6 @@ void FrameBuffer::create(const Specification& spec)
     unbind();
 }
 
-void FrameBuffer::reset()
-{
-    /// @todo This should also reset the texture and renderbuffer.
-    GLCall(glDeleteFramebuffers(1, &m_RendererID));
-}
-
 void FrameBuffer::setOnScreenRender(bool onScreen)
 {
     if (onScreen == m_Specification.onScreen)
@@ -94,6 +88,32 @@ void FrameBuffer::setOnScreenRender(bool onScreen)
     newSpec.onScreen = onScreen;
 
     create(newSpec);
+}
+
+void FrameBuffer::resize(int width, int height)
+{
+    if (m_Specification.width == width && m_Specification.height == height)
+        return;
+        
+    m_Specification.width = width;
+    m_Specification.height = height;
+
+    if (m_Specification.onScreen)
+        return;
+
+    m_Texture.create(m_Specification.width, m_Specification.height, Texture2D::Format::RGBA);
+    m_RenderBuffer.create(m_Specification.width, m_Specification.height);
+}
+
+void FrameBuffer::setClearColor(const glm::vec4& color)
+{
+    m_Specification.clearColor = color;
+}
+
+void FrameBuffer::reset()
+{
+    /// @todo This should also reset the texture and renderbuffer.
+    GLCall(glDeleteFramebuffers(1, &m_RendererID));
 }
 
 void FrameBuffer::clearColorBuffer() const
