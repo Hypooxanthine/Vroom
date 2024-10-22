@@ -9,6 +9,7 @@
 #include "backends/imgui_impl_opengl3.h"
 
 #include "VroomEditor/EditorScene.h"
+#include "VroomEditor/TestScene/TestScene.h"
 
 namespace vrm
 {
@@ -24,7 +25,7 @@ EditorLayer::EditorLayer()
       m_TimeSample(1.f)
 {
     // We need to load a first scene before initialization of layers, because game layer will be initialized first.
-    Application::Get().getGameLayer().loadScene<EditorScene>();
+    Application::Get().getGameLayer().loadScene<TestScene>();
 }
 
 EditorLayer::~EditorLayer()

@@ -52,7 +52,7 @@ void Viewport::onImgui()
 
             if (frameBuffer)
             {
-                ImTextureID textureID = (void*)(intptr_t)frameBuffer->getTexture().getRendererID();
+                ImTextureID textureID = (intptr_t)frameBuffer->getTexture().getRendererID();
                 ImVec2 imageSize = ImVec2(
                     static_cast<float>(frameBuffer->getSpecification().width),
                     static_cast<float>(frameBuffer->getSpecification().height)
