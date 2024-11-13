@@ -88,12 +88,12 @@ void Application::exit()
 void Application::update()
 {
     auto now = std::chrono::high_resolution_clock::now();
-    auto dt = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - m_LastFrameTimePoint).count()) / 1'000'000'000.f;
+    m_DeltaTime = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - m_LastFrameTimePoint).count()) / 1'000'000'000.f;
     m_LastFrameTimePoint = now;
 
     // Updating from top to bottom
     for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
-        it->update(dt);
+        it->update(m_DeltaTime);
 
     m_Window->updateEvents();
 

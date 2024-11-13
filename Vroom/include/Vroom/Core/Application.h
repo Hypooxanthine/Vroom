@@ -106,6 +106,13 @@ public:
      */
     inline const Window& getWindow() const { return *m_Window; }
 
+    /**
+     * @brief Get the delta time.
+     * 
+     * @return float The delta time.
+     */
+    inline float getDeltaTime() const { return m_DeltaTime; }
+
 private:
     
     /**
@@ -144,6 +151,7 @@ private:
     GameLayer* m_GameLayer;
 
     std::chrono::high_resolution_clock::time_point m_LastFrameTimePoint;
+    float m_DeltaTime = 0.f;
 
     bool m_PendingKilled = false;
 
