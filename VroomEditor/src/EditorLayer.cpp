@@ -22,7 +22,8 @@ EditorLayer::EditorLayer()
       m_Font(nullptr),
       m_FrameAccumulator(0),
       m_TimeAccumulator(0.f),
-      m_TimeSample(1.f)
+      m_TimeSample(1.f),
+      m_EditorCamera(0.1f, 100.f, glm::radians(90.f), 0.f, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f))
 {
     // We need to load a first scene before initialization of layers, because game layer will be initialized first.
     Application::Get().getGameLayer().loadScene<TestScene>();
@@ -42,16 +43,17 @@ void EditorLayer::onInit()
         });
 
     // Engine setup
-    Application::Get().getGameLayer().getFrameBuffer().setOnScreenRender(false);
-    Application::Get().getGameLayer().setShouldHandleEvents(false);
-    Application::Get().getGameLayer().setShouldUpdate(true);
-    Application::Get().getGameLayer().setShouldRender(true);
+    auto& app = Application::Get();
+    app.getGameLayer().getFrameBuffer().setOnScreenRender(false);
+    app.getGameLayer().setShouldHandleEvents(false);
+    app.getGameLayer().setShouldUpdate(true);
+    app.getGameLayer().setShouldRender(true);
 
     // Frame buffer
     FrameBuffer::Specification specs = {
         .onScreen = true,
-        .width = Application::Get().getWindow().getWidth(),
-        .height = Application::Get().getWindow().getHeight(),
+        .width = app.getWindow().getWidth(),
+        .height = app.getWindow().getHeight(),
         .useBlending = true,
         .useDepthTest = true,
         .clearColor = {0.1f, 0.1f, 0.1f, 1.0f}
@@ -73,7 +75,20 @@ void EditorLayer::onInit()
     VRM_ASSERT_MSG(m_Font, "Failed to load font.");
 
     // UI setup
-    m_Viewport.frameBuffer = &Application::Get().getGameLayer().getFrameBuffer();
+    m_Viewport.setFrameBuffer(&app.getGameLayer().getFrameBuffer());
+    app.getGameLayer().getScene().setCamera(&m_EditorCamera);
+
+    // Events
+    m_CustomEventManager.createCustomEvent("EditorCameraRotation")
+        .bindInput(Event::Type::MouseMoved)
+        .bindCallback([this, &app](const Event& e) {
+            if (!m_Viewport.isActive())
+                return;
+
+            m_EditorCamera.addPitch(-e.mouseDeltaY * app.getDeltaTime());
+            m_EditorCamera.addYaw(e.mouseDeltaX * app.getDeltaTime());
+            e.handled = true;
+        });
 }
 
 void EditorLayer::onEnd()
@@ -85,6 +100,8 @@ void EditorLayer::onEnd()
 
 void EditorLayer::onUpdate(float dt)
 {
+    auto& app = Application::Get();
+
     // Frame time management
     m_FrameAccumulator++;
     m_TimeAccumulator += dt;
@@ -97,20 +114,9 @@ void EditorLayer::onUpdate(float dt)
 
     // Handling viewport resize
     if (m_Viewport.didSizeChangeLastFrame())
-    {
-        Event e;
-        e.type = Event::Type::WindowsResized;
-        e.newWidth = static_cast<int>(m_Viewport.getLastViewportSize().x);
-        e.newHeight = static_cast<int>(m_Viewport.getLastViewportSize().y);
-        auto& gameLayer = Application::Get().getGameLayer();
+        onViewportResize();
 
-        // We trick the game layer to handle resize event even if it is not handling events
-        // because we want the viewport to be smooth on resize, even when the game isn't playing.
-        bool handledEvents = gameLayer.isHandlingEvents();
-        gameLayer.setShouldHandleEvents(true);
-        gameLayer.submitEvent(e);
-        gameLayer.setShouldHandleEvents(handledEvents);
-    }
+    app.getWindow().setCursorVisible(!m_Viewport.isActive());
 }
 
 void EditorLayer::onRender()
@@ -144,6 +150,22 @@ void EditorLayer::onImgui()
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void EditorLayer::onViewportResize()
+{
+    Event e;
+    e.type = Event::Type::WindowsResized;
+    e.newWidth = static_cast<int>(m_Viewport.getLastViewportSize().x);
+    e.newHeight = static_cast<int>(m_Viewport.getLastViewportSize().y);
+    auto& gameLayer = Application::Get().getGameLayer();
+
+    // We trick the game layer to handle resize event even if it is not handling events
+    // because we want the viewport to be smooth on resize, even when the game isn't playing.
+    bool handledEvents = gameLayer.isHandlingEvents();
+    gameLayer.setShouldHandleEvents(true);
+    gameLayer.submitEvent(e);
+    gameLayer.setShouldHandleEvents(handledEvents);
 }
 
 } // namespace vrm

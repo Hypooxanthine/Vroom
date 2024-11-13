@@ -3,6 +3,7 @@
 #include <Vroom/Core/Layer.h>
 #include <Vroom/Render/Abstraction/FrameBuffer.h>
 #include <Vroom/Event/CustomEvent/CustomEventManager.h>
+#include <Vroom/Render/Camera/FirstPersonCamera.h>
 
 #include "VroomEditor/UserInterface/MainMenuBar.h"
 #include "VroomEditor/UserInterface/StatisticsPanel.h"
@@ -30,6 +31,8 @@ protected:
 private:
     void onImgui();
 
+    void onViewportResize();
+
 private:
     FrameBuffer m_FrameBuffer;
     CustomEventManager m_CustomEventManager;
@@ -45,6 +48,8 @@ private:
     float m_TimeAccumulator;
     const float m_TimeSample;
 
+    FirstPersonCamera m_EditorCamera;
+    double m_CameraUp = 0.0, m_CameraRight = 0.0;
 };
 
 } // namespace vrm

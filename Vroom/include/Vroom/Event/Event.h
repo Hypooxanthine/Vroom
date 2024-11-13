@@ -50,7 +50,7 @@ struct Event
         MouseCode mouseCode;
     };
 
-    bool handled = false;
+    mutable bool handled = false;
     
 };
 

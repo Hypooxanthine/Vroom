@@ -1,5 +1,6 @@
 #include "VroomEditor/UserInterface/Viewport.h"
 
+#include <Vroom/Core/Log.h>
 #include <Vroom/Render/Abstraction/FrameBuffer.h>
 
 #include "imgui.h"
@@ -8,7 +9,7 @@ namespace vrm
 {
 
 Viewport::Viewport()
-    : frameBuffer(nullptr), m_LastViewportSize(ImVec2(0.f, 0.f)), m_DidSizeChangeLastFrame(false)
+    : frameBuffer(nullptr), m_LastViewportSize(ImVec2(0.f, 0.f))
 {
 }
 
@@ -26,11 +27,11 @@ void Viewport::onImgui()
         {
             ImGui::SameLine((ImGui::GetWindowWidth() - 150) / 2);
         
-            pressedPlay = ImGui::Button("Play");
+            m_PressedPlay = ImGui::Button("Play");
             ImGui::SameLine();
-            pressedPause = ImGui::Button("Pause");
+            m_PressedPause = ImGui::Button("Pause");
             ImGui::SameLine();
-            pressedStop = ImGui::Button("Stop");
+            m_PressedStop = ImGui::Button("Stop");
         
             ImGui::EndChildFrame();
         }
@@ -58,6 +59,8 @@ void Viewport::onImgui()
                     static_cast<float>(frameBuffer->getSpecification().height)
                 );
                 ImGui::Image(textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
+
+                m_Active = ImGui::IsMouseDragging(ImGuiMouseButton_Left);
             }
 
             ImGui::EndChildFrame();
