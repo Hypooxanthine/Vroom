@@ -3,11 +3,14 @@
 #include <Vroom/Core/Layer.h>
 #include <Vroom/Render/Abstraction/FrameBuffer.h>
 #include <Vroom/Event/CustomEvent/CustomEventManager.h>
+#include <Vroom/Event/Trigger/TriggerManager.h>
 #include <Vroom/Render/Camera/FirstPersonCamera.h>
 
 #include "VroomEditor/UserInterface/MainMenuBar.h"
 #include "VroomEditor/UserInterface/StatisticsPanel.h"
 #include "VroomEditor/UserInterface/Viewport.h"
+
+#include <glm/gtc/constants.hpp>
 
 struct ImFont;
 
@@ -36,6 +39,7 @@ private:
 private:
     FrameBuffer m_FrameBuffer;
     CustomEventManager m_CustomEventManager;
+    TriggerManager m_TriggerManager;
     ImFont* m_Font;
 
     // UI
@@ -49,7 +53,9 @@ private:
     const float m_TimeSample;
 
     FirstPersonCamera m_EditorCamera;
-    double m_CameraUp = 0.0, m_CameraRight = 0.0;
+    float m_LookUpValue = 0.f, m_LookRightValue = 0.f;
+    float m_MoveForwardValue = 0.f, m_MoveRightValue = 0.f, m_MoveUpValue = 0.f;
+    float m_EditorCameraSpeed = 10.f, m_EditorCameraAngularSpeed = 0.8f * glm::two_pi<float>() / 360.f;
 };
 
 } // namespace vrm

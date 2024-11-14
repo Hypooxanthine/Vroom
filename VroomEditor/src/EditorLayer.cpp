@@ -81,13 +81,41 @@ void EditorLayer::onInit()
     // Events
     m_CustomEventManager.createCustomEvent("EditorCameraRotation")
         .bindInput(Event::Type::MouseMoved)
-        .bindCallback([this, &app](const Event& e) {
-            if (!m_Viewport.isActive())
-                return;
+        .bindCallback([this](const Event& e) {
+            m_LookRightValue += static_cast<float>(e.mouseDeltaX);
+            m_LookUpValue -= static_cast<float>(e.mouseDeltaY);
+        });
 
-            m_EditorCamera.addPitch(-e.mouseDeltaY * app.getDeltaTime());
-            m_EditorCamera.addYaw(e.mouseDeltaX * app.getDeltaTime());
-            e.handled = true;
+	m_TriggerManager.createTrigger("MoveForward")
+		.bindInput(vrm::KeyCode::W)
+        .bindCallback([this](bool triggered) {
+            m_MoveForwardValue += triggered ? 1.f : -1.f;
+            
+        });
+	m_TriggerManager.createTrigger("MoveBackward")
+		.bindInput(vrm::KeyCode::S)
+        .bindCallback([this](bool triggered) {
+            m_MoveForwardValue -= triggered ? 1.f : -1.f;
+        });
+	m_TriggerManager.createTrigger("MoveRight")
+		.bindInput(vrm::KeyCode::D)
+        .bindCallback([this](bool triggered) {
+            m_MoveRightValue += triggered ? 1.f : -1.f;
+        });
+	m_TriggerManager.createTrigger("MoveLeft")
+		.bindInput(vrm::KeyCode::A)
+        .bindCallback([this](bool triggered) {
+            m_MoveRightValue -= triggered ? 1.f : -1.f;
+        });
+	m_TriggerManager.createTrigger("MoveUp")
+		.bindInput(vrm::KeyCode::Space)
+        .bindCallback([this](bool triggered) {
+            m_MoveUpValue += triggered ? 1.f : -1.f;
+        });
+	m_TriggerManager.createTrigger("MoveDown")
+		.bindInput(vrm::KeyCode::LeftShift)
+        .bindCallback([this](bool triggered) {
+            m_MoveUpValue -= triggered ? 1.f : -1.f;
         });
 }
 
@@ -116,7 +144,20 @@ void EditorLayer::onUpdate(float dt)
     if (m_Viewport.didSizeChangeLastFrame())
         onViewportResize();
 
-    app.getWindow().setCursorVisible(!m_Viewport.isActive());
+    if (m_Viewport.isActive())
+    {
+        app.getWindow().setCursorVisible(false);
+        m_EditorCamera.move(m_MoveForwardValue * m_EditorCameraSpeed * dt * m_EditorCamera.getForwardVector());
+        m_EditorCamera.move(m_MoveRightValue * m_EditorCameraSpeed * dt * m_EditorCamera.getRightVector());
+        m_EditorCamera.move(m_MoveUpValue * m_EditorCameraSpeed * dt * glm::vec3{0.f, 1.f, 0.f});
+        m_EditorCamera.addYaw(m_LookRightValue * m_EditorCameraAngularSpeed);
+        m_EditorCamera.addPitch(m_LookUpValue * m_EditorCameraAngularSpeed);
+    }
+    else
+        app.getWindow().setCursorVisible(true);
+
+    m_LookUpValue = 0.f;
+    m_LookRightValue = 0.f;
 }
 
 void EditorLayer::onRender()
@@ -130,6 +171,7 @@ void EditorLayer::onRender()
 void EditorLayer::onEvent(vrm::Event& e)
 {
     m_CustomEventManager.check(e);
+    m_TriggerManager.check(e);
 }
 
 void EditorLayer::onImgui()
