@@ -60,7 +60,7 @@ void Viewport::onImgui()
                 );
                 ImGui::Image(textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
                 
-                m_Active = ImGui::IsWindowFocused() && ImGui::IsMouseDragging(ImGuiMouseButton_Left);
+                m_Active = ImGui::IsWindowFocused() && ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.f);
             }
 
             ImGui::EndChildFrame();
