@@ -9,7 +9,17 @@ MovingLightScript::MovingLightScript(float circleRadius, float height, float sta
 {
 }
 
+void MovingLightScript::onSpawn()
+{
+    updatePosition(0.f);
+}
+
 void MovingLightScript::onUpdate(float dt)
+{
+    updatePosition(dt);
+}
+
+void MovingLightScript::updatePosition(float dt)
 {
     m_Angle += m_Speed * dt;
 

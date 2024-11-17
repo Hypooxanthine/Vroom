@@ -8,7 +8,17 @@ SuzanneScript::SuzanneScript(float circleRadius, float startAngle, float speed)
 {
 }
 
+void SuzanneScript::onSpawn()
+{
+    updatePosition(0.f);
+}
+
 void SuzanneScript::onUpdate(float dt)
+{
+    updatePosition(dt);
+}
+
+void SuzanneScript::updatePosition(float dt)
 {
     m_Angle += m_Speed * dt;
 

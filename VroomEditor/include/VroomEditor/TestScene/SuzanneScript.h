@@ -8,7 +8,12 @@ public:
     SuzanneScript(float circleRadius, float startAngle, float speed);
     ~SuzanneScript() = default;
 
+    void onSpawn() override;
+
     void onUpdate(float dt) override;
+
+private:
+    void updatePosition(float dt);
 
 private:
     float m_CircleRadius;

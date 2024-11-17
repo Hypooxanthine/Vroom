@@ -26,12 +26,28 @@ void Viewport::onImgui()
         if (ImGui::BeginChildFrame(ImGui::GetID("ViewportTopButtons"), ImVec2(0, 30), ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
         {
             ImGui::SameLine((ImGui::GetWindowWidth() - 150) / 2);
-        
-            m_PressedPlay = ImGui::Button("Play");
-            ImGui::SameLine();
-            m_PressedPause = ImGui::Button("Pause");
-            ImGui::SameLine();
-            m_PressedStop = ImGui::Button("Stop");
+
+            if (!m_Playing && !m_Simulating)
+            {
+                m_Playing = ImGui::Button("Play");
+                ImGui::SameLine();
+                m_Simulating = ImGui::Button("Simulate");
+            }
+            else
+            {
+                if (!m_Paused)
+                    m_Paused = ImGui::Button("Pause");
+                else
+                    m_Paused = !ImGui::Button("Resume");
+                ImGui::SameLine();
+                bool stopped = ImGui::Button("Stop");
+                if (stopped)
+                {
+                    m_Playing = false;
+                    m_Simulating = false;
+                    m_Paused = false;
+                }
+            }
         
             ImGui::EndChildFrame();
         }

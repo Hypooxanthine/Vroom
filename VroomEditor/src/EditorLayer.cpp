@@ -46,7 +46,7 @@ void EditorLayer::onInit()
     auto& app = Application::Get();
     app.getGameLayer().getFrameBuffer().setOnScreenRender(false);
     app.getGameLayer().setShouldHandleEvents(false);
-    app.getGameLayer().setShouldUpdate(true);
+    app.getGameLayer().setShouldUpdate(false);
     app.getGameLayer().setShouldRender(true);
 
     // Frame buffer
@@ -132,6 +132,7 @@ void EditorLayer::onUpdate(float dt)
     if (m_Viewport.didSizeChangeLastFrame())
         onViewportResize();
 
+    // If the viewport is active, we update the editor camera
     if (m_Viewport.isActive())
     {
         app.getWindow().setCursorVisible(false);
@@ -139,6 +140,15 @@ void EditorLayer::onUpdate(float dt)
     }
     else
         app.getWindow().setCursorVisible(true);
+
+    if (m_Viewport.isSimulating() && !m_Viewport.isPaused())
+    {
+        app.getGameLayer().setShouldUpdate(true);
+    }
+    else
+    {
+        app.getGameLayer().setShouldUpdate(false);
+    }
 }
 
 void EditorLayer::onRender()

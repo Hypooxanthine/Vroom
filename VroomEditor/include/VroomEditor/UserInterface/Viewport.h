@@ -19,9 +19,10 @@ public:
 
     inline FrameBuffer* getFrameBuffer() const { return frameBuffer; }
 
-    inline bool requestedPlay() const { return m_PressedPlay; }
-    inline bool requestedPause() const { return m_PressedPause; }
-    inline bool requestedStop() const { return m_PressedStop; }
+    inline bool isPlaying() const { return m_Playing; }
+    inline bool isSimulating() const { return m_Simulating; }
+    inline bool isPaused() const { return m_Paused; }
+    inline bool isIdle() const { return !m_Playing && !m_Simulating; }
     inline bool isActive() const { return m_Active; }
 
     inline void setFrameBuffer(FrameBuffer* fb) { frameBuffer = fb; }
@@ -31,11 +32,11 @@ protected:
 
 private: // ImGui related variables
     FrameBuffer* frameBuffer;
-
-    bool m_PressedPlay = false;
-    bool m_PressedPause = false;
-    bool m_PressedStop = false;
+    
     bool m_Active = false;
+    bool m_Playing = false;
+    bool m_Simulating = false;
+    bool m_Paused = false;
 
 private:
     bool m_DidSizeChangeLastFrame = false;
