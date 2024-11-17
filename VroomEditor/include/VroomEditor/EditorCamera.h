@@ -1,0 +1,35 @@
+#pragma once
+
+#include <Vroom/Render/Camera/FirstPersonCamera.h>
+
+#include <glm/gtc/constants.hpp>
+
+namespace vrm
+{
+
+class EditorCamera : public FirstPersonCamera
+{
+public:
+    EditorCamera(float viewNear, float viewFar, float viewFov, float viewAspectRatio, const glm::vec3& position, const glm::vec3& rotation);
+
+    void onUpdate(float dt);
+
+    void submitLookUp(float value);
+    void submitLookRight(float value);
+    void addMoveForward(float value);
+    void addMoveRight(float value);
+    void addMoveUp(float value);
+
+    inline void setSpeed(float speed) { m_Speed = speed; }
+    inline void setAngularSpeed(float angularSpeed) { m_AngularSpeed = angularSpeed; }
+
+    inline float getSpeed() const { return m_Speed; }
+    inline float getAngularSpeed() const { return m_AngularSpeed; }
+
+private:
+    float m_LookUpValue = 0.f, m_LookRightValue = 0.f;
+    float m_MoveForwardValue = 0.f, m_MoveRightValue = 0.f, m_MoveUpValue = 0.f;
+    float m_Speed = 10.f, m_AngularSpeed = 0.2f * glm::two_pi<float>() / 360.f;
+};
+
+} // namespace vrm

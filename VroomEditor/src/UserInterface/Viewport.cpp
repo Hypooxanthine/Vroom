@@ -59,8 +59,8 @@ void Viewport::onImgui()
                     static_cast<float>(frameBuffer->getSpecification().height)
                 );
                 ImGui::Image(textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
-
-                m_Active = ImGui::IsMouseDragging(ImGuiMouseButton_Left);
+                
+                m_Active = ImGui::IsWindowFocused() && ImGui::IsMouseDragging(ImGuiMouseButton_Left);
             }
 
             ImGui::EndChildFrame();

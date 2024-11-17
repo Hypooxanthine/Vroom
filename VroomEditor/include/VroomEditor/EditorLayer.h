@@ -9,8 +9,7 @@
 #include "VroomEditor/UserInterface/MainMenuBar.h"
 #include "VroomEditor/UserInterface/StatisticsPanel.h"
 #include "VroomEditor/UserInterface/Viewport.h"
-
-#include <glm/gtc/constants.hpp>
+#include "VroomEditor/EditorCamera.h"
 
 struct ImFont;
 
@@ -52,10 +51,7 @@ private:
     float m_TimeAccumulator;
     const float m_TimeSample;
 
-    FirstPersonCamera m_EditorCamera;
-    float m_LookUpValue = 0.f, m_LookRightValue = 0.f;
-    float m_MoveForwardValue = 0.f, m_MoveRightValue = 0.f, m_MoveUpValue = 0.f;
-    float m_EditorCameraSpeed = 10.f, m_EditorCameraAngularSpeed = 0.8f * glm::two_pi<float>() / 360.f;
+    EditorCamera m_EditorCamera;
 };
 
 } // namespace vrm
