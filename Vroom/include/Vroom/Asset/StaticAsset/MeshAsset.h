@@ -33,6 +33,11 @@ public:
 
     const std::list<SubMesh>& getSubMeshes() const { return m_SubMeshes; }
 
+    void addSubmesh(const MeshData& mesh, MaterialInstance instance);
+    void addSubmesh(const MeshData& mesh);
+
+    void clear();
+
 protected: 
     bool loadImpl(const std::string& filePath) override;
 

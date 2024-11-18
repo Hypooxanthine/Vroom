@@ -30,6 +30,22 @@ MeshInstance MeshAsset::createInstance()
     return MeshInstance(this);
 }
 
+void MeshAsset::addSubmesh(const MeshData& mesh, MaterialInstance instance)
+{
+    m_SubMeshes.emplace_back(SubMesh(RenderMesh(mesh), MeshData(mesh), instance));
+}
+
+void MeshAsset::addSubmesh(const MeshData& mesh)
+{
+    MaterialInstance materialInstance = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/Mat_Default.asset");
+    m_SubMeshes.emplace_back(SubMesh(RenderMesh(mesh), MeshData(mesh), materialInstance));
+}
+
+void MeshAsset::clear()
+{
+    m_SubMeshes.clear();
+}
+
 bool MeshAsset::loadImpl(const std::string& filePath)
 {
     std::string extension = StaticAsset::getExtension(filePath);
