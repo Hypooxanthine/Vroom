@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Vroom/Asset/AssetData/Vertex.h"
+#include "Vroom/Render/Abstraction/Vertex.h"
 
 namespace vrm
 {
