@@ -23,7 +23,7 @@ public:
     /**
      * @brief Get the rotation of the camera in world space.
      * 
-     * @return glm::vec3 The rotation of the camera (in radians).
+     * @return glm::vec3 The rotation of the camera (in degrees).
      */
     inline const glm::vec3& getRotation() const { return m_Rotation; }
 
@@ -39,7 +39,7 @@ public:
     /**
      * @brief Set the rotation of the camera in world space.
      * 
-     * @param rot The new rotation of the camera (in radians).
+     * @param rot The new rotation of the camera (in degrees).
      */
     void setRotation(const glm::vec3& rot);
 
@@ -48,21 +48,21 @@ public:
     /**
      * @brief Add a yaw rotation to the camera.
      * 
-     * @param yaw The yaw rotation to add (in radians).
+     * @param yaw The yaw rotation to add (in degrees).
      */
     void addYaw(float yaw);
 
     /**
      * @brief Add a pitch rotation to the camera.
      * 
-     * @param pitch The pitch rotation to add (in radians).
+     * @param pitch The pitch rotation to add (in degrees).
      */
     void addPitch(float pitch);
 
     /**
      * @brief Add a roll rotation to the camera.
      * 
-     * @param roll The roll rotation to add (in radians).
+     * @param roll The roll rotation to add (in degrees).
      */
     void addRoll(float roll);
 
