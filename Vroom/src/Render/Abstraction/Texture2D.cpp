@@ -67,6 +67,56 @@ Texture2D::~Texture2D()
     release();
 }
 
+Texture2D& Texture2D::operator=(const Texture2D& other)
+{
+    if (this != &other)
+    {
+        if (other.isCreated())
+        {
+            // Create a new texture on GPU with empty data (no expensive getData() call).
+            create(other.m_Width, other.m_Height, other.m_Format);
+            // Copy data from other texture to this texture.
+            GLCall(glCopyImageSubData(
+                other.m_RendererID, GL_TEXTURE_2D, 0, 0, 0, 0,
+                m_RendererID,       GL_TEXTURE_2D, 0, 0, 0, 0,
+                m_Width, m_Height, 1));
+        }
+        else
+            release();
+    }
+
+    return *this;
+}
+
+Texture2D::Texture2D(const Texture2D& other)
+{
+    *this = other;
+}
+
+Texture2D& Texture2D::operator=(Texture2D&& other) noexcept
+{
+    if (this != &other)
+    {
+        m_RendererID = other.m_RendererID;
+        m_Width = other.m_Width;
+        m_Height = other.m_Height;
+        m_Format = other.m_Format;
+        m_BPP = other.m_BPP;
+
+        other.m_RendererID = 0;
+        other.m_Width = 0;
+        other.m_Height = 0;
+        other.m_BPP = 0;
+    }
+
+    return *this;
+}
+
+Texture2D::Texture2D(Texture2D&& other) noexcept
+{
+    *this = std::move(other);
+}
+
 void Texture2D::bind(unsigned int slot) const
 {
     VRM_DEBUG_ASSERT_MSG(isCreated(), "Texture not created.");

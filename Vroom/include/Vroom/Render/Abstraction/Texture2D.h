@@ -18,7 +18,14 @@ public:
 public:
     Texture2D();
     Texture2D(const std::string& path);
+    
     virtual ~Texture2D();
+
+    Texture2D& operator=(const Texture2D& other);
+    Texture2D(const Texture2D& other);
+
+    Texture2D& operator=(Texture2D&& other) noexcept;
+    Texture2D(Texture2D&& other) noexcept;
 
     void bind(unsigned int slot = 0) const;
     void unbind() const;
