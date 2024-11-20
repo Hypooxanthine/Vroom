@@ -11,6 +11,7 @@ class Texture2D
 public:
     enum class Format
     {
+        Unsupported = -1,
         Grayscale = 0,
         RGB,
         RGBA
