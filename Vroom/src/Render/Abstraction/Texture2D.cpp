@@ -13,6 +13,7 @@ static constexpr GLenum toGLFormat(Texture2D::Format format)
 {
     switch (format)
     {
+    case Texture2D::Format::Grayscale: return GL_RED;
     case Texture2D::Format::RGB: return GL_RGB;
     case Texture2D::Format::RGBA: return GL_RGBA;
     default: return GL_RGB;
@@ -23,6 +24,7 @@ static constexpr GLenum toGLInternalFormat(Texture2D::Format format)
 {
     switch (format)
     {
+    case Texture2D::Format::Grayscale: return GL_R8;
     case Texture2D::Format::RGB: return GL_RGB8;
     case Texture2D::Format::RGBA: return GL_RGBA8;
     default: return GL_RGB8;
@@ -33,6 +35,7 @@ static constexpr GLenum toGLType(Texture2D::Format format)
 {
     switch (format)
     {
+    case Texture2D::Format::Grayscale: return GL_UNSIGNED_BYTE;
     case Texture2D::Format::RGB: return GL_UNSIGNED_BYTE;
     case Texture2D::Format::RGBA: return GL_UNSIGNED_BYTE;
     default: return GL_UNSIGNED_BYTE;
@@ -43,9 +46,21 @@ static constexpr int pixelChannelsCount(Texture2D::Format format)
 {
     switch (format)
     {
+    case Texture2D::Format::Grayscale: return 1;
     case Texture2D::Format::RGB: return 3;
     case Texture2D::Format::RGBA: return 4;
     default: return 4;
+    }
+}
+
+static constexpr Texture2D::Format toTextureFormat(int channels)
+{
+    switch (channels)
+    {
+    case 1: return Texture2D::Format::Grayscale;
+    case 3: return Texture2D::Format::RGB;
+    case 4: return Texture2D::Format::RGBA;
+    default: return Texture2D::Format::RGBA;
     }
 }
 
@@ -144,7 +159,7 @@ void Texture2D::create(int width, int height, Format format, const void* data)
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-    GLCall(glTexImage2D(GL_TEXTURE_2D, 0, toGLInternalFormat(format), m_Width, m_Height, 0, toGLFormat(format), GL_UNSIGNED_BYTE, data));
+    GLCall(glTexImage2D(GL_TEXTURE_2D, 0, toGLInternalFormat(format), m_Width, m_Height, 0, toGLFormat(format), toGLType(format), data));
 }
 
 void Texture2D::release()
@@ -163,14 +178,14 @@ bool Texture2D::loadFromFile(const std::string& path)
 {
 	stbi_set_flip_vertically_on_load(1);
 	int width, height;
-    int bpp;
-	unsigned char* localBuffer = stbi_load(path.c_str(), &width, &height, &bpp, pixelChannelsCount(Format::RGBA));
+    int channels;
+	unsigned char* localBuffer = stbi_load(path.c_str(), &width, &height, &channels, 0);
 
 	if (localBuffer == nullptr) return false;
 
 	//std::cout << "Image loaded. Width:" << m_Width << ", Height:" << m_Height << ", BPP:" << m_BPP << std::endl;
 
-	create(width, height, Format::RGBA, localBuffer);
+	create(width, height, toTextureFormat(channels), localBuffer);
 	stbi_image_free(localBuffer);
 
 	return true;
