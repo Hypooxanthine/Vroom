@@ -166,7 +166,7 @@ void Texture2D::release()
 {
     if (isCreated())
     {
-        GLCall(glDeleteTextures(1, &m_RendererID));
+        GLCall_nothrow(glDeleteTextures(1, &m_RendererID));
         m_RendererID = 0;
         m_Width = 0;
         m_Height = 0;
