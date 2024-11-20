@@ -24,13 +24,19 @@ ctest # If you want to run unit tests
 doxygen ../Doxyfile # If you need to generate documentation
 ```
 
+Now you can either open the Visual Studio solution, or build the editor directly from the terminal:
+
+```bash
+cmake --build . --target=VroomEditor --config=Release --parallel
+```
+
 #### VS Code
 
 You can also build the project by opening the root folder on VS Code, and use the "CMake" and "CMake Tools" VS Code extensions (that is my workflow).
 
 ### Linux
 
-> **_NOTE:_**  Vroom is actively developped for the Windows platform, but I try to keep it compatible with Linux as much as possible. Vroom may not be fully functional on Linux.
+> **_NOTE:_**  Vroom is actively developped for the Windows platform, but I try to keep it compatible with Linux as much as possible.
 
 Install required dependencies:
 ```bash
@@ -44,13 +50,13 @@ sudo apt install libglfw3-dev
 mkdir build
 cd build
 cmake ..
-cmake --build . --parallel
+cmake --build . --target=VroomEditor --config=Release --parallel
 ```
 
 - Launching Sandbox program:
 ```bash
-cd Sandbox # Don't use ./Sandbox/Sandbox directly because the program won't be able to load resource files.
-./Sandbox
+cd VroomEditor # Don't use ./VroomEditor/VroomEditor directly because the program won't be able to load resource files.
+./VroomEditor
 ```
 
 #### VS Code
