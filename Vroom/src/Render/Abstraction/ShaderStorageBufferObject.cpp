@@ -2,6 +2,9 @@
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 
+namespace vrm
+{
+
 ShaderStorageBufferObject::ShaderStorageBufferObject()
 {
     GLCall(glGenBuffers(1, &m_RendererID));
@@ -97,3 +100,5 @@ constexpr GLenum ShaderStorageBufferObject::AccessTypeToGL(AccessType accessType
         return GL_READ_ONLY;
     }
 }
+
+} // namespace vrm

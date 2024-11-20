@@ -1,5 +1,8 @@
 #pragma once
 
+namespace vrm
+{
+
 class VertexBuffer;
 class VertexBufferLayout;
 
@@ -43,3 +46,5 @@ public:
 private:
 	unsigned int m_RendererID;
 };
+
+} // namespace vrm

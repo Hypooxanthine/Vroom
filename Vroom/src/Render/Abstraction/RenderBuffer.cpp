@@ -2,6 +2,9 @@
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 
+namespace vrm
+{
+
 RenderBuffer::RenderBuffer()
 {
     GLCall(glGenRenderbuffers(1, &m_RendererID));
@@ -31,3 +34,5 @@ void RenderBuffer::create(int width, int height)
     GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_Width, m_Height));
     unbind();
 }
+
+} // namespace vrm

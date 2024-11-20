@@ -4,6 +4,9 @@
 
 #include "Vroom/Render/Abstraction/Texture2D.h"
 
+namespace vrm
+{
+
 class ImageTexture : public Texture2D
 {
 public:
@@ -44,3 +47,5 @@ private:
 	int m_BPP;
 	bool m_Loaded;
 };
+
+} // namespace vrm

@@ -4,6 +4,9 @@
 
 #include "Vroom/Core/Log.h"
 
+namespace vrm
+{
+
 static std::string LoadShader(const std::string& path)
 {
     std::ifstream ifs(path);
@@ -188,3 +191,5 @@ int ComputeShader::getUniformLocation(const std::string& name) const
 
     return location;
 }
+
+} // namespace vrm

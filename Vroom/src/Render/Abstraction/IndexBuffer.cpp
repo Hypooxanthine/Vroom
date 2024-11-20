@@ -2,6 +2,9 @@
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 
+namespace vrm
+{
+
 IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count)
 	: m_RendererID(0), m_Count(count)
 {
@@ -42,3 +45,5 @@ void IndexBuffer::unbind() const
 {
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
+
+} // namespace vrm

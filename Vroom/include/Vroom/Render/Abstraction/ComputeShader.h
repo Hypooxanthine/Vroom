@@ -7,6 +7,9 @@
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 
+namespace vrm
+{
+	
 class ComputeShader
 {
 public:
@@ -110,3 +113,5 @@ private:
     unsigned int m_MemoryBarrier = GL_ALL_BARRIER_BITS;
     
 };
+
+} // namespace vrm

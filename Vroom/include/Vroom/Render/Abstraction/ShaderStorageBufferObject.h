@@ -2,6 +2,9 @@
 
 #include <GL/glew.h>
 
+namespace vrm
+{
+
 class ShaderStorageBufferObject
 {
 public:
@@ -45,3 +48,5 @@ private:
     bool m_HasBindingPoint = false;
     unsigned int m_BindingPoint;
 };
+
+} // namespace vrm

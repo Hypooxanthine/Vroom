@@ -3,6 +3,9 @@
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Core/Assert.h"
 
+namespace vrm
+{
+
 static constexpr GLenum toGLFormat(Texture2D::Format format)
 {
     switch (format)
@@ -56,3 +59,5 @@ void Texture2D::create(int width, int height, Format format)
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
     GLCall(glTexImage2D(GL_TEXTURE_2D, 0, toGLInternalFormat(format), m_Width, m_Height, 0, toGLFormat(format), GL_UNSIGNED_BYTE, nullptr));
 }
+
+} // namespace vrm

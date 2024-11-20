@@ -5,6 +5,9 @@
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 
+namespace vrm
+{
+
 ImageTexture::ImageTexture(const std::string& path)
 	: ImageTexture()
 {
@@ -41,3 +44,5 @@ bool ImageTexture::loadFromFile(const std::string& path)
 	m_Loaded = true;
 	return true;
 }
+
+} // namespace vrm

@@ -3,6 +3,9 @@
 #include <vector>
 #include "Vroom/Render/Abstraction/GLCall.h"
 
+namespace vrm
+{
+
 /**
  * @brief Stores a single vertex element in layout : type of element variable, variables count, normalized or not.
  */
@@ -94,3 +97,5 @@ private:
 	std::vector<VertexBufferElement> m_Elements;
 	unsigned int m_Stride;
 };
+
+} // namespace vrm

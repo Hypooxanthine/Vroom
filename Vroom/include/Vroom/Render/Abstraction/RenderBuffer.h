@@ -1,5 +1,8 @@
 #pragma once
 
+namespace vrm
+{
+
 class RenderBuffer
 {
 public:
@@ -17,3 +20,5 @@ private:
     unsigned int m_RendererID;
     int m_Width, m_Height;
 };
+
+} // namespace vrm

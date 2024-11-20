@@ -6,6 +6,9 @@
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Core/Log.h"
 
+namespace vrm
+{
+
 static std::string LoadShader(const std::string& path)
 {
     std::ifstream ifs(path);
@@ -242,3 +245,5 @@ int Shader::getUniformLocation(const std::string& name) const
 
     return location;
 }
+
+} // namespace vrm

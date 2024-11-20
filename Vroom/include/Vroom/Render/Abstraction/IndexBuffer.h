@@ -1,5 +1,8 @@
 #pragma once
 
+namespace vrm
+{
+
 class IndexBuffer
 {
 public:
@@ -41,3 +44,5 @@ private:
 	unsigned int m_RendererID;
 	unsigned int m_Count;
 };
+
+} // namespace vrm

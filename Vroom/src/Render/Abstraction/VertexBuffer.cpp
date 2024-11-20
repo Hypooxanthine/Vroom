@@ -2,6 +2,9 @@
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 
+namespace vrm
+{
+
 VertexBuffer::VertexBuffer(const void* data, unsigned int size)
 	: m_RendererID(0)
 {
@@ -41,3 +44,5 @@ void VertexBuffer::unbind() const
 {
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
+
+} // namespace vrm

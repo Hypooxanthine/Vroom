@@ -1,5 +1,8 @@
 #pragma once
 
+namespace vrm
+{
+
 class Texture2D
 {
 public:
@@ -36,3 +39,5 @@ private:
     unsigned int m_RendererID = 0;
 	int m_Width = 0, m_Height = 0;
 };
+
+} // namespace vrm

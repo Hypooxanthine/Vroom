@@ -4,6 +4,9 @@
 #include "Vroom/Render/Abstraction/VertexBuffer.h"
 #include "Vroom/Render/Abstraction/VertexBufferLayout.h"
 
+namespace vrm
+{
+
 VertexArray::VertexArray()
 {
 	GLCall(glGenVertexArrays(1, &m_RendererID));
@@ -62,3 +65,5 @@ void VertexArray::unbind() const
 {
 	GLCall(glBindVertexArray(0));
 }
+
+} // namespace vrm

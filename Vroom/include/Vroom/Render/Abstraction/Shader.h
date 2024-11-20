@@ -5,6 +5,9 @@
 
 #include "glm/glm.hpp"
 
+namespace vrm
+{
+
 class Shader
 {
 public:
@@ -152,3 +155,5 @@ private:
 	unsigned int m_RendererID = 0;
 	mutable std::unordered_map<std::string, int> m_UniformLocationCache;
 };
+
+} // namespace vrm

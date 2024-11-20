@@ -4,10 +4,10 @@
 #include <string>
 #include <glm/glm.hpp>
 
-class Shader;
-
 namespace vrm
 {
+
+class Shader;
 
 class MaterialData
 {
