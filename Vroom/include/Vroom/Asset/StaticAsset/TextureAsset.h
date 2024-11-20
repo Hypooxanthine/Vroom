@@ -2,7 +2,7 @@
 
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
 #include "Vroom/Asset/AssetInstance/TextureInstance.h"
-#include "Vroom/Render/Abstraction/ImageTexture.h"
+#include "Vroom/Render/Abstraction/Texture2D.h"
 
 namespace vrm
 {
@@ -18,13 +18,13 @@ public:
 
     [[nodiscard]] TextureInstance createInstance();
 
-    [[nodiscard]] inline const ImageTexture& getGPUTexture() const { return m_GPUTexture; }
+    [[nodiscard]] inline const Texture2D& getGPUTexture() const { return m_GPUTexture; }
 
 protected:
     bool loadImpl(const std::string& filePath) override;
 
 private:
-    ImageTexture m_GPUTexture;
+    Texture2D m_GPUTexture;
 };
 
 } // namespace vrm

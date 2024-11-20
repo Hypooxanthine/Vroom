@@ -1,5 +1,8 @@
 #include "Vroom/Render/Abstraction/Texture2D.h"
 
+#include "stb_image/stb_image.h"
+#include "stb_image/stb_image_write.h"
+
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Core/Assert.h"
 
@@ -26,18 +29,47 @@ static constexpr GLenum toGLInternalFormat(Texture2D::Format format)
     }
 }
 
-Texture2D::Texture2D()
+static constexpr GLenum toGLType(Texture2D::Format format)
 {
-    GLCall(glGenTextures(1, &m_RendererID));
+    switch (format)
+    {
+    case Texture2D::Format::RGB: return GL_UNSIGNED_BYTE;
+    case Texture2D::Format::RGBA: return GL_UNSIGNED_BYTE;
+    default: return GL_UNSIGNED_BYTE;
+    }
+}
+
+static constexpr int pixelChannelsCount(Texture2D::Format format)
+{
+    switch (format)
+    {
+    case Texture2D::Format::RGB: return 3;
+    case Texture2D::Format::RGBA: return 4;
+    default: return 4;
+    }
+}
+
+static constexpr int bytesPerPixel(Texture2D::Format format)
+{
+    return pixelChannelsCount(format) * sizeof(unsigned char);
+}
+
+Texture2D::Texture2D()
+{}
+
+Texture2D::Texture2D(const std::string& path)
+{
+    loadFromFile(path);
 }
 
 Texture2D::~Texture2D()
 {
-    GLCall_nothrow(glDeleteTextures(1, &m_RendererID));
+    release();
 }
 
 void Texture2D::bind(unsigned int slot) const
 {
+    VRM_DEBUG_ASSERT_MSG(isCreated(), "Texture not created.");
     GLCall(glActiveTexture(GL_TEXTURE0 + slot));
     GLCall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
 }
@@ -47,17 +79,73 @@ void Texture2D::unbind() const
     GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
-void Texture2D::create(int width, int height, Format format)
+void Texture2D::create(int width, int height, Format format, const void* data)
 {
+    if (!isCreated())
+        GLCall(glGenTextures(1, &m_RendererID));
+
     m_Width = width;
     m_Height = height;
+    m_Format = format;
+    m_BPP = bytesPerPixel(format);
 
     bind();
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-    GLCall(glTexImage2D(GL_TEXTURE_2D, 0, toGLInternalFormat(format), m_Width, m_Height, 0, toGLFormat(format), GL_UNSIGNED_BYTE, nullptr));
+    GLCall(glTexImage2D(GL_TEXTURE_2D, 0, toGLInternalFormat(format), m_Width, m_Height, 0, toGLFormat(format), GL_UNSIGNED_BYTE, data));
+}
+
+void Texture2D::release()
+{
+    if (isCreated())
+    {
+        GLCall(glDeleteTextures(1, &m_RendererID));
+        m_RendererID = 0;
+        m_Width = 0;
+        m_Height = 0;
+        m_BPP = 0;
+    }
+}
+
+bool Texture2D::loadFromFile(const std::string& path)
+{
+	stbi_set_flip_vertically_on_load(1);
+	int width, height;
+    int bpp;
+	unsigned char* localBuffer = stbi_load(path.c_str(), &width, &height, &bpp, pixelChannelsCount(Format::RGBA));
+
+	if (localBuffer == nullptr) return false;
+
+	//std::cout << "Image loaded. Width:" << m_Width << ", Height:" << m_Height << ", BPP:" << m_BPP << std::endl;
+
+	create(width, height, Format::RGBA, localBuffer);
+	stbi_image_free(localBuffer);
+
+	return true;
+}
+
+bool Texture2D::saveToFile(const std::string& path)
+{
+    if (!isCreated())
+    {
+        VRM_LOG_WARN("Texture not created.");
+        return false;
+    }
+
+    stbi_flip_vertically_on_write(1);
+
+    int result = stbi_write_png(path.c_str(), m_Width, m_Height, m_BPP, getData().data(), m_Width * m_BPP);
+    return result != 0;
+}
+
+std::vector<unsigned char> Texture2D::getData() const
+{
+    bind();
+    std::vector<unsigned char> data(m_Width * m_Height * pixelChannelsCount(m_Format));
+    GLCall(glGetTexImage(GL_TEXTURE_2D, 0, toGLFormat(m_Format), GL_UNSIGNED_BYTE, data.data()));
+    return data;
 }
 
 } // namespace vrm
