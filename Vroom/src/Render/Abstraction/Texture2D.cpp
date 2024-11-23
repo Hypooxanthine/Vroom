@@ -60,7 +60,7 @@ static constexpr Texture2D::Format toTextureFormat(int channels)
     case 1: return Texture2D::Format::Grayscale;
     case 3: return Texture2D::Format::RGB;
     case 4: return Texture2D::Format::RGBA;
-    default: return Texture2D::Format::RGBA;
+    default: return Texture2D::Format::Unsupported;
     }
 }
 
@@ -155,6 +155,17 @@ void Texture2D::create(int width, int height, Format format, const void* data)
     m_BPP = bytesPerPixel(format);
 
     bind();
+
+    if (format == Format::Grayscale)
+    {
+        static GLint swizzle[4] = {
+            GL_RED,
+            GL_RED,
+            GL_RED,
+            GL_ONE
+        };
+        GLCall(glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzle));
+    }
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
@@ -182,10 +193,12 @@ bool Texture2D::loadFromFile(const std::string& path)
 	unsigned char* localBuffer = stbi_load(path.c_str(), &width, &height, &channels, 0);
 
 	if (localBuffer == nullptr) return false;
+    
+    auto format = toTextureFormat(channels);
 
-	//std::cout << "Image loaded. Width:" << m_Width << ", Height:" << m_Height << ", BPP:" << m_BPP << std::endl;
+    VRM_ASSERT_MSG(format != Format::Unsupported, "Unsupported texture format.");
 
-	create(width, height, toTextureFormat(channels), localBuffer);
+	create(width, height, format, localBuffer);
 	stbi_image_free(localBuffer);
 
 	return true;
