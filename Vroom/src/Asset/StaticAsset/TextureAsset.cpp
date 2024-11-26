@@ -25,11 +25,13 @@ bool TextureAsset::loadImpl(const std::string& filePath)
 {
     VRM_LOG_INFO("Loading texture: {}", filePath);
     
-    if (!m_GPUTexture.loadFromFile(filePath))
+    if (!m_TextureData.loadFromFile(filePath))
     {
         VRM_LOG_ERROR("Failed to load texture: {}", filePath);
         return false;
     }
+
+    m_GPUTexture.loadFromTextureData(m_TextureData);
 
     VRM_LOG_INFO("Texture loaded.");
 

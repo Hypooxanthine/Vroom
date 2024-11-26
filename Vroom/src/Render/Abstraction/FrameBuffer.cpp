@@ -62,7 +62,7 @@ void FrameBuffer::create(const Specification& spec)
     
     GLCall(glGenFramebuffers(1, &m_RendererID));
 
-    m_Texture.create(m_Specification.width, m_Specification.height, Texture2D::Format::RGBA);
+    m_Texture.createColors(m_Specification.width, m_Specification.height, 4);
     m_RenderBuffer.create(m_Specification.width, m_Specification.height);
 
     bind();
@@ -101,7 +101,7 @@ void FrameBuffer::resize(int width, int height)
     if (m_Specification.onScreen)
         return;
 
-    m_Texture.create(m_Specification.width, m_Specification.height, Texture2D::Format::RGBA);
+    m_Texture.createColors(m_Specification.width, m_Specification.height, 4);
     m_RenderBuffer.create(m_Specification.width, m_Specification.height);
 }
 
