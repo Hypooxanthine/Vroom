@@ -125,6 +125,55 @@ public:
         m_Channels = 0;
     }
 
+    inline constexpr T& at(int index) { return m_Data[index]; }
+    inline constexpr const T& at(int index) const { return m_Data[index]; }
+
+    inline constexpr T& at(int x, int y, int channel = 0) { return at(y * m_Width * m_Channels + x * m_Channels + channel); }
+    inline constexpr const T& at(int x, int y, int channel = 0) const { return at(y * m_Width * m_Channels + x * m_Channels + channel); }
+
+    inline constexpr T& operator[](int index) { return at(index); }
+    inline constexpr const T& operator[](int index) const { return at(index); }
+
+    /**
+     * @brief Linearly interpolates the texture at the given normalized coordinates.
+     * 
+     * @param x x coordinate in the range [0, 1]
+     * @param y y coordinate in the range [0, 1]
+     * @param channel channel index
+     * @return constexpr T Interpolated value
+     */
+    inline constexpr T texture(float x, float y, int channel = 0) const
+    {
+        x *= m_Width - 1;
+        y *= m_Height - 1;
+
+        x = std::clamp(x, 0.0f, static_cast<float>(m_Width - 1));
+        y = std::clamp(y, 0.0f, static_cast<float>(m_Height - 1));
+
+        int x0 = static_cast<int>(x);
+        int y0 = static_cast<int>(y);
+        int x1 = std::min(x0 + 1, m_Width - 1);
+        int y1 = std::min(y0 + 1, m_Height - 1);
+
+        float dx = x - x0;
+        float dy = y - y0;
+
+        T c00 = at(x0, y0, channel);
+        T c10 = at(x1, y0, channel);
+        T c01 = at(x0, y1, channel);
+        T c11 = at(x1, y1, channel);
+
+        float invDx = 1.f - dx;
+        float invDy = 1.f - dy;
+
+        return static_cast<T>(
+            c00 * invDx * invDy +
+            c10 * dx * invDy +
+            c01 * invDx * dy +
+            c11 * dx * dy
+        );
+    }
+
     inline constexpr const T* getData() const { return m_Data.data(); }
     inline constexpr int getWidth() const { return m_Width; }
     inline constexpr int getHeight() const { return m_Height; }
