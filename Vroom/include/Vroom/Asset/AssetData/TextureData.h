@@ -107,7 +107,7 @@ public:
         return true;
     }
 
-    inline bool saveToFile(const std::string& path, bool flipVertically = true)
+    inline bool saveToFile(const std::string& path, bool flipVertically = true) const
     {
         if (!isCreated())
             return false;
