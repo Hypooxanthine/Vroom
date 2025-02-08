@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "Vroom/Render/Abstraction/GLCall.h"
 
 namespace vrm
@@ -123,6 +125,19 @@ public:
     }
 
     /**
+     * @brief (Re)assign buffer data.
+     * 
+     * @tparam T Data type
+     * @param data The data
+     * @param usage GL_STREAM_DRAW, GL_STATIC_DRAW, or GL_DYNAMIC_DRAW
+     */
+    template <typename T>
+    inline void setData(const std::vector<T>& data, GLenum usage)
+    {
+        setData(data.data(), data.size() * sizeof(T), usage);
+    }
+
+    /**
      * @brief Set buffer sub data. Be careful with buffer size you set.
      * 
      * @param data The data
@@ -133,6 +148,19 @@ public:
     {
         bind();
         glBufferSubData(TARGET, offset, size, data);
+    }
+
+    /**
+     * @brief Set buffer sub data. Be careful with buffer size you set.
+     * 
+     * @tparam T Data type
+     * @param data The data
+     * @param offset Where the data should be in the buffer (in bytes)
+     */
+    template <typename T>
+    inline void setSubData(const std::vector<T>& data, GLintptr offset)
+    {
+        setSubData(data.data(), data.size() * sizeof(T), offset);
     }
 
     /**
@@ -148,6 +176,20 @@ public:
         generate();
         setData(data, size, usage);
         return m_RenderId;
+    }
+
+    /**
+     * @brief Create a buffer and set its data
+     * 
+     * @tparam T Data type
+     * @param data The data
+     * @param usage GL_STREAM_DRAW, GL_STATIC_DRAW, or GL_DYNAMIC_DRAW
+     * @return GLuint The render id of the created buffer
+     */
+    template <typename T>
+    inline GLuint generate(const std::vector<T>& data, GLenum usage)
+    {
+        return generate(data.data(), data.size() * sizeof(T), usage);
     }
 
     /**
