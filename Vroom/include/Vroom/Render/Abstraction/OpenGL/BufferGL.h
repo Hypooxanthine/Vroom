@@ -9,28 +9,53 @@ template <GLenum TARGET>
 class BufferGL
 {
 public:
-    inline constexpr Buffer()
-    {
 
-    }
+    /**
+     * @brief Construct a new BufferGL object.
+     * 
+     */
+    inline constexpr BufferGL() = default;
 
-    inline explicit Buffer(const Buffer& other)
+    /**
+     * @brief Copy constructor. Copies the buffer data to a new buffer.
+     * 
+     * @param other The other buffer
+     */
+    inline explicit BufferGL(const BufferGL& other)
     {
         *this = other;
     }
 
-    inline explicit Buffer(Buffer&& other) noexcept
+    /**
+     * @brief Move constructor. Moves the buffer data to a new buffer.
+     * 
+     * @param other The other buffer
+     */
+    inline explicit BufferGL(BufferGL&& other) noexcept
     {
         *this = std::move(other);
     }
 
-    inline virtual ~Buffer() noexcept
+    /**
+     * @brief Destroy the buffer object. Deletes the buffer if it was generated.
+     * 
+     */
+    inline virtual ~BufferGL() noexcept
     {
         release();
     }
 
-    inline Buffer& operator=(const Buffer& other)
+    /**
+     * @brief Copy assignment operator. Copies the buffer data to a new buffer.
+     * 
+     * @param other The other buffer
+     * @return BufferGL& This buffer
+     */
+    inline BufferGL& operator=(const BufferGL& other)
     {
+        if (this == &other)
+            return *this;
+
         release();
 
         if (other.isValid())
@@ -51,8 +76,17 @@ public:
         return *this;
     }
 
-    inline Buffer& operator=(Buffer&& other) noexcept
+    /**
+     * @brief Move assignment operator.
+     * 
+     * @param other The other buffer
+     * @return BufferGL& This buffer
+     */
+    inline BufferGL& operator=(BufferGL&& other) noexcept
     {
+        if (this == &other)
+            return *this;
+            
         release();
 
         if (other.isValid())
