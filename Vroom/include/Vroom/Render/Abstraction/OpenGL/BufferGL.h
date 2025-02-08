@@ -214,4 +214,7 @@ private:
     GLuint m_RenderID = 0;
 };
 
+using VertexBufferGL = BufferGL<GL_ARRAY_BUFFER>;
+using IndexBufferGL = BufferGL<GL_ELEMENT_ARRAY_BUFFER>;
+
 } // namespace vrm
