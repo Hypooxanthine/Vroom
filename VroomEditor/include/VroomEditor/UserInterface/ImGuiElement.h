@@ -11,10 +11,10 @@ public:
     ImGuiElement();
     ~ImGuiElement();
 
-    void renderImgui();
+    bool renderImgui();
 
 protected:
-    virtual void onImgui() = 0;
+    virtual bool onImgui() = 0;
     void notImplemented();
 
 };

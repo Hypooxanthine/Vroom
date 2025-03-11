@@ -12,7 +12,7 @@ public:
     ~MainMenuBar();
 
 protected:
-    void onImgui() override;
+    bool onImgui() override;
 
 };
 

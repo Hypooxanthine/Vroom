@@ -19,6 +19,7 @@ EditorLayer::EditorLayer()
     : m_MainMenuBar(),
       m_StatisticsPanel(),
       m_Viewport(),
+      m_AssetBrowser(),
       m_Font(nullptr),
       m_FrameAccumulator(0),
       m_TimeAccumulator(0.f),
@@ -178,6 +179,7 @@ void EditorLayer::onImgui()
     m_MainMenuBar.renderImgui();
     m_StatisticsPanel.renderImgui();
     m_Viewport.renderImgui();
+    m_AssetBrowser.renderImgui();
 
     ImGui::PopFont();
 

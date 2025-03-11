@@ -12,7 +12,7 @@ public:
     ~StatisticsPanel();
 
 protected:
-    void onImgui() override;
+    bool onImgui() override;
 
 public: // Public ImGui related variables
     float frameTime;

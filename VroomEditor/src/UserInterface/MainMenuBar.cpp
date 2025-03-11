@@ -15,8 +15,10 @@ MainMenuBar::~MainMenuBar()
 {
 }
 
-void MainMenuBar::onImgui()
+bool MainMenuBar::onImgui()
 {
+    bool ret = false;
+
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("File"))
@@ -106,6 +108,8 @@ void MainMenuBar::onImgui()
         ImGui::Text("This feature is not implemented yet.");
         ImGui::EndPopup();
     }
+
+    return ret;
 }
 
 } // namespace vrm

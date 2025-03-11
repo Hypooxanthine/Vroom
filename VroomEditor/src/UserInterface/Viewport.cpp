@@ -17,8 +17,10 @@ Viewport::~Viewport()
 {
 }
 
-void Viewport::onImgui()
+bool Viewport::onImgui()
 {
+    bool ret = false;
+
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     if (ImGui::Begin("Viewport"))
     {
@@ -86,6 +88,8 @@ void Viewport::onImgui()
         ImGui::End();
     }
     ImGui::PopStyleVar();
+
+    return ret;
 }
 
 } // namespace vrm

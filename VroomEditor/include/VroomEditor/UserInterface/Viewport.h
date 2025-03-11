@@ -28,7 +28,7 @@ public:
     inline void setFrameBuffer(FrameBuffer* fb) { frameBuffer = fb; }
 
 protected:
-    void onImgui() override;
+    bool onImgui() override;
 
 private: // ImGui related variables
     FrameBuffer* frameBuffer;

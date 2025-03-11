@@ -15,9 +15,9 @@ ImGuiElement::~ImGuiElement()
 {
 }
 
-void ImGuiElement::renderImgui()
+bool ImGuiElement::renderImgui()
 {
-    onImgui();
+    return onImgui();
 }
 
 void ImGuiElement::notImplemented()
