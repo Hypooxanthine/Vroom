@@ -73,8 +73,13 @@ bool AssetBrowser::onImgui()
 
     if (ImGui::Begin("Asset browser"))
     {
+        static constexpr char sep = std::filesystem::path::preferred_separator;
+        std::string displayPath = sep + m_CurrentPath.lexically_relative(m_ResourcesPath.parent_path()).string();
+        if (!displayPath.ends_with(sep))
+            displayPath += sep;
+
         ImGui::PushID("Path");
-            ImGui::TextWrapped("%s/", m_CurrentPath.lexically_relative(m_ResourcesPath.parent_path()).c_str());
+            ImGui::TextWrapped("%s", displayPath.c_str());
         ImGui::PopID();
 
         bool first = true;
