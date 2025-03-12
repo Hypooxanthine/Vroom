@@ -43,14 +43,15 @@ Application::Application(int argc, char** argv)
 
 Application::~Application()
 {
-    for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
-        it->end();
     m_LayerStack.clear(); // Layer destructors called before shutting down the rendering context.
 
     Renderer::Shutdown();
     AssetManager::Shutdown();
     m_Window.release();
+
+#ifndef VRM_PLATFORM_LINUX // This makes app crash on linux for some reason
     glfwTerminate();
+#endif
 }
 
 bool Application::initGLFW()

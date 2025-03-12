@@ -119,7 +119,7 @@ public:
 
 public:
     LayerStack() = default;
-    ~LayerStack() = default;
+    ~LayerStack() { clear(); }
 
     /**
      * @brief Push a layer to the layer stack.
@@ -168,6 +168,9 @@ public:
      */
     void clear()
     {
+        for (auto it = m_Layers.rbegin(); it != m_Layers.rend(); ++it)
+            it->release();
+        
         m_Layers.clear();
     }
 

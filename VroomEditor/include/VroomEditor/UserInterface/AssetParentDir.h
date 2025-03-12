@@ -9,7 +9,7 @@ class AssetParentDir : public AssetDirectory
 {
 public:
     AssetParentDir(const std::filesystem::path& path);
-    ~AssetParentDir();
+    virtual ~AssetParentDir();
 
 protected:
     std::string getDisplayText() const override;

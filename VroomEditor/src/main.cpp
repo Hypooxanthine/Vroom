@@ -8,10 +8,12 @@ using namespace vrm;
 
 int main(int argc, char** argv)
 {
-    Application app(argc, argv);
+    {
+        Application app(argc, argv);
 
-    app.pushLayer<EditorLayer>();
+        app.pushLayer<EditorLayer>();
 
-    app.run();
+        app.run();
+    }
     return 0;
 }

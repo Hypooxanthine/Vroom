@@ -21,11 +21,10 @@ bool Viewport::onImgui()
 {
     bool ret = false;
 
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     if (ImGui::Begin("Viewport"))
     {
 
-        if (ImGui::BeginChildFrame(ImGui::GetID("ViewportTopButtons"), ImVec2(0, 30), ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
+        if (ImGui::BeginChild("ViewportTopButtons", ImVec2(0, 30)))
         {
             ImGui::SameLine((ImGui::GetWindowWidth() - 150) / 2);
 
@@ -51,23 +50,17 @@ bool Viewport::onImgui()
                 }
             }
         
-            ImGui::EndChildFrame();
         }
+        ImGui::EndChild();
     
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-        if (ImGui::BeginChildFrame(ImGui::GetID("ViewportFrame"), ImVec2(0, 0), ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
+        if (ImGui::BeginChild("ViewportFrame", ImVec2(0, 0)))
         {
             auto size = ImGui::GetContentRegionAvail();
 
-            if (size.x != m_LastViewportSize.x || size.y != m_LastViewportSize.y)
-            {
-                m_DidSizeChangeLastFrame = true;
+            m_DidSizeChangeLastFrame = size.x != m_LastViewportSize.x || size.y != m_LastViewportSize.y;
+            if (m_DidSizeChangeLastFrame)
                 m_LastViewportSize = size;
-            }
-            else
-            {
-                m_DidSizeChangeLastFrame = false;
-            }
 
             if (frameBuffer)
             {
@@ -79,15 +72,18 @@ bool Viewport::onImgui()
                 ImGui::Image(textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
                 
                 m_Active = ImGui::IsWindowFocused() && ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.f);
+
+                VRM_LOG_TRACE("Image size: {} {},", imageSize.x, imageSize.y);
+
+                // ImGui::ShowMetricsWindow();
             }
 
-            ImGui::EndChildFrame();
         }
+        ImGui::EndChild();
         ImGui::PopStyleVar();
     
-        ImGui::End();
     }
-    ImGui::PopStyleVar();
+    ImGui::End();
 
     return ret;
 }

@@ -38,7 +38,6 @@ void AssetBrowser::setCurrentPath(const std::filesystem::path& newPath)
             || IsChildOf(m_ResourcesPath, p)
         ))
     {
-        VRM_LOG_INFO("New path: {}", newPath.string());
         m_CurrentPath = newPath;
         updateDirectoryContent();
     }
@@ -72,32 +71,32 @@ bool AssetBrowser::onImgui()
 
     std::filesystem::path nextPath = m_CurrentPath;
 
-    ImGui::Begin("Asset browser");
-
-    ImGui::PushID("Path");
-        ImGui::TextWrapped("%s/", m_CurrentPath.lexically_relative(m_ResourcesPath.parent_path()).c_str());
-    ImGui::PopID();
-
-    bool first = true;
-
-    for (auto& elem : m_Assets)
+    if (ImGui::Begin("Asset browser"))
     {
-        if (first)
-        {
-            first = false;
-        }
-        else
-        {
-            ImGui::SameLine();
-        }
+        ImGui::PushID("Path");
+            ImGui::TextWrapped("%s/", m_CurrentPath.lexically_relative(m_ResourcesPath.parent_path()).c_str());
+        ImGui::PopID();
 
-        if (elem->renderImgui())
+        bool first = true;
+
+        for (auto& elem : m_Assets)
         {
-            nextPath = elem->getPath();
-            ret = true;
+            if (first)
+            {
+                first = false;
+            }
+            else
+            {
+                ImGui::SameLine();
+            }
+
+            if (elem->renderImgui())
+            {
+                nextPath = elem->getPath();
+                ret = true;
+            }
         }
     }
-
     ImGui::End();
 
     setCurrentPath(nextPath);

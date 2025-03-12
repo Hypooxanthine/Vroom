@@ -9,7 +9,7 @@ class ImGuiElement
 {
 public:
     ImGuiElement();
-    ~ImGuiElement();
+    virtual ~ImGuiElement();
 
     bool renderImgui();
 
