@@ -85,7 +85,7 @@ void Texture2D::unbind() const
 void Texture2D::createColors(int width, int height, int channels, const void* data)
 {
     if (!isCreated())
-        GLCall(glGenTextures(1, &m_RendererID));
+        glGenTextures(1, &m_RendererID);
 
     bind();
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -108,7 +108,7 @@ void Texture2D::createColors(int width, int height, int channels, const void* da
 void Texture2D::createFloats(int width, int height, int channels, const void* data)
 {
     if (!isCreated())
-        GLCall(glGenTextures(1, &m_RendererID));
+        glGenTextures(1, &m_RendererID);
 
     bind();
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -131,7 +131,7 @@ void Texture2D::createFloats(int width, int height, int channels, const void* da
 void Texture2D::createDepth(int width, int height)
 {
     if (!isCreated())
-        GLCall(glGenTextures(1, &m_RendererID));
+        glGenTextures(1, &m_RendererID);
 
     bind();
     GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
