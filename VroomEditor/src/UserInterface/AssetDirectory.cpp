@@ -5,7 +5,7 @@
 using namespace vrm;
 
 AssetDirectory::AssetDirectory(const std::filesystem::path& path)
-    : AssetElement(std::filesystem::canonical(path))
+    : AssetElement(path)
 {
 
 }
@@ -15,22 +15,7 @@ AssetDirectory::~AssetDirectory()
 
 }
 
-bool AssetDirectory::onImgui()
+std::string AssetDirectory::getPictoAssetName() const
 {
-    bool ret = false;
-    ImGui::PushID(getPath().c_str());
-
-    if (ImGui::Button(getDisplayText().c_str()))
-    {
-        ret = true;
-    }
-
-    ImGui::PopID();
-
-    return ret;
-}
-
-std::string AssetDirectory::getDisplayText() const
-{
-    return getPath().filename().string();
+  return "Resources/Editor/Picto/directory.png";
 }

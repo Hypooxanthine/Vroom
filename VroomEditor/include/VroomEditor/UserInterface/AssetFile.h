@@ -4,12 +4,12 @@
 
 namespace vrm
 {
-
-class AssetDirectory : public AssetElement
+  
+class AssetFile : public AssetElement
 {
 public:
-  AssetDirectory(const std::filesystem::path &path);
-  virtual ~AssetDirectory();
+  AssetFile(const std::filesystem::path& path);
+  virtual ~AssetFile();
 
 protected:
   virtual std::string getPictoAssetName() const override;
