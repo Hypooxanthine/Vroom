@@ -55,7 +55,7 @@ bool Viewport::onImgui()
         ImGui::EndChild();
     
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-        if (ImGui::BeginChild("ViewportFrame", ImVec2(0, 0)))
+        if (ImGui::BeginChild("ViewportFrame", ImVec2(0, 0), 0, ImGuiWindowFlags_NoScrollbar))
         {
             auto size = ImGui::GetContentRegionAvail();
 
