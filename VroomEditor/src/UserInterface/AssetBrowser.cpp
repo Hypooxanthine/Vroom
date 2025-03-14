@@ -104,8 +104,18 @@ bool AssetBrowser::onImgui()
       if (ImGui::IsItemHovered()
         && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
       {
-        nextPath = elem->getPath();
-        VRM_LOG_INFO("Browsing {}", elem->getPath().string());
+        if (std::filesystem::is_directory(elem->getPath()))
+          nextPath = elem->getPath();
+        else if (std::filesystem::is_regular_file(elem->getPath()))
+        {
+          /**
+           * @todo Open a file in extern (or intern ?) application
+           * Not quite sure how to deal with it
+           * system() call ?
+           * 
+           */
+
+        }
       }
     }
   }
