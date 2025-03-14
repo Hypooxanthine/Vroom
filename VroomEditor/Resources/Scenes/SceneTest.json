@@ -1,0 +1,99 @@
+{
+  "scene_nodes": [
+    {
+      "name": "Root",
+      "type": "Root",
+      "parent": null
+    },
+    {
+      "name": "Plane",
+      "type": "Entity",
+      "parent": "Root",
+      "components": [
+        {
+          "type": "TransformComponent",
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                0.0,
+                -1.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                50.0,
+                0.1,
+                50.0
+              ]
+            }
+          ]
+        },
+        {
+          "type": "MeshComponent",
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Meshes/Textured_Cube.obj"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ColoredCube",
+      "type": "Entity",
+      "parent": "Root",
+      "components": [
+        {
+          "type": "TransformComponent",
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ]
+        },
+        {
+          "type": "MeshComponent",
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Meshes/Textured_Cube.obj"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
