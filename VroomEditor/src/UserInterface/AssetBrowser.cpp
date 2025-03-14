@@ -96,7 +96,7 @@ bool AssetBrowser::onImgui()
         ImGui::SameLine();
       }
 
-      if (ImGui::GetCursorPosX() + 100.f > windowWidth)
+      if (ImGui::GetCursorPosX() + AssetElement::GetElementSize().x > windowWidth)
           ImGui::NewLine();
 
       elem->renderImgui();

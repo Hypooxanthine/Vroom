@@ -8,6 +8,8 @@
 
 using namespace vrm;
 
+ImVec2 AssetElement::s_ElementSize = { 100.f, 100.f };
+
 AssetElement::AssetElement(const std::filesystem::path &elementPath)
     : ImGuiElement(), m_ElementPath(std::filesystem::canonical(elementPath))
 {
@@ -28,7 +30,7 @@ bool AssetElement::onImgui()
   constexpr auto windowFlags =
       ImGuiWindowFlags_None | ImGuiWindowFlags_ChildWindow;
 
-  if (ImGui::BeginChild("##element", {100.f, 100.f}, childFlags, windowFlags))
+  if (ImGui::BeginChild("##element", GetElementSize(), childFlags, windowFlags))
   {
     ImGui::SetWindowFontScale(0.8f);
     onDrawPicto();
@@ -46,8 +48,8 @@ void AssetElement::onDrawPicto()
   if (m_Picto.getStaticAsset() == nullptr)
     m_Picto = getPicto();
 
-  ImVec2 imgSize = { 60.f, 60.f };
-  ImGui::SetCursorPosX((100.f - imgSize.x) / 2.f);
+  ImVec2 imgSize = { GetElementSize().x * 0.6f, GetElementSize().y * 0.6f };
+  ImGui::SetCursorPosX((GetElementSize().x - imgSize.x) / 2.f);
   ImGui::Image(
       (ImTextureID)(intptr_t)m_Picto.getStaticAsset()->getGPUTexture().getRendererID(),
       imgSize,
