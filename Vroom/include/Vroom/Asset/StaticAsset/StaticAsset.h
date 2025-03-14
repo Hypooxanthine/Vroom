@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Vroom/Asset/Macros.h"
+
 #include <memory>
 #include <string>
 
