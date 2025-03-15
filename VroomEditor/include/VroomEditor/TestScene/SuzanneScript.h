@@ -5,18 +5,21 @@
 class SuzanneScript : public vrm::ScriptComponent
 {
 public:
-    SuzanneScript(float circleRadius, float startAngle, float speed);
-    ~SuzanneScript() = default;
+  SuzanneScript() = default;
+  SuzanneScript(float circleRadius, float startAngle, float speed);
+  ~SuzanneScript() = default;
 
-    void onSpawn() override;
+  void onSpawn() override;
 
-    void onUpdate(float dt) override;
-
-private:
-    void updatePosition(float dt);
+  void onUpdate(float dt) override;
 
 private:
-    float m_CircleRadius;
-    float m_Angle;
-    float m_Speed;
+  void updatePosition(float dt);
+
+private:
+  float m_CircleRadius = 0.f;
+  float m_Angle = 0.f;
+  float m_Speed = 0.f;
 };
+
+VRM_SCRIPT(SuzanneScript)
