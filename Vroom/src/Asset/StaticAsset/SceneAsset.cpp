@@ -1,8 +1,9 @@
 #include "Vroom/Asset/StaticAsset/SceneAsset.h"
 
 #include <nlohmann/json.hpp>
+#include <fstream>
 
-#include "Vroom/Core/Log.h"
+#include "Vroom/Core/Assert.h"
 
 namespace vrm
 {
@@ -24,7 +25,15 @@ bool SceneAsset::loadImpl(const std::string &filePath)
 {
   using json = nlohmann::json;
 
-  return false;
+  std::ifstream ifs;
+  ifs.open(filePath);
+  if (!ifs.is_open())
+    return false;
+
+  m_SceneData.clear();
+  ifs >> m_SceneData;
+
+  return true;
 }
 
 } // namespace vrm
