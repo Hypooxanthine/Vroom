@@ -157,4 +157,9 @@ void Scene::destroyEntity(Entity entity)
     m_Registry.destroy(entity);
 }
 
+void Scene::destroyAllEntities()
+{
+  m_Registry.clear();
+}
+
 } // namespace vrm

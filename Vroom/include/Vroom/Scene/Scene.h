@@ -5,6 +5,7 @@
 
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Render/Camera/FirstPersonCamera.h"
+#include "Vroom/Asset/AssetInstance/SceneInstance.h"
 
 namespace vrm
 {
@@ -47,6 +48,13 @@ public:
      * 
      */
     void end();
+
+    /**
+     * @brief Loads the scene from file.
+     * 
+     * @param sceneAsset Scene asset handle
+     */
+    bool loadFromAsset(const SceneInstance& data);
     
     
     /**
@@ -109,6 +117,11 @@ public:
      */
     void destroyEntity(Entity entity);
 
+    /**
+     * @brief Destroys all entities.
+     * 
+     */
+    void destroyAllEntities();
 
 protected:
 
