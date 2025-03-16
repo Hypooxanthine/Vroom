@@ -45,7 +45,7 @@ void TestScene::onInit()
 		.bindCallback([](const vrm::Event&) { vrm::Application::Get().getWindow().setCursorVisible(false); });
 
     // Set a custom camera
-    setCamera(&myCamera);
+    // setCamera(&myCamera);
     myCamera.setWorldPosition({0.f, 0.f, 5.f});
 
     // Some lights in a circle of radius 10 in xz, and y = 10 and various colors (always positive colors)
