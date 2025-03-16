@@ -17,43 +17,54 @@ struct ImFont;
 namespace vrm
 {
 
+class Scene;
+
 class EditorLayer : public vrm::Layer
 {
 public:
-    EditorLayer();
-    ~EditorLayer();
+  EditorLayer();
+  ~EditorLayer();
+
+  template <typename S, typename... Args>
+  void loadScene(Args&&... args)
+  {
+    auto scene = std::make_unique<S>(std::forward<Args>(args)...);
+    loadScene(std::move(scene));
+  }
+
+  void loadScene(std::unique_ptr<Scene>&& scene);
 
 protected:
-
-    virtual void onInit();
-    virtual void onEnd();
-    virtual void onUpdate(float dt);
-    virtual void onRender();
-    virtual void onEvent(vrm::Event& e);
-
-private:
-    void onImgui();
-
-    void onViewportResize();
+  virtual void onInit();
+  virtual void onEnd();
+  virtual void onUpdate(float dt);
+  virtual void onRender();
+  virtual void onEvent(vrm::Event &e);
 
 private:
-    FrameBuffer m_FrameBuffer;
-    CustomEventManager m_CustomEventManager;
-    TriggerManager m_TriggerManager;
-    ImFont* m_Font;
+  void onImgui();
 
-    // UI
-    MainMenuBar m_MainMenuBar;
-    StatisticsPanel m_StatisticsPanel;
-    Viewport m_Viewport;
-    AssetBrowser m_AssetBrowser;
+  void onViewportResize();
 
-    // Frame time management
-    size_t m_FrameAccumulator;
-    float m_TimeAccumulator;
-    const float m_TimeSample;
+private:
+  FrameBuffer m_FrameBuffer;
+  CustomEventManager m_CustomEventManager;
+  TriggerManager m_TriggerManager;
+  ImFont *m_Font;
+  bool m_SceneLoaded = false;
 
-    EditorCamera m_EditorCamera;
+  // UI
+  MainMenuBar m_MainMenuBar;
+  StatisticsPanel m_StatisticsPanel;
+  Viewport m_Viewport;
+  AssetBrowser m_AssetBrowser;
+
+  // Frame time management
+  size_t m_FrameAccumulator;
+  float m_TimeAccumulator;
+  const float m_TimeSample;
+
+  EditorCamera m_EditorCamera;
 };
 
 } // namespace vrm
