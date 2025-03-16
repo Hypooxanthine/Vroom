@@ -15,123 +15,125 @@ class Scene;
 
 /**
  * @brief The game layer of the application.
- * 
+ *
  */
 class GameLayer : public Layer
 {
 public:
-    GameLayer();
-    ~GameLayer();
+  GameLayer();
+  ~GameLayer();
 
-    /**
-     * @brief Get the frame buffer of the game layer.
-     * 
-     * @return const FrameBuffer& The frame buffer of the game layer.
-     */
-    inline FrameBuffer& getFrameBuffer() { return m_FrameBuffer; }
+  /**
+   * @brief Get the frame buffer of the game layer.
+   *
+   * @return const FrameBuffer& The frame buffer of the game layer.
+   */
+  inline FrameBuffer &getFrameBuffer() { return m_FrameBuffer; }
 
-    /**
-     * @brief Get the frame buffer of the game layer.
-     * 
-     * @return const FrameBuffer& The frame buffer of the game layer.
-     */
-    inline const FrameBuffer& getFrameBuffer() const { return m_FrameBuffer; }
+  /**
+   * @brief Get the frame buffer of the game layer.
+   *
+   * @return const FrameBuffer& The frame buffer of the game layer.
+   */
+  inline const FrameBuffer &getFrameBuffer() const { return m_FrameBuffer; }
 
-    /**
-     * @brief Loads a scene into the game layer. Scene will start at the beginning of the next frame.
-     * 
-     * @tparam S Scene type. Must be a child of Scene type.
-     * @tparam Args Argument types taken by the constructor of S that needs to be called.
-     * @param args Arguments for constructing an instance of S.
-     */
-    template <typename S, typename... Args>
-    void loadScene(Args&&... args)
-    {
-        std::unique_ptr<S> scene;
-        scene = std::make_unique<S>(std::forward<Args>(args)...);
+  /**
+   * @brief Loads a scene into the game layer. Scene will start at the beginning of the next frame.
+   *
+   * @tparam S Scene type. Must be a child of Scene type.
+   * @tparam Args Argument types taken by the constructor of S that needs to be called.
+   * @param args Arguments for constructing an instance of S.
+   */
+  template <typename S, typename... Args>
+  void loadScene(Args &&...args)
+  {
+    std::unique_ptr<S> scene;
+    scene.reset(new S(std::forward<Args>(args)...));
 
-        loadScene_Internal(std::move(scene));
-    }
+    loadScene(std::move(scene));
+  }
 
-    /**
-     * @brief Get the loaded scene.
-     * 
-     * @return const Scene& The loaded scene.
-     */
-    inline const Scene& getScene() const { return *m_CurrentScene; }
+  void loadScene(std::unique_ptr<Scene> &&scene)
+  {
+    loadScene_Internal(std::move(scene));
+  }
 
-    /**
-     * @brief Get the loaded scene.
-     * 
-     * @return Scene& The loaded scene.
-     */
-    inline Scene& getScene() { return *m_CurrentScene; }
+  /**
+   * @brief Get the loaded scene.
+   *
+   * @return const Scene& The loaded scene.
+   */
+  inline const Scene &getScene() const { return *m_CurrentScene; }
 
-    /**
-     * @brief Create a trigger.
-     * 
-     * @param triggerName The name of the trigger.
-     * @return TriggerBinder The binder of the trigger. Handful for binding inputs and callbacks to a trigger after its creation.
-     * @see @ref triggers
-     */
-    TriggerBinder createTrigger(const std::string& triggerName);
+  /**
+   * @brief Get the loaded scene.
+   *
+   * @return Scene& The loaded scene.
+   */
+  inline Scene &getScene() { return *m_CurrentScene; }
 
-    /**
-     * @brief Get the trigger binder of a specific trigger.
-     * 
-     * @param triggerName The name of the trigger.
-     * @return TriggerBinder The binder of the trigger. Handful for binding inputs and callbacks to a trigger after its creation.
-     */
-    TriggerBinder getTrigger(const std::string& triggerName);
+  /**
+   * @brief Create a trigger.
+   *
+   * @param triggerName The name of the trigger.
+   * @return TriggerBinder The binder of the trigger. Handful for binding inputs and callbacks to a trigger after its creation.
+   * @see @ref triggers
+   */
+  TriggerBinder createTrigger(const std::string &triggerName);
 
-    /**
-     * @brief Create a custom event.
-     * 
-     * @param customEventName The name of the custom event.
-     * @return CustomEventBinder The binder of the trigger. Handful for binding inputs and callbacks to a custom event after its creation.
-     * @see @ref custom_events
-     */
-    CustomEventBinder createCustomEvent(const std::string& customEventName);
+  /**
+   * @brief Get the trigger binder of a specific trigger.
+   *
+   * @param triggerName The name of the trigger.
+   * @return TriggerBinder The binder of the trigger. Handful for binding inputs and callbacks to a trigger after its creation.
+   */
+  TriggerBinder getTrigger(const std::string &triggerName);
 
-    /**
-     * @brief Get the custom event binder of a specific custom event.
-     * 
-     * @param customEventName The name of the trigger.
-     * @return CustomEventBinder The binder of the trigger. Handful for binding inputs and callbacks to a custom event after its creation.
-     * @see @ref custom_events
-     */
-    CustomEventBinder getCustomEvent(const std::string& customEventName);
+  /**
+   * @brief Create a custom event.
+   *
+   * @param customEventName The name of the custom event.
+   * @return CustomEventBinder The binder of the trigger. Handful for binding inputs and callbacks to a custom event after its creation.
+   * @see @ref custom_events
+   */
+  CustomEventBinder createCustomEvent(const std::string &customEventName);
+
+  /**
+   * @brief Get the custom event binder of a specific custom event.
+   *
+   * @param customEventName The name of the trigger.
+   * @return CustomEventBinder The binder of the trigger. Handful for binding inputs and callbacks to a custom event after its creation.
+   * @see @ref custom_events
+   */
+  CustomEventBinder getCustomEvent(const std::string &customEventName);
 
 private:
+  /**
+   * @brief Load a scene into the application.
+   *
+   * @param scene The scene to load.
+   */
+  void loadScene_Internal(std::unique_ptr<Scene> &&scene);
 
-    /**
-     * @brief Load a scene into the application.
-     * 
-     * @param scene The scene to load.
-     */
-    void loadScene_Internal(std::unique_ptr<Scene>&& scene);
-    
-    /**
-     * @brief Check if the next scene is ready to be loaded.
-     * 
-     */
-    void checkNextScene();
+  /**
+   * @brief Check if the next scene is ready to be loaded.
+   *
+   */
+  void checkNextScene();
 
 protected:
-    void onInit() override;
-    void onEnd() override;
-    void onUpdate(float dt) override;
-    void onRender() override;
-    void onEvent(Event& e) override;
+  void onInit() override;
+  void onEnd() override;
+  void onUpdate(float dt) override;
+  void onRender() override;
+  void onEvent(Event &e) override;
 
 private:
-    FrameBuffer m_FrameBuffer;
-    std::unique_ptr<Scene> m_CurrentScene, m_NextScene;
+  FrameBuffer m_FrameBuffer;
+  std::unique_ptr<Scene> m_CurrentScene, m_NextScene;
 
-
-    TriggerManager m_TriggerManager;
-    CustomEventManager m_CustomEventManager;
-
+  TriggerManager m_TriggerManager;
+  CustomEventManager m_CustomEventManager;
 };
 
 } // namespace vr
