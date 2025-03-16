@@ -123,9 +123,24 @@ protected:
      */
     virtual void onEvent(Event& e) {}
 
+    /**
+     * @brief Forces the update of the layer on next frame, even if layer update is turned off.
+     * 
+     */
+    void forceUpdateNextFrame();
+
+    /**
+     * @brief Forces the render of the layer on next frame, even if layer rendering is turned off.
+     * 
+     * 
+     */
+    void forceRenderNextFrame();
+
 private:
     bool m_ShouldUpdate = true;
+    bool m_ForceUpdateNextFrame = false;
     bool m_ShouldRender = true;
+    bool m_ForceRenderNextFrame = false;
     bool m_ShouldHandleEvents = true;
 };
     

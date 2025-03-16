@@ -1,34 +1,42 @@
 #include "Vroom/Core/Layer.h"
 
-namespace vrm
-{
+using namespace vrm;
 
 void Layer::init()
 {
-    onInit();
+  onInit();
 }
 
 void Layer::end()
 {
-    onEnd();
+  onEnd();
 }
 
 void Layer::update(float dt)
 {
-    if (m_ShouldUpdate)
-        onUpdate(dt);
+  if (m_ShouldUpdate || m_ForceUpdateNextFrame)
+  {
+    m_ForceUpdateNextFrame = false;
+    onUpdate(dt);
+  }
 }
 
 void Layer::render()
 {
-    if (m_ShouldRender)
-        onRender();
+  if (m_ShouldRender || m_ForceRenderNextFrame)
+  {
+    m_ForceRenderNextFrame = false;
+    onRender();
+  }
 }
 
-void Layer::submitEvent(Event& e)
+void Layer::submitEvent(Event &e)
 {
-    if (m_ShouldHandleEvents)
-        onEvent(e);
+  if (m_ShouldHandleEvents)
+    onEvent(e);
 }
 
-} // namespace vr
+void Layer::forceUpdateNextFrame()
+{
+  m_ForceUpdateNextFrame = true;
+}
