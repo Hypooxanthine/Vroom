@@ -2,10 +2,13 @@
 
 #include <nlohmann/json.hpp>
 
+#include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/SceneAsset.h"
+#include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Core/Assert.h"
 
 #include "Vroom/Scene/Components/TransformComponent.h"
+#include "Vroom/Scene/Components/MeshComponent.h"
 
 #define CHECK(x, ...) VRM_CHECK_RET_FALSE_MSG(x, __VA_ARGS__)
 
@@ -76,6 +79,23 @@ static bool HandleEntityTransformComponent(Entity& e, const json& params)
 
 static bool HandleEntityMeshComponent(Entity& e, const json& params)
 {
+  std::string meshName;
+
+  for (const auto& param : params)
+  {
+    CHECK(param.is_object(), "Unexpected MeshComponent parameter {}", param.dump(2));
+    CHECK_ATTR_STRING(param, name);
+    CHECK(nameVal == "ResourceName", "Unsupported MeshComponent parameter {}", nameVal);
+    CHECK(meshName.empty(), "Only one ResourceName parameter is supported");
+    CHECK_ATTR_STRING(param, value);
+
+    meshName = valueVal;
+  }
+
+  auto& manager = AssetManager::Get();
+
+  auto meshAssetHandle = manager.getAsset<MeshAsset>(meshName);
+  e.addComponent<MeshComponent>(meshAssetHandle);
 
   return true;
 }
@@ -91,20 +111,14 @@ static bool HandleEntityComponents(Entity &e, const json &component)
   CHECK_ATTR_STRING(component, type);
   CHECK_ATTR_ARRAY(component, params);
 
-  if (typeVal == "TransformComponent")
-  {
-    CHECK(HandleEntityComponents(e, params), "Error while parsing components params {}", params.dump(2));
-  }
-  else if (typeVal == "MeshComponent")
-  {
-    CHECK(HandleEntityMeshComponent(e, params), "Error while parsing components params {}", params.dump(2));
-  }
-  else if (typeVal == "ScriptComponent")
-  {
-    CHECK(HandleEntityScriptComponent(e, params), "Error while parsing components params {}", params.dump(2));
-  }
-  else
-    CHECK(false, "Component of type {} is not supported", typeVal);
+  static const std::unordered_map<std::string, std::function<bool(Entity&, const json&)>> dispatch {
+    {"TransformComponent", HandleEntityTransformComponent},
+    {"MeshComponent", HandleEntityMeshComponent},
+    {"ScriptComponent", HandleEntityScriptComponent}
+  };
+
+  CHECK(dispatch.contains(typeVal), "Component of type {} is not supported", typeVal);
+  CHECK(dispatch.at(typeVal)(e, params), "Error while parsing components params {}", params.dump(2));
 
   return true;
 }
@@ -112,20 +126,20 @@ static bool HandleEntityComponents(Entity &e, const json &component)
 static bool HandleSceneNode(Scene &scene, const json &node)
 {
   CHECK_ATTR_STRING(node, type);
+  CHECK_ATTR_STRING(node, name);
 
   if (typeVal == "Root")
   {
+    // Some specific behaviour...
   }
   else if (typeVal == "Entity")
   {
-
+    // Some specific behaviour...
   }
   else
     CHECK(false, "Scene node of type {} is not supported", typeVal);
 
   // node is designating an entity
-
-  CHECK_ATTR_STRING(node, name);
 
   auto e = scene.createEntity(nameVal);
 
