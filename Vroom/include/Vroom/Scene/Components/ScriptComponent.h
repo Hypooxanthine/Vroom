@@ -38,22 +38,23 @@ private:
     entt::entity m_EntityHandle = entt::null;
 };
 
+#define VRM_FACTORY_CLASS_NAME(ScriptClass) ScriptClass ## _Factory
 #define VRM_SCRIPT(ScriptClass) \
   namespace vrm\
   {\
-    class ScriptClass##_Factory : public ScriptFactory\
+    class VRM_FACTORY_CLASS_NAME(ScriptClass) : public ScriptFactory\
     {\
     public:\
-      ScriptClass##_Factory() = default;\
-      ~##ScriptClass##_Factory() = default;\
-      virtual [[nodiscard]] ScriptClass* create() const override\
+      VRM_FACTORY_CLASS_NAME(ScriptClass)() = default;\
+      ~VRM_FACTORY_CLASS_NAME(ScriptClass)() = default;\
+      virtual ScriptClass* create() const override\
       {\
         return new ScriptClass();\
       }\
 \
-      virtual [[nodiscard]] ScriptClass##_Factory* clone() const override\
+      virtual VRM_FACTORY_CLASS_NAME(ScriptClass)* clone() const override\
       {\
-        return new ScriptClass##_Factory();\
+        return new VRM_FACTORY_CLASS_NAME(ScriptClass)();\
       }\
     };\
 \
@@ -61,7 +62,7 @@ private:
     {\
       inline ScriptClass##_Registerer_t()\
       {\
-        ScriptEngine::Get().registerScript(VRM_GEN_SCRIPT_ID(ScriptClass), std::make_unique<ScriptClass##_Factory>());\
+        ScriptEngine::Get().registerScript(VRM_GEN_SCRIPT_ID(ScriptClass), std::make_unique<VRM_FACTORY_CLASS_NAME(ScriptClass)>());\
       }\
     };\
 \
