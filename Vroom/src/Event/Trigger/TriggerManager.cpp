@@ -91,13 +91,26 @@ void TriggerManager::unbindInput(const std::string& triggerName, const MouseCode
     m_MouseButtons[mouseButton].erase(triggerName);
 }
 
-TriggerBinder TriggerManager::bindCallback(const std::string& triggerName, const TriggerCallback& callback)
+TriggerBinder TriggerManager::bindCallback(const std::string& triggerName, const TriggerCallback& callback, TriggerBinder* emitter)
 {
     VRM_ASSERT(m_Triggers.contains(triggerName));
 
-    m_Triggers[triggerName].bindCallback(callback);
+    m_Triggers[triggerName].bindCallback(callback, emitter);
 
     return getBinder(triggerName);
+}
+
+void TriggerManager::unbindCallbacksFromEmitter(const std::string& triggerName, TriggerBinder* emitter)
+{
+    VRM_ASSERT(m_Triggers.contains(triggerName));
+
+    m_Triggers.at(triggerName).removeCallbacksFromEmitter(emitter);
+}
+
+TriggerManager& TriggerManager::bindPermanentCallback(const std::string& triggerName, const TriggerCallback& cb)
+{
+    bindCallback(triggerName, cb, nullptr);
+    return *this;
 }
 
 } // namespace vrm

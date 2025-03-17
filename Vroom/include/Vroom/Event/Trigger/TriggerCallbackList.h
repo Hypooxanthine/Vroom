@@ -6,6 +6,8 @@
 namespace vrm
 {
 
-using TriggerCallbackList = CallbackList<TriggerCallback>;
+class TriggerBinder;
+
+using TriggerCallbackList = CallbackList<TriggerCallback, TriggerBinder>;
 
 } // namespace vrm

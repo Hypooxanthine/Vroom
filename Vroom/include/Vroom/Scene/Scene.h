@@ -154,7 +154,7 @@ private:
     entt::registry m_Registry;
     size_t m_EntityCounter = 0;
 
-    FirstPersonCamera m_DefaultCamera = FirstPersonCamera(0.1f, 100.f, 45.f, 600.f / 400.f, glm::vec3{0.f, 0.f, 0.f}, glm::vec3{0.f, 0.f, 0.f});
+    static FirstPersonCamera s_DefaultCamera;
     CameraBasic* m_Camera;
 
 };

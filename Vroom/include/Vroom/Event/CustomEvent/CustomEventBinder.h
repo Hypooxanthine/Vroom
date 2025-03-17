@@ -29,12 +29,9 @@ public:
      */
     CustomEventBinder(CustomEventManager& manager, const std::string& customEventName);
 
-    /**
-     * @brief Construct a new Custom Event Binder object
-     * 
-     * @param other CustomEventBinder to copy.
-     */
-    CustomEventBinder(const CustomEventBinder& other);
+    CustomEventBinder(const CustomEventBinder& other) = delete;
+
+    virtual ~CustomEventBinder();
 
     /**
      * @brief Construct a new Custom Event Binder object
@@ -49,7 +46,7 @@ public:
      * @param inputType Type of the input.
      * @return CustomEventBinder A binder to the same CustomEvent instance.
      */
-    inline CustomEventBinder bindInput(Event::Type inputType) { return bindInput(inputType, 0); }
+    inline CustomEventBinder& bindInput(Event::Type inputType) { return bindInput(inputType, 0); }
 
     /**
      * @brief Bind an input to the custom event.
@@ -58,7 +55,7 @@ public:
      * @param inputCode Code of the input.
      * @return CustomEventBinder A binder to the same CustomEvent instance.
      */
-    CustomEventBinder bindInput(Event::Type inputType, CodeType inputCode);
+    CustomEventBinder& bindInput(Event::Type inputType, CodeType inputCode);
 
     /**
      * @brief Bind an input to the custom event.
@@ -69,7 +66,7 @@ public:
      * @return CustomEventBinder A binder to the same CustomEvent instance.
      */
     template <typename C>
-    CustomEventBinder bindInput(Event::Type inputType, C inputCode)
+    CustomEventBinder& bindInput(Event::Type inputType, C inputCode)
     {
         CodeType standardized = static_cast<CodeType>(inputCode);
         return bindInput(inputType, standardized);
@@ -81,7 +78,7 @@ public:
      * @param inputType Type of the input.
      * @return CustomEventBinder A binder to the same CustomEvent instance.
      */
-    inline CustomEventBinder unbindInput(Event::Type inputType) { return bindInput(inputType, 0); }
+    inline CustomEventBinder& unbindInput(Event::Type inputType) { return bindInput(inputType, 0); }
 
     /**
      * @brief Unbind an input from the custom event.
@@ -90,7 +87,7 @@ public:
      * @param inputCode Code of the input.
      * @return CustomEventBinder A binder to the same CustomEvent instance.
      */
-    CustomEventBinder unbindInput(Event::Type inputType, CodeType inputCode);
+    CustomEventBinder& unbindInput(Event::Type inputType, CodeType inputCode);
 
     /**
      * @brief Unbind an input from the custom event.
@@ -101,7 +98,7 @@ public:
      * @return CustomEventBinder A binder to the same CustomEvent instance.
      */
     template <typename C>
-    CustomEventBinder unbindInput(Event::Type inputType, C inputCode)
+    CustomEventBinder& unbindInput(Event::Type inputType, C inputCode)
     {
         CodeType standardized = static_cast<CodeType>(inputCode);
         return unbindInput(inputType, standardized);
@@ -113,10 +110,10 @@ public:
      * @param cb Callback to bind.
      * @return CustomEventBinder A binder to the same CustomEvent instance.
      */
-    CustomEventBinder bindCallback(const CustomEventCallback& cb);
+    CustomEventBinder& bindCallback(const CustomEventCallback& cb);
 
 private:
-    CustomEventManager& m_Manager;
+    CustomEventManager* m_Manager;
     std::string m_CustomEventName;
 };
 

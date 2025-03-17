@@ -2,40 +2,38 @@
 
 #include "Vroom/Event/CustomEvent/CustomEventManager.h"
 
-namespace vrm
-{
+using namespace vrm;
 
-CustomEventBinder::CustomEventBinder(CustomEventManager& manager, const std::string& customEventName)
-    : m_Manager(manager), m_CustomEventName(customEventName)
-{
-}
-
-CustomEventBinder::CustomEventBinder(const CustomEventBinder& other)
-    : m_Manager(other.m_Manager), m_CustomEventName(other.m_CustomEventName)
+CustomEventBinder::CustomEventBinder(CustomEventManager &manager, const std::string &customEventName)
+    : m_Manager(&manager), m_CustomEventName(customEventName)
 {
 }
 
-CustomEventBinder::CustomEventBinder(CustomEventBinder&& other)
+CustomEventBinder::CustomEventBinder(CustomEventBinder &&other)
     : m_Manager(other.m_Manager), m_CustomEventName(std::move(other.m_CustomEventName))
 {
+  other.m_Manager = nullptr;
 }
 
-CustomEventBinder CustomEventBinder::bindInput(Event::Type inputType, CodeType inputCode)
+CustomEventBinder::~CustomEventBinder()
 {
-    m_Manager.bindInput(m_CustomEventName, inputType, inputCode);
-    return *this;
+  m_Manager->unbindCallbacksFromEmitter(m_CustomEventName, this);
 }
 
-CustomEventBinder CustomEventBinder::unbindInput(Event::Type inputType, CodeType inputCode)
+CustomEventBinder &CustomEventBinder::bindInput(Event::Type inputType, CodeType inputCode)
 {
-    m_Manager.unbindInput(m_CustomEventName, inputType, inputCode);
-    return *this;
+  m_Manager->bindInput(m_CustomEventName, inputType, inputCode);
+  return *this;
 }
 
-CustomEventBinder CustomEventBinder::bindCallback(const CustomEventCallback& cb)
+CustomEventBinder &CustomEventBinder::unbindInput(Event::Type inputType, CodeType inputCode)
 {
-    m_Manager.bindCallback(m_CustomEventName, cb);
-    return *this;
+  m_Manager->unbindInput(m_CustomEventName, inputType, inputCode);
+  return *this;
 }
 
-} // namespace vrm
+CustomEventBinder &CustomEventBinder::bindCallback(const CustomEventCallback &cb)
+{
+  m_Manager->bindCallback(m_CustomEventName, cb, this);
+  return *this;
+}

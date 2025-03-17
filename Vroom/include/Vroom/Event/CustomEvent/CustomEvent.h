@@ -5,6 +5,8 @@
 namespace vrm
 {
 
+class CustomEventBinder;
+
 /**
  * @page custom_events Custom events
  * A custom event is a particular type of event that will be triggered when specific inputs are received.
@@ -32,7 +34,7 @@ public:
      * 
      * @param cb Callback to add.
      */
-    void addCallback(const CustomEventCallback& cb) { m_Callbacks.addCallback(cb); }
+    void addCallback(const CustomEventCallback& cb, CustomEventBinder* emitter) { m_Callbacks.addCallback(cb, emitter); }
 
     /**
      * @brief Trigger the custom event. All associated callbacks are triggered.
@@ -40,6 +42,8 @@ public:
      * @param e Event to pass to the callbacks.
      */
     void trigger(const Event& e) { m_Callbacks.triggerAll(e); }
+
+    void removeCallbacksFromEmitter(CustomEventBinder* emitter) { m_Callbacks.unbindAllFromEmitter(emitter); }
 
 private:
     CustomEventCallbackList m_Callbacks;

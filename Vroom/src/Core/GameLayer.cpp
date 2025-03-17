@@ -20,12 +20,15 @@ GameLayer::GameLayer()
                         .useDepthTest = true,
                         .clearColor = {0.1f, 0.1f, 0.1f, 1.f}});
 
-  createCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
-      .bindInput(Event::Type::WindowsResized)
-      .bindCallback([&renderer](const vrm::Event &e)
-                    { renderer.setViewport({0.f, 0.f}, {static_cast<float>(e.newWidth), static_cast<float>(e.newHeight)}); })
-      .bindCallback([this](const vrm::Event &e)
-                    { this->m_FrameBuffer.resize(e.newWidth, e.newHeight); });
+  m_CustomEventManager.createCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
+      .bindInput(Event::Type::WindowsResized);
+
+  m_CustomEventManager
+      .bindPermanentCallback("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE", [&renderer](const vrm::Event &e)
+                             { renderer.setViewport({0.f, 0.f}, {static_cast<float>(e.newWidth), static_cast<float>(e.newHeight)}); })
+      .bindPermanentCallback("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE", [this](const vrm::Event &e)
+                             { this->m_FrameBuffer.resize(e.newWidth, e.newHeight); })
+  ;
 }
 
 GameLayer::~GameLayer()

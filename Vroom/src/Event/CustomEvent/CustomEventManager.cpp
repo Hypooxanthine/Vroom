@@ -54,13 +54,26 @@ CustomEventBinder CustomEventManager::getBinder(const std::string& customEventNa
     return CustomEventBinder(*this, customEventName);
 }
 
-CustomEventBinder CustomEventManager::bindCallback(const std::string& customEventName, const CustomEventCallback& cb)
+CustomEventBinder CustomEventManager::bindCallback(const std::string& customEventName, const CustomEventCallback& cb, CustomEventBinder* emitter)
 {
     VRM_ASSERT(m_CustomEvents.contains(customEventName));
 
-    m_CustomEvents.at(customEventName).addCallback(cb);
+    m_CustomEvents.at(customEventName).addCallback(cb, emitter);
 
     return getBinder(customEventName);
+}
+
+void CustomEventManager::unbindCallbacksFromEmitter(const std::string& customEventName, CustomEventBinder* emitter)
+{
+    VRM_ASSERT(m_CustomEvents.contains(customEventName));
+
+    m_CustomEvents.at(customEventName).removeCallbacksFromEmitter(emitter);
+}
+
+CustomEventManager& CustomEventManager::bindPermanentCallback(const std::string& customEventName, const CustomEventCallback& cb)
+{
+    bindCallback(customEventName, cb, nullptr);
+    return *this;
 }
 
 } // namespace vrm

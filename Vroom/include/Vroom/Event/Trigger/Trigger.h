@@ -7,6 +7,8 @@
 namespace vrm
 {
 
+class TriggerBinder;
+
 /**
  * @page triggers Triggers
  * A trigger is a particular type of event that can be activated and deactivated.
@@ -33,7 +35,9 @@ public:
      * 
      * @param cb Callback to add.
      */
-    inline void bindCallback(const TriggerCallback& cb) { m_Callbacks.addCallback(cb); }
+    inline void bindCallback(const TriggerCallback& cb, TriggerBinder* emitter) { m_Callbacks.addCallback(cb, emitter); }
+
+    inline void removeCallbacksFromEmitter(TriggerBinder* emitter) { m_Callbacks.unbindAllFromEmitter(emitter); }
 
     /**
      * @brief Trigger the trigger. All associated callbacks are triggered.

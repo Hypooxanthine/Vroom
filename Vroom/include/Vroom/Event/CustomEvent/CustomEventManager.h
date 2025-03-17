@@ -55,7 +55,11 @@ public:
      * @param cb Callback to bind.
      * @return CustomEventBinder Custom event binder to bind inputs and callbacks to the custom event.
      */
-    CustomEventBinder bindCallback(const std::string& customEventName, const CustomEventCallback& cb);
+    CustomEventBinder bindCallback(const std::string& customEventName, const CustomEventCallback& cb, CustomEventBinder* emitter);
+
+    void unbindCallbacksFromEmitter(const std::string& customEventName, CustomEventBinder* emitter);
+
+    CustomEventManager& bindPermanentCallback(const std::string& customEventName, const CustomEventCallback& cb);
 
     /**
      * @brief Binds an input to the custom event. Since no code is provided, all inputs of the given type will trigger the custom event, regardless of their code.
@@ -132,6 +136,8 @@ private:
     std::unordered_map<Event::Type,
         std::unordered_map<CodeType,
             std::unordered_set<std::string>>> m_RawEventsToCustomEvents;
+
+    std::vector<CustomEventBinder> m_PermanentCallbacks;
 };
 
 } // namespace vrm

@@ -29,12 +29,7 @@ public:
      */
     TriggerBinder(TriggerManager& tm, const std::string& triggerName) : m_Tm(tm), m_TriggerName(triggerName) {}
 
-    /**
-     * @brief Construct a new Trigger Binder object
-     * 
-     * @param other TriggerBinder to copy.
-     */
-    TriggerBinder(const TriggerBinder& other);
+    TriggerBinder(const TriggerBinder& other) = delete;
 
     /**
      * @brief Construct a new Trigger Binder object
@@ -43,13 +38,15 @@ public:
      */
     TriggerBinder(TriggerBinder&& other);
 
+    virtual ~TriggerBinder();
+
     /**
      * @brief Bind a key input to the trigger.
      * 
      * @param key Key to bind.
      * @return TriggerBinder A binder to the same Trigger instance.
      */
-    TriggerBinder bindInput(const KeyCode& key);
+    TriggerBinder& bindInput(const KeyCode& key);
 
     /**
      * @brief Bind a mouse input to the trigger.
@@ -57,7 +54,7 @@ public:
      * @param mouse Mouse button to bind.
      * @return TriggerBinder A binder to the same Trigger instance.
      */
-    TriggerBinder bindInput(const MouseCode& mouse);
+    TriggerBinder& bindInput(const MouseCode& mouse);
 
     /**
      * @brief Unbind a key input from the trigger.
@@ -65,7 +62,7 @@ public:
      * @param key Key to unbind.
      * @return TriggerBinder A binder to the same Trigger instance.
      */
-    TriggerBinder unbindInput(const KeyCode& key);
+    TriggerBinder& unbindInput(const KeyCode& key);
 
     /**
      * @brief Unbind a mouse input from the trigger.
@@ -73,7 +70,7 @@ public:
      * @param mouse Mouse button to unbind.
      * @return TriggerBinder A binder to the same Trigger instance.
      */
-    TriggerBinder unbindInput(const MouseCode& mouse);
+    TriggerBinder& unbindInput(const MouseCode& mouse);
 
     /**
      * @brief Bind a callback to the trigger.
@@ -81,7 +78,7 @@ public:
      * @param callback Callback to bind.
      * @return TriggerBinder A binder to the same Trigger instance.
      */
-    TriggerBinder bindCallback(const TriggerCallback& callback);
+    TriggerBinder& bindCallback(const TriggerCallback& callback);
 
 private:
     TriggerManager& m_Tm;

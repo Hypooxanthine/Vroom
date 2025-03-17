@@ -48,7 +48,9 @@ void EditorLayer::onInit()
   // Events setup
   m_CustomEventManager.createCustomEvent("Exit")
       .bindInput(Event::Type::Exit)
-      .bindCallback([](const Event &e)
+      .bindInput(Event::Type::KeyPressed, vrm::KeyCode::Escape);
+
+  m_CustomEventManager.bindPermanentCallback("Exit", [](const Event &e)
                     { Application::Get().exit(); });
 
   // Engine setup
@@ -86,38 +88,37 @@ void EditorLayer::onInit()
   m_Viewport.setFrameBuffer(&app.getGameLayer().getFrameBuffer());
 
   // Events
-  m_CustomEventManager
-      .createCustomEvent("EditorCameraRotation")
-      .bindInput(Event::Type::MouseMoved)
-      .bindCallback([this](const Event &e)
+  m_CustomEventManager.createCustomEvent("EditorCameraRotation")
+      .bindInput(Event::Type::MouseMoved);
+  m_CustomEventManager.bindPermanentCallback("EditorCameraRotation", [this](const Event &e)
                     {
           m_EditorCamera.submitLookRight(static_cast<float>(e.mouseDeltaX));
           m_EditorCamera.submitLookUp(static_cast<float>(-e.mouseDeltaY));
           e.handled = true; });
 
   m_TriggerManager.createTrigger("MoveForward")
-      .bindInput(vrm::KeyCode::W)
-      .bindCallback([this](bool triggered)
+      .bindInput(vrm::KeyCode::W);
+  m_TriggerManager.bindPermanentCallback("MoveForward", [this](bool triggered)
                     { m_EditorCamera.addMoveForward(triggered ? 1.f : -1.f); });
   m_TriggerManager.createTrigger("MoveBackward")
-      .bindInput(vrm::KeyCode::S)
-      .bindCallback([this](bool triggered)
+      .bindInput(vrm::KeyCode::S);
+  m_TriggerManager.bindPermanentCallback("MoveBackward", [this](bool triggered)
                     { m_EditorCamera.addMoveForward(-(triggered ? 1.f : -1.f)); });
   m_TriggerManager.createTrigger("MoveRight")
-      .bindInput(vrm::KeyCode::D)
-      .bindCallback([this](bool triggered)
+      .bindInput(vrm::KeyCode::D);
+  m_TriggerManager.bindPermanentCallback("MoveRight", [this](bool triggered)
                     { m_EditorCamera.addMoveRight(triggered ? 1.f : -1.f); });
   m_TriggerManager.createTrigger("MoveLeft")
-      .bindInput(vrm::KeyCode::A)
-      .bindCallback([this](bool triggered)
+      .bindInput(vrm::KeyCode::A);
+  m_TriggerManager.bindPermanentCallback("MoveLeft", [this](bool triggered)
                     { m_EditorCamera.addMoveRight(-(triggered ? 1.f : -1.f)); });
   m_TriggerManager.createTrigger("MoveUp")
-      .bindInput(vrm::KeyCode::Space)
-      .bindCallback([this](bool triggered)
+      .bindInput(vrm::KeyCode::Space);
+  m_TriggerManager.bindPermanentCallback("MoveUp", [this](bool triggered)
                     { m_EditorCamera.addMoveUp(triggered ? 1.f : -1.f); });
   m_TriggerManager.createTrigger("MoveDown")
-      .bindInput(vrm::KeyCode::LeftShift)
-      .bindCallback([this](bool triggered)
+      .bindInput(vrm::KeyCode::LeftShift);
+  m_TriggerManager.bindPermanentCallback("MoveDown", [this](bool triggered)
                     { m_EditorCamera.addMoveUp(-(triggered ? 1.f : -1.f)); });
 }
 
@@ -214,4 +215,6 @@ void EditorLayer::onViewportResize()
   gameLayer.setShouldHandleEvents(true);
   gameLayer.submitEvent(e);
   gameLayer.setShouldHandleEvents(handledEvents);
+
+  m_EditorCamera.setViewportSize(m_Viewport.getLastViewportSize().x, m_Viewport.getLastViewportSize().y);
 }

@@ -8,6 +8,8 @@
 namespace vrm
 {
 
-using CustomEventCallbackList = CallbackList<CustomEventCallback>;
+class CustomEventBinder;
+
+using CustomEventCallbackList = CallbackList<CustomEventCallback, CustomEventBinder>;
 
 } // namespace vrm

@@ -15,13 +15,15 @@
 #include "Vroom/Scene/Components/MeshComponent.h"
 #include "Vroom/Scene/Components/PointLightComponent.h"
 
+vrm::FirstPersonCamera vrm::Scene::s_DefaultCamera = {0.1f, 100.f, glm::radians(90.f), 0.f, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f)};
+
 namespace vrm
 {
 
 Scene::Scene()
 {
     // Setting a default camera
-    setCamera(&m_DefaultCamera);
+    setCamera(&s_DefaultCamera);
 }
 
 Scene::~Scene()

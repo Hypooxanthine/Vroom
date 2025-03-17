@@ -110,13 +110,19 @@ public:
      * @param callback Callback to bind.
      * @return TriggerBinder Trigger binder to bind inputs and callbacks to the Trigger.
      */
-    TriggerBinder bindCallback(const std::string& triggerName, const TriggerCallback& callback);
+    TriggerBinder bindCallback(const std::string& triggerName, const TriggerCallback& callback, TriggerBinder* emitter);
+
+    void unbindCallbacksFromEmitter(const std::string& triggerName, TriggerBinder* emitter);
+
+    TriggerManager& bindPermanentCallback(const std::string& triggerName, const TriggerCallback& cb);
 
 private:
     std::unordered_map<std::string, Trigger> m_Triggers;
 
     std::unordered_map<KeyCode, std::unordered_set<std::string>> m_Keys;
     std::unordered_map<MouseCode, std::unordered_set<std::string>> m_MouseButtons;
+
+    std::vector<TriggerBinder> m_PermanentCallbacks;
 };
 
 } // namespace vrm
