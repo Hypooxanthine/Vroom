@@ -8,7 +8,7 @@
 
 using namespace vrm;
 
-ImVec2 AssetElement::s_ElementSize = { 100.f, 100.f };
+ImVec2 AssetElement::s_ElementSize = {100.f, 100.f};
 
 AssetElement::AssetElement(const std::filesystem::path &elementPath)
     : ImGuiElement(), m_ElementPath(std::filesystem::canonical(elementPath))
@@ -22,6 +22,7 @@ AssetElement::~AssetElement()
 bool AssetElement::onImgui()
 {
   bool ret = false;
+  m_Action = EAction::eNone;
 
   ImGui::PushID(ImGui::GetID(getPath().c_str()));
 
@@ -40,6 +41,16 @@ bool AssetElement::onImgui()
 
   ImGui::PopID();
 
+  if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+  {
+    auto action = onDoubleClick();
+    if (action != EAction::eNone)
+    {
+      m_Action = action;
+      ret = true;
+    }
+  }
+
   return ret;
 }
 
@@ -48,7 +59,7 @@ void AssetElement::onDrawPicto()
   if (m_Picto.getStaticAsset() == nullptr)
     m_Picto = getPicto();
 
-  ImVec2 imgSize = { GetElementSize().x * 0.6f, GetElementSize().y * 0.6f };
+  ImVec2 imgSize = {GetElementSize().x * 0.6f, GetElementSize().y * 0.6f};
   ImGui::SetCursorPosX((GetElementSize().x - imgSize.x) / 2.f);
   ImGui::Image(
       (ImTextureID)(intptr_t)m_Picto.getStaticAsset()->getGPUTexture().getRendererID(),
@@ -72,7 +83,7 @@ void AssetElement::onDrawText()
   auto txt = getText();
   if (txt.empty())
     return;
-  
+
   auto windowWidth = ImGui::GetWindowSize().x;
   auto textSize = ImGui::CalcTextSize(txt.c_str()).x;
 

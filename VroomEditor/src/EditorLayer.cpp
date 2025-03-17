@@ -52,7 +52,7 @@ void EditorLayer::onInit()
       .bindInput(Event::Type::KeyPressed, vrm::KeyCode::Escape);
 
   m_CustomEventManager.bindPermanentCallback("Exit", [](const Event &e)
-                    { Application::Get().exit(); });
+                                             { Application::Get().exit(); });
 
   // Engine setup
   auto &app = Application::Get();
@@ -92,7 +92,7 @@ void EditorLayer::onInit()
   m_CustomEventManager.createCustomEvent("EditorCameraRotation")
       .bindInput(Event::Type::MouseMoved);
   m_CustomEventManager.bindPermanentCallback("EditorCameraRotation", [this](const Event &e)
-                    {
+                                             {
           m_EditorCamera.submitLookRight(static_cast<float>(e.mouseDeltaX));
           m_EditorCamera.submitLookUp(static_cast<float>(-e.mouseDeltaY));
           e.handled = true; });
@@ -100,27 +100,27 @@ void EditorLayer::onInit()
   m_TriggerManager.createTrigger("MoveForward")
       .bindInput(vrm::KeyCode::W);
   m_TriggerManager.bindPermanentCallback("MoveForward", [this](bool triggered)
-                    { m_EditorCamera.addMoveForward(triggered ? 1.f : -1.f); });
+                                         { m_EditorCamera.addMoveForward(triggered ? 1.f : -1.f); });
   m_TriggerManager.createTrigger("MoveBackward")
       .bindInput(vrm::KeyCode::S);
   m_TriggerManager.bindPermanentCallback("MoveBackward", [this](bool triggered)
-                    { m_EditorCamera.addMoveForward(-(triggered ? 1.f : -1.f)); });
+                                         { m_EditorCamera.addMoveForward(-(triggered ? 1.f : -1.f)); });
   m_TriggerManager.createTrigger("MoveRight")
       .bindInput(vrm::KeyCode::D);
   m_TriggerManager.bindPermanentCallback("MoveRight", [this](bool triggered)
-                    { m_EditorCamera.addMoveRight(triggered ? 1.f : -1.f); });
+                                         { m_EditorCamera.addMoveRight(triggered ? 1.f : -1.f); });
   m_TriggerManager.createTrigger("MoveLeft")
       .bindInput(vrm::KeyCode::A);
   m_TriggerManager.bindPermanentCallback("MoveLeft", [this](bool triggered)
-                    { m_EditorCamera.addMoveRight(-(triggered ? 1.f : -1.f)); });
+                                         { m_EditorCamera.addMoveRight(-(triggered ? 1.f : -1.f)); });
   m_TriggerManager.createTrigger("MoveUp")
       .bindInput(vrm::KeyCode::Space);
   m_TriggerManager.bindPermanentCallback("MoveUp", [this](bool triggered)
-                    { m_EditorCamera.addMoveUp(triggered ? 1.f : -1.f); });
+                                         { m_EditorCamera.addMoveUp(triggered ? 1.f : -1.f); });
   m_TriggerManager.createTrigger("MoveDown")
       .bindInput(vrm::KeyCode::LeftShift);
   m_TriggerManager.bindPermanentCallback("MoveDown", [this](bool triggered)
-                    { m_EditorCamera.addMoveUp(-(triggered ? 1.f : -1.f)); });
+                                         { m_EditorCamera.addMoveUp(-(triggered ? 1.f : -1.f)); });
 }
 
 void EditorLayer::onEnd()
@@ -194,17 +194,33 @@ void EditorLayer::onImgui()
   m_MainMenuBar.renderImgui();
   m_StatisticsPanel.renderImgui();
   m_Viewport.renderImgui();
-  m_AssetBrowser.renderImgui();
+
+  if (m_AssetBrowser.renderImgui())
+  {
+    auto action = m_AssetBrowser.getAction();
+
+    switch (action)
+    {
+    case AssetElement::EAction::eLoadScene:
+    {
+      auto scene = std::make_unique<Scene>();
+      if (scene->loadFromAsset(AssetManager::Get().getAsset<SceneAsset>(m_AssetBrowser.getSelectedAsset().string())))
+        loadScene(std::move(scene));
+      else
+        VRM_LOG_ERROR("Failed to load scene.");
+    }
+    break;
+
+    default:
+      break;
+    }
+  }
 
   if (ImGui::Begin("Tests"))
   {
-    if (ImGui::Button("Load json scene"))
+    if (ImGui::Button("Load default scene"))
     {
-      auto s = std::make_unique<Scene>();
-      if (s->loadFromAsset(AssetManager::Get().getAsset<SceneAsset>("Resources/Scenes/SceneTest.json")))
-        loadScene(std::move(s));
-      else
-        VRM_LOG_ERROR("Failed to load scene.");
+      loadScene<Scene>();
     }
 
     if (ImGui::Button("Load TestScene"))

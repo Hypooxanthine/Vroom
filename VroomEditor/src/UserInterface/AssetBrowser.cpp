@@ -5,10 +5,19 @@
 #include "VroomEditor/UserInterface/AssetDirectory.h"
 #include "VroomEditor/UserInterface/AssetParentDir.h"
 #include "VroomEditor/UserInterface/AssetFile.h"
+#include "VroomEditor/UserInterface/AssetFileSceneAsset.h"
 
 #include "Vroom/Core/Log.h"
 
 using namespace vrm;
+
+AssetFile *AssetBrowser::CreateAssetFile(const std::filesystem::path &path)
+{
+  if (path.extension() == ".scene")
+    return new AssetFileSceneAsset(path);
+  else
+    return new AssetFile(path);
+}
 
 AssetBrowser::AssetBrowser(const std::filesystem::path &resourcesPath)
     : ImGuiElement(),
@@ -62,7 +71,7 @@ void AssetBrowser::updateDirectoryContent()
   {
     if (entry.is_regular_file())
     {
-      m_Assets.emplace_back().reset(new AssetFile(entry.path()));
+      m_Assets.emplace_back().reset(CreateAssetFile(entry.path()));
     }
   }
 }
@@ -70,6 +79,8 @@ void AssetBrowser::updateDirectoryContent()
 bool AssetBrowser::onImgui()
 {
   bool ret = false;
+  m_Action = AssetElement::EAction::eNone;
+  m_SelectedAsset.clear();
 
   std::filesystem::path nextPath = m_CurrentPath;
 
@@ -97,31 +108,27 @@ bool AssetBrowser::onImgui()
       }
 
       if (ImGui::GetCursorPosX() + AssetElement::GetElementSize().x > windowWidth)
-          ImGui::NewLine();
+        ImGui::NewLine();
 
-      elem->renderImgui();
-
-      if (ImGui::IsItemHovered()
-        && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+      if (elem->renderImgui())
       {
-        if (std::filesystem::is_directory(elem->getPath()))
-          nextPath = elem->getPath();
-        else if (std::filesystem::is_regular_file(elem->getPath()))
-        {
-          /**
-           * @todo Open a file in extern (or intern ?) application
-           * Not quite sure how to deal with it
-           * system() call ?
-           * 
-           */
+        m_Action = elem->getAction();
 
+        if (m_Action == AssetElement::EAction::eNavigate)
+        {
+          nextPath = elem->getPath();
+        }
+        else
+        {
+          m_SelectedAsset = elem->getPath();
+          ret = true;
         }
       }
     }
+    ImGui::End();
+
+    setCurrentPath(nextPath);
   }
-  ImGui::End();
-
-  setCurrentPath(nextPath);
-
+  
   return ret;
 }
