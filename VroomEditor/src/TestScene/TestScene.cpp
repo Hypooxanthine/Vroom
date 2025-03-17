@@ -20,30 +20,6 @@ namespace vrm
 
 void TestScene::onInit()
 {
-    auto& gameLayer = vrm::Application::Get().getGameLayer();
-
-	gameLayer.createTrigger("MoveForward")
-		.bindInput(vrm::KeyCode::W);
-	gameLayer.createTrigger("MoveBackward")
-		.bindInput(vrm::KeyCode::S);
-	gameLayer.createTrigger("MoveLeft")
-		.bindInput(vrm::KeyCode::A);
-	gameLayer.createTrigger("MoveRight")
-		.bindInput(vrm::KeyCode::D);
-	gameLayer.createTrigger("MoveUp")
-		.bindInput(vrm::KeyCode::Space);
-	gameLayer.createTrigger("MoveDown")
-		.bindInput(vrm::KeyCode::LeftShift);
-        
-	gameLayer.createCustomEvent("MouseMoved")
-		.bindInput(vrm::Event::Type::MouseMoved);
-	gameLayer.createCustomEvent("ReleaseMouse")
-		.bindInput(vrm::Event::Type::KeyPressed, vrm::KeyCode::LeftAlt)
-		.bindCallback([](const vrm::Event&) { vrm::Application::Get().getWindow().setCursorVisible(true); });
-	gameLayer.createCustomEvent("MouseEnter")
-		.bindInput(vrm::Event::Type::MouseEntered)
-		.bindCallback([](const vrm::Event&) { vrm::Application::Get().getWindow().setCursorVisible(false); });
-
     // Set a custom camera
     // setCamera(&myCamera);
     myCamera.setWorldPosition({0.f, 0.f, 5.f});
@@ -87,28 +63,6 @@ void TestScene::onInit()
         entity.addComponent<vrm::MeshComponent>(mesh);
         entity.addScriptComponent<SuzanneScript>(suzanneRadius, i * glm::two_pi<float>() / 10, suzanneSpeed);
     }
-
-    // Bind triggers to the camera
-    // This is a bit ugly. I might create some facilities that do this job in the future.
-    // Maybe another event type, which will give a scalar depending on the input (moveForward in [-1, 1] for example, controlled with any input we want).
-    gameLayer.getTrigger("MoveForward")
-        .bindCallback([this](bool triggered) { forwardValue += triggered ? 1.f : -1.f; });
-    gameLayer.getTrigger("MoveBackward")
-        .bindCallback([this](bool triggered) { forwardValue -= triggered ? 1.f : -1.f; });
-    gameLayer.getTrigger("MoveRight")
-        .bindCallback([this](bool triggered) { rightValue += triggered ? 1.f : -1.f; });
-    gameLayer.getTrigger("MoveLeft")
-        .bindCallback([this](bool triggered) { rightValue -= triggered ? 1.f : -1.f; });
-    gameLayer.getTrigger("MoveUp")
-        .bindCallback([this](bool triggered) { upValue += triggered ? 1.f : -1.f; });
-    gameLayer.getTrigger("MoveDown")
-        .bindCallback([this](bool triggered) { upValue -= triggered ? 1.f : -1.f; });
-    
-    gameLayer.getCustomEvent("MouseMoved")
-        .bindCallback([this](const vrm::Event& event) {
-            turnRightValue += static_cast<float>(event.mouseDeltaX);
-            lookUpValue -= static_cast<float>(event.mouseDeltaY);
-        });
 }
 
 void TestScene::onUpdate(float dt)
