@@ -10,12 +10,12 @@ namespace vrm
 
 Entity ScriptComponent::getEntity() const
 {
-    return Entity(m_EntityHandle, &getScene().getRegistry());
+    return getScene().getEntity(m_EntityHandle);
 }
 
 Scene& ScriptComponent::getScene() const
 {
-    return Application::Get().getGameLayer().getScene();
+    return *m_Scene;
 }
 
 void ScriptComponent::setEntityHandle(entt::entity handle)

@@ -9,6 +9,7 @@
 
 #include "Vroom/Scene/Components/TransformComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
+#include "Vroom/Scene/Components/ScriptComponent.h"
 
 #define CHECK(x, ...) VRM_CHECK_RET_FALSE_MSG(x, __VA_ARGS__)
 
@@ -27,7 +28,7 @@ using json = nlohmann::json;
 
 #define CHECK_ATTR_STRING(x, attr)  \
   CHECK_ATTR_TYPE(x, attr, string); \
-  auto attr##Val = x.get<std::string>()
+  auto attr##Val = x.at(#attr).get<std::string>()
 
 #define CHECK_ATTR_ARRAY(x, attr) \
   CHECK_ATTR_TYPE(x, attr, array)
@@ -102,7 +103,25 @@ static bool HandleEntityMeshComponent(Entity& e, const json& params)
 
 static bool HandleEntityScriptComponent(Entity& e, const json& params)
 {
+  std::string scriptName;
 
+  for (const auto& param : params)
+  {
+    CHECK(param.is_object(), "Unexpected ScriptComponent parameter {}", param.dump(2));
+    CHECK_ATTR_STRING(param, name);
+    CHECK(nameVal == "ScriptName", "Unsupported ScriptComponent parameter {}", nameVal);
+    CHECK(scriptName.empty(), "Only one ScriptName parameter is supported");
+    CHECK_ATTR_STRING(param, value);
+
+    scriptName = valueVal;
+  }
+  
+  CHECK(ScriptEngine::Get().isScriptRegistered(scriptName), "Script {} is not registered", scriptName);
+  
+  auto* rawScriptPtr = ScriptEngine::Get().getScriptFactory(scriptName)();
+  auto script = std::unique_ptr<ScriptComponent>(rawScriptPtr);
+  e.addScriptComponent(std::move(script));
+  
   return true;
 }
 
@@ -173,8 +192,15 @@ bool Scene::loadFromAsset(const SceneInstance &data)
 
   for (const auto &sceneNode : scene_nodes)
   {
-    CHECK(HandleSceneNode(*this, sceneNode), "Error while parsing scene node {}", sceneNode.dump(2));
+    if (!HandleSceneNode(*this, sceneNode))
+    {
+      destroyAllEntities();
+      VRM_LOG_ERROR("Error while parsing scene node {}", sceneNode.dump(2));
+      return false;
+    }
   }
+
+  VRM_LOG_INFO("Scene loaded successfully");
 
   return true;
 }

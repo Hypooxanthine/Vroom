@@ -8,6 +8,8 @@
 namespace vrm
 {
 
+class Scene;
+
 /**
  * @brief Entity class.
  * 
@@ -24,8 +26,9 @@ public:
      * 
      * @param handle The entity handle.
      * @param registry The registry where the entity is stored.
+     * @param scene The scene where the entity is.
      */
-    Entity(entt::entity handle, entt::registry* registry);
+    Entity(entt::entity handle, entt::registry* registry, Scene* scene);
     
     /**
      * @brief Copy constructor.
@@ -76,8 +79,19 @@ public:
         VRM_ASSERT_MSG(!hasComponent<ScriptHandler>(), "Entity already has component.");
         auto& component = m_Registry->emplace<ScriptHandler>(m_Handle, std::make_unique<T>(std::forward<Args>(args)...));
         component.getScript().setEntityHandle(m_Handle);
+        component.getScript().setSceneRef(m_Scene);
         component.getScript().onSpawn();
-        return dynamic_cast<T&>(component.getScript());
+        return static_cast<T&>(component.getScript());
+    }
+
+    ScriptComponent& addScriptComponent(std::unique_ptr<ScriptComponent>&& script)
+    {
+        VRM_ASSERT_MSG(!hasComponent<ScriptHandler>(), "Entity already has component.");
+        auto& component = m_Registry->emplace<ScriptHandler>(m_Handle, std::move(script));
+        component.getScript().setEntityHandle(m_Handle);
+        component.getScript().setSceneRef(m_Scene);
+        component.getScript().onSpawn();
+        return component.getScript();
     }
 
     /**
@@ -154,6 +168,7 @@ public:
 private:
     entt::entity m_Handle = entt::null;
     entt::registry* m_Registry = nullptr;
+    Scene* m_Scene = nullptr;
 };
 
 } // namespace vrm

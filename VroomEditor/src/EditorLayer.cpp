@@ -11,6 +11,9 @@
 #include "VroomEditor/EditorScene.h"
 #include "VroomEditor/TestScene/TestScene.h"
 
+#include "Vroom/Asset/AssetManager.h"
+#include "Vroom/Asset/StaticAsset/SceneAsset.h"
+
 using namespace vrm;
 
 EditorLayer::EditorLayer()
@@ -26,8 +29,7 @@ EditorLayer::EditorLayer()
 {
   // We need to load a first scene before initialization of layers, because game layer will be initialized first.
   // Just loading the default scene.
-  auto scene = std::make_unique<Scene>();
-  Application::Get().getGameLayer().loadScene(std::move(scene));
+  loadScene<Scene>();
 }
 
 EditorLayer::~EditorLayer()
@@ -36,6 +38,7 @@ EditorLayer::~EditorLayer()
 
 void EditorLayer::loadScene(std::unique_ptr<Scene> &&scene)
 {
+  VRM_LOG_INFO("Opening scene...");
   scene->setCamera(&m_EditorCamera);
   auto &gameLayer = Application::Get().getGameLayer();
   gameLayer.loadScene(std::move(scene));
@@ -43,8 +46,6 @@ void EditorLayer::loadScene(std::unique_ptr<Scene> &&scene)
 
 void EditorLayer::onInit()
 {
-  loadScene(std::make_unique<TestScene>());
-
   // Events setup
   m_CustomEventManager.createCustomEvent("Exit")
       .bindInput(Event::Type::Exit)
@@ -194,6 +195,24 @@ void EditorLayer::onImgui()
   m_StatisticsPanel.renderImgui();
   m_Viewport.renderImgui();
   m_AssetBrowser.renderImgui();
+
+  if (ImGui::Begin("Tests"))
+  {
+    if (ImGui::Button("Load json scene"))
+    {
+      auto s = std::make_unique<Scene>();
+      if (s->loadFromAsset(AssetManager::Get().getAsset<SceneAsset>("Resources/Scenes/SceneTest.json")))
+        loadScene(std::move(s));
+      else
+        VRM_LOG_ERROR("Failed to load scene.");
+    }
+
+    if (ImGui::Button("Load TestScene"))
+    {
+      loadScene<TestScene>();
+    }
+  }
+  ImGui::End();
 
   ImGui::PopFont();
 

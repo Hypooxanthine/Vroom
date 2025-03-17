@@ -129,7 +129,7 @@ Entity Scene::getEntity(entt::entity handle)
 {
     VRM_ASSERT_MSG(m_Registry.valid(handle), "Entity is not valid.");
 
-    return Entity(handle, &m_Registry);
+    return Entity(handle, &m_Registry, this);
 }
 
 Entity Scene::getEntity(const std::string& name)

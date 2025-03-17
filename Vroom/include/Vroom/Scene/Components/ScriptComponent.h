@@ -33,9 +33,11 @@ protected:
 
 private:
     void setEntityHandle(entt::entity handle);
+    void setSceneRef(Scene* scene) { m_Scene = scene; }
 
 private:
     entt::entity m_EntityHandle = entt::null;
+    Scene* m_Scene = nullptr;
 };
 
 #define VRM_FACTORY_CLASS_NAME(ScriptClass) ScriptClass ## _Factory

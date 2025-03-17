@@ -94,6 +94,60 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Suzanne_0",
+      "type": "Entity",
+      "parent": "Root",
+      "components": [
+        {
+          "type": "TransformComponent",
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ]
+        },
+        {
+          "type": "MeshComponent",
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Meshes/Suzanne.obj"
+            }
+          ]
+        },
+        {
+          "type": "ScriptComponent",
+          "params": [
+            {
+              "name": "ScriptName",
+              "value": "VRM_SuzanneScript_ID"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
