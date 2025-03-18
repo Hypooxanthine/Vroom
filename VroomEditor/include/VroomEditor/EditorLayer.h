@@ -10,6 +10,7 @@
 #include "VroomEditor/UserInterface/StatisticsPanel.h"
 #include "VroomEditor/UserInterface/Viewport.h"
 #include "VroomEditor/UserInterface/AssetBrowser.h"
+#include "VroomEditor/UserInterface/SceneGraph.h"
 #include "VroomEditor/EditorCamera.h"
 
 struct ImFont;
@@ -58,6 +59,7 @@ private:
   StatisticsPanel m_StatisticsPanel;
   Viewport m_Viewport;
   AssetBrowser m_AssetBrowser;
+  SceneGraph m_SceneGraph;
 
   // Frame time management
   size_t m_FrameAccumulator;

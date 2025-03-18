@@ -216,6 +216,8 @@ void EditorLayer::onImgui()
     }
   }
 
+  m_SceneGraph.renderImgui();
+
   if (ImGui::Begin("Tests"))
   {
     if (ImGui::Button("Load default scene"))
