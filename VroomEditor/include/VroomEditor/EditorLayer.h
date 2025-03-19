@@ -32,6 +32,8 @@ public:
   void loadScene(std::unique_ptr<Scene>&& scene);
   void loadScene(const std::string& sceneAssetName);
 
+  void unloadScene();
+
 protected:
   virtual void onInit() override;
   virtual void onEnd() override;

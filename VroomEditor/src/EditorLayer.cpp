@@ -51,6 +51,11 @@ void EditorLayer::loadScene(const std::string& sceneAssetName)
   loadScene(std::move(scene));
 }
 
+void EditorLayer::unloadScene()
+{
+  loadScene<Scene>();
+}
+
 void EditorLayer::onInit()
 {
   // Engine setup

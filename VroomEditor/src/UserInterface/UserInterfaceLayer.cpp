@@ -9,6 +9,8 @@
 #include <Vroom/Core/Window.h>
 #include <Vroom/Core/GameLayer.h>
 
+#include "VroomEditor/EditorLayer.h"
+
 #include "VroomEditor/UserInterface/MainMenuBar.h"
 #include "VroomEditor/UserInterface/StatisticsPanel.h"
 #include "VroomEditor/UserInterface/Viewport.h"
@@ -96,6 +98,7 @@ void UserInterfaceLayer::resetUIInfos()
 
 void UserInterfaceLayer::renderImgui()
 {
+  auto& editorLayer = EditorLayer::Get();
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
@@ -108,6 +111,15 @@ void UserInterfaceLayer::renderImgui()
   {
     element->renderImgui();
   }
+
+  if (ImGui::Begin("Tests"))
+  {
+    if (ImGui::Button("Unload scene"))
+    {
+      editorLayer.unloadScene();
+    }
+  }
+  ImGui::End();
 
   ImGui::PopFont();
   ImGui::Render();
