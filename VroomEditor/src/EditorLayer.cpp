@@ -4,9 +4,7 @@
 #include <Vroom/Core/GameLayer.h>
 #include <Vroom/Core/Window.h>
 
-#include "imgui.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
+#include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 
 #include "VroomEditor/EditorScene.h"
 #include "VroomEditor/TestScene/TestScene.h"
@@ -16,17 +14,13 @@
 
 using namespace vrm;
 
-EditorLayer::EditorLayer()
-    : m_MainMenuBar(),
-      m_StatisticsPanel(),
-      m_Viewport(),
-      m_AssetBrowser(),
-      m_Font(nullptr),
-      m_FrameAccumulator(0),
-      m_TimeAccumulator(0.f),
-      m_TimeSample(1.f),
-      m_EditorCamera(0.1f, 100.f, glm::radians(90.f), 0.f, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f))
+static EditorLayer* INSTANCE = nullptr;
+
+EditorLayer::EditorLayer() :
+    m_EditorCamera(0.1f, 100.f, glm::radians(90.f), 0.f, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f))
 {
+  VRM_ASSERT_MSG(INSTANCE == nullptr, "Only one instance of EditorLayer is allowed");
+  INSTANCE = this;
   // We need to load a first scene before initialization of layers, because game layer will be initialized first.
   // Just loading the default scene.
   loadScene<Scene>();
@@ -34,6 +28,12 @@ EditorLayer::EditorLayer()
 
 EditorLayer::~EditorLayer()
 {
+  INSTANCE = nullptr;
+}
+
+EditorLayer& EditorLayer::Get()
+{
+  return *INSTANCE;
 }
 
 void EditorLayer::loadScene(std::unique_ptr<Scene> &&scene)
@@ -44,8 +44,22 @@ void EditorLayer::loadScene(std::unique_ptr<Scene> &&scene)
   gameLayer.loadScene(std::move(scene));
 }
 
+void EditorLayer::loadScene(const std::string& sceneAssetName)
+{
+  auto scene = std::make_unique<Scene>();
+  scene->loadFromAsset(AssetManager::Get().getAsset<SceneAsset>(sceneAssetName));
+  loadScene(std::move(scene));
+}
+
 void EditorLayer::onInit()
 {
+  // Engine setup
+  auto &app = Application::Get();
+  app.getGameLayer().getFrameBuffer().setOnScreenRender(false);
+  app.getGameLayer().setShouldHandleEvents(false);
+  app.getGameLayer().setShouldUpdate(false);
+  app.getGameLayer().setShouldRender(true);
+
   // Events setup
   m_CustomEventManager.createCustomEvent("Exit")
       .bindInput(Event::Type::Exit)
@@ -53,13 +67,6 @@ void EditorLayer::onInit()
 
   m_CustomEventManager.bindPermanentCallback("Exit", [](const Event &e)
                                              { Application::Get().exit(); });
-
-  // Engine setup
-  auto &app = Application::Get();
-  app.getGameLayer().getFrameBuffer().setOnScreenRender(false);
-  app.getGameLayer().setShouldHandleEvents(false);
-  app.getGameLayer().setShouldUpdate(false);
-  app.getGameLayer().setShouldRender(true);
 
   // Frame buffer
   FrameBuffer::Specification specs = {
@@ -71,22 +78,6 @@ void EditorLayer::onInit()
       .clearColor = {0.1f, 0.1f, 0.1f, 1.0f}};
   m_FrameBuffer.create(specs);
   m_FrameBuffer.bind();
-
-  // Imgui setup
-  IMGUI_CHECKVERSION();
-  ImGui::CreateContext();
-  ImGuiIO &io = ImGui::GetIO();
-  ImGui::StyleColorsDark();
-  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
-  ImGui_ImplGlfw_InitForOpenGL(Application::Get().getWindow().getGLFWHandle(), true);
-  ImGui_ImplOpenGL3_Init("#version 450");
-
-  m_Font = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Regular.ttf", 24.0f);
-  VRM_ASSERT_MSG(m_Font, "Failed to load font.");
-
-  // UI setup
-  m_Viewport.setFrameBuffer(&app.getGameLayer().getFrameBuffer());
 
   // Events
   m_CustomEventManager.createCustomEvent("EditorCameraRotation")
@@ -125,31 +116,19 @@ void EditorLayer::onInit()
 
 void EditorLayer::onEnd()
 {
-  ImGui_ImplOpenGL3_Shutdown();
-  ImGui_ImplGlfw_Shutdown();
-  ImGui::DestroyContext();
 }
 
 void EditorLayer::onUpdate(float dt)
 {
   auto &app = Application::Get();
 
-  // Frame time management
-  m_FrameAccumulator++;
-  m_TimeAccumulator += dt;
-  if (m_TimeAccumulator >= m_TimeSample)
-  {
-    m_StatisticsPanel.frameTime = m_TimeSample / m_FrameAccumulator;
-    m_FrameAccumulator = 0;
-    m_TimeAccumulator -= m_TimeSample;
-  }
+  const auto& viewportInfo = UserInterfaceLayer::Get().getViewportInfo();
 
-  // Handling viewport resize
-  if (m_Viewport.didSizeChangeLastFrame())
-    onViewportResize();
+  if (viewportInfo.justChangedSize)
+    onViewportResize(viewportInfo.width, viewportInfo.height);
 
   // If the viewport is active, we update the editor camera
-  if (m_Viewport.isActive())
+  if (viewportInfo.active)
   {
     app.getWindow().setCursorVisible(false);
     m_EditorCamera.onUpdate(dt);
@@ -157,7 +136,7 @@ void EditorLayer::onUpdate(float dt)
   else
     app.getWindow().setCursorVisible(true);
 
-  if (m_Viewport.isSimulating() && !m_Viewport.isPaused())
+  if (viewportInfo.simulating && !viewportInfo.paused)
   {
     app.getGameLayer().setShouldUpdate(true);
   }
@@ -171,8 +150,6 @@ void EditorLayer::onRender()
 {
   m_FrameBuffer.bind();
   m_FrameBuffer.clearColorBuffer();
-
-  onImgui();
 }
 
 void EditorLayer::onEvent(vrm::Event &e)
@@ -181,69 +158,12 @@ void EditorLayer::onEvent(vrm::Event &e)
   m_TriggerManager.check(e);
 }
 
-void EditorLayer::onImgui()
-{
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplGlfw_NewFrame();
-  ImGui::NewFrame();
-
-  ImGui::PushFont(m_Font);
-
-  ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
-
-  m_MainMenuBar.renderImgui();
-  m_StatisticsPanel.renderImgui();
-  m_Viewport.renderImgui();
-
-  if (m_AssetBrowser.renderImgui())
-  {
-    auto action = m_AssetBrowser.getAction();
-
-    switch (action)
-    {
-    case AssetElement::EAction::eLoadScene:
-    {
-      auto scene = std::make_unique<Scene>();
-      if (scene->loadFromAsset(AssetManager::Get().getAsset<SceneAsset>(m_AssetBrowser.getSelectedAsset().string())))
-        loadScene(std::move(scene));
-      else
-        VRM_LOG_ERROR("Failed to load scene.");
-    }
-    break;
-
-    default:
-      break;
-    }
-  }
-
-  m_SceneGraph.renderImgui();
-
-  if (ImGui::Begin("Tests"))
-  {
-    if (ImGui::Button("Load default scene"))
-    {
-      loadScene<Scene>();
-    }
-
-    if (ImGui::Button("Load TestScene"))
-    {
-      loadScene<TestScene>();
-    }
-  }
-  ImGui::End();
-
-  ImGui::PopFont();
-
-  ImGui::Render();
-  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void EditorLayer::onViewportResize()
+void EditorLayer::onViewportResize(int newWidth, int newHeight)
 {
   Event e;
   e.type = Event::Type::WindowsResized;
-  e.newWidth = static_cast<int>(m_Viewport.getLastViewportSize().x);
-  e.newHeight = static_cast<int>(m_Viewport.getLastViewportSize().y);
+  e.newWidth = newWidth;
+  e.newHeight = newHeight;
   auto &gameLayer = Application::Get().getGameLayer();
 
   // We trick the game layer to handle resize event even if it is not handling events
@@ -253,5 +173,8 @@ void EditorLayer::onViewportResize()
   gameLayer.submitEvent(e);
   gameLayer.setShouldHandleEvents(handledEvents);
 
-  m_EditorCamera.setViewportSize(m_Viewport.getLastViewportSize().x, m_Viewport.getLastViewportSize().y);
+  m_EditorCamera.setViewportSize(
+    static_cast<float>(newWidth),
+    static_cast<float>(newHeight)
+  );
 }

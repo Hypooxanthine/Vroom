@@ -6,25 +6,21 @@
 #include <Vroom/Event/Trigger/TriggerManager.h>
 #include <Vroom/Render/Camera/FirstPersonCamera.h>
 
-#include "VroomEditor/UserInterface/MainMenuBar.h"
-#include "VroomEditor/UserInterface/StatisticsPanel.h"
-#include "VroomEditor/UserInterface/Viewport.h"
-#include "VroomEditor/UserInterface/AssetBrowser.h"
-#include "VroomEditor/UserInterface/SceneGraph.h"
 #include "VroomEditor/EditorCamera.h"
-
-struct ImFont;
 
 namespace vrm
 {
 
+class UserInterfaceLayer;
 class Scene;
 
-class EditorLayer : public vrm::Layer
+class EditorLayer : public Layer
 {
 public:
   EditorLayer();
   ~EditorLayer();
+
+  static EditorLayer& Get();
 
   template <typename S, typename... Args>
   void loadScene(Args&&... args)
@@ -34,37 +30,23 @@ public:
   }
 
   void loadScene(std::unique_ptr<Scene>&& scene);
+  void loadScene(const std::string& sceneAssetName);
 
 protected:
-  virtual void onInit();
-  virtual void onEnd();
-  virtual void onUpdate(float dt);
-  virtual void onRender();
-  virtual void onEvent(vrm::Event &e);
+  virtual void onInit() override;
+  virtual void onEnd() override;
+  virtual void onUpdate(float dt) override;
+  virtual void onRender() override;
+  virtual void onEvent(vrm::Event &e) override;
 
 private:
-  void onImgui();
-
-  void onViewportResize();
+  void onViewportResize(int newWidth, int newHeight);
 
 private:
   FrameBuffer m_FrameBuffer;
   CustomEventManager m_CustomEventManager;
   TriggerManager m_TriggerManager;
-  ImFont *m_Font;
   bool m_SceneLoaded = false;
-
-  // UI
-  MainMenuBar m_MainMenuBar;
-  StatisticsPanel m_StatisticsPanel;
-  Viewport m_Viewport;
-  AssetBrowser m_AssetBrowser;
-  SceneGraph m_SceneGraph;
-
-  // Frame time management
-  size_t m_FrameAccumulator;
-  float m_TimeAccumulator;
-  const float m_TimeSample;
 
   EditorCamera m_EditorCamera;
 };

@@ -1,4 +1,4 @@
-#include "VroomEditor/UserInterface/AssetFileSceneAsset.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetFileSceneAsset.h"
 
 using namespace vrm;
 

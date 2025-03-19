@@ -15,7 +15,6 @@ protected:
     bool onImgui() override;
 
 public: // Public ImGui related variables
-    float frameTime;
 
 };
 

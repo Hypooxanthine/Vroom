@@ -1,7 +1,7 @@
 #pragma once
 
 #include "VroomEditor/UserInterface/ImGuiElement.h"
-#include "VroomEditor/UserInterface/AssetElement.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetElement.h"
 
 #include <filesystem>
 #include <vector>

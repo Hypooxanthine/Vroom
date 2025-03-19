@@ -1,4 +1,4 @@
-#include "VroomEditor/UserInterface/AssetDirectory.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetDirectory.h"
 
 #include <imgui.h>
 

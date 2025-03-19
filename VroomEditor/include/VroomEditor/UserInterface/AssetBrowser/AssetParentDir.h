@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VroomEditor/UserInterface/AssetDirectory.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetDirectory.h"
 
 namespace vrm
 {

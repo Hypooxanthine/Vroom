@@ -1,11 +1,13 @@
-#include "VroomEditor/UserInterface/AssetBrowser.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetBrowser.h"
 
 #include <imgui.h>
 
-#include "VroomEditor/UserInterface/AssetDirectory.h"
-#include "VroomEditor/UserInterface/AssetParentDir.h"
-#include "VroomEditor/UserInterface/AssetFile.h"
-#include "VroomEditor/UserInterface/AssetFileSceneAsset.h"
+#include "VroomEditor/EditorLayer.h"
+
+#include "VroomEditor/UserInterface/AssetBrowser/AssetDirectory.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetParentDir.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetFile.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetFileSceneAsset.h"
 
 #include "Vroom/Core/Log.h"
 
@@ -117,6 +119,10 @@ bool AssetBrowser::onImgui()
         if (m_Action == AssetElement::EAction::eNavigate)
         {
           nextPath = elem->getPath();
+        }
+        else if (m_Action == AssetElement::EAction::eLoadScene)
+        {
+          EditorLayer::Get().loadScene(elem->getPath());
         }
         else
         {

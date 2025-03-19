@@ -1,4 +1,4 @@
-#include "VroomEditor/UserInterface/AssetParentDir.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetParentDir.h"
 
 #include "Vroom/Asset/StaticAsset/TextureAsset.h"
 
