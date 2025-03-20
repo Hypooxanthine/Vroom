@@ -107,6 +107,12 @@ public:
         return getEnttRegistry().get<T>(m_Handle);
     }
 
+    template<typename T>
+    const T& getComponent() const
+    {
+      return const_cast<Entity*>(this)->getComponent<T>();
+    }
+
     /**
      * @brief Check if the entity has a component.
      * 

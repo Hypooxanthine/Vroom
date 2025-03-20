@@ -5,6 +5,8 @@
 namespace vrm
 {
 
+class Entity;
+
 class SceneGraph : public ImGuiElement
 {
 public:
@@ -14,6 +16,8 @@ public:
 protected:
 
   virtual bool onImgui() override;
+
+  void renderEntityEntryRecursive(const Entity& e);
 
 private:
 
