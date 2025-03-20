@@ -23,8 +23,8 @@ namespace vrm
 
 Scene::Scene()
 {
-    auto root = createEntity("Root");
-    root.getComponent<HierarchyComponent>().parent = Entity();
+    m_Root = createRoot();
+    getRoot().getComponent<HierarchyComponent>().parent = Entity();
     
     // Setting a default camera
     setCamera(&s_DefaultCamera);
@@ -101,14 +101,10 @@ void Scene::end()
 
 Entity Scene::createEntity(const std::string& nameTag)
 {
-    VRM_ASSERT_MSG(!entityExists(nameTag), "Entity with name " + nameTag + " already exists.");
-    auto e = getEntity(m_Registry.create());
-    e.addComponent<NameComponent>(nameTag);
-    e.addComponent<TransformComponent>();
-    auto& hierarchy = e.addComponent<HierarchyComponent>();
-    auto root = getEntity("Root");
-    hierarchy.parent = root;
-    root.getComponent<HierarchyComponent>().children.push_back(e);
+    auto e = createRawEntity(nameTag);
+    auto& hierarchy = e.getComponent<HierarchyComponent>();
+    hierarchy.parent = getRoot();
+    getRoot().getComponent<HierarchyComponent>().children.push_back(e);
 
     return e;
 }
@@ -170,7 +166,26 @@ void Scene::destroyEntity(Entity entity)
 void Scene::destroyAllEntities()
 {
   m_Registry.clear();
-  auto root = createEntity("Root");
+  m_Root = createRoot();
+}
+
+Entity Scene::createRawEntity(const std::string& nameTag)
+{
+  VRM_ASSERT_MSG(!entityExists(nameTag), "Entity with name " + nameTag + " already exists.");
+  auto e = getEntity(m_Registry.create());
+  e.addComponent<NameComponent>(nameTag);
+  e.addComponent<TransformComponent>();
+  auto& hierarchy = e.addComponent<HierarchyComponent>();
+
+  return e;
+}
+
+Entity Scene::createRoot()
+{
+  auto e = createRawEntity("Root");
+  e.getComponent<HierarchyComponent>().parent = Entity();
+  
+  return e;
 }
 
 } // namespace vrm

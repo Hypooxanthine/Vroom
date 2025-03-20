@@ -111,6 +111,13 @@ public:
     Entity getEntity(const std::string& name);
 
     /**
+     * @brief Gets scene root entity.
+     * 
+     * @return Entity The entity.
+     */
+    inline Entity getRoot() const { return m_Root; }
+
+    /**
      * @brief Destroys an entity.
      * 
      * @param entity The entity to destroy.
@@ -151,11 +158,24 @@ protected:
     virtual void onEnd() {}
 
 private:
+
+    /**
+     * @brief Creating an registering a raw entity. Unsafe, internal use only.
+     * 
+     * @return Entity Created entity.
+     */
+    Entity createRawEntity(const std::string& nameTag);
+
+    Entity createRoot();
+
+private:
     entt::registry m_Registry;
     size_t m_EntityCounter = 0;
 
     static FirstPersonCamera s_DefaultCamera;
     CameraBasic* m_Camera;
+
+    Entity m_Root;
 
 };
 
