@@ -70,14 +70,14 @@ public:
     T& addComponent(Args&&... args)
     {
         VRM_ASSERT_MSG(!hasComponent<T>(), "Entity already has component.");
-        return m_Registry->emplace<T>(m_Handle, std::forward<Args>(args)...);
+        return getEnttRegistry().emplace<T>(m_Handle, std::forward<Args>(args)...);
     }
 
     template<typename T, typename... Args>
     T& addScriptComponent(Args&&... args)
     {
         VRM_ASSERT_MSG(!hasComponent<ScriptHandler>(), "Entity already has component.");
-        auto& component = m_Registry->emplace<ScriptHandler>(m_Handle, std::make_unique<T>(std::forward<Args>(args)...));
+        auto& component = getEnttRegistry().emplace<ScriptHandler>(m_Handle, std::make_unique<T>(std::forward<Args>(args)...));
         component.getScript().setEntityHandle(m_Handle);
         component.getScript().setSceneRef(m_Scene);
         component.getScript().onSpawn();
@@ -87,7 +87,7 @@ public:
     ScriptComponent& addScriptComponent(std::unique_ptr<ScriptComponent>&& script)
     {
         VRM_ASSERT_MSG(!hasComponent<ScriptHandler>(), "Entity already has component.");
-        auto& component = m_Registry->emplace<ScriptHandler>(m_Handle, std::move(script));
+        auto& component = getEnttRegistry().emplace<ScriptHandler>(m_Handle, std::move(script));
         component.getScript().setEntityHandle(m_Handle);
         component.getScript().setSceneRef(m_Scene);
         component.getScript().onSpawn();
@@ -104,7 +104,7 @@ public:
     T& getComponent()
     {
         VRM_ASSERT_MSG(hasComponent<T>(), "Entity does not have component.");
-        return m_Registry->get<T>(m_Handle);
+        return getEnttRegistry().get<T>(m_Handle);
     }
 
     /**
@@ -117,7 +117,7 @@ public:
     template<typename T>
     bool hasComponent()
     {
-        return m_Registry->try_get<T>(m_Handle) != nullptr;
+        return getEnttRegistry().try_get<T>(m_Handle) != nullptr;
     }
 
     /**
@@ -129,7 +129,7 @@ public:
     void removeComponent()
     {
         VRM_ASSERT_MSG(hasComponent<T>(), "Entity does not have component.");
-        m_Registry->remove<T>(m_Handle);
+        getEnttRegistry().remove<T>(m_Handle);
     }
 
     /**
@@ -154,7 +154,7 @@ public:
      * @return true If the entities are equal.
      * @return false If the entities are not equal.
      */
-    bool operator==(const Entity& other) const { return m_Handle == other.m_Handle && m_Registry == other.m_Registry; }
+    bool operator==(const Entity& other) const { return m_Handle == other.m_Handle && m_Scene == other.m_Scene; }
 
     /**
      * @brief Inequality operator.
@@ -166,8 +166,10 @@ public:
     bool operator!=(const Entity& other) const { return !(*this == other); }
 
 private:
+    entt::registry& getEnttRegistry();
+
+private:
     entt::entity m_Handle = entt::null;
-    entt::registry* m_Registry = nullptr;
     Scene* m_Scene = nullptr;
 };
 

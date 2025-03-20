@@ -240,7 +240,8 @@ static bool HandleSceneNode(Scene &scene, const json &node)
 
   if (typeVal == "Root")
   {
-    // Some specific behaviour...
+    // Scene Root is already added by the Scene on its creation
+    return true;
   }
   else if (typeVal == "Entity")
   {

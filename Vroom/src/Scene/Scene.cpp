@@ -14,6 +14,7 @@
 #include "Vroom/Scene/Components/TransformComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
 #include "Vroom/Scene/Components/PointLightComponent.h"
+#include "Vroom/Scene/Components/HierarchyComponent.h"
 
 vrm::FirstPersonCamera vrm::Scene::s_DefaultCamera = {0.1f, 100.f, glm::radians(90.f), 0.f, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f)};
 
@@ -22,6 +23,9 @@ namespace vrm
 
 Scene::Scene()
 {
+    auto root = createEntity("Root");
+    root.getComponent<HierarchyComponent>().parent = Entity();
+    
     // Setting a default camera
     setCamera(&s_DefaultCamera);
 }
@@ -101,6 +105,10 @@ Entity Scene::createEntity(const std::string& nameTag)
     auto e = getEntity(m_Registry.create());
     e.addComponent<NameComponent>(nameTag);
     e.addComponent<TransformComponent>();
+    auto& hierarchy = e.addComponent<HierarchyComponent>();
+    auto root = getEntity("Root");
+    hierarchy.parent = root;
+    root.getComponent<HierarchyComponent>().children.push_back(e);
 
     return e;
 }
@@ -162,6 +170,7 @@ void Scene::destroyEntity(Entity entity)
 void Scene::destroyAllEntities()
 {
   m_Registry.clear();
+  auto root = createEntity("Root");
 }
 
 } // namespace vrm
