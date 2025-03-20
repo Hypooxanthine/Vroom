@@ -74,8 +74,6 @@ bool Viewport::onImgui()
         m_Active = ImGui::IsWindowFocused() && ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.f);
 
         // VRM_LOG_TRACE("Image size: {} {},", imageSize.x, imageSize.y);
-
-        // ImGui::ShowMetricsWindow();
       }
     }
     ImGui::EndChild();

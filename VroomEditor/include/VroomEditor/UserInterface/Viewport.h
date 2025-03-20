@@ -19,6 +19,8 @@ public:
 
     inline FrameBuffer* getFrameBuffer() const { return frameBuffer; }
 
+    inline void setIdle() { m_Playing = false; m_Simulating = false; }
+
     inline bool isPlaying() const { return m_Playing; }
     inline bool isSimulating() const { return m_Simulating; }
     inline bool isPaused() const { return m_Paused; }
