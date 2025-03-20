@@ -118,6 +118,13 @@ public:
     inline Entity getRoot() const { return m_Root; }
 
     /**
+     * @brief Check if "parent" is the parent of "child" 
+     */
+    bool checkEntitiesRelation(Entity parent, Entity child) const;
+
+    void setEntitiesRelation(Entity parent, Entity child);
+
+    /**
      * @brief Destroys an entity.
      * 
      * @param entity The entity to destroy.
@@ -167,6 +174,8 @@ private:
     Entity createRawEntity(const std::string& nameTag);
 
     Entity createRoot();
+
+    void destroyEntityRecursive(Entity entity);
 
 private:
     entt::registry m_Registry;

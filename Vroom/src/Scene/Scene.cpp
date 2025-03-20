@@ -104,7 +104,7 @@ Entity Scene::createEntity(const std::string& nameTag)
     auto e = createRawEntity(nameTag);
     auto& hierarchy = e.getComponent<HierarchyComponent>();
     hierarchy.parent = getRoot();
-    getRoot().getComponent<HierarchyComponent>().children.push_back(e);
+    getRoot().getComponent<HierarchyComponent>().children.emplace(e);
 
     return e;
 }
@@ -151,16 +151,62 @@ Entity Scene::getEntity(const std::string& name)
     VRM_ASSERT_MSG(false, "Entity with name " + name + " does not exist.");
 }
 
+bool Scene::checkEntitiesRelation(Entity parent, Entity child) const
+{
+  VRM_ASSERT_MSG(m_Registry.valid(parent), "Unknown parent entity");
+  VRM_ASSERT_MSG(m_Registry.valid(child), "Unknown child entity");
+
+  return child.getComponent<HierarchyComponent>().parent == parent;
+}
+
+void Scene::setEntitiesRelation(Entity parent, Entity child)
+{
+  VRM_ASSERT_MSG(m_Registry.valid(parent), "Unknown parent entity");
+  VRM_ASSERT_MSG(m_Registry.valid(child), "Unknown child entity");
+
+  VRM_ASSERT_MSG(child != m_Root, "You cannot set Root node's parent");
+  
+  if (checkEntitiesRelation(parent, child))
+    return;
+  
+  auto& hParent = parent.getComponent<HierarchyComponent>();
+  auto& hChild = child.getComponent<HierarchyComponent>();
+  auto& hExParent = hChild.parent.getComponent<HierarchyComponent>();
+
+  hExParent.children.erase(child);
+  hChild.parent = parent;
+  hParent.children.emplace(child);
+}
+
 void Scene::destroyEntity(Entity entity)
 {
     VRM_ASSERT_MSG(m_Registry.valid(entity), "Entity is not valid.");
+    VRM_ASSERT_MSG(entity != m_Root, "You cannot delete root entity!");
 
-    if(entity.hasComponent<ScriptHandler>())
-    {
-        entity.getComponent<ScriptHandler>().getScript().onDestroy();
-    }
+    auto parent = entity.getComponent<HierarchyComponent>().parent;
 
-    m_Registry.destroy(entity);
+    destroyEntityRecursive(entity);
+
+    // Removing entity from its parent children
+    parent.getComponent<HierarchyComponent>().children.erase(entity);
+}
+
+void Scene::destroyEntityRecursive(Entity entity)
+{
+  if(entity.hasComponent<ScriptHandler>())
+  {
+      entity.getComponent<ScriptHandler>().getScript().onDestroy();
+  }
+
+  auto& h = entity.getComponent<HierarchyComponent>();
+  auto children = std::move(h.children);
+
+  m_Registry.destroy(entity);
+
+  for (auto child : children)
+  {
+    destroyEntityRecursive(child);
+  }
 }
 
 void Scene::destroyAllEntities()

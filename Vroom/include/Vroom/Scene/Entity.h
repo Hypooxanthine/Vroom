@@ -165,6 +165,10 @@ public:
      */
     bool operator!=(const Entity& other) const { return !(*this == other); }
 
+    inline entt::entity getHandle() const { return m_Handle; }
+
+    inline Scene* getScene() const { return m_Scene; }
+
 private:
     entt::registry& getEnttRegistry();
 
@@ -174,3 +178,14 @@ private:
 };
 
 } // namespace vrm
+
+template<>
+struct std::hash<vrm::Entity>
+{
+  size_t operator()(const vrm::Entity& val) const noexcept
+  {
+    return
+      static_cast<size_t>(val.getHandle())
+    + static_cast<size_t>(reinterpret_cast<uintptr_t>(val.getScene()));
+  }
+};
