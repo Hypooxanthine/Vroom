@@ -29,7 +29,9 @@ bool SceneGraph::onImgui()
   
   if (ImGui::Begin("Scene graph"))
   {
+    ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, 10.f);
     renderEntityEntryRecursive(scene.getRoot());
+    ImGui::PopStyleVar();
   }
   ImGui::End();
 
@@ -41,6 +43,7 @@ void SceneGraph::renderEntityEntryRecursive(const Entity& e)
   const auto& nc = e.getComponent<NameComponent>();
   const auto& children = e.getComponent<HierarchyComponent>().children;
   bool isLeaf = children.empty();
+
   
   ImGui::PushID(nc.name.c_str());
 

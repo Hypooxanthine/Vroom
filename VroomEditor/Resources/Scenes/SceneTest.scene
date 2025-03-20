@@ -53,7 +53,7 @@
     {
       "name": "ColoredCube",
       "type": "Entity",
-      "parent": "Root",
+      "parent": "Plane",
       "components": [
         {
           "type": "TransformComponent",

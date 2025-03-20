@@ -258,6 +258,10 @@ static bool HandleSceneNode(Scene &scene, const json &node)
     // No component given, we are done
     return true;
 
+  CHECK_ATTR_STRING(node, parent);
+
+  scene.setEntitiesRelation(scene.getEntity(parentVal), e);
+
   CHECK_ATTR_ARRAY(node, components);
 
   for (const auto &jsonComponent : components)
