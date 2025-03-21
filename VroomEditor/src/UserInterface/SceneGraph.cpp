@@ -30,6 +30,7 @@ bool SceneGraph::onImgui()
   if (ImGui::Begin("Scene graph"))
   {
     ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, 10.f);
+    
     renderEntityEntryRecursive(scene.getRoot());
     ImGui::PopStyleVar();
   }
@@ -42,14 +43,23 @@ void SceneGraph::renderEntityEntryRecursive(const Entity& e)
 {
   const auto& nc = e.getComponent<NameComponent>();
   const auto& children = e.getComponent<HierarchyComponent>().children;
-  bool isLeaf = children.empty();
-
+  const bool isLeaf = children.empty();
+  const bool isNode = !isLeaf;
   
   ImGui::PushID(nc.name.c_str());
 
   ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth;
   if (isLeaf)
-    flags = flags | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf;
+    flags =
+      flags
+    | ImGuiTreeNodeFlags_Leaf
+    | ImGuiTreeNodeFlags_NoTreePushOnOpen
+    ;
+  else // isNode
+    flags =
+      flags
+    | ImGuiTreeNodeFlags_DefaultOpen
+    ;
 
   if (ImGui::TreeNodeEx(nc.name.c_str(), flags))
   {
@@ -58,7 +68,7 @@ void SceneGraph::renderEntityEntryRecursive(const Entity& e)
       renderEntityEntryRecursive(child);
     }
 
-    if (!isLeaf)
+    if (isNode)
       ImGui::TreePop();
   }
 
