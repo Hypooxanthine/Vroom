@@ -122,7 +122,7 @@ bool AssetBrowser::onImgui()
         }
         else if (m_Action == AssetElement::EAction::eLoadScene)
         {
-          EditorLayer::Get().loadScene(elem->getPath());
+          EditorLayer::Get().loadScene(elem->getPath().string());
         }
         else
         {

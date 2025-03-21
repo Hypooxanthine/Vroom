@@ -1,27 +1,21 @@
 #pragma once
 
+#include <memory>
+#include <vector>
+
 #include <Vroom/Scene/Entity.h>
 
 namespace vrm
 {
 
-template <typename C>
 class ComponentEditor
 {
 public:
+  friend class EntityEditor;
 
-  void editEntityComponent(Entity e) const
-  {
-    if (e.hasComponent<C>())
-      onVisualizeComponent(e.getComponent<C>());
-  }
+  virtual void editEntityComponent(Entity e) const = 0;
 
-protected:
-
-  virtual void onVisualizeComponent(C& component) = 0;
-
-private:
-
+  static void EditEntity(Entity e);
 };
 
 } // namespace vrm

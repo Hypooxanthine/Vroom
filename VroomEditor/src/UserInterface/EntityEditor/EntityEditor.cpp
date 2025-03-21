@@ -7,6 +7,8 @@
 
 #include <imgui.h>
 
+#include "VroomEditor/UserInterface/EntityEditor/ComponentEditor.h"
+
 using namespace vrm;
 
 EntityEditor::EntityEditor()
@@ -60,6 +62,7 @@ bool EntityEditor::onImgui()
   if (ImGui::Begin("Entity editor", &m_open, flags))
   {
     ImGui::Text("Edit: %s", m_entity.getComponent<NameComponent>().name.c_str());
+    ComponentEditor::EditEntity(m_entity);
   }
   ImGui::End();
 
