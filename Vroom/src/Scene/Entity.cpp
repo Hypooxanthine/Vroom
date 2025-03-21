@@ -1,5 +1,7 @@
 #include "Vroom/Scene/Entity.h"
 
+#include "Vroom/Core/Application.h"
+#include "Vroom/Core/GameLayer.h"
 #include "Vroom/Scene/Scene.h"
 
 namespace vrm
@@ -50,6 +52,14 @@ Entity& Entity::operator=(Entity&& other)
 entt::registry& Entity::getEnttRegistry()
 {
   return m_Scene->getRegistry();
+}
+
+bool Entity::isValid() const
+{
+  return
+      m_Handle != entt::null
+  &&  m_Scene == &Application::Get().getGameLayer().getScene()
+  &&  m_Scene->getRegistry().valid(m_Handle);
 }
 
 } // namespace vrm

@@ -171,6 +171,8 @@ public:
      */
     bool operator!=(const Entity& other) const { return !(*this == other); }
 
+    bool isValid() const;
+
     inline entt::entity getHandle() const { return m_Handle; }
 
     inline Scene* getScene() const { return m_Scene; }

@@ -2,6 +2,8 @@
 
 #include "VroomEditor/UserInterface/ImGuiElement.h"
 
+#include "VroomEditor/UserInterface/EntityEditor/EntityEditor.h"
+
 namespace vrm
 {
 
@@ -17,10 +19,11 @@ protected:
 
   virtual bool onImgui() override;
 
-  void renderEntityEntryRecursive(const Entity& e);
+  void renderEntityEntryRecursive(Entity e);
 
 private:
 
+  EntityEditor m_entityEditor;
 };
 
 } // namespace vrm

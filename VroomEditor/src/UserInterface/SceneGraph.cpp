@@ -25,24 +25,28 @@ bool SceneGraph::onImgui()
 {
   bool ret = false;
 
-  const auto& scene = Application::Get().getGameLayer().getScene();
+  auto& scene = Application::Get().getGameLayer().getScene();
   
   if (ImGui::Begin("Scene graph"))
   {
     ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, 10.f);
     
-    renderEntityEntryRecursive(scene.getRoot());
+    if (scene.getRoot().isValid())
+      renderEntityEntryRecursive(scene.getRoot());
+
     ImGui::PopStyleVar();
   }
   ImGui::End();
 
+  m_entityEditor.renderImgui();
+
   return ret;
 }
 
-void SceneGraph::renderEntityEntryRecursive(const Entity& e)
+void SceneGraph::renderEntityEntryRecursive(Entity e)
 {
   const auto& nc = e.getComponent<NameComponent>();
-  const auto& children = e.getComponent<HierarchyComponent>().children;
+  auto& children = e.getComponent<HierarchyComponent>().children;
   const bool isLeaf = children.empty();
   const bool isNode = !isLeaf;
   
@@ -59,11 +63,20 @@ void SceneGraph::renderEntityEntryRecursive(const Entity& e)
     flags =
       flags
     | ImGuiTreeNodeFlags_DefaultOpen
+    | ImGuiTreeNodeFlags_OpenOnArrow
     ;
+
+  if (m_entityEditor.isEditingEntity(e))
+    flags = flags | ImGuiTreeNodeFlags_Selected;
 
   if (ImGui::TreeNodeEx(nc.name.c_str(), flags))
   {
-    for (const auto& child : children)
+    if (ImGui::IsItemClicked())
+    {
+      m_entityEditor.openOrCloseIfSame(e);
+    }
+
+    for (auto& child : children)
     {
       renderEntityEntryRecursive(child);
     }
