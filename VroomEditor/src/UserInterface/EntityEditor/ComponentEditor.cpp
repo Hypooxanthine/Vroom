@@ -14,7 +14,7 @@
 
 using namespace vrm;
 
-static std::vector<std::unique_ptr<ComponentEditor>> ALL_EDITORS;
+static std::vector<std::unique_ptr<ComponentEditor>> ALL_EDITORS = {};
 
 void ComponentEditor::EditEntity(Entity e)
 {
@@ -40,22 +40,6 @@ struct ComponentGetter
   }
 };
 
-template <typename T>
-struct ComponentEditorRegisterer
-{
-private:
-  struct Registerer
-  {
-    Registerer()
-    {
-      ALL_EDITORS.emplace_back(std::make_unique<T>());
-    }
-  };
-public:
-
-  inline static Registerer reg;
-};
-
 /**
  * @brief Macro to register and implement a component editor
  * @param ComponentName The name of the component
@@ -63,12 +47,28 @@ public:
  * 
  */
 #define VRM_REGISTER_COMPONENT_EDITOR(ComponentName, entityName) \
-  class ComponentName##Editor : public ComponentEditor, public ComponentGetter<ComponentName>, public ComponentEditorRegisterer<ComponentName##Editor>\
+  class ComponentName##Editor : public ComponentEditor, public ComponentGetter<ComponentName>\
   {\
   public:\
+    ~ComponentName##Editor() {}\
     bool editEntityComponent(Entity entityName) const override;\
+  private:\
+    ComponentName##Editor ()\
+      : ComponentEditor(), ComponentGetter<ComponentName>()\
+    {}\
+    friend struct Registerer;\
+    struct Registerer\
+    {\
+      Registerer()\
+      {\
+        ALL_EDITORS.emplace_back().reset(new ComponentName##Editor ());\
+      }\
+    };\
+\
+    static Registerer s_Registerer;\
   };\
-  bool ComponentName##Editor::editEntityComponent(Entity entityName) const\
+  ComponentName##Editor ::Registerer ComponentName##Editor ::s_Registerer = {};\
+  bool ComponentName##Editor::editEntityComponent(Entity entityName) const
 
 
 //--------------------------------------------------
