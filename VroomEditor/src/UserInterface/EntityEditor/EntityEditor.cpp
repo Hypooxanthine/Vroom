@@ -57,11 +57,10 @@ bool EntityEditor::onImgui()
 
   bool ret = false;
 
-  auto flags = ImGuiWindowFlags_NoFocusOnAppearing;
-
+  constexpr auto flags = ImGuiWindowFlags_None;
+  
   if (ImGui::Begin("Entity editor", &m_open, flags))
   {
-    ImGui::Text("Edit: %s", m_entity.getComponent<NameComponent>().name.c_str());
     ComponentEditor::EditEntity(m_entity);
   }
   ImGui::End();

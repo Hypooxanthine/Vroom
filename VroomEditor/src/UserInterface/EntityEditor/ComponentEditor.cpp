@@ -66,41 +66,63 @@ public:
   class ComponentName##Editor : public ComponentEditor, public ComponentGetter<ComponentName>, public ComponentEditorRegisterer<ComponentName##Editor>\
   {\
   public:\
-    void editEntityComponent(Entity entityName) const override;\
+    bool editEntityComponent(Entity entityName) const override;\
   };\
-  void ComponentName##Editor::editEntityComponent(Entity entityName) const\
+  bool ComponentName##Editor::editEntityComponent(Entity entityName) const\
 
 
 //--------------------------------------------------
 // Implementations of component editors
 
+VRM_REGISTER_COMPONENT_EDITOR(NameComponent, e)
+{
+  if (!has(e))
+    return false;
+  auto &component = get(e);
+
+  ImGui::SeparatorText("Name tag");
+
+  constexpr size_t bufferSize = 256;
+  std::string buffer = component.name;
+  buffer.resize(bufferSize);
+
+  constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsNoBlank;
+
+  if (ImGui::InputText("##Name", buffer.data(), bufferSize, flags) && ImGui::IsItemDeactivatedAfterEdit())
+    component.name = buffer;
+
+  return true;
+}
+
 VRM_REGISTER_COMPONENT_EDITOR(TransformComponent, e)
 {
   if (!has(e))
-    return;
+    return false;
   auto &component = get(e);
 
-  ImGui::Text("Transform");
+  ImGui::SeparatorText("Transform component");
 
   auto pos = component.getPosition();
-  auto rot = component.getRotation();
+  auto rot = component.getRotation() * 180.0f / glm::pi<float>();
   auto scale = component.getScale();
   
   if (ImGui::DragFloat3("Position", &pos.x, 0.1f))
     component.setPosition(pos);
   if (ImGui::DragFloat3("Rotation", &rot.x, 0.1f))
-    component.setRotation(rot);
+    component.setRotation(rot * glm::pi<float>() / 180.0f);
   if (ImGui::DragFloat3("Scale", &scale.x, 0.1f))
     component.setScale(scale);
+
+  return true;
 }
 
 VRM_REGISTER_COMPONENT_EDITOR(PointLightComponent, e)
 {
   if (!has(e))
-    return;
+    return false;
   auto &component = get(e);
 
-  ImGui::Text("Point light");
+  ImGui::SeparatorText("Point light component");
   
   auto color = component.color;
   auto intensity = component.intensity;
@@ -108,24 +130,10 @@ VRM_REGISTER_COMPONENT_EDITOR(PointLightComponent, e)
 
   if (ImGui::ColorEdit3("Color", &color.x))
     component.color = color;
-  if (ImGui::DragFloat("Intensity", &intensity, 0.1f))
+  if (ImGui::DragFloat("Intensity", &intensity, 0.1f, 0.f, std::numeric_limits<float>::max(), "%.2f", ImGuiSliderFlags_AlwaysClamp))
     component.intensity = intensity;
-  if (ImGui::DragFloat("Radius", &radius, 0.1f))
+  if (ImGui::DragFloat("Radius", &radius, 0.1f, 0.f, std::numeric_limits<float>::max(), "%.2f", ImGuiSliderFlags_AlwaysClamp))
     component.radius = radius;
-}
 
-VRM_REGISTER_COMPONENT_EDITOR(NameComponent, e)
-{
-  if (!has(e))
-    return;
-  auto &component = get(e);
-
-  ImGui::Text("Name");
-
-  constexpr size_t bufferSize = 256;
-  std::string buffer = component.name;
-  buffer.resize(bufferSize);
-
-  if (ImGui::InputText("Name", buffer.data(), bufferSize))
-    component.name = buffer;
+  return true;
 }

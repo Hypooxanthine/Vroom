@@ -67,8 +67,8 @@ void EditorLayer::onInit()
 
   // Events setup
   m_CustomEventManager.createCustomEvent("Exit")
-      .bindInput(Event::Type::Exit)
-      .bindInput(Event::Type::KeyPressed, vrm::KeyCode::Escape);
+    .bindInput(Event::Type::Exit)
+    ;
 
   m_CustomEventManager.bindPermanentCallback("Exit", [](const Event &e)
                                              { Application::Get().exit(); });
