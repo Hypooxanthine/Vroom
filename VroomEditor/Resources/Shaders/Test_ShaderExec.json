@@ -1,0 +1,61 @@
+{
+  "Global": {
+    "Sources": [
+      "CommonCode1.glsl",
+      "CommonCode2.glsl"
+    ],
+    "Defines": [
+      "CommonDefine1",
+      "CommonDefine2"
+    ]
+  },
+  "Shaders": {
+    "Vertex": {
+      "Sources": [
+        "Vertex1.glsl",
+        "Vertex2.glsl"
+      ],
+      "Defines": [],
+      "Uniforms": [
+        {
+          "Name": "u_UniformName",
+          "Type": "int"
+        }
+      ],
+      "UniformBuffers": [
+        {
+          "Name": "UniformBufferName",
+          "Type": "TypeDefinedInASourceFile",
+          "Layout": "std140"
+        }
+      ],
+      "StorageBuffers": [
+        {
+          "Name": "MySSBO",
+          "Type": "PrimitiveOrCustomType[]",
+          "Layout": "std140"
+        }
+      ]
+    },
+    "Geometry": {
+      "Sources": [
+        "Geometry1.glsl",
+        "Geometry2.glsl"
+      ],
+      "Defines": [
+        "VRM_DEFINE_1",
+        "VRM_DEFINE_2",
+        {
+          "VRM_DEFINE_WITH_VALUE": "value"
+        }
+      ]
+    },
+    "Fragment": {
+      "Sources": [
+        "Fragment1.glsl",
+        "Fragment2.glsl"
+      ],
+      "Defines": []
+    }
+  }
+}

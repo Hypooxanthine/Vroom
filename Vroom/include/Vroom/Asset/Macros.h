@@ -49,5 +49,20 @@ namespace vrm
 #define VRM_IMPL_ASSET_INSTANCE(assetRawName)\
   VRM_IMPL_ASSET_INSTANCE_2(VRM_ASSET_INSTANCE_NAME(assetRawName), VRM_STATIC_ASSET_NAME(assetRawName))
 
+#define VRM_DECLARE_STATIC_ASSET(assetRawName)\
+  public:\
+    using InstanceType = VRM_ASSET_INSTANCE_NAME(assetRawName);\
+  \
+    [[nodiscard]] VRM_ASSET_INSTANCE_NAME(assetRawName) createInstance();\
+  protected:\
+    bool loadImpl(const std::string& filePath) override;\
+  private:\
+
+#define VRM_IMPL_STATIC_ASSET(assetRawName)\
+  vrm:: VRM_ASSET_INSTANCE_NAME(assetRawName) vrm:: VRM_STATIC_ASSET_NAME(assetRawName)::createInstance()\
+  {\
+    return VRM_ASSET_INSTANCE_NAME(assetRawName)(this);\
+  }\
+
 } // namespace vrm
 
