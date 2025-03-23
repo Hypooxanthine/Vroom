@@ -112,15 +112,6 @@ void UserInterfaceLayer::renderImgui()
     element->renderImgui();
   }
 
-  if (ImGui::Begin("Tests"))
-  {
-    if (ImGui::Button("Unload scene"))
-    {
-      editorLayer.unloadScene();
-    }
-  }
-  ImGui::End();
-
   ImGui::PopFont();
   ImGui::Render();
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

@@ -4,6 +4,8 @@
 
 #include <Vroom/Core/Application.h>
 
+#include "VroomEditor/EditorLayer.h"
+
 namespace vrm
 {
 
@@ -90,6 +92,14 @@ bool MainMenuBar::onImgui()
                 notImplemented();
             }
             ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Scene"))
+        {
+          if (ImGui::MenuItem("Unload scene"))
+          {
+            EditorLayer::Get().unloadScene();
+          }
+          ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Help"))
         {
