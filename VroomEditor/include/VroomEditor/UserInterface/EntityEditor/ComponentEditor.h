@@ -13,9 +13,9 @@ class ComponentEditor
 public:
   friend class EntityEditor;
 
-  virtual bool editEntityComponent(Entity e) const = 0;
+  virtual bool editEntityComponent(Entity& e) const = 0;
 
-  static void EditEntity(Entity e);
+  static void EditEntity(Entity& e);
 };
 
 } // namespace vrm

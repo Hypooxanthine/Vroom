@@ -16,7 +16,7 @@ using namespace vrm;
 
 static std::vector<std::unique_ptr<ComponentEditor>> ALL_EDITORS = {};
 
-void ComponentEditor::EditEntity(Entity e)
+void ComponentEditor::EditEntity(Entity& e)
 {
   for (auto &editor : ALL_EDITORS)
   {
@@ -29,12 +29,12 @@ struct ComponentGetter
 {
   using ComponentType = T;
 
-  inline bool has(Entity e) const
+  inline bool has(const Entity& e) const
   {
     return e.hasComponent<T>();
   }
 
-  inline T& get(Entity e) const
+  inline T& get(Entity& e) const
   {
     return e.getComponent<T>();
   }
@@ -51,7 +51,7 @@ struct ComponentGetter
   {\
   public:\
     ~ComponentName##Editor() {}\
-    bool editEntityComponent(Entity entityName) const override;\
+    bool editEntityComponent(Entity& entityName) const override;\
   private:\
     ComponentName##Editor ()\
       : ComponentEditor(), ComponentGetter<ComponentName>()\
@@ -68,7 +68,7 @@ struct ComponentGetter
     static Registerer s_Registerer;\
   };\
   ComponentName##Editor ::Registerer ComponentName##Editor ::s_Registerer = {};\
-  bool ComponentName##Editor::editEntityComponent(Entity entityName) const
+  bool ComponentName##Editor::editEntityComponent(Entity& entityName) const
 
 
 //--------------------------------------------------

@@ -115,21 +115,21 @@ public:
      * 
      * @return Entity The entity.
      */
-    inline Entity getRoot() const { return m_Root; }
+    inline Entity& getRoot() { return m_Root; }
 
     /**
      * @brief Check if "parent" is the parent of "child" 
      */
-    bool checkEntitiesRelation(Entity parent, Entity child) const;
+    bool checkEntitiesRelation(const Entity& parent, const Entity& child) const;
 
-    void setEntitiesRelation(Entity parent, Entity child);
+    void setEntitiesRelation(Entity& parent, Entity& child);
 
     /**
      * @brief Destroys an entity.
      * 
      * @param entity The entity to destroy.
      */
-    void destroyEntity(Entity entity);
+    void destroyEntity(Entity& entity);
 
     /**
      * @brief Destroys all entities.

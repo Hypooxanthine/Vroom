@@ -19,7 +19,7 @@ protected:
 
   virtual bool onImgui() override;
 
-  void renderEntityEntryRecursive(Entity e);
+  void renderEntityEntryRecursive(Entity& e);
 
 private:
 

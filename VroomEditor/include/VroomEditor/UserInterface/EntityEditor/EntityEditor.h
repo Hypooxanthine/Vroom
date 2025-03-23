@@ -15,8 +15,8 @@ public:
   EntityEditor();
   virtual ~EntityEditor();
 
-  void open(Entity e);
-  void openOrCloseIfSame(Entity e);
+  void open(Entity& e);
+  void openOrCloseIfSame(Entity& e);
   void close();
 
   bool isEditingEntity(const Entity& e) const;

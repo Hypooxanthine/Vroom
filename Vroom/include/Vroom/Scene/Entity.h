@@ -19,6 +19,10 @@ class Scene;
 class Entity
 {
 public:
+  friend class Scene;
+  friend struct std::hash<Entity>;
+  
+public:
     Entity() = default;
 
     /**
@@ -29,20 +33,6 @@ public:
      * @param scene The scene where the entity is.
      */
     Entity(entt::entity handle, entt::registry* registry, Scene* scene);
-    
-    /**
-     * @brief Copy constructor.
-     * @warning It does not create a new entity, but a new reference to the same entity.
-     * 
-     */
-    Entity(const Entity&);
-
-    /**
-     * @brief Copy assignment operator.
-     * @warning It does not create a new entity, but a new reference to the same entity.
-     * 
-     */
-    Entity& operator=(const Entity&);
 
     /**
      * @brief Move constructor.
@@ -57,6 +47,13 @@ public:
     Entity& operator=(Entity&& other);
     
     ~Entity() = default;
+
+    /**
+     * @brief This is NOT tagged const, because the newly created Entity instance will access to the same data (components for instance).
+     * 
+     * @return Entity 
+     */
+    Entity clone() { return Entity(*this); }
 
     /**
      * @brief Add a component to the entity.
@@ -121,7 +118,7 @@ public:
      * @return false If the entity does not have the component.
      */
     template<typename T>
-    bool hasComponent()
+    bool hasComponent() const
     {
         return getEnttRegistry().try_get<T>(m_Handle) != nullptr;
     }
@@ -147,13 +144,6 @@ public:
     operator bool() const { return m_Handle != entt::null; }
 
     /**
-     * @brief Get the entity handle.
-     * 
-     * @return entt::entity The entity handle.
-     */
-    operator entt::entity() const { return m_Handle; }
-
-    /**
      * @brief Equality operator.
      * 
      * @param other The entity to compare to.
@@ -173,12 +163,36 @@ public:
 
     bool isValid() const;
 
-    inline entt::entity getHandle() const { return m_Handle; }
-
     inline Scene* getScene() const { return m_Scene; }
 
 private:
-    entt::registry& getEnttRegistry();
+    
+  /**
+   * @brief Copy constructor.
+   * @warning It does not create a new entity, but a new reference to the same entity.
+   * 
+   */
+  Entity(const Entity&);
+
+  /**
+   * @brief Copy assignment operator.
+   * @warning It does not create a new entity, but a new reference to the same entity.
+   * 
+   */
+  Entity& operator=(const Entity&);
+
+  entt::registry& getEnttRegistry();
+
+  const entt::registry& getEnttRegistry() const;
+
+  inline entt::entity getHandle() const { return m_Handle; }
+
+  /**
+   * @brief Get the entity handle.
+   * 
+   * @return entt::entity The entity handle.
+   */
+  operator entt::entity() const { return m_Handle; }
 
 private:
     entt::entity m_Handle = entt::null;

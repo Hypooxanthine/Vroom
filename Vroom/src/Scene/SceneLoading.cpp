@@ -260,7 +260,8 @@ static bool HandleSceneNode(Scene &scene, const json &node)
 
   CHECK_ATTR_STRING(node, parent);
 
-  scene.setEntitiesRelation(scene.getEntity(parentVal), e);
+  auto parentEntity = scene.getEntity(parentVal);
+  scene.setEntitiesRelation(parentEntity, e);
 
   CHECK_ATTR_ARRAY(node, components);
 

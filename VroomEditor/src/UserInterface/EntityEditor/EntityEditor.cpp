@@ -22,13 +22,13 @@ EntityEditor::~EntityEditor()
 
 }
 
-void EntityEditor::open(Entity e)
+void EntityEditor::open(Entity& e)
 {
   m_open = true;
-  m_entity = e;
+  m_entity = e.clone();
 }
 
-void EntityEditor::openOrCloseIfSame(Entity e)
+void EntityEditor::openOrCloseIfSame(Entity& e)
 {
   if (m_entity == e)
     close();

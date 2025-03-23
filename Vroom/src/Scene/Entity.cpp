@@ -54,6 +54,11 @@ entt::registry& Entity::getEnttRegistry()
   return m_Scene->getRegistry();
 }
 
+const entt::registry& Entity::getEnttRegistry() const
+{
+  return const_cast<Entity*>(this)->getEnttRegistry();
+}
+
 bool Entity::isValid() const
 {
   return

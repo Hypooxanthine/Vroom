@@ -43,9 +43,10 @@ bool SceneGraph::onImgui()
   return ret;
 }
 
-void SceneGraph::renderEntityEntryRecursive(Entity e)
+void SceneGraph::renderEntityEntryRecursive(Entity& e)
 {
   const auto& nc = e.getComponent<NameComponent>();
+  HierarchyComponent& component = e.getComponent<HierarchyComponent>();
   auto& children = e.getComponent<HierarchyComponent>().children;
   const bool isLeaf = children.empty();
   const bool isNode = !isLeaf;

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <unordered_set>
+#include <list>
 
 #include "Vroom/Scene/Entity.h"
+#include "Vroom/Scene/Components/NameComponent.h"
 
 namespace vrm
 {
@@ -10,7 +11,7 @@ namespace vrm
 struct HierarchyComponent
 {
   Entity parent;
-  std::unordered_set<Entity> children;
+  std::list<Entity> children;
 };
 
 } // namespace vrm
