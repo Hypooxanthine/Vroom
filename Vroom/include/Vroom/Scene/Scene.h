@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 #include <entt/entt.hpp>
 
 #include "Vroom/Scene/Entity.h"
@@ -84,6 +85,8 @@ public:
      * @return Entity The created entity.
      */
     Entity createEntity();
+
+    void renameEntity(Entity& e, const std::string& name);
 
     /**
      * @brief Checks if an entity exists by its name.
@@ -180,6 +183,7 @@ private:
 private:
     entt::registry m_Registry;
     size_t m_EntityCounter = 0;
+    std::unordered_map<std::string, Entity> m_EntitiesByName;
 
     static FirstPersonCamera s_DefaultCamera;
     CameraBasic* m_Camera;

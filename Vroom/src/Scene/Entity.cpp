@@ -4,6 +4,9 @@
 #include "Vroom/Core/GameLayer.h"
 #include "Vroom/Scene/Scene.h"
 
+#include "Vroom/Scene/Components/NameComponent.h"
+#include "Vroom/Scene/Components/HierarchyComponent.h"
+
 namespace vrm
 {
 
@@ -33,6 +36,37 @@ Entity::Entity(Entity&& other)
 {
     other.m_Handle = entt::null;
     other.m_Scene = nullptr;
+}
+
+const std::string& Entity::getName() const
+{
+  return getComponentInternal<NameComponent>().name;
+}
+
+void Entity::setName(const std::string& name)
+{
+  m_Scene->renameEntity(*this, name);
+}
+
+Entity& Entity::getParent()
+{
+  return getComponentInternal<HierarchyComponent>().parent;
+}
+
+const Entity& Entity::getParent() const
+{
+  return const_cast<Entity*>(this)->getParent();
+}
+
+
+std::list<Entity>& Entity::getChildren()
+{
+  return getComponentInternal<HierarchyComponent>().children;
+}
+
+const std::list<Entity>& Entity::getChildren() const
+{
+  return const_cast<Entity*>(this)->getChildren();
 }
 
 Entity& Entity::operator=(Entity&& other)

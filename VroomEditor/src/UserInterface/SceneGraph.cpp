@@ -45,13 +45,12 @@ bool SceneGraph::onImgui()
 
 void SceneGraph::renderEntityEntryRecursive(Entity& e)
 {
-  const auto& nc = e.getComponent<NameComponent>();
-  HierarchyComponent& component = e.getComponent<HierarchyComponent>();
-  auto& children = e.getComponent<HierarchyComponent>().children;
+  const auto& name = e.getName();
+  auto& children = e.getChildren();
   const bool isLeaf = children.empty();
   const bool isNode = !isLeaf;
   
-  ImGui::PushID(nc.name.c_str());
+  ImGui::PushID(name.c_str());
 
   ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth;
   if (isLeaf)
@@ -70,7 +69,7 @@ void SceneGraph::renderEntityEntryRecursive(Entity& e)
   if (m_entityEditor.isEditingEntity(e))
     flags = flags | ImGuiTreeNodeFlags_Selected;
 
-  if (ImGui::TreeNodeEx(nc.name.c_str(), flags))
+  if (ImGui::TreeNodeEx(name.c_str(), flags))
   {
     if (ImGui::IsItemClicked())
     {

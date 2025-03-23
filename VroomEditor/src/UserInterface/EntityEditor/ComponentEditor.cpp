@@ -1,6 +1,10 @@
 #include "VroomEditor/UserInterface/EntityEditor/ComponentEditor.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
+#include <misc/cpp/imgui_stdlib.h>
+
+#include <Vroom/Scene/Scene.h>
 
 //--------------------------------------------------
 // Include necessary component headers
@@ -76,20 +80,38 @@ struct ComponentGetter
 
 VRM_REGISTER_COMPONENT_EDITOR(NameComponent, e)
 {
-  if (!has(e))
-    return false;
-  auto &component = get(e);
-
   ImGui::SeparatorText("Name tag");
 
   constexpr size_t bufferSize = 256;
-  std::string buffer = component.name;
-  buffer.resize(bufferSize);
+  std::string name;
+  name.reserve(bufferSize);
+  name = e.getName();
 
   constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsNoBlank;
 
-  if (ImGui::InputText("##Name", buffer.data(), bufferSize, flags) && ImGui::IsItemDeactivatedAfterEdit())
-    component.name = buffer;
+  if (!e.getParent().isValid())
+    ImGui::BeginDisabled();
+
+  if (ImGui::InputText("##Name", &name, flags))
+  {
+    if (name.empty() || e.getScene()->entityExists(name))
+    {
+      if (auto* state = ImGui::GetInputTextState(ImGui::GetItemID()))
+      {
+        state->ReloadUserBufAndKeepSelection();
+      }
+    }
+    else
+    {
+      e.setName(name);
+    }
+  }
+
+  if (!e.getParent().isValid())
+  {
+    ImGui::EndDisabled();
+    ImGui::SetItemTooltip("You cannot edit Root entity name.");
+  }
 
   return true;
 }

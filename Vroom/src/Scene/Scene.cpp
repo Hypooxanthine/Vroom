@@ -23,7 +23,7 @@ using namespace vrm;
 Scene::Scene()
 {
   m_Root = createRoot();
-  getRoot().getComponent<HierarchyComponent>().parent = Entity();
+  getRoot().getComponentInternal<HierarchyComponent>().parent = Entity();
 
   // Setting a default camera
   setCamera(&s_DefaultCamera);
@@ -103,9 +103,9 @@ void Scene::end()
 Entity Scene::createEntity(const std::string &nameTag)
 {
   auto e = createRawEntity(nameTag);
-  auto &hierarchy = e.getComponent<HierarchyComponent>();
+  auto &hierarchy = e.getComponentInternal<HierarchyComponent>();
   hierarchy.parent = m_Root;
-  getRoot().getComponent<HierarchyComponent>().children.emplace_back(e.clone());
+  getRoot().getComponentInternal<HierarchyComponent>().children.emplace_back(e.clone());
 
   return e;
 }
@@ -115,19 +115,22 @@ Entity Scene::createEntity()
   return createEntity("Entity_" + std::to_string(m_EntityCounter++));
 }
 
+void Scene::renameEntity(Entity& e, const std::string& name)
+{
+  VRM_ASSERT_MSG(e != m_Root, "You cannot rename root entity.");
+  VRM_ASSERT_MSG(!name.empty(), "You cannot use an empty name.");
+  VRM_ASSERT_MSG(!m_EntitiesByName.contains(name), "Another entity is already named \"{}\". Consider using entityExists(const std::string& name) before renaming an entity.", name);
+  VRM_ASSERT_MSG(e.isValid(), "Entity is not valid.");
+  m_EntitiesByName.erase(e.getName());
+  m_EntitiesByName[name] = e.clone();
+  e.getComponentInternal<NameComponent>().name = name;
+
+  // @todo Keep entities sorted by name in HierarchyComponent
+}
+
 bool Scene::entityExists(const std::string &name)
 {
-  auto view = m_Registry.view<NameComponent>();
-  for (auto entity : view)
-  {
-    auto &nameComponent = view.get<NameComponent>(entity);
-    if (nameComponent.name == name)
-    {
-      return true;
-    }
-  }
-
-  return false;
+  return m_EntitiesByName.contains(name);
 }
 
 Entity Scene::getEntity(entt::entity handle)
@@ -139,17 +142,9 @@ Entity Scene::getEntity(entt::entity handle)
 
 Entity Scene::getEntity(const std::string &name)
 {
-  auto view = m_Registry.view<NameComponent>();
-  for (auto entity : view)
-  {
-    auto &nameComponent = view.get<NameComponent>(entity);
-    if (nameComponent.name == name)
-    {
-      return getEntity(entity);
-    }
-  }
+  VRM_ASSERT_MSG(entityExists(name), "Entity with name " + name + " does not exist.");
 
-  VRM_ASSERT_MSG(false, "Entity with name " + name + " does not exist.");
+  return m_EntitiesByName.at(name);
 }
 
 bool Scene::checkEntitiesRelation(const Entity& parent, const Entity& child) const
@@ -170,9 +165,9 @@ void Scene::setEntitiesRelation(Entity& parent, Entity& child)
   if (checkEntitiesRelation(parent, child))
     return;
 
-  auto &hParent = parent.getComponent<HierarchyComponent>();
-  auto &hChild = child.getComponent<HierarchyComponent>();
-  auto &hExParent = hChild.parent.getComponent<HierarchyComponent>();
+  auto &hParent = parent.getComponentInternal<HierarchyComponent>();
+  auto &hChild = child.getComponentInternal<HierarchyComponent>();
+  auto &hExParent = hChild.parent.getComponentInternal<HierarchyComponent>();
 
   hExParent.children.remove(child);
   hChild.parent = parent;
@@ -184,35 +179,37 @@ void Scene::destroyEntity(Entity& entity)
   VRM_ASSERT_MSG(m_Registry.valid(entity), "Entity is not valid.");
   VRM_ASSERT_MSG(entity != m_Root, "You cannot delete root entity!");
 
-  auto parent = entity.getComponent<HierarchyComponent>().parent;
+  auto parent = entity.getComponentInternal<HierarchyComponent>().parent;
 
   destroyEntityRecursive(entity);
 
   // Removing entity from its parent children
-  parent.getComponent<HierarchyComponent>().children.remove(entity);
+  parent.getComponentInternal<HierarchyComponent>().children.remove(entity);
 }
 
 void Scene::destroyEntityRecursive(Entity entity)
 {
-  if (entity.hasComponent<ScriptHandler>())
-  {
-    entity.getComponent<ScriptHandler>().getScript().onDestroy();
-  }
-
-  auto &h = entity.getComponent<HierarchyComponent>();
+  auto &h = entity.getComponentInternal<HierarchyComponent>();
   auto children = std::move(h.children);
-
-  m_Registry.destroy(entity);
 
   for (auto child : children)
   {
     destroyEntityRecursive(child);
   }
+
+  if (entity.hasComponent<ScriptHandler>())
+  {
+    entity.getComponent<ScriptHandler>().getScript().onDestroy();
+  }
+
+  m_Registry.destroy(entity);
+  m_EntitiesByName.erase(entity.getComponentInternal<NameComponent>().name);
 }
 
 void Scene::destroyAllEntities()
 {
   m_Registry.clear();
+  m_EntitiesByName.clear();
   m_Root = createRoot();
 }
 
@@ -223,6 +220,7 @@ Entity Scene::createRawEntity(const std::string &nameTag)
   e.addComponent<NameComponent>(nameTag);
   e.addComponent<TransformComponent>();
   auto &hierarchy = e.addComponent<HierarchyComponent>();
+  m_EntitiesByName[nameTag] = e;
 
   return e;
 }
@@ -230,7 +228,7 @@ Entity Scene::createRawEntity(const std::string &nameTag)
 Entity Scene::createRoot()
 {
   auto e = createRawEntity("Root");
-  e.getComponent<HierarchyComponent>().parent = Entity();
+  e.getComponentInternal<HierarchyComponent>().parent = Entity();
 
   return e;
 }

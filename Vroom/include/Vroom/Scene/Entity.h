@@ -3,31 +3,35 @@
 #include <entt/entt.hpp>
 
 #include "Vroom/Core/Assert.h"
+#include "Vroom/Generic/TypeList.h"
 #include "Vroom/Scene/Components/ScriptHandler.h"
 
 namespace vrm
 {
 
-class Scene;
+  class Scene;
+  struct NameComponent;
+  struct HierarchyComponent;
+  class TransformComponent;
 
-/**
- * @brief Entity class.
- * 
- * An entity is a simple container for components.
- * It is a simple wrapper around an entt::entity.
- */
-class Entity
-{
-public:
-  friend class Scene;
-  friend struct std::hash<Entity>;
-  
-public:
+  /**
+   * @brief Entity class.
+   *
+   * An entity is a simple container for components.
+   * It is a simple wrapper around an entt::entity.
+   */
+  class Entity
+  {
+  public:
+    friend class Scene;
+    friend struct std::hash<Entity>;
+
+  public:
     Entity() = default;
 
     /**
      * @brief Constructor.
-     * 
+     *
      * @param handle The entity handle.
      * @param registry The registry where the entity is stored.
      * @param scene The scene where the entity is.
@@ -36,28 +40,28 @@ public:
 
     /**
      * @brief Move constructor.
-     * 
+     *
      */
     Entity(Entity&& other);
 
     /**
      * @brief Move assignment operator.
-     * 
+     *
      */
     Entity& operator=(Entity&& other);
-    
+
     ~Entity() = default;
 
     /**
      * @brief This is NOT tagged const, because the newly created Entity instance will access to the same data (components for instance).
-     * 
-     * @return Entity 
+     *
+     * @return Entity
      */
     Entity clone() { return Entity(*this); }
 
     /**
      * @brief Add a component to the entity.
-     * 
+     *
      * @tparam T The type of the component.
      * @tparam Args The types of the arguments to pass to the component constructor.
      * @param args The arguments to pass to the component constructor.
@@ -66,53 +70,60 @@ public:
     template<typename T, typename... Args>
     T& addComponent(Args&&... args)
     {
-        VRM_ASSERT_MSG(!hasComponent<T>(), "Entity already has component.");
-        return getEnttRegistry().emplace<T>(m_Handle, std::forward<Args>(args)...);
+      VRM_ASSERT_MSG(!hasComponent<T>(), "Entity already has component.");
+      return getEnttRegistry().emplace<T>(m_Handle, std::forward<Args>(args)...);
     }
 
     template<typename T, typename... Args>
     T& addScriptComponent(Args&&... args)
     {
-        VRM_ASSERT_MSG(!hasComponent<ScriptHandler>(), "Entity already has component.");
-        auto& component = getEnttRegistry().emplace<ScriptHandler>(m_Handle, std::make_unique<T>(std::forward<Args>(args)...));
-        component.getScript().setEntityHandle(m_Handle);
-        component.getScript().setSceneRef(m_Scene);
-        component.getScript().onSpawn();
-        return static_cast<T&>(component.getScript());
+      VRM_ASSERT_MSG(!hasComponent<ScriptHandler>(), "Entity already has component.");
+      auto& component = getEnttRegistry().emplace<ScriptHandler>(m_Handle, std::make_unique<T>(std::forward<Args>(args)...));
+      component.getScript().setEntityHandle(m_Handle);
+      component.getScript().setSceneRef(m_Scene);
+      component.getScript().onSpawn();
+      return static_cast<T&>(component.getScript());
     }
 
     ScriptComponent& addScriptComponent(std::unique_ptr<ScriptComponent>&& script)
     {
-        VRM_ASSERT_MSG(!hasComponent<ScriptHandler>(), "Entity already has component.");
-        auto& component = getEnttRegistry().emplace<ScriptHandler>(m_Handle, std::move(script));
-        component.getScript().setEntityHandle(m_Handle);
-        component.getScript().setSceneRef(m_Scene);
-        component.getScript().onSpawn();
-        return component.getScript();
+      VRM_ASSERT_MSG(!hasComponent<ScriptHandler>(), "Entity already has component.");
+      auto& component = getEnttRegistry().emplace<ScriptHandler>(m_Handle, std::move(script));
+      component.getScript().setEntityHandle(m_Handle);
+      component.getScript().setSceneRef(m_Scene);
+      component.getScript().onSpawn();
+      return component.getScript();
     }
 
     /**
      * @brief Get a component from the entity.
-     * 
+     *
      * @tparam T The type of the component.
      * @return T& The reference to the component.
      */
     template<typename T>
     T& getComponent()
     {
-        VRM_ASSERT_MSG(hasComponent<T>(), "Entity does not have component.");
-        return getEnttRegistry().get<T>(m_Handle);
+      using UnauthorizedComponents = TypeList<
+        NameComponent,
+        HierarchyComponent
+      >;
+      static_assert(
+        !UnauthorizedComponents::HasType<T>(),
+        "You cannot get a non const reference of this component directly from Entity API."
+      );
+      return getComponentInternal<T>();
     }
 
     template<typename T>
     const T& getComponent() const
     {
-      return const_cast<Entity*>(this)->getComponent<T>();
+      return getComponentInternal<T>();
     }
 
     /**
      * @brief Check if the entity has a component.
-     * 
+     *
      * @tparam T The type of the component.
      * @return true If the entity has the component.
      * @return false If the entity does not have the component.
@@ -120,32 +131,50 @@ public:
     template<typename T>
     bool hasComponent() const
     {
-        return getEnttRegistry().try_get<T>(m_Handle) != nullptr;
+      return getEnttRegistry().try_get<T>(m_Handle) != nullptr;
     }
 
     /**
      * @brief Remove a component from the entity.
-     * 
+     *
      * @tparam T The type of the component.
      */
     template<typename T>
     void removeComponent()
     {
-        VRM_ASSERT_MSG(hasComponent<T>(), "Entity does not have component.");
-        getEnttRegistry().remove<T>(m_Handle);
+      using IllegalRemove = TypeList<
+        NameComponent,
+        HierarchyComponent,
+        TransformComponent
+      >;
+      static_assert(
+        !IllegalRemove::HasType<T>(),
+        "You cannot remove this component."
+      );
+      removeComponentInternal<T>();
     }
+
+    const std::string& getName() const;
+
+    void setName(const std::string& name);
+
+    Entity& getParent();
+    const Entity& getParent() const;
+
+    std::list<Entity>& getChildren();
+    const std::list<Entity>& getChildren() const;
 
     /**
      * @brief Check if the entity is valid.
-     * 
+     *
      * @return true If the entity is valid.
      * @return false If the entity is not valid.
      */
-    operator bool() const { return m_Handle != entt::null; }
+    operator bool() const { return isValid(); }
 
     /**
      * @brief Equality operator.
-     * 
+     *
      * @param other The entity to compare to.
      * @return true If the entities are equal.
      * @return false If the entities are not equal.
@@ -154,7 +183,7 @@ public:
 
     /**
      * @brief Inequality operator.
-     * 
+     *
      * @param other The entity to compare to.
      * @return true If the entities are not equal.
      * @return false If the entities are equal.
@@ -165,39 +194,59 @@ public:
 
     inline Scene* getScene() const { return m_Scene; }
 
-private:
-    
-  /**
-   * @brief Copy constructor.
-   * @warning It does not create a new entity, but a new reference to the same entity.
-   * 
-   */
-  Entity(const Entity&);
+  private:
 
-  /**
-   * @brief Copy assignment operator.
-   * @warning It does not create a new entity, but a new reference to the same entity.
-   * 
-   */
-  Entity& operator=(const Entity&);
+    /**
+     * @brief Copy constructor.
+     * @warning It does not create a new entity, but a new reference to the same entity.
+     *
+     */
+    Entity(const Entity&);
 
-  entt::registry& getEnttRegistry();
+    /**
+     * @brief Copy assignment operator.
+     * @warning It does not create a new entity, but a new reference to the same entity.
+     *
+     */
+    Entity& operator=(const Entity&);
 
-  const entt::registry& getEnttRegistry() const;
+    template<typename T>
+    T& getComponentInternal()
+    {
+      VRM_ASSERT_MSG(hasComponent<T>(), "Entity does not have component.");
+      return getEnttRegistry().get<T>(m_Handle);
+    }
 
-  inline entt::entity getHandle() const { return m_Handle; }
+    template <typename T>
+    const T& getComponentInternal() const
+    {
+      return const_cast<Entity*>(this)->getComponentInternal<T>();
+    }
 
-  /**
-   * @brief Get the entity handle.
-   * 
-   * @return entt::entity The entity handle.
-   */
-  operator entt::entity() const { return m_Handle; }
+    template<typename T>
+    void removeComponentInternal()
+    {
+      VRM_ASSERT_MSG(hasComponent<T>(), "Entity does not have component.");
+      getEnttRegistry().remove<T>(m_Handle);
+    }
 
-private:
+    entt::registry& getEnttRegistry();
+
+    const entt::registry& getEnttRegistry() const;
+
+    inline entt::entity getHandle() const { return m_Handle; }
+
+    /**
+     * @brief Get the entity handle.
+     *
+     * @return entt::entity The entity handle.
+     */
+    operator entt::entity() const { return m_Handle; }
+
+  private:
     entt::entity m_Handle = entt::null;
     Scene* m_Scene = nullptr;
-};
+  };
 
 } // namespace vrm
 
@@ -208,6 +257,6 @@ struct std::hash<vrm::Entity>
   {
     return
       static_cast<size_t>(val.getHandle())
-    + static_cast<size_t>(reinterpret_cast<uintptr_t>(val.getScene()));
+      + static_cast<size_t>(reinterpret_cast<uintptr_t>(val.getScene()));
   }
 };
