@@ -58,11 +58,17 @@ void ShaderData::addSource(const EShaderType& shader, const SourceElement& sourc
 
 bool ShaderData::validate() const
 {
+<<<<<<< HEAD
 
+=======
+  /// @todo Implement validation
+  return false;
+>>>>>>> 42e5c99 (fixes)
 }
 
 ShaderData::FullShader ShaderData::combine() const
 {
+<<<<<<< HEAD
   FullShader out;
   
   for (auto& shader : out.shaders)
@@ -71,6 +77,16 @@ ShaderData::FullShader ShaderData::combine() const
     if (getProps(type).enable)
     {
       shader.sourceCode = combine(m_globalProperties, getProps(type), type, m_varyings);
+=======
+  FullShader out = {};
+  
+  for (uint8_t i = 0; i < static_cast<uint8_t>(EShaderType::eCount); ++i)
+  {
+    const EShaderType shader = static_cast<EShaderType>(i);
+    if (getProps(shader).enable)
+    {
+      out[shader] = combine(m_globalProperties, getProps(shader), shader, m_varyings);
+>>>>>>> 42e5c99 (fixes)
     }
   }
 
@@ -214,6 +230,8 @@ std::string ShaderData::combineUniforms(const std::vector<Uniform>& global, cons
     std::string line = std::format("uniform {} {};\n", uni.type, uni.name);
     out += applyEnableIf(line, uni.enableIf);
   }
+
+  return out;
 }
 
 std::string ShaderData::combineUniformBuffers(const std::vector<UniformBuffer>& global, const std::vector<UniformBuffer>& shader) const
@@ -222,7 +240,7 @@ std::string ShaderData::combineUniformBuffers(const std::vector<UniformBuffer>& 
 
   for (const auto& ubo : global)
   {
-    std::string uboCode = std::format("layout({}) uniform {} {\n", ubo.layout, ubo.name);
+    std::string uboCode = std::format("layout({}) uniform {} {{\n", ubo.layout, ubo.name);
 
     for (const auto& var : ubo.variables)
     {

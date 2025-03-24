@@ -111,29 +111,10 @@ namespace vrm
 
     struct FullShader
     {
-      FullShader() :
-          compute{ EShaderType::eCompute, "" }
-        , vertex{ EShaderType::eVertex, "" }
-        , geometry{ EShaderType::eGeometry, "" }
-        , fragment{ EShaderType::eFragment, "" }
-      {}
-
-      FullShader(const FullShader& other) : shaders(other.shaders) {}
-      FullShader(FullShader&& other) noexcept : shaders(std::move(other.shaders)) {}
-
-      ~FullShader() noexcept {}
-
-      union
-      {
-        std::array<CombinedShader, size_t(EShaderType::eCount)> shaders;
-        struct
-        {
-          CombinedShader compute;
-          CombinedShader vertex;
-          CombinedShader geometry;
-          CombinedShader fragment;
-        };
-      };
+      CombinedShader compute = { EShaderType::eCompute, "" };
+      CombinedShader vertex = { EShaderType::eVertex, "" };
+      CombinedShader geometry = { EShaderType::eGeometry, "" };
+      CombinedShader fragment = { EShaderType::eFragment, "" };
 
       std::string& operator[](const EShaderType& type)
       {
