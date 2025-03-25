@@ -1,0 +1,77 @@
+{
+  "Global": {
+    "Version": "450",
+    "Extensions": [
+      {
+        "Name": "GL_ARB_shading_language_420pack",
+        "Behaviour": "require",
+        "EnableIf": "VRM_DEFINE_NAME"
+      }
+    ],
+    "Sources": [
+      "CommonCode1.glsl",
+      "CommonCode2.glsl"
+    ],
+    "Defines": [
+      "CommonDefine1",
+      "CommonDefine2"
+    ]
+  },
+  "Vertex": {
+    "Sources": [
+      "Vertex1.glsl",
+      "Vertex2.glsl"
+    ],
+    "Extensions": [
+      {
+        "Name": "GL_ARB_shader_draw_parameters",
+        "Behaviour": "require",
+        "EnableIf": "VRM_DEFINE_NAME"
+      }
+    ],
+    "Defines": [],
+    "Uniforms": [
+      {
+        "Name": "u_UniformName",
+        "Type": "int",
+        "EnableIf": "VRM_DEFINE_NAME"
+      }
+    ],
+    "UniformBuffers": [
+      {
+        "Name": "UniformBufferName",
+        "Type": "TypeDefinedInASourceFile",
+        "Layout": "std140",
+        "EnableIf": "VRM_DEFINE_NAME"
+      }
+    ],
+    "StorageBuffers": [
+      {
+        "Name": "MySSBO",
+        "Type": "PrimitiveOrCustomType[]",
+        "Layout": "std140",
+        "EnableIf": "VRM_DEFINE_NAME"
+      }
+    ]
+  },
+  "Geometry": {
+    "Sources": [
+      "Geometry1.glsl",
+      "Geometry2.glsl"
+    ],
+    "Defines": [
+      "VRM_DEFINE_1",
+      "VRM_DEFINE_2",
+      {
+        "VRM_DEFINE_WITH_VALUE": "value"
+      }
+    ]
+  },
+  "Fragment": {
+    "Sources": [
+      "Fragment1.glsl",
+      "Fragment2.glsl"
+    ],
+    "Defines": []
+  }
+}

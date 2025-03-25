@@ -13,6 +13,12 @@ class ShaderExecAsset : public StaticAsset
 {
   VRM_DECLARE_STATIC_ASSET(ShaderExec)
 
+public:
+  ShaderExecAsset() = default;
+  ~ShaderExecAsset() = default;
+  
+  const auto& getShaderExecData() const { return m_ShaderExecData; }
+
 private:
   nlohmann::json m_ShaderExecData;
 };

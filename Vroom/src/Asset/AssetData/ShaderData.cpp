@@ -134,14 +134,14 @@ std::string ShaderData::combineVersion(const std::string& global, const std::str
     out += shader;
   }
 
-  out += "\n";
+  out += "\n\n";
 
   return out;
 }
 
 std::string ShaderData::combineExtensions(const std::vector<Extension>& global, const std::vector<Extension>& shader) const
 {
-  std::string out;
+  std::string out = "// Extensions\n";
 
   for (const auto& ext : global)
   {
@@ -153,12 +153,14 @@ std::string ShaderData::combineExtensions(const std::vector<Extension>& global, 
     out += std::format("#extension {} : {}\n", ext.name, toString(ext.behaviour));
   }
 
+  out += "\n";
+
   return out;
 }
 
 std::string ShaderData::combineDefines(const std::vector<Define>& global, const std::vector<Define>& shader) const
 {
-  std::string out;
+  std::string out = "// Defines\n";
 
   for (const auto& def : global)
   {
@@ -184,12 +186,14 @@ std::string ShaderData::combineDefines(const std::vector<Define>& global, const 
     }
   }
 
+  out += "\n";
+
   return out;
 }
 
 std::string ShaderData::combineVaryings(const std::string& prefix, const std::vector<Varying>& varyings) const
 {
-  std::string out;
+  std::string out = "// Varyings\n";
 
   for (const auto& var : varyings)
   {
@@ -197,12 +201,14 @@ std::string ShaderData::combineVaryings(const std::string& prefix, const std::ve
     out += applyEnableIf(line, var.enableIf);
   }
 
+  out += "\n";
+
   return out;
 }
 
 std::string ShaderData::combineUniforms(const std::vector<Uniform>& global, const std::vector<Uniform>& shader) const
 {
-  std::string out;
+  std::string out = "// Uniforms\n";
 
   for (const auto& uni : global)
   {
@@ -216,12 +222,14 @@ std::string ShaderData::combineUniforms(const std::vector<Uniform>& global, cons
     out += applyEnableIf(line, uni.enableIf);
   }
 
+  out += "\n";
+
   return out;
 }
 
 std::string ShaderData::combineUniformBuffers(const std::vector<UniformBuffer>& global, const std::vector<UniformBuffer>& shader) const
 {
-  std::string out;
+  std::string out = "// Uniform Buffers\n";
 
   for (const auto& ubo : global)
   {
@@ -251,12 +259,14 @@ std::string ShaderData::combineUniformBuffers(const std::vector<UniformBuffer>& 
     out += applyEnableIf(uboCode, ubo.enableIf);
   }
 
+  out += "\n";
+
   return out;
 }
 
 std::string ShaderData::combineStorageBuffers(const std::vector<StorageBuffer>& global, const std::vector<StorageBuffer>& shader) const
 {
-  std::string out;
+  std::string out = "// Storage Buffers\n";
 
   for (const auto& ssbo : global)
   {
@@ -288,16 +298,47 @@ std::string ShaderData::combineStorageBuffers(const std::vector<StorageBuffer>& 
     out += applyEnableIf(ssboCode, ssbo.enableIf);
   }
 
+  for (const auto& ssbo : shader)
+  {
+    std::string ssboCode = std::format("layout({})", ssbo.layout);
+
+    for (const auto& qual : ssbo.memoryQualifiers)
+    {
+      ssboCode += " " + toString(qual);
+    }
+
+    ssboCode += std::format(" buffer {} {{\n", ssbo.name);
+
+    for (const auto& var : ssbo.variables)
+    {
+      std::string varCode = "  ";
+      
+      for (const auto& qual : var.memoryQualifiers)
+      {
+        varCode += toString(qual) + " ";
+      }
+
+      varCode += std::format("{} {};\n", var.type, var.name);
+
+      ssboCode += applyEnableIf(varCode, var.enableIf);
+    }
+
+    ssboCode += "};\n";
+
+    out += applyEnableIf(ssboCode, ssbo.enableIf);
+  }
+
+  out += "\n";
+
   return out;
 }
 
 std::string ShaderData::combineSources(const std::vector<SourceElement>& global, const std::vector<SourceElement>& shader) const
 {
-  std::string out;
+  std::string out = "// Sources\n\n";
 
   for (const auto& src : global)
   {
-    out += "\n\n";
     out += "//--------------------------------------------------\n";
     out += "// Sub-shader: " + src.filePath + "\n";
     out += "// Included in all shaders of this program\n";
@@ -308,7 +349,6 @@ std::string ShaderData::combineSources(const std::vector<SourceElement>& global,
 
   for (const auto& src : shader)
   {
-    out += "\n\n";
     out += "//--------------------------------------------------\n";
     out += "// Sub-shader: " + src.filePath + "\n";
     out += "// Only included in this shader\n";
@@ -325,7 +365,7 @@ std::string ShaderData::applyEnableIf(const std::string& source, const std::stri
   if (enableIf.empty())
     return source;
 
-  return std::format("#if {}\n{}\n#endif\n", enableIf, source);
+  return std::format("#if defined {}\n{}#endif // defined {}\n", enableIf, source, enableIf);
 }
 
 std::string ShaderData::toString(const ShaderData::EMemoryQualifier& qualifier) const
