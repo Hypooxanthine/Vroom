@@ -58,26 +58,12 @@ void ShaderData::addSource(const EShaderType& shader, const SourceElement& sourc
 
 bool ShaderData::validate() const
 {
-<<<<<<< HEAD
-
-=======
   /// @todo Implement validation
   return false;
->>>>>>> 42e5c99 (fixes)
 }
 
 ShaderData::FullShader ShaderData::combine() const
 {
-<<<<<<< HEAD
-  FullShader out;
-  
-  for (auto& shader : out.shaders)
-  {
-    auto type = shader.type;
-    if (getProps(type).enable)
-    {
-      shader.sourceCode = combine(m_globalProperties, getProps(type), type, m_varyings);
-=======
   FullShader out = {};
   
   for (uint8_t i = 0; i < static_cast<uint8_t>(EShaderType::eCount); ++i)
@@ -86,7 +72,6 @@ ShaderData::FullShader ShaderData::combine() const
     if (getProps(shader).enable)
     {
       out[shader] = combine(m_globalProperties, getProps(shader), shader, m_varyings);
->>>>>>> 42e5c99 (fixes)
     }
   }
 

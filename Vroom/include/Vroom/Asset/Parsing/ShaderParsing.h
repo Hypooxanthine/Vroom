@@ -20,7 +20,7 @@ public:
 public:
   ShaderParsing() = delete;
 
-  Results Parse(const nlohmann::json& jsonData);
+  static Results Parse(const nlohmann::json& jsonData);
 
 private:
 
