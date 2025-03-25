@@ -14,6 +14,7 @@ namespace vrm
 class Application;
 class CameraBasic;
 class AssetManager;
+class SceneData;
 
 class Scene
 {
@@ -55,7 +56,7 @@ public:
      * 
      * @param sceneAsset Scene asset handle
      */
-    bool loadFromAsset(const SceneInstance& data);
+    bool loadFromAsset(const SceneInstance& sceneAsset);
     
     
     /**
@@ -178,7 +179,11 @@ private:
 
     Entity createRoot();
 
+    void renameRoot(const std::string& rootName);
+
     void destroyEntityRecursive(Entity entity);
+
+    bool loadFromAsset2(const SceneData& data);
 
 private:
     entt::registry m_Registry;

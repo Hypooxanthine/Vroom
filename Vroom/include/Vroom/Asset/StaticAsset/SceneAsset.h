@@ -1,9 +1,11 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
+#include <memory>
 
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
 #include "Vroom/Asset/AssetInstance/SceneInstance.h"
+
+#include "Vroom/Asset/AssetData/SceneData.h"
 
 namespace vrm
 {
@@ -19,14 +21,13 @@ public:
 
   [[nodiscard]] SceneInstance createInstance();
 
-  const nlohmann::json& getSceneData() const { return m_SceneData; }
+  const SceneData& getSceneData() const { return *m_data; }
 
 protected:
   bool loadImpl(const std::string &filePath) override;
 
 private:
-  nlohmann::json m_SceneData;
-  
+  std::unique_ptr<SceneData> m_data;
 };
 
 } // namespace vrm

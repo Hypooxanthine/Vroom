@@ -232,3 +232,10 @@ Entity Scene::createRoot()
 
   return e;
 }
+
+void Scene::renameRoot(const std::string& rootName)
+{
+  m_EntitiesByName.erase(m_Root.getName());
+  m_EntitiesByName[rootName] = m_Root.clone();
+  m_Root.getComponentInternal<NameComponent>().name = rootName;
+}
