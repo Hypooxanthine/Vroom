@@ -5,6 +5,8 @@
 #include <misc/cpp/imgui_stdlib.h>
 
 #include <Vroom/Scene/Scene.h>
+#include <Vroom/Asset/AssetManager.h>
+#include <Vroom/Asset/StaticAsset/MeshAsset.h>
 
 //--------------------------------------------------
 // Include necessary component headers
@@ -12,6 +14,7 @@
 #include "Vroom/Scene/Components/TransformComponent.h"
 #include "Vroom/Scene/Components/NameComponent.h"
 #include "Vroom/Scene/Components/PointLightComponent.h"
+#include "Vroom/Scene/Components/MeshComponent.h"
 
 //--------------------------------------------------
 // Preprocessor/template machinery
@@ -156,6 +159,39 @@ VRM_REGISTER_COMPONENT_EDITOR(PointLightComponent, e)
     component.intensity = intensity;
   if (ImGui::DragFloat("Radius", &radius, 0.1f, 0.f, std::numeric_limits<float>::max(), "%.2f", ImGuiSliderFlags_AlwaysClamp))
     component.radius = radius;
+
+  return true;
+}
+
+VRM_REGISTER_COMPONENT_EDITOR(MeshComponent, e)
+{
+  if (!has(e))
+    return false;
+  auto &component = get(e);
+
+  ImGui::SeparatorText("Mesh component");
+  
+  constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsNoBlank;
+
+  std::string resourceName = component.getMesh().getStaticAsset()->getFilePath();
+  if (ImGui::InputText("Mesh", &resourceName, flags))
+  {
+    if (AssetManager::Get().tryLoadAsset<MeshAsset>(resourceName))
+    {
+      component.setMesh(AssetManager::Get().getAsset<MeshAsset>(resourceName));
+    }
+    else
+    {
+      if (auto* state = ImGui::GetInputTextState(ImGui::GetItemID()))
+      {
+        state->ReloadUserBufAndKeepSelection();
+      }
+    }
+  }
+
+  bool visible = component.isVisible();
+  if (ImGui::Checkbox("Visible", &visible))
+    component.setVisible(visible);
 
   return true;
 }

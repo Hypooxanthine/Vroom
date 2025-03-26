@@ -66,13 +66,24 @@ public:
     template <typename T>
     void loadAsset(const std::string& assetID)
     {
+        VRM_ASSERT_MSG(tryLoadAsset<T>(assetID), "Failed to load asset: {}", assetID);
+    }
+
+    template <typename T>
+    bool tryLoadAsset(const std::string& assetID)
+    {
         if (!isAssetLoaded(assetID))
         {
             auto asset = std::make_unique<T>();
-            VRM_ASSERT_MSG(asset->load(assetID), "Failed to load asset: {}", assetID);
+            if (!asset->load(assetID))
+            {
+                return false;
+            }
 
             m_Assets[assetID] = std::move(asset);
         }
+
+        return true;
     }
 
     /**

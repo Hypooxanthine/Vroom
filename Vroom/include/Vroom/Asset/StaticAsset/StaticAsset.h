@@ -25,6 +25,8 @@ public:
 
     bool load(const std::string& filePath);
 
+    inline const std::string& getFilePath() const { return m_filePath; }
+
 protected:
 
     /**
@@ -39,6 +41,7 @@ protected:
 
 protected:
     size_t m_InstanceCount = 0;
+    std::string m_filePath;
 };
 
 } // namespace vrm

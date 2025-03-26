@@ -4,43 +4,48 @@
 
 #include "Vroom/Asset/AssetInstance/AssetInstance.h"
 
-namespace vrm
-{
+using namespace vrm;
 
 void StaticAsset::notifyNewInstance()
 {
-    m_InstanceCount++;
+  m_InstanceCount++;
 }
 
 void StaticAsset::notifyDeleteInstance()
 {
-    m_InstanceCount--;
+  m_InstanceCount--;
 }
 
 size_t StaticAsset::getInstanceCount() const
 {
-    return m_InstanceCount;
+  return m_InstanceCount;
 }
 
 bool StaticAsset::load(const std::string& filePath)
 {
-    return loadImpl(filePath);
+  if (loadImpl(filePath))
+  {
+    m_filePath = filePath;
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 std::string StaticAsset::getExtension(const std::string& filePath)
 {
-    // Finding the last dot
-    size_t dotIndex = filePath.find_last_of('.');
-    if (dotIndex == std::string::npos)
-        return "";
-    
-    // Getting the extension
-    std::string extension = filePath.substr(dotIndex + 1);
+  // Finding the last dot
+  size_t dotIndex = filePath.find_last_of('.');
+  if (dotIndex == std::string::npos)
+    return "";
 
-    // To lower case
-    std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
+  // Getting the extension
+  std::string extension = filePath.substr(dotIndex + 1);
 
-    return extension;
+  // To lower case
+  std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
+
+  return extension;
 }
-
-} // namespace vrm
