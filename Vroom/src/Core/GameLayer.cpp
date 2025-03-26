@@ -47,10 +47,13 @@ void GameLayer::onEnd()
   m_CurrentScene->end();
 }
 
-void GameLayer::onUpdate(float dt)
+void GameLayer::onNewFrame()
 {
   checkNextScene();
+}
 
+void GameLayer::onUpdate(float dt)
+{
   m_CurrentScene->update(dt);
 }
 
@@ -104,5 +107,4 @@ void GameLayer::checkNextScene()
 void GameLayer::loadScene_Internal(std::unique_ptr<Scene> &&scene)
 {
   m_NextScene = std::move(scene);
-  forceUpdateNextFrame();
 }

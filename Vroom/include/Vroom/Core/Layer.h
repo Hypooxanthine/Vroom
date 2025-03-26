@@ -28,6 +28,12 @@ public:
     void end();
 
     /**
+     * @brief Notify the layer that a new frame has started.
+     * 
+     */
+    void newFrame();
+
+    /**
      * @brief Update the layer.
      * 
      * @param dt Delta time.
@@ -102,6 +108,12 @@ protected:
      * 
      */
     virtual void onEnd() {}
+
+    /**
+     * @brief Override this function to add custom behavior when a new frame starts.
+     * 
+     */
+    virtual void onNewFrame() {}
 
     /**
      * @brief Override this function to add custom update behavior.

@@ -12,6 +12,11 @@ void Layer::end()
   onEnd();
 }
 
+void Layer::newFrame()
+{
+  onNewFrame();
+}
+
 void Layer::update(float dt)
 {
   if (m_ShouldUpdate || m_ForceUpdateNextFrame)

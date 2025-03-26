@@ -76,6 +76,7 @@ void Application::run()
 
     while (!m_PendingKilled)
     {
+        newFrame();
         update();
         draw();
     }
@@ -86,12 +87,19 @@ void Application::exit()
     m_PendingKilled = true;
 }
 
-void Application::update()
+void Application::newFrame()
 {
     auto now = std::chrono::high_resolution_clock::now();
     m_DeltaTime = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - m_LastFrameTimePoint).count()) / 1'000'000'000.f;
     m_LastFrameTimePoint = now;
 
+    // Notifying new frame to all layers
+    for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
+      it->newFrame();
+}
+
+void Application::update()
+{
     // Updating from top to bottom
     for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
         it->update(m_DeltaTime);

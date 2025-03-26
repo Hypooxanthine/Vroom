@@ -130,6 +130,12 @@ private:
     void initLayers();
 
     /**
+     * @brief First step of the application loop.
+     * 
+     */
+    void newFrame();
+
+    /**
      * @brief Update step of the application.
      * 
      */
