@@ -126,6 +126,11 @@ public:
      */
     bool checkEntitiesRelation(const Entity& parent, const Entity& child) const;
 
+    /**
+     * @brief Check if "ancestor" is an ancestor of "child"
+     */
+    bool checkEntityAncestor(const Entity& ancestor, const Entity& child) const;
+
     void setEntitiesRelation(Entity& parent, Entity& child);
 
     /**

@@ -57,7 +57,9 @@ bool EntityEditor::onImgui()
 
   bool ret = false;
 
-  constexpr auto flags = ImGuiWindowFlags_None;
+  constexpr auto flags = ImGuiWindowFlags_None
+    | ImGuiWindowFlags_NoFocusOnAppearing
+    ;
   
   if (ImGui::Begin("Entity editor", &m_open, flags))
   {

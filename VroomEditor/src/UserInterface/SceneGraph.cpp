@@ -25,12 +25,14 @@ bool SceneGraph::onImgui()
 {
   bool ret = false;
 
-  auto& scene = Application::Get().getGameLayer().getScene();
-  
+  setupFrameContext();
+
+  auto& scene = *m_frameContext.activeScene;
+
   if (ImGui::Begin("Scene graph"))
   {
     ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, 10.f);
-    
+
     if (scene.getRoot().isValid())
       renderEntityEntryRecursive(scene.getRoot());
 
@@ -39,6 +41,8 @@ bool SceneGraph::onImgui()
   ImGui::End();
 
   m_entityEditor.renderImgui();
+
+  handleFrameContext();
 
   return ret;
 }
@@ -49,19 +53,22 @@ void SceneGraph::renderEntityEntryRecursive(Entity& e)
   auto& children = e.getChildren();
   const bool isLeaf = children.empty();
   const bool isNode = !isLeaf;
-  
+
   ImGui::PushID(name.c_str());
 
-  ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth;
+  ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth
+    // | ImGuiTreeNodeFlags_FramePadding
+    ;
+
   if (isLeaf)
     flags =
-      flags
+    flags
     | ImGuiTreeNodeFlags_Leaf
     | ImGuiTreeNodeFlags_NoTreePushOnOpen
     ;
   else // isNode
     flags =
-      flags
+    flags
     | ImGuiTreeNodeFlags_DefaultOpen
     | ImGuiTreeNodeFlags_OpenOnArrow
     ;
@@ -69,13 +76,13 @@ void SceneGraph::renderEntityEntryRecursive(Entity& e)
   if (m_entityEditor.isEditingEntity(e))
     flags = flags | ImGuiTreeNodeFlags_Selected;
 
-  if (ImGui::TreeNodeEx(name.c_str(), flags))
-  {
-    if (ImGui::IsItemClicked())
-    {
-      m_entityEditor.openOrCloseIfSame(e);
-    }
+  bool open = ImGui::TreeNodeEx(name.c_str(), flags, "%s", name.c_str());
 
+  clickBehaviour(e);
+  dragAndDropBehaviour(e);
+
+  if (open)
+  {
     for (auto& child : children)
     {
       renderEntityEntryRecursive(child);
@@ -86,4 +93,76 @@ void SceneGraph::renderEntityEntryRecursive(Entity& e)
   }
 
   ImGui::PopID();
+}
+
+void SceneGraph::clickBehaviour(Entity& e)
+{
+  if (ImGui::IsItemClicked())
+  {
+    m_entityEditor.openOrCloseIfSame(e);
+  }
+}
+
+void SceneGraph::dragAndDropBehaviour(Entity& e)
+{
+  static constexpr std::string_view payloadName = "VRM_SceneGraph_Hierarchy_Edit";
+
+  bool validTarget = true;
+
+  if (const ImGuiPayload* payload = ImGui::GetDragDropPayload())
+  {
+    if (payload->IsDataType(payloadName.data()))
+    {
+      Entity* newChild = (Entity*)payload->Data;
+      validTarget = !m_frameContext.activeScene->checkEntityAncestor(*newChild, e);
+    }
+  }
+
+  if (validTarget && ImGui::BeginDragDropTarget())
+  {
+    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(payloadName.data()))
+    {
+      Entity* newChild = (Entity*)payload->Data;
+
+      m_frameContext.RequestHierarchyEdit.parent = e.clone();
+      m_frameContext.RequestHierarchyEdit.child = newChild->clone();
+    }
+
+    ImGui::EndDragDropTarget();
+  }
+
+  // Root entity can't be move in hierarchy
+  // so we do not set it as a source
+  if (!e.isRoot() && ImGui::BeginDragDropSource())
+  {
+    ImGui::SetDragDropPayload(payloadName.data(), &e, sizeof(Entity));
+    ImGui::Text("%s", e.getName().c_str());
+
+    ImGui::EndDragDropSource();
+  }
+}
+
+void SceneGraph::setupFrameContext()
+{
+  m_frameContext = {};
+  m_frameContext.activeScene = &Application::Get().getGameLayer().getScene();
+}
+
+void SceneGraph::handleFrameContext()
+{
+  auto& hierarchy = m_frameContext.RequestHierarchyEdit;
+  const bool changeHierarchyRelation = true
+    && hierarchy.child.isValid()
+    && !hierarchy.child.isRoot()
+    && hierarchy.parent.isValid()
+    && !m_frameContext.activeScene->checkEntitiesRelation(hierarchy.parent, hierarchy.child)
+    ;
+
+  if (changeHierarchyRelation)
+  {
+    m_frameContext.activeScene->setEntitiesRelation(
+      hierarchy.parent,
+      hierarchy.child
+    );
+  }
 }

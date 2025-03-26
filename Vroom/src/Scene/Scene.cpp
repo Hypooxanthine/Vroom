@@ -155,6 +155,16 @@ bool Scene::checkEntitiesRelation(const Entity& parent, const Entity& child) con
   return child.getComponent<HierarchyComponent>().parent == parent;
 }
 
+bool Scene::checkEntityAncestor(const Entity& ancestor, const Entity& child) const
+{
+  if (child.getParent() == ancestor)
+    return true;
+  if (child.isRoot())
+    return false;
+    
+  return checkEntityAncestor(ancestor, child.getParent());
+}
+
 void Scene::setEntitiesRelation(Entity& parent, Entity& child)
 {
   VRM_ASSERT_MSG(m_Registry.valid(parent), "Unknown parent entity");

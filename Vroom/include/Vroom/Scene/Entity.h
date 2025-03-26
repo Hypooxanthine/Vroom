@@ -164,6 +164,8 @@ namespace vrm
     std::list<Entity>& getChildren();
     const std::list<Entity>& getChildren() const;
 
+    bool isRoot() const;
+
     /**
      * @brief Check if the entity is valid.
      *

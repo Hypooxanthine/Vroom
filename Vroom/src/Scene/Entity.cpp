@@ -69,6 +69,14 @@ const std::list<Entity>& Entity::getChildren() const
   return const_cast<Entity*>(this)->getChildren();
 }
 
+bool Entity::isRoot() const
+{
+  if (!isValid())
+    return false;
+  
+  return getScene()->getRoot() == *this;
+}
+
 Entity& Entity::operator=(Entity&& other)
 {
     if (this != &other)
