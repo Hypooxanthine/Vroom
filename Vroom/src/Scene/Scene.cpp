@@ -112,7 +112,10 @@ Entity Scene::createEntity(const std::string &nameTag)
 
 Entity Scene::createEntity()
 {
-  return createEntity("Entity_" + std::to_string(m_EntityCounter++));
+  while (entityExists("NewEntity_" + std::to_string(m_EntityCounter)))
+    ++m_EntityCounter;
+
+  return createEntity("NewEntity_" + std::to_string(m_EntityCounter++));
 }
 
 void Scene::renameEntity(Entity& e, const std::string& name)

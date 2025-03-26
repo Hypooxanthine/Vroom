@@ -120,6 +120,11 @@ void SceneGraph::contextualMenuBehaviour(Entity& e)
     if (isRoot)
       ImGui::EndDisabled();
 
+    if (ImGui::Selectable("Add child"))
+    {
+      m_frameContext.requestNewChild = e.clone();
+    }
+
     ImGui::EndPopup();
   }
 }
@@ -190,5 +195,11 @@ void SceneGraph::handleFrameContext()
   if (Entity& e = m_frameContext.deletedEntity)
   {
     m_frameContext.activeScene->destroyEntity(e);
+  }
+
+  if (Entity& parent = m_frameContext.requestNewChild)
+  {
+    Entity newChild = m_frameContext.activeScene->createEntity();
+    m_frameContext.activeScene->setEntitiesRelation(parent, newChild);
   }
 }

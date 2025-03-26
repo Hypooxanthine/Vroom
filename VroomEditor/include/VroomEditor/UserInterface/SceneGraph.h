@@ -40,6 +40,7 @@ private:
     } RequestHierarchyEdit;
 
     Entity deletedEntity;
+    Entity requestNewChild;
 
     Scene* activeScene = nullptr;
   };
