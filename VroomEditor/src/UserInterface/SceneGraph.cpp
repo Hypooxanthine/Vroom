@@ -79,6 +79,7 @@ void SceneGraph::renderEntityEntryRecursive(Entity& e)
   bool open = ImGui::TreeNodeEx(name.c_str(), flags, "%s", name.c_str());
 
   clickBehaviour(e);
+  contextualMenuBehaviour(e);
   dragAndDropBehaviour(e);
 
   if (open)
@@ -100,6 +101,26 @@ void SceneGraph::clickBehaviour(Entity& e)
   if (ImGui::IsItemClicked())
   {
     m_entityEditor.openOrCloseIfSame(e);
+  }
+}
+
+void SceneGraph::contextualMenuBehaviour(Entity& e)
+{
+  bool isRoot = e.isRoot();
+  if (ImGui::BeginPopupContextItem())
+  {
+    if (isRoot)
+      ImGui::BeginDisabled();
+
+    if (ImGui::Selectable("Delete"))
+    {
+      m_frameContext.deletedEntity = e.clone();
+    }
+
+    if (isRoot)
+      ImGui::EndDisabled();
+
+    ImGui::EndPopup();
   }
 }
 
@@ -164,5 +185,10 @@ void SceneGraph::handleFrameContext()
       hierarchy.parent,
       hierarchy.child
     );
+  }
+
+  if (Entity& e = m_frameContext.deletedEntity)
+  {
+    m_frameContext.activeScene->destroyEntity(e);
   }
 }

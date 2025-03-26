@@ -22,6 +22,7 @@ protected:
 
   void renderEntityEntryRecursive(Entity& e);
   void clickBehaviour(Entity& e);
+  void contextualMenuBehaviour(Entity& e);
   void dragAndDropBehaviour(Entity& e);
 
 private:
@@ -37,6 +38,8 @@ private:
     {
       Entity parent, child;
     } RequestHierarchyEdit;
+
+    Entity deletedEntity;
 
     Scene* activeScene = nullptr;
   };
