@@ -11,7 +11,12 @@ MovingLightScript::MovingLightScript(float circleRadius, float height, float sta
 
 void MovingLightScript::onSpawn()
 {
-    updatePosition(0.f);
+    const auto& transform = getEntity().getComponent<vrm::TransformComponent>();
+    const auto& pos = transform.getPosition();
+
+    m_CircleRadius = glm::length(glm::vec2(pos.x, pos.z));
+    m_Height = pos.y;
+    m_Angle = atan2(pos.z, pos.x);
 }
 
 void MovingLightScript::onUpdate(float dt)

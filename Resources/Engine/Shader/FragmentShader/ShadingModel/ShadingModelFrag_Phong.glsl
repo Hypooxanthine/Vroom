@@ -20,6 +20,8 @@
 //     PointLight pointLights[];
 // };
 
+// #define VRM_SHOW_LIGHT_COMPLEXITY
+
 void PreFrag(out vec3 ambient, out vec3 diffuse, out vec3 specular, out float shininess);
 
 vec4 ComputeColor()
@@ -66,5 +68,10 @@ vec4 ComputeColor()
         shadeColor += (diff * diffuse + spec * specular) * lightColor;
     }
 
+#ifdef VRM_SHOW_LIGHT_COMPLEXITY
+    float lightComplexity = float(lightsCount) / float(pointLightCount);
+    return vec4(lightComplexity, 0.f, 1.f - lightComplexity, 1.f);
+#else
     return vec4(shadeColor, 1.f);
+#endif
 }

@@ -218,7 +218,307 @@
             },
             {
               "name": "Radius",
+              "value": 10.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Light_1",
+      "type": "Entity",
+      "parent": "Root",
+      "components": [
+        {
+          "type": "TransformComponent",
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                0.2,
+                0.2,
+                0.2
+              ]
+            }
+          ]
+        },
+        {
+          "type": "MeshComponent",
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Meshes/sphere.obj"
+            }
+          ]
+        },
+        {
+          "type": "ScriptComponent",
+          "params": [
+            {
+              "name": "ScriptName",
+              "value": "VRM_MovingLightScript_ID"
+            }
+          ]
+        },
+        {
+          "type": "PointLightComponent",
+          "params": [
+            {
+              "name": "Color",
+              "value": [
+                1.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Intensity",
               "value": 50.0
+            },
+            {
+              "name": "Radius",
+              "value": 10.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Light_2",
+      "type": "Entity",
+      "parent": "Root",
+      "components": [
+        {
+          "type": "TransformComponent",
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                0.2,
+                0.2,
+                0.2
+              ]
+            }
+          ]
+        },
+        {
+          "type": "MeshComponent",
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Meshes/sphere.obj"
+            }
+          ]
+        },
+        {
+          "type": "ScriptComponent",
+          "params": [
+            {
+              "name": "ScriptName",
+              "value": "VRM_MovingLightScript_ID"
+            }
+          ]
+        },
+        {
+          "type": "PointLightComponent",
+          "params": [
+            {
+              "name": "Color",
+              "value": [
+                1.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Intensity",
+              "value": 50.0
+            },
+            {
+              "name": "Radius",
+              "value": 10.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Light_3",
+      "type": "Entity",
+      "parent": "Root",
+      "components": [
+        {
+          "type": "TransformComponent",
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                0.2,
+                0.2,
+                0.2
+              ]
+            }
+          ]
+        },
+        {
+          "type": "MeshComponent",
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Meshes/sphere.obj"
+            }
+          ]
+        },
+        {
+          "type": "ScriptComponent",
+          "params": [
+            {
+              "name": "ScriptName",
+              "value": "VRM_MovingLightScript_ID"
+            }
+          ]
+        },
+        {
+          "type": "PointLightComponent",
+          "params": [
+            {
+              "name": "Color",
+              "value": [
+                1.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Intensity",
+              "value": 50.0
+            },
+            {
+              "name": "Radius",
+              "value": 10.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Light_4",
+      "type": "Entity",
+      "parent": "Root",
+      "components": [
+        {
+          "type": "TransformComponent",
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                0.2,
+                0.2,
+                0.2
+              ]
+            }
+          ]
+        },
+        {
+          "type": "MeshComponent",
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Meshes/sphere.obj"
+            }
+          ]
+        },
+        {
+          "type": "ScriptComponent",
+          "params": [
+            {
+              "name": "ScriptName",
+              "value": "VRM_MovingLightScript_ID"
+            }
+          ]
+        },
+        {
+          "type": "PointLightComponent",
+          "params": [
+            {
+              "name": "Color",
+              "value": [
+                1.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Intensity",
+              "value": 50.0
+            },
+            {
+              "name": "Radius",
+              "value": 10.0
             }
           ]
         }
