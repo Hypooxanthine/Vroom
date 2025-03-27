@@ -23,11 +23,30 @@ using namespace vrm;
 
 static std::vector<std::unique_ptr<ComponentEditor>> ALL_EDITORS = {};
 
+template <typename C, typename... Args>
+static inline void AddComponentItem(Entity& e, const std::string_view& displayName, Args&&... args)
+{
+  if (!e.hasComponent<C>() && ImGui::Selectable(displayName.data()))
+  {
+    e.addComponent<C>(std::forward<Args>(args)...);
+  }
+}
+
 void ComponentEditor::EditEntity(Entity& e)
 {
   for (auto &editor : ALL_EDITORS)
   {
     editor->editEntityComponent(e);
+  }
+
+  ImGui::Separator();
+
+  if (!e.isRoot() && ImGui::BeginCombo("##Add component", "Add component"))
+  {
+    AddComponentItem<PointLightComponent>(e, "Point light");
+    AddComponentItem<MeshComponent>(e, "Mesh");
+
+    ImGui::EndCombo();
   }
 }
 
@@ -170,7 +189,18 @@ VRM_REGISTER_COMPONENT_EDITOR(MeshComponent, e)
   auto &component = get(e);
 
   ImGui::SeparatorText("Mesh component");
-  
+
+  bool askedRemove = false;
+  if (ImGui::BeginPopupContextItem("Popup"))
+  {
+    if (ImGui::Selectable("Remove component"))
+    {
+      askedRemove = true;
+    }
+
+    ImGui::EndPopup();
+  }
+
   constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsNoBlank;
 
   std::string resourceName = component.getMesh().getStaticAsset()->getFilePath();
@@ -192,6 +222,9 @@ VRM_REGISTER_COMPONENT_EDITOR(MeshComponent, e)
   bool visible = component.isVisible();
   if (ImGui::Checkbox("Visible", &visible))
     component.setVisible(visible);
+
+  if (askedRemove)
+    e.removeComponent<MeshComponent>();
 
   return true;
 }

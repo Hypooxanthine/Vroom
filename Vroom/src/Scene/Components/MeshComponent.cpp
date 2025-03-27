@@ -5,6 +5,12 @@
 namespace vrm
 {
 
+MeshComponent::MeshComponent()
+  : MeshComponent(AssetManager::Get().getAsset<MeshAsset>("Resources/Engine/Meshes/default_cube.obj"))
+{
+
+}
+
 MeshComponent::MeshComponent(const MeshInstance& meshInstance)
     : m_MeshInstance(meshInstance)
 {

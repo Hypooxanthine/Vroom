@@ -15,7 +15,7 @@ class MeshData;
 class MeshComponent
 {
 public:
-    MeshComponent() = default;
+    MeshComponent();
 
     /**
      * @brief Constructor.
