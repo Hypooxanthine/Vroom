@@ -2,7 +2,7 @@
 
 using namespace vrm;
 
-#include <nlohmann/json.hpp>
+#include "Vroom/Asset/Parsing/Json.h"
 
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/SceneAsset.h"
@@ -13,98 +13,6 @@ using namespace vrm;
 #include "Vroom/Scene/Components/MeshComponent.h"
 #include "Vroom/Scene/Components/ScriptComponent.h"
 #include "Vroom/Scene/Components/PointLightComponent.h"
-
-#define CHECK(x, ...) VRM_CHECK_RET_FALSE_MSG(x, __VA_ARGS__)
-
-using namespace vrm;
-using json = nlohmann::json;
-
-#define CHECK_ATTR(x, attr)                                           \
-  CHECK(x.contains(#attr), #x " must contain a \"" #attr "\" attribute"); \
-  const auto &attr = x.at(#attr)
-
-#define TYPE_CHECK_FUNC(type) is_##type
-
-#define CHECK_ATTR_TYPE(x, attr, type) \
-  CHECK_ATTR(x, attr);                 \
-  CHECK(IsType<type>(attr), "Attribute " #x " from " #x " must be of type " #type)
-
-#define CHECK_ATTR_STRING(x, attr)  \
-  CHECK_ATTR_TYPE(x, attr, std::string); \
-  auto attr##Val = x.at(#attr).get<std::string>()
-
-#define CHECK_ATTR_ARRAY(x, attr) \
-  CHECK_ATTR_TYPE(x, attr, json::array_t)
-
-#define CHECK_ATTR_OBJECT(x, attr) \
-  CHECK_ATTR_TYPE(x, attr, json::object_t)
-
-#define CHECK_ATTR_FLOAT(x, attr) \
-  CHECK_ATTR_TYPE(x, attr, float)
-
-template <typename T>
-inline consteval std::string_view ToString() { return "Unsupported"; }
-
-template<typename T>
-inline bool IsType(const json& value) { return false; }
-
-template<>
-inline consteval std::string_view ToString<float>() { return "float"; }
-
-template <>
-inline bool IsType<float>(const json& value) { return value.is_number_float(); }
-
-template<>
-inline consteval std::string_view ToString<int>() { return "int"; }
-
-template <>
-inline bool IsType<int>(const json& value) { return value.is_number_integer(); }
-
-template<>
-inline consteval std::string_view ToString<unsigned int>() { return "unsigned int"; }
-
-template <>
-inline bool IsType<unsigned int>(const json& value) { return value.is_number_unsigned(); }
-
-template<>
-inline consteval std::string_view ToString<std::string>() { return "string"; }
-
-template <>
-inline bool IsType<std::string>(const json& value) { return value.is_string(); }
-
-template <>
-inline bool IsType<json::array_t>(const json& value) { return value.is_array(); }
-
-template <>
-inline bool IsType<json::object_t>(const json& value) { return value.is_object(); }
-
-template <typename T>
-static bool GetParamValue(const json& paramValue, T& outValue)
-{
-  CHECK(IsType<T>(paramValue), "Unexpected type {}", paramValue.type_name());
-  outValue = paramValue.get<T>();
-  return true;
-}
-
-template <glm::length_t L, typename T>
-static bool GetParamValue(const json& paramValue, glm::vec<L, T>& outValue)
-{
-  glm::length_t i = 0;
-  for (const auto& value_i : paramValue)
-  {
-    CHECK(
-      i < L,
-      "Expected an array of {} elements", L
-    );
-    CHECK(
-      GetParamValue<T>(value_i, outValue[i]),
-      "Expected type {}", ToString<T>()
-    );
-    ++i;
-  }
-
-  return true;
-}
 
 static bool HandleEntityTransformComponent(SceneData::SceneNode& e, const json& params)
 {

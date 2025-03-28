@@ -63,7 +63,8 @@
       "VRM_DEFINE_1",
       "VRM_DEFINE_2",
       {
-        "VRM_DEFINE_WITH_VALUE": "value"
+        "Name": "VRM_DEFINE_WITH_VALUE",
+        "Value": "1"
       }
     ]
   },

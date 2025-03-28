@@ -4,23 +4,17 @@
 
 #include <string>
 
+#include "Vroom/Asset/AssetData/ShaderData.h"
+
 namespace vrm
 {
 
 class ShaderParsing
 {
 public:
-  struct Results
-  {
-    std::string computeSource;
-    std::string vertexSource;
-    std::string geometrySource;
-    std::string fragmentSource;
-  };
-public:
   ShaderParsing() = delete;
 
-  static Results Parse(const nlohmann::json& jsonData);
+  static bool Parse(const nlohmann::json& jsonData, ShaderData& out);
 
 private:
 
