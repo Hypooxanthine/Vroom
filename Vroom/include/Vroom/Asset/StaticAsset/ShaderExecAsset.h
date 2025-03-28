@@ -1,10 +1,8 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
-
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
-
 #include "Vroom/Asset/AssetInstance/ShaderExecInstance.h"
+#include "Vroom/Asset/AssetData/ShaderData.h"
 
 namespace vrm
 {
@@ -17,10 +15,10 @@ public:
   ShaderExecAsset() = default;
   ~ShaderExecAsset() = default;
   
-  const auto& getShaderExecData() const { return m_ShaderExecData; }
+  const auto& getShaderData() const { return m_data; }
 
 private:
-  nlohmann::json m_ShaderExecData;
+  ShaderData m_data;
 };
 
 } // namespace vrm

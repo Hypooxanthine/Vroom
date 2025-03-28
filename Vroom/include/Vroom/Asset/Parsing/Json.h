@@ -14,7 +14,7 @@ using json = nlohmann::json;
 #define ELSE else{} else
 
 #define CHECK_ATTR(x, attr)                                           \
-  CHECK(x.contains(#attr), #x " must contain a \"" #attr "\" attribute"); \
+  CHECK(x.contains(#attr), #x " must contain a \"" #attr "\" attribute. " #x " is {}", x.dump(2)); \
   const auto &attr = x.at(#attr)
 
 #define IF_HAS_ATTR(x, attr) \
@@ -83,7 +83,7 @@ using json = nlohmann::json;
   if (attr##_opt.has_value())\
   {\
     CHECK(IsType<type>(*attr##_opt), "Json element must be of type " #type)\
-    attr##Val##_opt = x.get<type>();\
+    attr##Val##_opt = attr##_opt->get<type>();\
   }\
   if (attr##Val##_opt.has_value())\
     if (const auto& attr##Val = attr##Val##_opt.value(); true)

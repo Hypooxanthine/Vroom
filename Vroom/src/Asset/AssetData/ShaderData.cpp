@@ -96,8 +96,8 @@ std::string ShaderData::combine(const ShaderProperties& global, const ShaderProp
   std::string out;
   
   out += combineVersion(global.version, shader.version);
-  out += combineExtensions(global.extensions, shader.extensions);
   out += combineDefines(global.defines, shader.defines);
+  out += combineExtensions(global.extensions, shader.extensions);
   out += combineSources(global.earlySources, shader.earlySources);
   if (shaderType == EShaderType::eVertex)
   {
@@ -145,12 +145,12 @@ std::string ShaderData::combineExtensions(const std::vector<Extension>& global, 
 
   for (const auto& ext : global)
   {
-    out += std::format("#extension {} : {}\n", ext.name, toString(ext.behaviour));
+    out += applyEnableIf(std::format("#extension {} : {}\n", ext.name, toString(ext.behaviour)), ext.enableIf);
   }
 
   for (const auto& ext : shader)
   {
-    out += std::format("#extension {} : {}\n", ext.name, toString(ext.behaviour));
+    out += applyEnableIf(std::format("#extension {} : {}\n", ext.name, toString(ext.behaviour)), ext.enableIf);
   }
 
   out += "\n";

@@ -2,6 +2,7 @@
 
 #include "Vroom/Asset/AssetInstance/ShaderExecInstance.h"
 #include "Vroom/Core/Assert.h"
+#include "Vroom/Asset/Parsing/ShaderParsing.h"
 
 #include <nlohmann/json.hpp>
 #include <fstream>
@@ -19,11 +20,11 @@ bool ShaderExecAsset::loadImpl(const std::string& filePath)
   if (!ifs.is_open())
     return false;
   
-  m_ShaderExecData.clear();
+  json j;
 
   try
   {
-    ifs >> m_ShaderExecData;
+    ifs >> j;
   }
   catch (const std::exception& e)
   {
@@ -31,5 +32,5 @@ bool ShaderExecAsset::loadImpl(const std::string& filePath)
     return false;
   }
 
-  return true;
+  return ShaderParsing::Parse(j, m_data);
 }

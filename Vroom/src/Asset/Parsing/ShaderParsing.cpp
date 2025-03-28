@@ -9,6 +9,9 @@
 
 using namespace vrm;
 
+//--------------------------------------------------
+// Json -> ShaderData
+
 #define PARSER_FUNC_TYPE(name, OutType) static bool name(const ShaderData::EShaderType& type, const json& j, OutType& out)
 #define PARSER_FUNC(name) PARSER_FUNC_TYPE(name, ShaderData)
 
@@ -266,7 +269,7 @@ PARSER_FUNC(ParseUniformBuffer)
   for (const auto& j_variable : VariablesVal)
   {
     auto& v = ub.variables.emplace_back();
-    CHECK(ParseVariable(type, j, v), "Error while parsing variable");
+    CHECK(ParseVariable(type, j_variable, v), "Error while parsing variable");
   }
 
   return true;
@@ -300,7 +303,7 @@ PARSER_FUNC(ParseStorageBuffer)
   for (const auto& j_variable : VariablesVal)
   {
     auto& v = sb.variables.emplace_back();
-    CHECK(ParseStorageBufferVariable(type, j, v), "Error while parsing storage buffer variable");
+    CHECK(ParseStorageBufferVariable(type, j_variable, v), "Error while parsing storage buffer variable");
   }
   
   IF_HAS_ATTR(j, Qualifiers)
@@ -309,7 +312,7 @@ PARSER_FUNC(ParseStorageBuffer)
   IF_HAS_ATTR_STRING(j, EnableIf)
     sb.enableIf = EnableIfVal;
 
-  return false;
+  return true;
 }
 
 PARSER_FUNC(ParseStorageBuffers)
@@ -344,7 +347,7 @@ PARSER_FUNC(ParseShader)
     CHECK(ParseSources(type, Sources, out), "Error while parsing sources");
 
   IF_HAS_ATTR(j, EarlySources)
-    CHECK(ParseSources(type, EarlySources, out), "Error while parsing early sources");
+    CHECK(ParseEarlySources(type, EarlySources, out), "Error while parsing early sources");
   
   IF_HAS_ATTR(j, UniformBuffers)
     CHECK(ParseUniformBuffers(type, UniformBuffers, out), "Error while parsing uniform buffers");

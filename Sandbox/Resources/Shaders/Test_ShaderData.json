@@ -8,25 +8,23 @@
         "EnableIf": "VRM_DEFINE_NAME"
       }
     ],
-    "Sources": [
-      "CommonCode1.glsl",
-      "CommonCode2.glsl"
-    ],
     "Defines": [
       "CommonDefine1",
       "CommonDefine2"
+    ],
+    "EarlySources": [
+      "Resources/Shaders/TestEarlySource.glsl"
     ]
   },
   "Vertex": {
     "Sources": [
-      "Vertex1.glsl",
-      "Vertex2.glsl"
+      "Resources/Shaders/TestVert.glsl"
     ],
     "Extensions": [
       {
         "Name": "GL_ARB_shader_draw_parameters",
         "Behaviour": "require",
-        "EnableIf": "VRM_DEFINE_NAME"
+        "EnableIf": "VRM_DEFINE_NAME2"
       }
     ],
     "Defines": [],
@@ -40,7 +38,16 @@
     "UniformBuffers": [
       {
         "Name": "UniformBufferName",
-        "Type": "TypeDefinedInASourceFile",
+        "Variables": [
+          {
+            "Name": "MyVar",
+            "Type": "int",
+            "Qualifiers": [
+              "coherent",
+              "readonly"
+            ]
+          }
+        ],
         "Layout": "std140",
         "EnableIf": "VRM_DEFINE_NAME"
       }
@@ -48,30 +55,20 @@
     "StorageBuffers": [
       {
         "Name": "MySSBO",
-        "Type": "PrimitiveOrCustomType[]",
+        "Variables": [
+          {
+            "Name": "MyVar",
+            "Type": "int"
+          }
+        ],
         "Layout": "std140",
         "EnableIf": "VRM_DEFINE_NAME"
       }
     ]
   },
-  "Geometry": {
-    "Sources": [
-      "Geometry1.glsl",
-      "Geometry2.glsl"
-    ],
-    "Defines": [
-      "VRM_DEFINE_1",
-      "VRM_DEFINE_2",
-      {
-        "Name": "VRM_DEFINE_WITH_VALUE",
-        "Value": "1"
-      }
-    ]
-  },
   "Fragment": {
     "Sources": [
-      "Fragment1.glsl",
-      "Fragment2.glsl"
+      "Resources/Shaders/TestFrag.glsl"
     ],
     "Defines": []
   }
