@@ -327,6 +327,34 @@ PARSER_FUNC(ParseStorageBuffers)
   return true;
 }
 
+PARSER_FUNC(ParseVertexAttribute)
+{
+  CHECK_OBJECT(j);
+
+  ShaderData::VertexAttribute va;
+
+  CHECK(ParseVariable(type, j, va), "Error while parsing variable");
+
+  IF_HAS_ATTR_STRING(j, Layout)
+    va.layout = LayoutVal;
+
+  out.addVertexAttribute(va);
+
+  return true;
+}
+
+PARSER_FUNC(ParseVertexAttributes)
+{
+  CHECK_ARRAY(j);
+
+  for (const auto& j_va : j)
+  {
+    CHECK(ParseVertexAttribute(type, j_va, out), "Error while parsing vertex attribute");
+  }
+
+  return true;
+}
+
 PARSER_FUNC(ParseShader)
 {
   CHECK_OBJECT(j);
@@ -336,6 +364,9 @@ PARSER_FUNC(ParseShader)
 
   IF_HAS_ATTR(j, Defines)
     CHECK(ParseDefines(type, Defines, out), "Error while parsing defines");
+
+  IF_HAS_ATTR(j, VertexAttributes)
+    CHECK(ParseVertexAttributes(type, VertexAttributes, out), "Error while parsing vertex attributes");
 
   IF_HAS_ATTR(j, Uniforms)
     CHECK(ParseUniforms(type, Uniforms, out), "Error while parsing uniforms");
@@ -358,13 +389,49 @@ PARSER_FUNC(ParseShader)
   return true;
 }
 
+PARSER_FUNC(ParseVarying)
+{
+  CHECK_OBJECT(j);
+
+  ShaderData::Varying v;
+
+  CHECK(ParseVariable(type, j, v), "Error while parsing variable");
+ 
+  static std::unordered_map<std::string, ShaderData::Varying::EQualifier> table =
+  {
+    { "flat", ShaderData::Varying::EQualifier::eSmooth },
+    { "smooth", ShaderData::Varying::EQualifier::eFlat },
+    { "noperspective", ShaderData::Varying::EQualifier::eNoPerspective },
+  };
+
+  IF_HAS_ATTR_STRING(j, Qualifier)
+  {
+    CHECK(table.contains(QualifierVal), "Unknown token {}", QualifierVal);
+    v.qualifier = table.at(QualifierVal);
+  }
+
+  out.addVarying(type, v);
+
+  return true;
+}
+
+PARSER_FUNC(ParseVaryings)
+{
+  CHECK_ARRAY(j);
+
+  for (const auto& j_varying : j)
+  {
+    CHECK(ParseVarying(type, j, out), "Error while parsing varying");
+  }
+
+  return true;
+}
+
 bool ShaderParsing::Parse(const json& j, ShaderData& out)
 {
-  if (!j.is_object())
-  {
-    out = {};
-    return false;
-  }
+  ShaderData data;
+
+  CHECK_OBJECT(j);
 
   std::vector<std::pair<std::string, ShaderData::EShaderType>> textToType = {
     {"Global", ShaderData::EShaderType::eAll},
@@ -378,14 +445,16 @@ bool ShaderParsing::Parse(const json& j, ShaderData& out)
   {
     if (j.contains(str))
     {
-      out.setShaderEnabled(type, true);
-      if (!ParseShader(type, j.at(str), out))
-      {
-        out = {};
-        return false;
-      }
+      CHECK(ParseShader(type, j.at(str), out), "Error while parsing shader");
     }
   }
+
+  IF_HAS_ATTR_STRING(j, Varyings)
+  {
+    CHECK(ParseVaryings(ShaderData::EShaderType::eNone, j, out), "Error while parsing varyings");
+  }
+
+  out = std::move(data);
 
   return true;
 }

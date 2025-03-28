@@ -46,19 +46,6 @@ namespace vrm
       eCoherent, eVolatile, eRestrict, eReadOnly, eWriteOnly
     };
 
-    struct Varying
-    {
-      enum class EQualifier : uint8_t
-      {
-        eFlat, eSmooth, eNoPerspective
-      };
-
-      std::string name;
-      std::string type;
-      EQualifier qualifier = EQualifier::eSmooth;
-      std::string enableIf;
-    };
-
     struct Variable
     {
       std::string name;
@@ -66,7 +53,25 @@ namespace vrm
       std::string enableIf;
     };
 
-    using Uniform = Variable;
+    struct VertexAttribute : Variable
+    {
+      std::string layout;
+    };
+
+    struct Varying : Variable
+    {
+      enum class EQualifier : uint8_t
+      {
+        eFlat, eSmooth, eNoPerspective
+      };
+
+      EQualifier qualifier = EQualifier::eSmooth;
+    };
+
+    struct Uniform : Variable
+    {
+
+    };
 
     struct UniformBuffer
     {
@@ -98,6 +103,7 @@ namespace vrm
       std::vector<SourceElement> earlySources;
       std::vector<SourceElement> sources;
       std::vector<Define> defines;
+      std::vector<VertexAttribute> vertexAttributes;
       std::vector<Uniform> uniforms;
       std::vector<UniformBuffer> uniformBuffers;
       std::vector<StorageBuffer> storageBuffers;
@@ -135,6 +141,7 @@ namespace vrm
     void setVersion(const EShaderType& shader, const std::string& version);
     void addExtension(const EShaderType& shader, const Extension& ext);
     void addDefine(const EShaderType& shader, const Define& define);
+    void addVertexAttribute(const VertexAttribute& attrib);
     void addVarying(const EShaderType& shader, const Varying& varying);
     void addUniform(const EShaderType& shader, const Uniform& uniform);
     void addUniformBuffer(const EShaderType& shader, const UniformBuffer& uniformBuffer);
@@ -154,6 +161,7 @@ namespace vrm
     std::string combineVersion(const std::string& global, const std::string& shader) const;
     std::string combineExtensions(const std::vector<Extension>& global, const std::vector<Extension>& shader) const;
     std::string combineDefines(const std::vector<Define>& global, const std::vector<Define>& shader) const;
+    std::string combineVertexAttributes(const std::vector<VertexAttribute>& shader) const;
     std::string combineVaryings(const std::string& prefix, const std::vector<Varying>& varyings) const;
     std::string combineUniforms(const std::vector<Uniform>& global, const std::vector<Uniform>& shader) const;
     std::string combineUniformBuffers(const std::vector<UniformBuffer>& global, const std::vector<UniformBuffer>& shader) const;

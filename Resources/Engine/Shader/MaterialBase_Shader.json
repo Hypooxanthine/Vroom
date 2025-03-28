@@ -1,0 +1,127 @@
+{
+  "Global": {
+    "Version": "450 core",
+    "Defines" : [
+      {
+        "Name": "VRM_PI",
+        "Value": "3.14159265358979323846"
+      }
+    ],
+    "Uniforms": [
+      {
+        "Name": "u_Model",
+        "Type": "mat4"
+      },
+      {
+        "Name": "u_View",
+        "Type": "mat4"
+      },
+      {
+        "Name": "u_Projection",
+        "Type": "mat4"
+      },
+      {
+        "Name": "u_ViewProjection",
+        "Type": "mat4"
+      },
+      {
+        "Name": "u_ViewPosition",
+        "Type": "vec4"
+      },
+      {
+        "Name": "u_Near",
+        "Type": "float"
+      },
+      {
+        "Name": "u_ViewportSize",
+        "Type": "vec2"
+      }
+    ]
+  },
+  "Vertex": {
+    "Sources": [
+      "Resources/Engine/Shader/MaterialBase_Vertex.glsl"
+    ],
+    "VertexAttributes": [
+      {
+        "Name": "position",
+        "Type": "vec3",
+        "Layout": "location = 0"
+      },
+      {
+        "Name": "normal",
+        "Type": "vec3",
+        "Layout": "location = 1"
+      },
+      {
+        "Name": "texCoord",
+        "Type": "vec2",
+        "Layout": "location = 2"
+      }
+    ]
+  },
+  "Fragment": {
+    "EarlySources": [
+      "Resources/Engine/Shader/MaterialBase_FragmentPrototypes.glsl"
+    ],
+    "Sources": [
+      "Resources/Engine/Shader/MaterialBase_Fragment.glsl"
+    ],
+    "StorageBuffers": [
+      {
+        "Name": "LightBlock",
+        "Layout": "std140, binding = 0",
+        "Variables": [
+          {
+            "Name": "pointLightCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "pointLights[]",
+            "Type": "PointLight"
+          }
+        ]
+      },
+      {
+        "Name": "ClusterInfoBlock",
+        "Layout": "std140, binding = 1",
+        "Variables": [
+          {
+            "Name": "xCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "yCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "zCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "clusters[]",
+            "Type": "Cluster"
+          }
+        ]
+      }
+    ]
+  },
+  "Varyings": [
+    {
+      "Name": "v_Position",
+      "Type": "vec3"
+    },
+    {
+      "Name": "v_Normal",
+      "Type": "vec3"
+    },
+    {
+      "Name": "v_TexCoord",
+      "Type": "vec2"
+    },
+    {
+      "Name": "v_CameraDepth",
+      "Type": "float"
+    }
+  ]
+}
