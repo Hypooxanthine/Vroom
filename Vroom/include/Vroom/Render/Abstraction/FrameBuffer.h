@@ -5,7 +5,7 @@
 #include "Vroom/Render/Abstraction/Texture2D.h"
 #include "Vroom/Render/Abstraction/RenderBuffer.h"
 
-namespace vrm
+namespace vrm::gl
 {
 
 class FrameBuffer
@@ -50,4 +50,4 @@ private:
     RenderBuffer m_RenderBuffer;
 };
 
-} // namespace vrm
+} // namespace vrm::gl

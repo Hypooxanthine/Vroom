@@ -2,103 +2,101 @@
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 
-namespace vrm
-{
+using namespace vrm;
+using namespace vrm::gl;
 
 ShaderStorageBufferObject::ShaderStorageBufferObject()
 {
-    GLCall(glGenBuffers(1, &m_RendererID));
+  GLCall(glGenBuffers(1, &m_RendererID));
 }
 
-ShaderStorageBufferObject::ShaderStorageBufferObject(ShaderStorageBufferObject&& other)
+ShaderStorageBufferObject::ShaderStorageBufferObject(ShaderStorageBufferObject &&other)
     : m_RendererID(other.m_RendererID), m_BindingPoint(other.m_BindingPoint)
 {
-    other.m_RendererID = 0;
+  other.m_RendererID = 0;
 }
 
 ShaderStorageBufferObject::~ShaderStorageBufferObject()
 {
-    GLCall_nothrow(glDeleteBuffers(1, &m_RendererID));
+  GLCall_nothrow(glDeleteBuffers(1, &m_RendererID));
 }
 
-ShaderStorageBufferObject& ShaderStorageBufferObject::operator=(ShaderStorageBufferObject&& other)
+ShaderStorageBufferObject &ShaderStorageBufferObject::operator=(ShaderStorageBufferObject &&other)
 {
-    if (this != &other)
-    {
-        this->~ShaderStorageBufferObject();
-        m_RendererID = other.m_RendererID;
-        m_BindingPoint = other.m_BindingPoint;
-        other.m_RendererID = 0;
-    }
+  if (this != &other)
+  {
+    this->~ShaderStorageBufferObject();
+    m_RendererID = other.m_RendererID;
+    m_BindingPoint = other.m_BindingPoint;
+    other.m_RendererID = 0;
+  }
 
-    return *this;
+  return *this;
 }
 
 void ShaderStorageBufferObject::bind() const
 {
-    GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererID));
+  GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererID));
 }
 
 void ShaderStorageBufferObject::unbind() const
 {
-    GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+  GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
 }
 
-void ShaderStorageBufferObject::setData(const void* data, int size)
+void ShaderStorageBufferObject::setData(const void *data, int size)
 {
-    bind();
-    GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, size, data, GL_DYNAMIC_DRAW));
+  bind();
+  GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, size, data, GL_DYNAMIC_DRAW));
 }
 
-void ShaderStorageBufferObject::setSubData(const void* data, int size, int offset)
+void ShaderStorageBufferObject::setSubData(const void *data, int size, int offset)
 {
-    bind();
-    GLCall(glBufferSubData(GL_SHADER_STORAGE_BUFFER, offset, size, data));
+  bind();
+  GLCall(glBufferSubData(GL_SHADER_STORAGE_BUFFER, offset, size, data));
 }
 
 void ShaderStorageBufferObject::clear()
 {
-    setData(nullptr, 0);
+  setData(nullptr, 0);
 }
 
 void ShaderStorageBufferObject::setBindingPoint(unsigned int bindingPoint)
 {
-    m_BindingPoint = bindingPoint;
-    GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_BindingPoint, m_RendererID));
-    m_HasBindingPoint = true;
+  m_BindingPoint = bindingPoint;
+  GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_BindingPoint, m_RendererID));
+  m_HasBindingPoint = true;
 }
 
 unsigned int ShaderStorageBufferObject::getBindingPoint() const
 {
-    return m_BindingPoint;
+  return m_BindingPoint;
 }
 
-void* ShaderStorageBufferObject::mapBuffer(AccessType accessType)
+void *ShaderStorageBufferObject::mapBuffer(AccessType accessType)
 {
-    bind();
-    GLCall(void* ptr = glMapBuffer(GL_SHADER_STORAGE_BUFFER, AccessTypeToGL(accessType)));
-    return ptr;
+  bind();
+  GLCall(void *ptr = glMapBuffer(GL_SHADER_STORAGE_BUFFER, AccessTypeToGL(accessType)));
+  return ptr;
 }
 
 void ShaderStorageBufferObject::unmapBuffer()
 {
-    bind();
-    GLCall(glUnmapBuffer(GL_SHADER_STORAGE_BUFFER));
+  bind();
+  GLCall(glUnmapBuffer(GL_SHADER_STORAGE_BUFFER));
 }
 
 constexpr GLenum ShaderStorageBufferObject::AccessTypeToGL(AccessType accessType)
 {
-    switch (accessType)
-    {
-    case AccessType::READ_ONLY:
-        return GL_READ_ONLY;
-    case AccessType::WRITE_ONLY:
-        return GL_WRITE_ONLY;
-    case AccessType::READ_WRITE:
-        return GL_READ_WRITE;
-    default:
-        return GL_READ_ONLY;
-    }
+  switch (accessType)
+  {
+  case AccessType::READ_ONLY:
+    return GL_READ_ONLY;
+  case AccessType::WRITE_ONLY:
+    return GL_WRITE_ONLY;
+  case AccessType::READ_WRITE:
+    return GL_READ_WRITE;
+  default:
+    return GL_READ_ONLY;
+  }
 }
-
-} // namespace vrm

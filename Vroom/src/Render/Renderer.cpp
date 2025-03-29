@@ -29,15 +29,14 @@ static float SCREEN_QUAD_VERTICES[] = {
     -1.f, -1.f, 0.f, 0.f,
     1.f, -1.f, 1.f, 0.f,
     1.f, 1.f, 1.f, 1.f,
-    -1.f, 1.f, 0.f, 1.f
-};
+    -1.f, 1.f, 0.f, 1.f};
 
 static unsigned int SCREEN_QUAD_INDICES[] = {
     0, 1, 2,
-    2, 3, 0
-};
+    2, 3, 0};
 
 using namespace vrm;
+using namespace vrm::gl;
 
 std::unique_ptr<Renderer> Renderer::s_Instance = nullptr;
 
@@ -58,7 +57,7 @@ Renderer::~Renderer()
 void Renderer::Init()
 {
   VRM_ASSERT_MSG(s_Instance == nullptr, "Renderer already initialized.");
-  auto* privateRenderer = new Renderer();
+  auto *privateRenderer = new Renderer();
   s_Instance = std::unique_ptr<Renderer>(privateRenderer);
 }
 
@@ -67,26 +66,26 @@ void Renderer::Shutdown()
   s_Instance.reset();
 }
 
-Renderer& Renderer::Get()
+Renderer &Renderer::Get()
 {
   VRM_ASSERT_MSG(s_Instance != nullptr, "Renderer not initialized.");
   return *s_Instance;
 }
 
-void Renderer::beginScene(const CameraBasic& camera)
+void Renderer::beginScene(const CameraBasic &camera)
 {
   m_Camera = &camera;
 
   m_LightRegistry.beginFrame();
 }
 
-void Renderer::endScene(const FrameBuffer& target)
+void Renderer::endScene(const FrameBuffer &target)
 {
   // Setting up lights
   m_LightRegistry.endFrame();
 
   // Clustered shading
-  m_ClusteredLights.setupClusters({ 12, 12, 24 }, *m_Camera);
+  m_ClusteredLights.setupClusters({12, 12, 24}, *m_Camera);
   m_ClusteredLights.processLights(*m_Camera);
 
   // Rendering to the requested target
@@ -95,7 +94,7 @@ void Renderer::endScene(const FrameBuffer& target)
   GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
 
   // Drawing meshes
-  for (const auto& mesh : m_Meshes)
+  for (const auto &mesh : m_Meshes)
   {
     drawMesh(mesh.mesh, mesh.model);
   }
@@ -105,31 +104,31 @@ void Renderer::endScene(const FrameBuffer& target)
   m_Meshes.clear();
 }
 
-void Renderer::submitMesh(const MeshInstance& mesh, const glm::mat4& model)
+void Renderer::submitMesh(const MeshInstance &mesh, const glm::mat4 &model)
 {
-  m_Meshes.push_back({ mesh, model });
+  m_Meshes.push_back({mesh, model});
 }
 
-void Renderer::submitPointLight(const glm::vec3& position, const PointLightComponent& pointLight, const std::string& identifier)
+void Renderer::submitPointLight(const glm::vec3 &position, const PointLightComponent &pointLight, const std::string &identifier)
 {
   m_LightRegistry.submitPointLight(pointLight, position, identifier);
 }
 
-void Renderer::drawMesh(const MeshInstance& mesh, const glm::mat4& model) const
+void Renderer::drawMesh(const MeshInstance &mesh, const glm::mat4 &model) const
 {
   VRM_DEBUG_ASSERT_MSG(m_Camera, "No camera set for rendering. Did you call beginScene?");
 
-  const auto& subMeshes = mesh.getStaticAsset()->getSubMeshes();
+  const auto &subMeshes = mesh.getStaticAsset()->getSubMeshes();
 
   const auto cameraPos = m_Camera->getPosition();
 
-  for (const auto& subMesh : subMeshes)
+  for (const auto &subMesh : subMeshes)
   {
     // Binding data
     subMesh.renderMesh.getVertexArray().bind();
     subMesh.renderMesh.getIndexBuffer().bind();
 
-    const Shader& shader = subMesh.materialInstance.getStaticAsset()->getShader();
+    const Shader &shader = subMesh.materialInstance.getStaticAsset()->getShader();
     shader.bind();
 
     // Setting uniforms
@@ -149,7 +148,7 @@ void Renderer::drawMesh(const MeshInstance& mesh, const glm::mat4& model) const
       std::vector<int> textureSlots(textureCount);
       for (size_t i = 0; i < textureCount; ++i)
       {
-        const auto& texture = subMesh.materialInstance.getStaticAsset()->getTexture(i);
+        const auto &texture = subMesh.materialInstance.getStaticAsset()->getTexture(i);
         texture.getStaticAsset()->getGPUTexture().bind((unsigned int)i);
         textureSlots[i] = (int)i;
       }
@@ -160,32 +159,30 @@ void Renderer::drawMesh(const MeshInstance& mesh, const glm::mat4& model) const
     // Drawing data
     GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)subMesh.renderMesh.getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr));
   }
-
 }
 
-const glm::vec<2, unsigned int>& Renderer::getViewportOrigin() const
+const glm::vec<2, unsigned int> &Renderer::getViewportOrigin() const
 {
   return m_ViewportOrigin;
 }
 
-const glm::vec<2, unsigned int>& Renderer::getViewportSize() const
+const glm::vec<2, unsigned int> &Renderer::getViewportSize() const
 {
   return m_ViewportSize;
 }
 
-void Renderer::setViewport(const glm::vec<2, unsigned int>& o, const glm::vec<2, unsigned int>& s)
+void Renderer::setViewport(const glm::vec<2, unsigned int> &o, const glm::vec<2, unsigned int> &s)
 {
   setViewportOrigin(o);
   setViewportSize(s);
 }
 
-void Renderer::setViewportOrigin(const glm::vec<2, unsigned int>& o)
+void Renderer::setViewportOrigin(const glm::vec<2, unsigned int> &o)
 {
   m_ViewportOrigin = o;
 }
 
-void Renderer::setViewportSize(const glm::vec<2, unsigned int>& s)
+void Renderer::setViewportSize(const glm::vec<2, unsigned int> &s)
 {
   m_ViewportSize = s;
 }
-

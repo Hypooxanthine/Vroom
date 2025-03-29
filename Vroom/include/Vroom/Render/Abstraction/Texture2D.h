@@ -5,7 +5,7 @@
 
 #include "Vroom/Asset/AssetData/TextureData.h"
 
-namespace vrm
+namespace vrm::gl
 {
 
 class Texture2D
@@ -44,4 +44,4 @@ private:
     unsigned int m_RendererID = 0;
 };
 
-} // namespace vrm
+} // namespace vrm::gl

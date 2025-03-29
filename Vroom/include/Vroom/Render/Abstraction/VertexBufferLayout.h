@@ -3,7 +3,7 @@
 #include <vector>
 #include "Vroom/Render/Abstraction/GLCall.h"
 
-namespace vrm
+namespace vrm::gl
 {
 
 /**
@@ -98,4 +98,4 @@ private:
 	unsigned int m_Stride;
 };
 
-} // namespace vrm
+} // namespace vrm::gl

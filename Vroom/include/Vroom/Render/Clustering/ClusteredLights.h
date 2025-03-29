@@ -38,7 +38,7 @@ namespace vrm
     unsigned int m_TotalClusters;
     glm::mat4 m_Projection;
 
-    Shader m_ClustersBuilder, m_LightsCuller;
+    gl::Shader m_ClustersBuilder, m_LightsCuller;
   };
 
 } // namespace vrm

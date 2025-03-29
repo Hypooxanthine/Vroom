@@ -7,27 +7,27 @@
 namespace vrm
 {
 
-class TextureAsset : public StaticAsset
-{
-public:
+  class TextureAsset : public StaticAsset
+  {
+  public:
     using InstanceType = TextureInstance;
 
-public:
+  public:
     TextureAsset();
     ~TextureAsset();
 
     [[nodiscard]] TextureInstance createInstance();
 
-    [[nodiscard]] inline const Texture2D& getGPUTexture() const { return m_GPUTexture; }
+    [[nodiscard]] inline const gl::Texture2D &getGPUTexture() const { return m_GPUTexture; }
 
-    [[nodiscard]] inline const ByteTextureData& getTextureData() const { return m_TextureData; }
+    [[nodiscard]] inline const ByteTextureData &getTextureData() const { return m_TextureData; }
 
-protected:
-    bool loadImpl(const std::string& filePath) override;
+  protected:
+    bool loadImpl(const std::string &filePath) override;
 
-private:
+  private:
     ByteTextureData m_TextureData;
-    Texture2D m_GPUTexture;
-};
+    gl::Texture2D m_GPUTexture;
+  };
 
 } // namespace vrm

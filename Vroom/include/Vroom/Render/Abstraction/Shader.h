@@ -8,7 +8,7 @@
 
 #include "glm/glm.hpp"
 
-namespace vrm
+namespace vrm::gl
 {
 
 class Shader
@@ -148,4 +148,4 @@ private:
   GLString m_errorRecord;
 };
 
-} // namespace vrm
+} // namespace vrm::gl

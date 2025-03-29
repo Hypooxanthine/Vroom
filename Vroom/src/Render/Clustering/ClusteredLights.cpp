@@ -18,7 +18,7 @@ ClusteredLights::ClusteredLights()
 
   auto shaderSrc = builderData.combine();
   VRM_ASSERT_MSG(
-    m_ClustersBuilder.addShaderStage(Shader::EShaderType::eCompute, shaderSrc.compute.sourceCode, true),
+    m_ClustersBuilder.addShaderStage(gl::Shader::EShaderType::eCompute, shaderSrc.compute.sourceCode, true),
     "Could not compile {} compute shader. Error:\n{}", builderPath, m_ClustersBuilder.getError()
   );
 
@@ -35,7 +35,7 @@ ClusteredLights::ClusteredLights()
 
   shaderSrc = cullerData.combine();
   VRM_ASSERT_MSG(
-    m_LightsCuller.addShaderStage(Shader::EShaderType::eCompute, shaderSrc.compute.sourceCode, true),
+    m_LightsCuller.addShaderStage(gl::Shader::EShaderType::eCompute, shaderSrc.compute.sourceCode, true),
     "Could not compile {} compute shader. Error:\n{}", cullerPath, m_LightsCuller.getError()
   );
 

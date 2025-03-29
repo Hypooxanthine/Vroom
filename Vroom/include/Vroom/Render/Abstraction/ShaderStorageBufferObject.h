@@ -2,7 +2,7 @@
 
 #include <GL/glew.h>
 
-namespace vrm
+namespace vrm::gl
 {
 
 class ShaderStorageBufferObject
@@ -49,4 +49,4 @@ private:
     unsigned int m_BindingPoint;
 };
 
-} // namespace vrm
+} // namespace vrm::gl

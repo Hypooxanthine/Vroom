@@ -23,14 +23,14 @@ public:
 
     ~RenderMesh();
 
-    const VertexArray& getVertexArray() const { return m_VertexArray; }
-    const IndexBuffer& getIndexBuffer() const { return m_IndexBuffer; }
+    const gl::VertexArray& getVertexArray() const { return m_VertexArray; }
+    const gl::IndexBuffer& getIndexBuffer() const { return m_IndexBuffer; }
 
 private:
-    VertexBuffer m_VertexBuffer;
-    IndexBuffer m_IndexBuffer;
-    VertexArray m_VertexArray;
-    VertexBufferLayout m_VertexBufferLayout;
+    gl::VertexBuffer m_VertexBuffer;
+    gl::IndexBuffer m_IndexBuffer;
+    gl::VertexArray m_VertexArray;
+    gl::VertexBufferLayout m_VertexBufferLayout;
 };
 
 } // namespace vrm

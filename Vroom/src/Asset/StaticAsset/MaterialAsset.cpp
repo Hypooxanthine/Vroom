@@ -34,13 +34,13 @@ bool MaterialAsset::loadImpl(const std::string& filePath)
 
   bool compileOk = true;
 
-  if (!m_Shader.addShaderStage(Shader::EShaderType::eVertex, shadersData.vertex, true))
+  if (!m_Shader.addShaderStage(gl::Shader::EShaderType::eVertex, shadersData.vertex, true))
   {
     VRM_LOG_ERROR("Failed to add vertex shader. Error:\n{}", m_Shader.getError());
     compileOk = false;
   }
 
-  if (!m_Shader.addShaderStage(Shader::EShaderType::eFragment, shadersData.fragment, true))
+  if (!m_Shader.addShaderStage(gl::Shader::EShaderType::eFragment, shadersData.fragment, true))
   {
     VRM_LOG_ERROR("Failed to add fragment shader. Error:\n{}", m_Shader.getError());
     compileOk = false;

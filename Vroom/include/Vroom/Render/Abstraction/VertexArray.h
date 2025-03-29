@@ -1,6 +1,6 @@
 #pragma once
 
-namespace vrm
+namespace vrm::gl
 {
 
 class VertexBuffer;
@@ -47,4 +47,4 @@ private:
 	unsigned int m_RendererID;
 };
 
-} // namespace vrm
+} // namespace vrm::gl

@@ -74,7 +74,7 @@ void EditorLayer::onInit()
                                              { Application::Get().exit(); });
 
   // Frame buffer
-  FrameBuffer::Specification specs = {
+  gl::FrameBuffer::Specification specs = {
       .onScreen = true,
       .width = app.getWindow().getWidth(),
       .height = app.getWindow().getHeight(),

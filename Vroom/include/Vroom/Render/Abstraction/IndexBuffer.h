@@ -1,6 +1,6 @@
 #pragma once
 
-namespace vrm
+namespace vrm::gl
 {
 
 class IndexBuffer
@@ -45,4 +45,4 @@ private:
 	unsigned int m_Count;
 };
 
-} // namespace vrm
+} // namespace vrm::gl

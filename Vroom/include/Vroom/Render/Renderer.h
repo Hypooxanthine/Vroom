@@ -23,7 +23,10 @@ namespace vrm
 class Application;
 class Scene;
 struct PointLightComponent;
-class FrameBuffer;
+namespace gl
+{
+  class FrameBuffer;
+}
 
 /**
  * @brief The renderer is responsible for rendering objects on the scene, taking lights and cameras into consideration.
@@ -71,7 +74,7 @@ public:
 	 * @param target The frame buffer to render the scene to.
 	 * 
 	 */
-	void endScene(const FrameBuffer& target);
+	void endScene(const gl::FrameBuffer& target);
 
 	/**
 	 * @brief Submits a mesh to be drawn.

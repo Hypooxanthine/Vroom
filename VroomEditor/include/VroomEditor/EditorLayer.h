@@ -45,7 +45,7 @@ private:
   void onViewportResize(int newWidth, int newHeight);
 
 private:
-  FrameBuffer m_FrameBuffer;
+  gl::FrameBuffer m_FrameBuffer;
   CustomEventManager m_CustomEventManager;
   TriggerManager m_TriggerManager;
   bool m_SceneLoaded = false;

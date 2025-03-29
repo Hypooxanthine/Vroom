@@ -7,7 +7,10 @@
 namespace vrm
 {
 
-class Shader;
+namespace gl
+{
+  class Shader;
+}
 
 class MaterialData
 {
@@ -15,7 +18,7 @@ public:
     MaterialData();
     ~MaterialData();
 
-    void applyUniforms(const Shader& shader) const;
+    void applyUniforms(const gl::Shader& shader) const;
 
     void setMat4Uniform(const std::string& name, const glm::mat4& value);
     void setVec4Uniform(const std::string& name, const glm::vec4& value);

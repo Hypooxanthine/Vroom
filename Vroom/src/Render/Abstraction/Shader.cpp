@@ -7,6 +7,7 @@
 #include "Vroom/Core/Log.h"
 
 using namespace vrm;
+using namespace vrm::gl;
 
 Shader::Shader()
 {

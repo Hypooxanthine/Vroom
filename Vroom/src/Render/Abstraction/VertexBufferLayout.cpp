@@ -1,10 +1,8 @@
 #include "Vroom/Render/Abstraction/VertexBufferLayout.h"
 
-namespace vrm
-{
+using namespace vrm;
+using namespace vrm::gl;
 
 VertexBufferLayout::~VertexBufferLayout()
 {
 }
-
-} // namespace vrm

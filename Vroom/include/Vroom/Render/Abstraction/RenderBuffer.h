@@ -1,6 +1,6 @@
 #pragma once
 
-namespace vrm
+namespace vrm::gl
 {
 
 class RenderBuffer
@@ -21,4 +21,4 @@ private:
     int m_Width, m_Height;
 };
 
-} // namespace vrm
+} // namespace vrm::gl

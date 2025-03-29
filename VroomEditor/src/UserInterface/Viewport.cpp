@@ -86,7 +86,10 @@ bool Viewport::onImgui()
 
   if (m_DidSizeChangeLastFrame)
   {
-    ui.onViewportResize(m_LastViewportSize.x, m_LastViewportSize.y);
+    ui.onViewportResize(
+      static_cast<int>(m_LastViewportSize.x),
+      static_cast<int>(m_LastViewportSize.y)
+    );
   }
 
   ui.onViewportActive(m_Active);

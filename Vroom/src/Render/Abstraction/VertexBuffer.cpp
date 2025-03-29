@@ -2,47 +2,45 @@
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 
-namespace vrm
-{
+using namespace vrm;
+using namespace vrm::gl;
 
-VertexBuffer::VertexBuffer(const void* data, unsigned int size)
-	: m_RendererID(0)
+VertexBuffer::VertexBuffer(const void *data, unsigned int size)
+    : m_RendererID(0)
 {
-	GLCall(glGenBuffers(1, &m_RendererID));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_RendererID));
-	GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+  GLCall(glGenBuffers(1, &m_RendererID));
+  GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_RendererID));
+  GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
 }
 
-VertexBuffer::VertexBuffer(VertexBuffer&& other)
-	: m_RendererID(other.m_RendererID)
+VertexBuffer::VertexBuffer(VertexBuffer &&other)
+    : m_RendererID(other.m_RendererID)
 {
-	other.m_RendererID = 0;
+  other.m_RendererID = 0;
 }
 
-VertexBuffer& VertexBuffer::operator=(VertexBuffer&& other)
+VertexBuffer &VertexBuffer::operator=(VertexBuffer &&other)
 {
-	if (this != &other)
-	{
-		m_RendererID = other.m_RendererID;
-		other.m_RendererID = 0;
-	}
+  if (this != &other)
+  {
+    m_RendererID = other.m_RendererID;
+    other.m_RendererID = 0;
+  }
 
-	return *this;
+  return *this;
 }
 
 VertexBuffer::~VertexBuffer()
 {
-	GLCall_nothrow(glDeleteBuffers(1, &m_RendererID));
+  GLCall_nothrow(glDeleteBuffers(1, &m_RendererID));
 }
 
 void VertexBuffer::bind() const
 {
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_RendererID));
+  GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_RendererID));
 }
 
 void VertexBuffer::unbind() const
 {
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+  GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
-
-} // namespace vrm

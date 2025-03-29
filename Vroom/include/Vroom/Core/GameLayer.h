@@ -28,14 +28,14 @@ public:
    *
    * @return const FrameBuffer& The frame buffer of the game layer.
    */
-  inline FrameBuffer &getFrameBuffer() { return m_FrameBuffer; }
+  inline gl::FrameBuffer &getFrameBuffer() { return m_FrameBuffer; }
 
   /**
    * @brief Get the frame buffer of the game layer.
    *
    * @return const FrameBuffer& The frame buffer of the game layer.
    */
-  inline const FrameBuffer &getFrameBuffer() const { return m_FrameBuffer; }
+  inline const gl::FrameBuffer &getFrameBuffer() const { return m_FrameBuffer; }
 
   /**
    * @brief Loads a scene into the game layer. Scene will start at the beginning of the next frame.
@@ -130,7 +130,7 @@ protected:
   void onEvent(Event &e) override;
 
 private:
-  FrameBuffer m_FrameBuffer;
+  gl::FrameBuffer m_FrameBuffer;
   std::unique_ptr<Scene> m_CurrentScene, m_NextScene;
 
   TriggerManager m_TriggerManager;
