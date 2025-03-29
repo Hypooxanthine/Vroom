@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 
-#include "Vroom/Render/Clustering/Cluster.h"
 #include "Vroom/Render/RawShaderData/SSBOClusterInfo.h"
 
 #include "Vroom/Render/Abstraction/DynamicSSBO.h"
