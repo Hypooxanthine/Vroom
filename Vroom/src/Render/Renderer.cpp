@@ -157,7 +157,7 @@ void Renderer::drawMesh(const MeshInstance &mesh, const glm::mat4 &model) const
     }
 
     // Drawing data
-    GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)subMesh.renderMesh.getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr));
+    GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)subMesh.meshData.getIndexCount(), GL_UNSIGNED_INT, nullptr));
   }
 }
 

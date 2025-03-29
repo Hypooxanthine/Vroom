@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Vroom/Render/Abstraction/Vertex.h"
 #include "Vroom/Asset/AssetData/MeshData.h"
 
 #include "Vroom/Render/Abstraction/VertexArray.h"
@@ -27,7 +28,7 @@ public:
     const gl::IndexBuffer& getIndexBuffer() const { return m_IndexBuffer; }
 
 private:
-    gl::VertexBuffer m_VertexBuffer;
+    gl::VertexBuffer<Vertex> m_VertexBuffer;
     gl::IndexBuffer m_IndexBuffer;
     gl::VertexArray m_VertexArray;
     gl::VertexBufferLayout m_VertexBufferLayout;

@@ -34,7 +34,7 @@ VertexArray::~VertexArray()
   GLCall_nothrow(glDeleteVertexArrays(1, &m_RendererID));
 }
 
-void VertexArray::addBuffer(const VertexBuffer &vb, const VertexBufferLayout &layout)
+void VertexArray::addBuffer(const VertexBuffer<Vertex> &vb, const VertexBufferLayout &layout)
 {
   vb.bind();
   GLCall(glBindVertexArray(m_RendererID));

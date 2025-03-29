@@ -1,9 +1,11 @@
 #pragma once
 
+#include "Vroom/Render/Abstraction/VertexBuffer.h"
+#include "Vroom/Render/Abstraction/Vertex.h"
+
 namespace vrm::gl
 {
 
-class VertexBuffer;
 class VertexBufferLayout;
 
 class VertexArray
@@ -31,7 +33,7 @@ public:
 	 * @param vb Vertex buffer to add.
 	 * @param layout Corresponding layout.
 	 */
-	void addBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout);
+	void addBuffer(const VertexBuffer<Vertex>& vb, const VertexBufferLayout& layout);
 
 	/**
 	 * @brief Binds this vertex array.
