@@ -78,7 +78,7 @@ using json = nlohmann::json;
   CHECK_ATTR_TYPE(x, attr, float)
 
 #define IF_HAS_ATTR_TYPE(x, attr, type)\
-  IF_HAS_ATTR(x, attr);\
+  IF_HAS_ATTR(x, attr){}\
   std::optional<type> attr##Val##_opt;\
   if (attr##_opt.has_value())\
   {\
