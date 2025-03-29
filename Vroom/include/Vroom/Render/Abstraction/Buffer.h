@@ -41,6 +41,8 @@ namespace vrm::gl
     {
       if (this != &other)
       {
+        this->~Buffer();
+
         m_renderID = std::move(other.m_renderID);
         m_capacity = std::move(other.m_capacity);
 
@@ -51,7 +53,7 @@ namespace vrm::gl
       return *this;
     }
 
-    inline constexpr GLuint getRenderId() const { return m_renderID; }
+    inline constexpr GLuint getRenderID() const { return m_renderID; }
     inline constexpr GLuint getCapacity() const { return m_capacity; }
 
     inline void bind() const
@@ -73,12 +75,17 @@ namespace vrm::gl
 
     inline void setData(const void* data, GLsizei dataSize, GLintptr offset = 0, GLenum usage = GL_DYNAMIC_DRAW)
     {
-      if (m_renderID == 0 || dataSize > m_capacity)
+      if (m_renderID == 0)
       {
-        reset(dataSize, usage);
+        // For the first setData, we let user create and assign data in the same time
+        reset(dataSize + static_cast<GLuint>(offset), usage);
       }
       else
       {
+        // After that, user can set sub data if he wants,
+        // but he has to make sure the buffer is large enough
+        // (recreate it, or ensure it is large enough at creation)
+        VRM_ASSERT_MSG(dataSize + offset <= m_capacity, "Buffer is too small. Please use reset() with a correct capacity first. In last resort, use a DynamicStorageBuffer");
         bind();
       }
 

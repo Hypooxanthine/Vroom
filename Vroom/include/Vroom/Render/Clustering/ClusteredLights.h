@@ -32,7 +32,7 @@ namespace vrm
 
   private:
     SSBOClusterInfo m_SSBOClusterInfoData;
-    DynamicSSBO m_SSBOClusterInfoSSBO;
+    gl::DynamicSSBO m_SSBOClusterInfoSSBO;
 
     glm::uvec3 m_ClusterCount;
     unsigned int m_TotalClusters;

@@ -5,6 +5,7 @@
 #include <unordered_set>
 
 #include "Vroom/Render/Abstraction/GLCall.h"
+#include "Vroom/Render/Abstraction/StorageBuffer.h"
 
 #include "glm/glm.hpp"
 
@@ -130,6 +131,8 @@ public:
 	 */
 	void setUniformMat4f(const GLString& name, const glm::mat4& mat) const;
 
+  void setStorageBuffer(const GLString& name, const StorageBuffer& ssbo);
+
 	/**
 	 * @brief Gets OpenGL ID from this shader.
 	 * @return OpenGL ID.
@@ -139,10 +142,12 @@ public:
 private:
 	GLuint CompileShader(GLenum type, const GLString& source, bool recordErrors);
 	int getUniformLocation(const GLString& name) const;
+  GLuint getStorageBufferIndex(const GLString& name) const;
 	
 private:
 	unsigned int m_RendererID = 0;
 	mutable std::unordered_map<GLString, int> m_UniformLocationCache;
+  mutable std::unordered_map<GLString, GLuint> m_ssboIndexCache;
 
   std::unordered_set<GLuint> m_attachedShaders;
   GLString m_errorRecord;

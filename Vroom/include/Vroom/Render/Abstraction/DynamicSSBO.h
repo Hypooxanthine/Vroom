@@ -4,7 +4,7 @@
 
 #include "Vroom/Render/Abstraction/ShaderStorageBufferObject.h"
 
-namespace vrm
+namespace vrm::gl
 {
 
   class DynamicSSBO

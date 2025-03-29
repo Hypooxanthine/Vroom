@@ -44,7 +44,7 @@ private:
     // Point lights that are currently in the scene
     std::unordered_map<int, SSBOPointLightData> m_PointLights;
     // SSBO for point lights
-    DynamicSSBO m_SSBOPointLights;
+    gl::DynamicSSBO m_SSBOPointLights;
     // Identifiers point to the address of the light in the SSBO
     std::unordered_map<std::string, int> m_PointLightAddresses;
 

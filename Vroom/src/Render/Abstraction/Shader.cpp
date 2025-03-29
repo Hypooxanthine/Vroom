@@ -114,18 +114,6 @@ Shader::GLString Shader::getError()
   return std::move(error);
 }
 
-int Shader::getUniformLocation(const GLString& name) const
-{
-  if (m_UniformLocationCache.contains(name))
-    return m_UniformLocationCache[name];
-
-  GLCall(int location = glGetUniformLocation(m_RendererID, name.c_str()));
-
-  m_UniformLocationCache[name] = location;
-
-  return location;
-}
-
 void Shader::unload()
 {
   if (m_RendererID != 0)
@@ -195,4 +183,36 @@ void Shader::setUniform4f(const GLString& name, float v0, float v1, float v2, fl
 void Shader::setUniformMat4f(const GLString& name, const glm::mat4& mat) const
 {
   GLCall(glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &mat[0][0]));
+}
+
+int Shader::getUniformLocation(const GLString& name) const
+{
+  if (m_UniformLocationCache.contains(name))
+    return m_UniformLocationCache.at(name);
+
+  GLCall(int location = glGetUniformLocation(m_RendererID, name.c_str()));
+
+  m_UniformLocationCache[name] = location;
+
+  return location;
+}
+
+GLuint Shader::getStorageBufferIndex(const GLString& name) const
+{
+  if (!m_ssboIndexCache.contains(name))
+  {
+    GLuint ssboIndex = glGetProgramResourceIndex(m_RendererID, GL_SHADER_STORAGE_BLOCK, name.c_str());
+    m_ssboIndexCache[name] = ssboIndex;
+
+    VRM_CHECK_MSG(ssboIndex != GL_INVALID_INDEX, "Could not find StorageBuffer \"{}\" in shader. Maybe it is dead code ?");
+  }
+
+  return m_ssboIndexCache.at(name);
+}
+
+void Shader::setStorageBuffer(const GLString& name, const StorageBuffer& ssbo)
+{
+  VRM_ASSERT_MSG(ssbo.isBindingPointValid(), "Invalid StorageBuffer binding point");
+
+  glShaderStorageBlockBinding(m_RendererID, getStorageBufferIndex(name), ssbo.getBindingPoint());
 }
