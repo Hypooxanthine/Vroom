@@ -82,7 +82,7 @@
     return retVal;                           \
   }
 
-#define VRM_CHECK_RET(x) VRM_CHECK_RETVAL(x)
+#define VRM_CHECK_RET(x) VRM_CHECK_RETVAL(x, )
 
 #define VRM_CHECK_RET_MSG(x, ...) VRM_CHECK_RETVAL_MSG(x, , __VA_ARGS__)
 

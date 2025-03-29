@@ -113,6 +113,8 @@ namespace vrm
     {
       EShaderType type;
       std::string sourceCode;
+
+      void dump(const std::string& path) const;
     };
 
     struct FullShader

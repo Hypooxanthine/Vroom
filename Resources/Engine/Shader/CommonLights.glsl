@@ -1,5 +1,5 @@
-#ifndef __COMMONLIGHTS_GLSL__
-#define __COMMONLIGHTS_GLSL__
+#ifndef _COMMONLIGHTS_GLSL_
+#define _COMMONLIGHTS_GLSL_
 
 struct PointLight
 {

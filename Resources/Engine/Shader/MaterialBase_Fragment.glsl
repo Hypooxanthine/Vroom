@@ -1,5 +1,5 @@
-#ifndef __MATERIALBASE_FRAGMENT_GLSL__
-#define __MATERIALBASE_FRAGMENT_GLSL__
+#ifndef _MATERIALBASE_FRAGMENT_GLSL_
+#define _MATERIALBASE_FRAGMENT_GLSL_
 
 layout(location = 0) out vec4 finalColor;
 

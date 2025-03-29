@@ -146,7 +146,7 @@ PARSER_FUNC(ParseDefine)
     d.name = jVal;
   ELSE
   {
-    CHECK_ARRAY(j);
+    CHECK_OBJECT(j);
     CHECK_ATTR_STRING(j, Name);
     d.name = NameVal;
 
@@ -312,6 +312,8 @@ PARSER_FUNC(ParseStorageBuffer)
   IF_HAS_ATTR_STRING(j, EnableIf)
     sb.enableIf = EnableIfVal;
 
+  out.addStorageBuffer(type, sb);
+
   return true;
 }
 
@@ -445,7 +447,8 @@ bool ShaderParsing::Parse(const json& j, ShaderData& out)
   {
     if (j.contains(str))
     {
-      CHECK(ParseShader(type, j.at(str), out), "Error while parsing shader");
+      CHECK(ParseShader(type, j.at(str), data), "Error while parsing shader");
+      data.setShaderEnabled(type, true);
     }
   }
 

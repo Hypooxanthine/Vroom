@@ -44,7 +44,7 @@ using json = nlohmann::json;
   IF_TYPE(x, float)
 
 #define CHECK_TYPE(x, type) \
-  CHECK(IsType<type>(x), "Json element must be of type " #type)
+  CHECK(IsType<type>(x), "Json element must be of type " #type ":\n{}", x.dump(2));
 
 #define CHECK_STRING(x) \
   CHECK_TYPE(x, std::string)\

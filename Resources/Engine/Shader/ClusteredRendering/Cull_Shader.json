@@ -33,7 +33,7 @@
     "StorageBuffers": [
       {
         "Name": "LightBlock",
-        "Layout": "std140, binding = 0",
+        "Layout": "std430, binding = 0",
         "Variables": [
           {
             "Name": "pointLightCount",
@@ -47,7 +47,7 @@
       },
       {
         "Name": "ClusterInfoBlock",
-        "Layout": "std140, binding = 1",
+        "Layout": "std430, binding = 1",
         "Variables": [
           {
             "Name": "xCount",

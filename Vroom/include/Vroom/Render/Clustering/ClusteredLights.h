@@ -1,31 +1,22 @@
 #pragma once
 
-/**
- * @file ClusteredLights.h
- * @author Alexandre Beaujon
- * @brief With the great help of https://github.com/DaveH355/clustered-shading .
- * @date 2024-07-12
- * 
- */
-
 #include <vector>
 #include <string>
-
-#include "Vroom/Asset/AssetInstance/ComputeShaderInstance.h"
 
 #include "Vroom/Render/Clustering/Cluster.h"
 #include "Vroom/Render/RawShaderData/SSBOClusterInfo.h"
 
 #include "Vroom/Render/Abstraction/DynamicSSBO.h"
+#include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
 
 
 namespace vrm
 {
 
-class ClusteredLights
-{
-public:
+  class ClusteredLights
+  {
+  public:
     ClusteredLights();
     ClusteredLights(const ClusteredLights&) = default;
     ClusteredLights(ClusteredLights&&) = default;
@@ -40,7 +31,7 @@ public:
 
     void processLights(const CameraBasic& camera);
 
-private:
+  private:
     SSBOClusterInfo m_SSBOClusterInfoData;
     DynamicSSBO m_SSBOClusterInfoSSBO;
 
@@ -48,7 +39,7 @@ private:
     unsigned int m_TotalClusters;
     glm::mat4 m_Projection;
 
-    ComputeShaderInstance m_ClustersBuilder, m_LightsCuller;
-};
+    Shader m_ClustersBuilder, m_LightsCuller;
+  };
 
 } // namespace vrm

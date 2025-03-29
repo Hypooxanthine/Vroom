@@ -10,11 +10,10 @@
 
 #include "Vroom/Asset/StaticAsset/TextureAsset.h"
 
-namespace vrm
-{
+using namespace vrm;
 
 MaterialAsset::MaterialAsset()
-    : StaticAsset()
+  : StaticAsset()
 {
 }
 
@@ -24,28 +23,42 @@ MaterialAsset::~MaterialAsset()
 
 MaterialInstance MaterialAsset::createInstance()
 {
-    return MaterialInstance(this);
+  return MaterialInstance(this);
 }
 
 bool MaterialAsset::loadImpl(const std::string& filePath)
 {
-    VRM_LOG_INFO("Loading material: {}", filePath);
+  VRM_LOG_INFO("Loading material: {}", filePath);
 
-    auto shadersData = MaterialParsing::Parse(filePath);
+  auto shadersData = MaterialParsing::Parse(filePath);
 
-    if (!m_Shader.loadFromSource(shadersData.vertex, shadersData.fragment))
-    {
-        VRM_LOG_ERROR("Failed to load material: {}", filePath);
-        return false;
-    }
+  bool compileOk = true;
 
-    // Loading textures
-    for (const std::string& texturePath : shadersData.texturePaths)
-    {
-        m_Textures.emplace_back(AssetManager::Get().getAsset<TextureAsset>(texturePath));
-    }
+  if (!m_Shader.addShaderStage(Shader::EShaderType::eVertex, shadersData.vertex, true))
+  {
+    VRM_LOG_ERROR("Failed to add vertex shader. Error:\n{}", m_Shader.getError());
+    compileOk = false;
+  }
 
-    return true;
+  if (!m_Shader.addShaderStage(Shader::EShaderType::eFragment, shadersData.fragment, true))
+  {
+    VRM_LOG_ERROR("Failed to add fragment shader. Error:\n{}", m_Shader.getError());
+    compileOk = false;
+  }
+
+  if (!m_Shader.validate(true))
+  {
+    VRM_LOG_ERROR("Failed to validate shader. Error:\n{}", m_Shader.getError());
+    compileOk = false;
+  }
+
+  VRM_CHECK_RET_FALSE_MSG(compileOk, "Failed to load material: {}", filePath);
+
+  // Loading textures
+  for (const std::string& texturePath : shadersData.texturePaths)
+  {
+    m_Textures.emplace_back(AssetManager::Get().getAsset<TextureAsset>(texturePath));
+  }
+
+  return true;
 }
-
-} // namespace vrm

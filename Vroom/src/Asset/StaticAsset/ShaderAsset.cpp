@@ -1,79 +1,35 @@
 #include "Vroom/Asset/StaticAsset/ShaderAsset.h"
 
-#include <fstream>
-#include <sstream>
-#include <unordered_map>
-
 #include "Vroom/Core/Assert.h"
+#include "Vroom/Asset/Parsing/ShaderParsing.h"
 
-namespace vrm
-{
+#include <nlohmann/json.hpp>
+#include <fstream>
 
-ShaderAsset::ShaderAsset()
-    : StaticAsset()
-{
-}
+using namespace vrm;
 
-ShaderAsset::~ShaderAsset()
-{
-}
-
-ShaderInstance ShaderAsset::createInstance()
-{
-    return ShaderInstance(this);
-}
-
-// This will log an error message and return false if the file couldn't be opened (doesn't crash the application)
-#define SOFT_ASSERT_MSG(x, ...) if(!(x)) { VRM_LOG_ERROR(__VA_ARGS__); return false; }
+VRM_IMPL_STATIC_ASSET(Shader)
 
 bool ShaderAsset::loadImpl(const std::string& filePath)
 {
-    std::ifstream file(filePath);
-    SOFT_ASSERT_MSG(file.is_open(), "Failed to open file: {}", filePath);
-    
-    std::unordered_map<std::string, std::string> shaderPaths;
+  using json = nlohmann::json;
 
-    std::string line;
-    size_t lineNum = 0;
-    for (; std::getline(file, line); ++lineNum)
-    {        
-        std::istringstream stream(line);
-        std::string token;
+  std::ifstream ifs;
+  ifs.open(filePath);
+  if (!ifs.is_open())
+    return false;
+  
+  json j;
 
-        if (!(stream >> token)) // No token on this line
-            continue;
+  try
+  {
+    ifs >> j;
+  }
+  catch (const std::exception& e)
+  {
+    VRM_LOG_ERROR("Error while parsing ShaderExec json data:\n{}", e.what());
+    return false;
+  }
 
-        if (token.starts_with('#')) // Comment
-            continue;
-        
-        if (token == "vertex")
-        {
-            SOFT_ASSERT_MSG((stream >> token), "Invalid RenderShader asset {} at line {} : Couldn't find vertex shader file path.", filePath, lineNum);
-
-            shaderPaths["vertex"] = token;
-            SOFT_ASSERT_MSG(!(stream >> token), "Invalid RenderShader asset {} at line {} : unexpected token \"{}\".", filePath, lineNum, token);
-            continue;
-        }
-
-        if (token == "fragment")
-        {
-            SOFT_ASSERT_MSG((stream >> token), "Invalid RenderShader asset {} at line {} : Couldn't find fragment shader file path.", filePath, lineNum);
-
-            stream >> token;
-            shaderPaths["fragment"] = token;
-            SOFT_ASSERT_MSG(!(stream >> token), "Invalid RenderShader asset {} at line {} : unexpected token \"{}\".", filePath, lineNum, token);
-            continue;
-        }
-
-        SOFT_ASSERT_MSG(false, "Invalid RenderShader asset {} at line {} : unexpected token \"{}\".", filePath, lineNum, token);
-    }
-
-    SOFT_ASSERT_MSG(shaderPaths.contains("vertex"), "Invalid RenderShader asset {} : Couldn't find vertex shader file path.", filePath);
-    SOFT_ASSERT_MSG(shaderPaths.contains("fragment"), "Invalid RenderShader asset {} : Couldn't find fragment shader file path.", filePath);
-
-    m_Shader.loadFromFile(shaderPaths["vertex"], shaderPaths["fragment"]);
-
-    return true;
+  return ShaderParsing::Parse(j, m_data);
 }
-
-} // namespace vrm

@@ -15,7 +15,7 @@
 #include <Vroom/Scene/Components/PointLightComponent.h>
 
 #include <Vroom/Asset/Parsing/ShaderParsing.h>
-#include <Vroom/Asset/StaticAsset/ShaderExecAsset.h>
+#include <Vroom/Asset/StaticAsset/ShaderAsset.h>
 #include <Vroom/Asset/AssetData/ShaderData.h>
 
 #include <glm/gtx/rotate_vector.hpp>
@@ -85,7 +85,7 @@ protected:
     //   }
     // );
 
-    const auto& sd = vrm::AssetManager::Get().getAsset<vrm::ShaderExecAsset>("Resources/Shaders/Test_ShaderData.json").getStaticAsset()->getShaderData();
+    const auto& sd = vrm::AssetManager::Get().getAsset<vrm::ShaderAsset>("Resources/Shaders/Test_ShaderData.json").getStaticAsset()->getShaderData();
 
     auto fullShader = sd.combine();
     std::ofstream ofs("compute.glsl");

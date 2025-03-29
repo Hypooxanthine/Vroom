@@ -3,29 +3,23 @@
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
 #include "Vroom/Asset/AssetInstance/ShaderInstance.h"
 
-#include "Vroom/Render/Abstraction/Shader.h"
+#include "Vroom/Asset/AssetData/ShaderData.h"
 
 namespace vrm
 {
 
-class ShaderAsset : public StaticAsset
-{
-public:
-    using InstanceType = ShaderInstance;
+  class ShaderAsset : public StaticAsset
+  {
+    VRM_DECLARE_STATIC_ASSET(Shader)
 
-public:
-    ShaderAsset();
-    ~ShaderAsset();
+  public:
+    ShaderAsset() = default;
+    ~ShaderAsset() = default;
 
-    [[nodiscard]] ShaderInstance createInstance();
+    const auto& getShaderData() const { return m_data; }
 
-    inline const Shader& getShader() const { return m_Shader; }
-
-protected: 
-    bool loadImpl(const std::string& filePath) override;
-
-private:
-    Shader m_Shader;
-};
+  private:
+    ShaderData m_data;
+  };
 
 } // namespace vrm

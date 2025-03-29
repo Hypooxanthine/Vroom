@@ -1,6 +1,30 @@
 {
   "Global": {
-    "Version": "430 core"
+    "Version": "430 core",
+    "StorageBuffers": [
+      {
+        "Name": "ClusterInfoBlock",
+        "Layout": "std430, binding = 1",
+        "Variables": [
+          {
+            "Name": "xCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "yCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "zCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "clusters[]",
+            "Type": "Cluster"
+          }
+        ]
+      }
+    ]
   },
   "Compute": {
     "EarlySources": [
@@ -31,30 +55,10 @@
       {
         "Name": "u_Far",
         "Type": "float"
-      }
-    ],
-    "StorageBuffers": [
+      },
       {
-        "Name": "ClusterInfoBlock",
-        "Layout": "std140, binding = 1",
-        "Variables": [
-          {
-            "Name": "xCount",
-            "Type": "uint"
-          },
-          {
-            "Name": "yCount",
-            "Type": "uint"
-          },
-          {
-            "Name": "zCount",
-            "Type": "uint"
-          },
-          {
-            "Name": "clusters[]",
-            "Type": "Cluster"
-          }
-        ]
+        "Name": "u_InvProjection",
+        "Type": "mat4"
       }
     ]
   }

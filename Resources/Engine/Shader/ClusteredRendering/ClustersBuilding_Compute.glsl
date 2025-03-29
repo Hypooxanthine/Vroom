@@ -1,17 +1,21 @@
+#ifndef _CLUSTERSBUILDER_COMPUTE_GLSL_
+#define _CLUSTERSBUILDER_COMPUTE_GLSL_
+
 /**
  * @brief This compute shader is responsible for calculating the AABBs of each cluster in the cluster grid.
  * Thanks to https://github.com/DaveH355/clustered-shading for his tutorial on cluster shading.
  */
 
-#version 430 core
 layout(local_size_x = LOCAL_SIZE_X, local_size_y = LOCAL_SIZE_Y, local_size_z = LOCAL_SIZE_Z) in;
-
-uniform mat4 u_InvProjection;
 
 vec3 intersectionLineAndZPerpendicularPlane(vec3 linePoint, vec3 lineDirection, float depth);
 
 void main()
 {
+  uint xCount = ClusterInfoBlock_xCount;
+  uint yCount = ClusterInfoBlock_yCount;
+  uint zCount = ClusterInfoBlock_zCount;
+
   uint x = gl_GlobalInvocationID.x, y = gl_GlobalInvocationID.y, z = gl_GlobalInvocationID.z;
   uint clusterIndex = x + y * xCount + z * xCount * yCount;
 
@@ -62,8 +66,8 @@ void main()
     farDepth
   );
 
-  clusters[clusterIndex].minAABB_VS = vec4(min(nearMin, farMin), 1.0);
-  clusters[clusterIndex].maxAABB_VS = vec4(max(nearMax, farMax), 1.0);
+  ClusterInfoBlock_clusters[clusterIndex].minAABB_VS = vec4(min(nearMin, farMin), 1.0);
+  ClusterInfoBlock_clusters[clusterIndex].maxAABB_VS = vec4(max(nearMax, farMax), 1.0);
 }
 
 vec3 intersectionLineAndZPerpendicularPlane(vec3 linePoint, vec3 lineDirection, float depth)
@@ -71,3 +75,5 @@ vec3 intersectionLineAndZPerpendicularPlane(vec3 linePoint, vec3 lineDirection, 
   vec3 planeNormal = vec3(0.0, 0.0, -1.0);
   return linePoint + ( (depth - dot(planeNormal, linePoint)) / dot(planeNormal, lineDirection) ) * lineDirection;
 }
+
+#endif

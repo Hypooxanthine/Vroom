@@ -2,9 +2,24 @@
 
 #include <unordered_map>
 #include <format>
+#include <fstream>
+
+#include "Vroom/Core/Log.h"
+#include "Vroom/Core/Assert.h"
 
 using namespace vrm;
 using namespace std::string_literals;
+
+void ShaderData::CombinedShader::dump(const std::string& path) const
+{
+  std::ofstream ofs;
+  ofs.open(path);
+  VRM_CHECK_RET(ofs.is_open());
+
+  ofs << sourceCode;
+
+  ofs.close();
+}
 
 void ShaderData::setShaderEnabled(const EShaderType& shader, const bool enable)
 {
