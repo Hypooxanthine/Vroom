@@ -155,12 +155,6 @@ private:
 	glm::vec<2, unsigned int> m_ViewportOrigin = { 0, 0 };
 	glm::vec<2, unsigned int> m_ViewportSize = { 0, 0 };
 
-	VertexArray m_ScreenQuadVAO;
-	VertexBuffer m_ScreenQuadVBO;
-	VertexBufferLayout m_ScreenQuadLayout;
-	IndexBuffer m_ScreenQuadIBO;
-	ShaderInstance m_ScreenShader;
-
 	const CameraBasic* m_Camera = nullptr;
 
 	std::vector<QueuedMesh> m_Meshes;

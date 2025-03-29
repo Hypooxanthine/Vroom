@@ -37,26 +37,18 @@ static unsigned int SCREEN_QUAD_INDICES[] = {
     2, 3, 0
 };
 
-namespace vrm
-{
+using namespace vrm;
 
 std::unique_ptr<Renderer> Renderer::s_Instance = nullptr;
 
 Renderer::Renderer()
-    : m_ScreenQuadVBO(SCREEN_QUAD_VERTICES, 16 * sizeof(float)), m_ScreenQuadIBO(SCREEN_QUAD_INDICES, 6)
 {
-    // Initializing frame buffering data.
-    m_ScreenShader = AssetManager::Get().getAsset<ShaderAsset>("Resources/Engine/Shader/ScreenShader/RenderShader_Screen.asset");
-    m_ScreenQuadLayout.pushFloat(2);
-    m_ScreenQuadLayout.pushFloat(2);
-    m_ScreenQuadVAO.addBuffer(m_ScreenQuadVBO, m_ScreenQuadLayout);
+  m_LightRegistry.setBindingPoint(0);
+  m_ClusteredLights.setBindingPoint(1);
 
-    m_LightRegistry.setBindingPoint(0);
-    m_ClusteredLights.setBindingPoint(1);
-
-    GLCall(glEnable(GL_CULL_FACE));
-    GLCall(glCullFace(GL_BACK));
-    GLCall(glFrontFace(GL_CCW));
+  GLCall(glEnable(GL_CULL_FACE));
+  GLCall(glCullFace(GL_BACK));
+  GLCall(glFrontFace(GL_CCW));
 }
 
 Renderer::~Renderer()
@@ -65,136 +57,135 @@ Renderer::~Renderer()
 
 void Renderer::Init()
 {
-    VRM_ASSERT_MSG(s_Instance == nullptr, "Renderer already initialized.");
-    auto* privateRenderer = new Renderer();
-    s_Instance = std::unique_ptr<Renderer>(privateRenderer);
+  VRM_ASSERT_MSG(s_Instance == nullptr, "Renderer already initialized.");
+  auto* privateRenderer = new Renderer();
+  s_Instance = std::unique_ptr<Renderer>(privateRenderer);
 }
 
 void Renderer::Shutdown()
 {
-    s_Instance.reset();
+  s_Instance.reset();
 }
 
 Renderer& Renderer::Get()
 {
-    VRM_ASSERT_MSG(s_Instance != nullptr, "Renderer not initialized.");
-    return *s_Instance;
+  VRM_ASSERT_MSG(s_Instance != nullptr, "Renderer not initialized.");
+  return *s_Instance;
 }
 
 void Renderer::beginScene(const CameraBasic& camera)
 {
-    m_Camera = &camera;
+  m_Camera = &camera;
 
-    m_LightRegistry.beginFrame();
+  m_LightRegistry.beginFrame();
 }
 
 void Renderer::endScene(const FrameBuffer& target)
 {
-    // Setting up lights
-    m_LightRegistry.endFrame();
-    
-    // Clustered shading
-    m_ClusteredLights.setupClusters({ 12, 12, 24 }, *m_Camera);
-    m_ClusteredLights.processLights(*m_Camera);
+  // Setting up lights
+  m_LightRegistry.endFrame();
 
-    // Rendering to the requested target
-    target.bind();
-    target.clearColorBuffer();
-    GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
+  // Clustered shading
+  m_ClusteredLights.setupClusters({ 12, 12, 24 }, *m_Camera);
+  m_ClusteredLights.processLights(*m_Camera);
 
-    // Drawing meshes
-    for (const auto& mesh : m_Meshes)
-    {
-        drawMesh(mesh.mesh, mesh.model);
-    }
+  // Rendering to the requested target
+  target.bind();
+  target.clearColorBuffer();
+  GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
 
-    // Clearing data for next frame
-    m_Camera = nullptr;
-    m_Meshes.clear();
+  // Drawing meshes
+  for (const auto& mesh : m_Meshes)
+  {
+    drawMesh(mesh.mesh, mesh.model);
+  }
+
+  // Clearing data for next frame
+  m_Camera = nullptr;
+  m_Meshes.clear();
 }
 
 void Renderer::submitMesh(const MeshInstance& mesh, const glm::mat4& model)
 {
-    m_Meshes.push_back({ mesh, model });
+  m_Meshes.push_back({ mesh, model });
 }
 
 void Renderer::submitPointLight(const glm::vec3& position, const PointLightComponent& pointLight, const std::string& identifier)
 {
-    m_LightRegistry.submitPointLight(pointLight, position, identifier);
+  m_LightRegistry.submitPointLight(pointLight, position, identifier);
 }
 
 void Renderer::drawMesh(const MeshInstance& mesh, const glm::mat4& model) const
 {
-    VRM_DEBUG_ASSERT_MSG(m_Camera, "No camera set for rendering. Did you call beginScene?");
+  VRM_DEBUG_ASSERT_MSG(m_Camera, "No camera set for rendering. Did you call beginScene?");
 
-    const auto& subMeshes = mesh.getStaticAsset()->getSubMeshes();
+  const auto& subMeshes = mesh.getStaticAsset()->getSubMeshes();
 
-    const auto cameraPos = m_Camera->getPosition();
+  const auto cameraPos = m_Camera->getPosition();
 
-    for (const auto& subMesh : subMeshes)
+  for (const auto& subMesh : subMeshes)
+  {
+    // Binding data
+    subMesh.renderMesh.getVertexArray().bind();
+    subMesh.renderMesh.getIndexBuffer().bind();
+
+    const Shader& shader = subMesh.materialInstance.getStaticAsset()->getShader();
+    shader.bind();
+
+    // Setting uniforms
+    shader.setUniformMat4f("u_Model", model);
+    shader.setUniformMat4f("u_View", m_Camera->getView());
+    shader.setUniformMat4f("u_Projection", m_Camera->getProjection());
+    shader.setUniformMat4f("u_ViewProjection", m_Camera->getViewProjection());
+    shader.setUniform3f("u_ViewPosition", cameraPos);
+    shader.setUniform1f("u_Near", m_Camera->getNear());
+    shader.setUniform1f("u_Far", m_Camera->getFar());
+    shader.setUniform2ui("u_ViewportSize", m_ViewportSize.x, m_ViewportSize.y);
+
+    // Setting material textures uniforms
+    size_t textureCount = subMesh.materialInstance.getStaticAsset()->getTextureCount();
+    if (textureCount > 0)
     {
-        // Binding data
-        subMesh.renderMesh.getVertexArray().bind();
-        subMesh.renderMesh.getIndexBuffer().bind();
+      std::vector<int> textureSlots(textureCount);
+      for (size_t i = 0; i < textureCount; ++i)
+      {
+        const auto& texture = subMesh.materialInstance.getStaticAsset()->getTexture(i);
+        texture.getStaticAsset()->getGPUTexture().bind((unsigned int)i);
+        textureSlots[i] = (int)i;
+      }
 
-        const Shader& shader = subMesh.materialInstance.getStaticAsset()->getShader();
-        shader.bind();
-
-        // Setting uniforms
-        shader.setUniformMat4f("u_Model", model);
-        shader.setUniformMat4f("u_View", m_Camera->getView());
-        shader.setUniformMat4f("u_Projection", m_Camera->getProjection());
-        shader.setUniformMat4f("u_ViewProjection", m_Camera->getViewProjection());
-        shader.setUniform3f("u_ViewPosition", cameraPos);
-        shader.setUniform1f("u_Near", m_Camera->getNear());
-        shader.setUniform1f("u_Far", m_Camera->getFar());
-        shader.setUniform2ui("u_ViewportSize", m_ViewportSize.x, m_ViewportSize.y);
-
-        // Setting material textures uniforms
-        size_t textureCount = subMesh.materialInstance.getStaticAsset()->getTextureCount();
-        if (textureCount > 0)
-        {
-            std::vector<int> textureSlots(textureCount);
-            for (size_t i = 0; i < textureCount; ++i)
-            {
-                const auto& texture = subMesh.materialInstance.getStaticAsset()->getTexture(i);
-                texture.getStaticAsset()->getGPUTexture().bind((unsigned int)i);
-                textureSlots[i] = (int)i;
-            }
-
-            shader.setUniform1iv("u_Texture", (int)textureCount, textureSlots.data());
-        }
-
-        // Drawing data
-        GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)subMesh.renderMesh.getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr));
+      shader.setUniform1iv("u_Texture", (int)textureCount, textureSlots.data());
     }
+
+    // Drawing data
+    GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)subMesh.renderMesh.getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr));
+  }
 
 }
 
 const glm::vec<2, unsigned int>& Renderer::getViewportOrigin() const
 {
-    return m_ViewportOrigin;
+  return m_ViewportOrigin;
 }
 
 const glm::vec<2, unsigned int>& Renderer::getViewportSize() const
 {
-    return m_ViewportSize;
+  return m_ViewportSize;
 }
 
 void Renderer::setViewport(const glm::vec<2, unsigned int>& o, const glm::vec<2, unsigned int>& s)
 {
-    setViewportOrigin(o);
-    setViewportSize(s);
+  setViewportOrigin(o);
+  setViewportSize(s);
 }
 
 void Renderer::setViewportOrigin(const glm::vec<2, unsigned int>& o)
 {
-    m_ViewportOrigin = o;
+  m_ViewportOrigin = o;
 }
 
 void Renderer::setViewportSize(const glm::vec<2, unsigned int>& s)
 {
-    m_ViewportSize = s;
+  m_ViewportSize = s;
 }
 
-} // namespace vrm
