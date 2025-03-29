@@ -62,8 +62,13 @@
   },
   "Fragment": {
     "EarlySources": [
+      "Resources/Engine/Shader/CommonLights.glsl",
       {
-        "File": "Resources/Engine/Shader/MaterialBase_ClusteredRendering.glsl",
+        "File": "Resources/Engine/Shader/ClusteredRendering/Common.glsl",
+        "EnableIf": "VRM_CLUSTERED_RENDERING"
+      },
+      {
+        "File": "Resources/Engine/Shader/ClusteredRendering/MaterialBase_ClusteredRendering.glsl",
         "EnableIf": "VRM_CLUSTERED_RENDERING"
       }
     ],

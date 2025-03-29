@@ -1,0 +1,61 @@
+{
+  "Global": {
+    "Version": "430 core"
+  },
+  "Compute": {
+    "EarlySources": [
+      "Resources/Engine/Shader/ClusteredRendering/Common.glsl"
+    ],
+    "Sources": [
+      "Resources/Engine/Shader/ClusteredRendering/ClustersBuilding_Compute.glsl"
+    ],
+    "Defines": [
+      {
+        "Name": "LOCAL_SIZE_X",
+        "Value": "1"
+      },
+      {
+        "Name": "LOCAL_SIZE_Y",
+        "Value": "1"
+      },
+      {
+        "Name": "LOCAL_SIZE_Z",
+        "Value": "1"
+      }
+    ],
+    "Uniforms": [
+      {
+        "Name": "u_Near",
+        "Type": "float"
+      },
+      {
+        "Name": "u_Far",
+        "Type": "float"
+      }
+    ],
+    "StorageBuffers": [
+      {
+        "Name": "ClusterInfoBlock",
+        "Layout": "std140, binding = 1",
+        "Variables": [
+          {
+            "Name": "xCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "yCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "zCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "clusters[]",
+            "Type": "Cluster"
+          }
+        ]
+      }
+    ]
+  }
+}

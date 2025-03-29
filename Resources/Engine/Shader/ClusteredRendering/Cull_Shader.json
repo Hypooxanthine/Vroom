@@ -1,0 +1,72 @@
+{
+  "Global": {
+    "Version": "430 core"
+  },
+  "Compute": {
+    "EarlySources": [
+      "Resources/Engine/Shader/CommonLights.glsl",
+      "Resources/Engine/Shader/ClusteredRendering/Common.glsl"
+    ],
+    "Sources": [
+      "Resources/Engine/Shader/ClusteredRendering/Culling_Compute.glsl"
+    ],
+    "Defines": [
+      {
+        "Name": "LOCAL_SIZE_X",
+        "Value": "128"
+      },
+      {
+        "Name": "LOCAL_SIZE_Y",
+        "Value": "1"
+      },
+      {
+        "Name": "LOCAL_SIZE_Z",
+        "Value": "1"
+      }
+    ],
+    "Uniforms": [
+      {
+        "Name": "u_View",
+        "Type": "mat4"
+      }
+    ],
+    "StorageBuffers": [
+      {
+        "Name": "LightBlock",
+        "Layout": "std140, binding = 0",
+        "Variables": [
+          {
+            "Name": "pointLightCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "pointLights[]",
+            "Type": "PointLight"
+          }
+        ]
+      },
+      {
+        "Name": "ClusterInfoBlock",
+        "Layout": "std140, binding = 1",
+        "Variables": [
+          {
+            "Name": "xCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "yCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "zCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "clusters[]",
+            "Type": "Cluster"
+          }
+        ]
+      }
+    ]
+  }
+}
