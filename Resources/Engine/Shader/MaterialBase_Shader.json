@@ -1,7 +1,7 @@
 {
   "Global": {
     "Version": "450 core",
-    "Defines" : [
+    "Defines": [
       {
         "Name": "VRM_PI",
         "Value": "3.14159265358979323846"
@@ -62,7 +62,10 @@
   },
   "Fragment": {
     "EarlySources": [
-      "Resources/Engine/Shader/MaterialBase_FragmentPrototypes.glsl"
+      {
+        "File": "Resources/Engine/Shader/MaterialBase_ClusteredRendering.glsl",
+        "EnableIf": "VRM_CLUSTERED_RENDERING"
+      }
     ],
     "Sources": [
       "Resources/Engine/Shader/MaterialBase_Fragment.glsl"
@@ -85,6 +88,7 @@
       {
         "Name": "ClusterInfoBlock",
         "Layout": "std140, binding = 1",
+        "EnableIf": "VRM_CLUSTERED_RENDERING",
         "Variables": [
           {
             "Name": "xCount",

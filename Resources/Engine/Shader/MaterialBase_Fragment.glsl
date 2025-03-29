@@ -13,14 +13,10 @@ void SetupGlobalVars();
 vec4 ComputeFragmentColor();
 float GetLightComplexity();
 
-uint ComputeClusterIndex();
-uint GetClusterIndex();
-
 uint GetTotalLightCount();
 uint GetRelevantLightCount();
 
 uint GetTotalPointLightCount();
-uint ComputeRelevantPointLightCount();
 uint GetRelevantPointLightCount();
 PointLight GetRelevantPointLight(in uint index);
 
@@ -30,8 +26,6 @@ PointLight GetRelevantPointLight(in uint index);
 
 vec3 g_viewDir;
 vec3 g_normal;
-vec3 g_clusterIndex;
-uint g_relevantPointlightCount;
 
 void main()
 {
@@ -51,8 +45,10 @@ void SetupGlobalVars()
 {
   g_viewDir = (u_ViewPosition - v_Position);
   g_normal = normalize(v_Normal);
-  g_clusterIndex = ComputeClusterIndex();
-  g_relevantPointlightCount = ComputeRelevantPointLightCount();
+
+#ifdef VRM_CLUSTERED_RENDERING
+  SetupGlobalVars_ClusteredRendering();
+#endif
 }
 
 vec4 ComputeFragmentColor()
@@ -86,24 +82,6 @@ float GetLightComplexity()
   return float(GetRelevantLightCount()) / float(GetTotalLightCount());
 }
 
-uint ComputeClusterIndex()
-{
-  // Coordinates of the frag in VS for finding the right cluster
-  uint zCoord = uint((log(abs(v_CameraDepth) / u_Near) * zCount) / log(u_Far / u_Near));
-  vec2 clusterSizeXY = vec2(u_ViewportSize) / vec2(xCount, yCount);
-
-  // Coordinates of the frag in NDC space for finding the right cluster
-  uvec3 clusterCoords = ivec3(gl_FragCoord.xy / clusterSizeXY, zCoord);
-  uint clusterIndex = clusterCoords.z * (yCount * xCount) + clusterCoords.y * (xCount) + clusterCoords.x;
-
-  return clusterIndex;
-}
-
-uint GetClusterIndex()
-{
-  return g_clusterIndex;
-}
-
 uint GetTotalLightCount()
 {
   return GetTotalPointLightCount();
@@ -119,23 +97,22 @@ uint GetTotalPointLightCount()
   return LightBlock_pointLightCount;
 }
 
-uint ComputeRelevantPointLightCount()
-{
-  uint clusterIndex = GetClusterIndex();
-  uint lightsCount = clusters[clusterIndex].indexCount;
-  return lightsCount;
-}
-
 uint GetRelevantPointLightCount()
 {
-  return g_relevantPointlightCount;
+#ifdef VRM_CLUSTERED_RENDERING
+  return GetRelevantPointLightCount_ClusteredRendering();
+#else
+  return GetTotalPointLightCount();
+#endif
 }
 
 PointLight GetRelevantPointLight(in uint index)
 {
-  uint clusterIndex = GetClusterIndex();
-  uint lightIndex = clusters[clusterIndex].lightIndices[index];
-  return LightBlock_pointLights[lightIndex];
+#ifdef VRM_CLUSTERED_RENDERING
+  return GetRelevantPointLight_ClusteredRendering(index);
+#else
+  return LightBlock_pointLights[index];
+#endif
 }
 
 float linearizeDepth(float depth)
