@@ -108,6 +108,8 @@ namespace vrm::gl
         }
         else // if constexpr (Behaviour == BufferBehaviour::AutoResize)
         {
+          GLsizei grownCapacity = neededCapacity + neededCapacity / 2;
+
           if (offset > 0)
           {
             Buffer intermediate;
@@ -120,12 +122,12 @@ namespace vrm::gl
 
             intermediate.reset(m_capacity);
             intermediate.copyDataFrom(*this, m_capacity, 0, 0, usage);
-            reset(neededCapacity, usage);
+            reset(grownCapacity, usage);
             copyDataFrom(intermediate, intermediate.getCapacity(), 0, 0, usage);
           }
           else // If offset is 0, everything will be overriden so no need to copy
           {
-            reset(neededCapacity, usage);
+            reset(grownCapacity, usage);
           }
         }
       }
