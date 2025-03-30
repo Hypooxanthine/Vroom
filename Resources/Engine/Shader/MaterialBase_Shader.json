@@ -78,7 +78,7 @@
     "StorageBuffers": [
       {
         "Name": "LightBlock",
-        "Layout": "std140, binding = 0",
+        "Layout": "std430",
         "Variables": [
           {
             "Name": "pointLightCount",
@@ -92,7 +92,7 @@
       },
       {
         "Name": "ClusterInfoBlock",
-        "Layout": "std140, binding = 1",
+        "Layout": "std430",
         "EnableIf": "VRM_CLUSTERED_RENDERING",
         "Variables": [
           {

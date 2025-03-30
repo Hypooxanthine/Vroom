@@ -6,8 +6,6 @@ namespace vrm::gl
 {
 
   template <typename T>
-  class VertexBuffer : public ArrayBuffer<T, GL_ARRAY_BUFFER>
-  {
-  };
+  using VertexBuffer = ArrayBuffer<T, GL_ARRAY_BUFFER>;
 
 } // namespace vrm::gl

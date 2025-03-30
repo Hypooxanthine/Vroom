@@ -131,7 +131,7 @@ public:
 	 */
 	void setUniformMat4f(const GLString& name, const glm::mat4& mat) const;
 
-  void setStorageBuffer(const GLString& name, const StorageBuffer& ssbo);
+  void setStorageBuffer(const GLString& name, const StorageBufferBase& ssbo) const;
 
 	/**
 	 * @brief Gets OpenGL ID from this shader.

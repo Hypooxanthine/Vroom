@@ -10,7 +10,7 @@ namespace vrm
  * In the shader, we'll need to retrieve vec3's with float[3]'s, because of the std430 layout.
  * 
  */
-struct SSBOPointLightData
+struct alignas(16) SSBOPointLightData
 {
     glm::vec3 position;
     glm::vec3 color;

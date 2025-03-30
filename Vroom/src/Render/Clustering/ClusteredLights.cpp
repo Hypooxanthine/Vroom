@@ -3,6 +3,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include "Vroom/Asset/AssetManager.h"
+#include "Vroom/Render/Abstraction/StorageBuffer.h"
 #include "Vroom/Asset/StaticAsset/ShaderAsset.h"
 #include "Vroom/Core/Application.h"
 #include "Vroom/Scene/Scene.h"
@@ -14,46 +15,39 @@ ClusteredLights::ClusteredLights()
   using namespace std::string_literals;
 
   std::string_view builderPath = "Resources/Engine/Shader/ClusteredRendering/BuildClusters_Shader.json";
-  const auto& builderData = AssetManager::Get().getAsset<ShaderAsset>(builderPath.data()).getStaticAsset()->getShaderData();
+  const auto &builderData = AssetManager::Get().getAsset<ShaderAsset>(builderPath.data()).getStaticAsset()->getShaderData();
 
   auto shaderSrc = builderData.combine();
   VRM_ASSERT_MSG(
-    m_ClustersBuilder.addShaderStage(gl::Shader::EShaderType::eCompute, shaderSrc.compute.sourceCode, true),
-    "Could not compile {} compute shader. Error:\n{}", builderPath, m_ClustersBuilder.getError()
-  );
+      m_ClustersBuilder.addShaderStage(gl::Shader::EShaderType::eCompute, shaderSrc.compute.sourceCode, true),
+      "Could not compile {} compute shader. Error:\n{}", builderPath, m_ClustersBuilder.getError());
 
   VRM_ASSERT_MSG(
-    m_ClustersBuilder.validate(true),
-    "Could not link {} compute shader. Error:\n", builderPath, m_ClustersBuilder.getError()
-  );
+      m_ClustersBuilder.validate(true),
+      "Could not link {} compute shader. Error:\n", builderPath, m_ClustersBuilder.getError());
 
-  // shaderSrc.compute.dump(builderPath.data() + ".dump.glsl"s);
-  // VRM_LOG_INFO("Builder dumped into {}", builderPath.data() + ".dump.glsl"s);
+  shaderSrc.compute.dump(builderPath.data() + ".dump.glsl"s);
+  VRM_LOG_INFO("Builder dumped into {}", builderPath.data() + ".dump.glsl"s);
 
   std::string_view cullerPath = "Resources/Engine/Shader/ClusteredRendering/Cull_Shader.json";
-  const auto& cullerData = AssetManager::Get().getAsset<ShaderAsset>(cullerPath.data()).getStaticAsset()->getShaderData();
+  const auto &cullerData = AssetManager::Get().getAsset<ShaderAsset>(cullerPath.data()).getStaticAsset()->getShaderData();
 
   shaderSrc = cullerData.combine();
   VRM_ASSERT_MSG(
-    m_LightsCuller.addShaderStage(gl::Shader::EShaderType::eCompute, shaderSrc.compute.sourceCode, true),
-    "Could not compile {} compute shader. Error:\n{}", cullerPath, m_LightsCuller.getError()
-  );
+      m_LightsCuller.addShaderStage(gl::Shader::EShaderType::eCompute, shaderSrc.compute.sourceCode, true),
+      "Could not compile {} compute shader. Error:\n{}", cullerPath, m_LightsCuller.getError());
 
   VRM_ASSERT_MSG(
-    m_LightsCuller.validate(true),
-    "Could not link {} compute shader. Error:\n", cullerPath, m_LightsCuller.getError()
-  );
+      m_LightsCuller.validate(true),
+      "Could not link {} compute shader. Error:\n", cullerPath, m_LightsCuller.getError());
 
-  // shaderSrc.compute.dump(cullerPath.data() + ".dump.glsl"s);
-  // VRM_LOG_INFO("Builder dumped into {}", cullerPath.data() + ".dump.glsl"s);
+  shaderSrc.compute.dump(cullerPath.data() + ".dump.glsl"s);
+  VRM_LOG_INFO("Builder dumped into {}", cullerPath.data() + ".dump.glsl"s);
+
+  m_SSBOClusterInfoSSBO.reset(0);
 }
 
-void ClusteredLights::setBindingPoint(int clusterInfoBindingPoint)
-{
-  m_SSBOClusterInfoSSBO.setBindingPoint(clusterInfoBindingPoint);
-}
-
-void ClusteredLights::setupClusters(const glm::uvec3& clusterCount, const CameraBasic& camera)
+void ClusteredLights::setupClusters(const glm::uvec3 &clusterCount, const CameraBasic &camera)
 {
   if (m_ClusterCount == clusterCount && m_Projection == camera.getProjection())
     return;
@@ -67,11 +61,14 @@ void ClusteredLights::setupClusters(const glm::uvec3& clusterCount, const Camera
   m_SSBOClusterInfoData.xCount = clusterCount.x;
   m_SSBOClusterInfoData.yCount = clusterCount.y;
   m_SSBOClusterInfoData.zCount = clusterCount.z;
-  m_SSBOClusterInfoSSBO.setData(m_SSBOClusterInfoData);
+  m_SSBOClusterInfoSSBO.reset(m_SSBOClusterInfoData.getSize() * 10);
+  m_SSBOClusterInfoSSBO.setData(m_SSBOClusterInfoData.getConstantData(), m_SSBOClusterInfoData.getConstantSize());
+  // m_SSBOClusterInfoSSBO.setData(m_SSBOClusterInfoData.getVariableData(), m_SSBOClusterInfoData.getVariableSize(), m_SSBOClusterInfoData.getConstantSize());
 
   glm::mat4 invProjectionMatrix = glm::inverse(camera.getProjection()); // Only needed for clusters setup.
 
   m_ClustersBuilder.bind();
+  m_ClustersBuilder.setStorageBuffer("ClusterInfoBlock", m_SSBOClusterInfoSSBO);
   m_ClustersBuilder.setUniform1f("u_Near", camera.getNear());
   m_ClustersBuilder.setUniform1f("u_Far", camera.getFar());
   m_ClustersBuilder.setUniformMat4f("u_InvProjection", invProjectionMatrix);
@@ -79,9 +76,11 @@ void ClusteredLights::setupClusters(const glm::uvec3& clusterCount, const Camera
   GLCall(glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT));
 }
 
-void ClusteredLights::processLights(const CameraBasic& camera)
+void ClusteredLights::processLights(const CameraBasic &camera, const gl::StorageBufferBase& lights)
 {
   m_LightsCuller.bind();
+  m_LightsCuller.setStorageBuffer("LightBlock", lights);
+  m_LightsCuller.setStorageBuffer("ClusterInfoBlock", m_SSBOClusterInfoSSBO);
   m_LightsCuller.setUniformMat4f("u_View", camera.getView());
   GLCall(glDispatchCompute(m_TotalClusters / 128u, 1, 1));
   GLCall(glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT));

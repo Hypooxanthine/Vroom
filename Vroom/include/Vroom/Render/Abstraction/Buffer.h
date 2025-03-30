@@ -9,7 +9,8 @@ namespace vrm::gl
 
   enum class BufferBehaviour : uint8_t
   {
-    Static, AutoResize
+    Static,
+    AutoResize
   };
 
   template <GLenum TARGET, BufferBehaviour Behaviour = BufferBehaviour::Static>
@@ -35,6 +36,11 @@ namespace vrm::gl
 
     inline constexpr Buffer(Buffer &&other) noexcept
     {
+      if (m_renderID != 0)
+      {
+        glDeleteBuffers(1, &m_renderID);
+      }
+
       m_renderID = std::move(other.m_renderID);
       m_capacity = std::move(other.m_capacity);
 
@@ -46,7 +52,10 @@ namespace vrm::gl
     {
       if (this != &other)
       {
-        this->~Buffer();
+        if (m_renderID != 0)
+        {
+          glDeleteBuffers(1, &m_renderID);
+        }
 
         m_renderID = std::move(other.m_renderID);
         m_capacity = std::move(other.m_capacity);
@@ -78,7 +87,7 @@ namespace vrm::gl
       m_capacity = capacity;
     }
 
-    inline void setData(const void* data, GLsizei dataSize, GLintptr offset = 0, GLenum usage = GL_DYNAMIC_DRAW)
+    inline void setData(const void *data, GLsizei dataSize, GLintptr offset = 0, GLenum usage = GL_DYNAMIC_DRAW)
     {
       GLsizei neededCapacity = dataSize + static_cast<GLsizei>(offset);
 
@@ -101,12 +110,18 @@ namespace vrm::gl
         {
           if (offset > 0)
           {
-            // We'll need to copy
             Buffer intermediate;
 
-            intermediate.reset(neededCapacity);
-            intermediate.setDataFrom(*this, offset, 0, 0, usage);
-            *this = std::move(intermediate);
+            // Final buffer data has to be attached to the same render ID.
+            // If we fill another buffer with data and just std::move, 
+            // this buffer will have the correct data, but will have another
+            // render ID, and then will loose all attached properties,
+            // such as SSBO binding point
+
+            intermediate.reset(m_capacity);
+            intermediate.copyDataFrom(*this, m_capacity, 0, 0, usage);
+            reset(neededCapacity, usage);
+            copyDataFrom(intermediate, intermediate.getCapacity(), 0, 0, usage);
           }
           else // If offset is 0, everything will be overriden so no need to copy
           {
@@ -119,13 +134,13 @@ namespace vrm::gl
       glBufferSubData(TARGET, offset, dataSize, data);
     }
 
-    inline void setDataFrom(const Buffer& other, GLsizei size, GLintptr otherOffset = 0, GLintptr offset = 0, GLenum usage = GL_DYNAMIC_DRAW)
+    inline void copyDataFrom(const Buffer &other, GLsizei size, GLintptr otherOffset = 0, GLintptr offset = 0, GLenum usage = GL_DYNAMIC_DRAW)
     {
       VRM_ASSERT_MSG(other.getRenderID() != 0, "Other buffer is not valid");
 
       if (m_renderID == 0)
       {
-        reset(size + offset, usage);
+        reset(size + static_cast<GLsizei>(offset), usage);
       }
       else
       {
@@ -148,10 +163,9 @@ namespace vrm::gl
   class ArrayBuffer : public Buffer<TARGET, Behaviour>
   {
   public:
-
     inline void setData(std::span<const T> data, GLuint offsetElement = 0, GLenum usage = GL_DYNAMIC_DRAW)
     {
-      Buffer<TARGET>::setData(data.data(), static_cast<GLsizei>(data.size_bytes()), offsetElement * sizeof(T), usage);
+      Buffer<TARGET, Behaviour>::setData(data.data(), static_cast<GLsizei>(data.size_bytes()), offsetElement * sizeof(T), usage);
     }
   };
 

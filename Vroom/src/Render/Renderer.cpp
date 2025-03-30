@@ -42,9 +42,6 @@ std::unique_ptr<Renderer> Renderer::s_Instance = nullptr;
 
 Renderer::Renderer()
 {
-  m_LightRegistry.setBindingPoint(0);
-  m_ClusteredLights.setBindingPoint(1);
-
   GLCall(glEnable(GL_CULL_FACE));
   GLCall(glCullFace(GL_BACK));
   GLCall(glFrontFace(GL_CCW));
@@ -57,8 +54,7 @@ Renderer::~Renderer()
 void Renderer::Init()
 {
   VRM_ASSERT_MSG(s_Instance == nullptr, "Renderer already initialized.");
-  auto *privateRenderer = new Renderer();
-  s_Instance = std::unique_ptr<Renderer>(privateRenderer);
+  s_Instance.reset(new Renderer());
 }
 
 void Renderer::Shutdown()
@@ -86,7 +82,7 @@ void Renderer::endScene(const FrameBuffer &target)
 
   // Clustered shading
   m_ClusteredLights.setupClusters({12, 12, 24}, *m_Camera);
-  m_ClusteredLights.processLights(*m_Camera);
+  m_ClusteredLights.processLights(*m_Camera, m_LightRegistry.getPointLightsStorageBuffer());
 
   // Rendering to the requested target
   target.bind();
@@ -140,6 +136,8 @@ void Renderer::drawMesh(const MeshInstance &mesh, const glm::mat4 &model) const
     shader.setUniform1f("u_Near", m_Camera->getNear());
     shader.setUniform1f("u_Far", m_Camera->getFar());
     shader.setUniform2ui("u_ViewportSize", m_ViewportSize.x, m_ViewportSize.y);
+    shader.setStorageBuffer("LightBlock", m_LightRegistry.getPointLightsStorageBuffer());
+    shader.setStorageBuffer("ClusterInfoBlock", m_ClusteredLights.getClustersShaderStorage());
 
     // Setting material textures uniforms
     size_t textureCount = subMesh.materialInstance.getStaticAsset()->getTextureCount();

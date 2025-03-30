@@ -21,10 +21,12 @@ static bool TryGetSource(const std::string& filePath, std::string& out)
   CHECK(ifs.is_open(), "Could not open file {}", filePath);
   out.clear();
 
-  std::ostringstream oss;
-  oss << ifs.rdbuf();
-
-  out = oss.str();
+  std::string line;
+  while (std::getline(ifs, line))
+  {
+    out += line;
+    out += '\n';
+  }
 
   return true;
 }

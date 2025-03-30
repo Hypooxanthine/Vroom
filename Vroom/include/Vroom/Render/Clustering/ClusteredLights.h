@@ -5,13 +5,18 @@
 
 #include "Vroom/Render/RawShaderData/SSBOClusterInfo.h"
 
-#include "Vroom/Render/Abstraction/DynamicSSBO.h"
+#include "Vroom/Render/Abstraction/StorageBuffer.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
 
 
 namespace vrm
 {
+
+  namespace gl
+  {
+    class StorageBufferBase;
+  }
 
   class ClusteredLights
   {
@@ -24,15 +29,15 @@ namespace vrm
     ClusteredLights& operator=(const ClusteredLights&) = default;
     ClusteredLights& operator=(ClusteredLights&&) = default;
 
-    void setBindingPoint(int clusterInfoBindingPoint);
-
     void setupClusters(const glm::uvec3& clusterCount, const CameraBasic& camera);
 
-    void processLights(const CameraBasic& camera);
+    void processLights(const CameraBasic& camera, const gl::StorageBufferBase& lights);
+
+    inline const gl::AutoResizeStorageBuffer& getClustersShaderStorage() const { return m_SSBOClusterInfoSSBO; }
 
   private:
     SSBOClusterInfo m_SSBOClusterInfoData;
-    gl::DynamicSSBO m_SSBOClusterInfoSSBO;
+    gl::AutoResizeStorageBuffer m_SSBOClusterInfoSSBO;
 
     glm::uvec3 m_ClusterCount;
     unsigned int m_TotalClusters;

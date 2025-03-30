@@ -1,6 +1,6 @@
 {
   "Global": {
-    "Version": "430 core"
+    "Version": "450 core"
   },
   "Compute": {
     "EarlySources": [
@@ -33,7 +33,7 @@
     "StorageBuffers": [
       {
         "Name": "LightBlock",
-        "Layout": "std430, binding = 0",
+        "Layout": "std430",
         "Variables": [
           {
             "Name": "pointLightCount",
@@ -47,7 +47,7 @@
       },
       {
         "Name": "ClusterInfoBlock",
-        "Layout": "std430, binding = 1",
+        "Layout": "std430",
         "Variables": [
           {
             "Name": "xCount",

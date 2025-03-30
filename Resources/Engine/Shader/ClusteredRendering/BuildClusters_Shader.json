@@ -1,10 +1,10 @@
 {
   "Global": {
-    "Version": "430 core",
+    "Version": "450 core",
     "StorageBuffers": [
       {
         "Name": "ClusterInfoBlock",
-        "Layout": "std430, binding = 1",
+        "Layout": "std430",
         "Variables": [
           {
             "Name": "xCount",

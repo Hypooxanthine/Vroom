@@ -204,15 +204,15 @@ GLuint Shader::getStorageBufferIndex(const GLString& name) const
     GLuint ssboIndex = glGetProgramResourceIndex(m_RendererID, GL_SHADER_STORAGE_BLOCK, name.c_str());
     m_ssboIndexCache[name] = ssboIndex;
 
-    VRM_CHECK_MSG(ssboIndex != GL_INVALID_INDEX, "Could not find StorageBuffer \"{}\" in shader. Maybe it is dead code ?");
+    VRM_CHECK_MSG(ssboIndex != GL_INVALID_INDEX, "Could not find StorageBuffer \"{}\" in shader. Maybe it is dead code ?", name);
   }
 
   return m_ssboIndexCache.at(name);
 }
 
-void Shader::setStorageBuffer(const GLString& name, const StorageBuffer& ssbo)
+void Shader::setStorageBuffer(const GLString& name, const StorageBufferBase& ssbo) const
 {
   VRM_ASSERT_MSG(ssbo.isBindingPointValid(), "Invalid StorageBuffer binding point");
 
-  glShaderStorageBlockBinding(m_RendererID, getStorageBufferIndex(name), ssbo.getBindingPoint());
+  GLCall(glShaderStorageBlockBinding(m_RendererID, getStorageBufferIndex(name), ssbo.getBindingPoint()));
 }
