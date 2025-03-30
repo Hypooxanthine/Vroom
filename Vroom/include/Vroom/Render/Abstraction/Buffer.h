@@ -7,7 +7,12 @@
 namespace vrm::gl
 {
 
-  template <GLenum TARGET>
+  enum class BufferBehaviour : uint8_t
+  {
+    Static, AutoResize
+  };
+
+  template <GLenum TARGET, BufferBehaviour Behaviour = BufferBehaviour::Static>
   class Buffer
   {
   public:
@@ -75,21 +80,62 @@ namespace vrm::gl
 
     inline void setData(const void* data, GLsizei dataSize, GLintptr offset = 0, GLenum usage = GL_DYNAMIC_DRAW)
     {
+      GLsizei neededCapacity = dataSize + static_cast<GLsizei>(offset);
+
       if (m_renderID == 0)
       {
         // For the first setData, we let user create and assign data in the same time
-        reset(dataSize + static_cast<GLuint>(offset), usage);
+        reset(neededCapacity, usage);
+      }
+      else if (m_capacity < neededCapacity)
+      {
+
+        if constexpr (Behaviour == BufferBehaviour::Static)
+        {
+          // User can set sub data if he wants,
+          // but he has to make sure the buffer is large enough
+          // (recreate it, or ensure it is large enough at creation)
+          VRM_ASSERT_MSG(false, "Buffer is too small. Please use reset() with a correct capacity first.");
+        }
+        else // if constexpr (Behaviour == BufferBehaviour::AutoResize)
+        {
+          if (offset > 0)
+          {
+            // We'll need to copy
+            Buffer intermediate;
+
+            intermediate.reset(neededCapacity);
+            intermediate.setDataFrom(*this, offset, 0, 0, usage);
+            *this = std::move(intermediate);
+          }
+          else // If offset is 0, everything will be overriden so no need to copy
+          {
+            reset(neededCapacity, usage);
+          }
+        }
+      }
+
+      bind();
+      glBufferSubData(TARGET, offset, dataSize, data);
+    }
+
+    inline void setDataFrom(const Buffer& other, GLsizei size, GLintptr otherOffset = 0, GLintptr offset = 0, GLenum usage = GL_DYNAMIC_DRAW)
+    {
+      VRM_ASSERT_MSG(other.getRenderID() != 0, "Other buffer is not valid");
+
+      if (m_renderID == 0)
+      {
+        reset(size + offset, usage);
       }
       else
       {
-        // After that, user can set sub data if he wants,
-        // but he has to make sure the buffer is large enough
-        // (recreate it, or ensure it is large enough at creation)
-        VRM_ASSERT_MSG(dataSize + offset <= m_capacity, "Buffer is too small. Please use reset() with a correct capacity first. In last resort, use a DynamicStorageBuffer");
+        VRM_ASSERT_MSG(size + offset <= m_capacity, "Destination buffer is too small. Please use reset() with a correct capacity first.");
         bind();
       }
 
-      glBufferSubData(TARGET, offset, dataSize, data);
+      glBindBuffer(GL_COPY_READ_BUFFER, other.getRenderID());
+      glBindBuffer(GL_COPY_WRITE_BUFFER, getRenderID());
+      glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, otherOffset, offset, size);
     }
 
   protected:
@@ -98,8 +144,8 @@ namespace vrm::gl
     GLsizei m_capacity;
   };
 
-  template <typename T, GLenum TARGET>
-  class ArrayBuffer : public Buffer<TARGET>
+  template <typename T, GLenum TARGET, BufferBehaviour Behaviour = BufferBehaviour::Static>
+  class ArrayBuffer : public Buffer<TARGET, Behaviour>
   {
   public:
 
