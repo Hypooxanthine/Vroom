@@ -26,8 +26,8 @@ ClusteredLights::ClusteredLights()
       m_ClustersBuilder.validate(true),
       "Could not link {} compute shader. Error:\n", builderPath, m_ClustersBuilder.getError());
 
-  shaderSrc.compute.dump(builderPath.data() + ".dump.glsl"s);
-  VRM_LOG_INFO("Builder dumped into {}", builderPath.data() + ".dump.glsl"s);
+  // shaderSrc.compute.dump(builderPath.data() + ".dump.glsl"s);
+  // VRM_LOG_INFO("Builder dumped into {}", builderPath.data() + ".dump.glsl"s);
 
   std::string_view cullerPath = "Resources/Engine/Shader/ClusteredRendering/Cull_Shader.json";
   const auto &cullerData = AssetManager::Get().getAsset<ShaderAsset>(cullerPath.data()).getStaticAsset()->getShaderData();
@@ -41,8 +41,8 @@ ClusteredLights::ClusteredLights()
       m_LightsCuller.validate(true),
       "Could not link {} compute shader. Error:\n", cullerPath, m_LightsCuller.getError());
 
-  shaderSrc.compute.dump(cullerPath.data() + ".dump.glsl"s);
-  VRM_LOG_INFO("Builder dumped into {}", cullerPath.data() + ".dump.glsl"s);
+  // shaderSrc.compute.dump(cullerPath.data() + ".dump.glsl"s);
+  // VRM_LOG_INFO("Builder dumped into {}", cullerPath.data() + ".dump.glsl"s);
 
   m_SSBOClusterInfoSSBO.reset(0);
 }
