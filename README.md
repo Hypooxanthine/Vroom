@@ -8,7 +8,7 @@ Vroom is a 3D game engine made with OpenGL. It is a personal project I'm doing t
 Editor
 ![Screenshot 1](Screenshots/SandboxScene.png)
 
-Clustered lighting
+Light complexity per cluster (clustered rendering)
 ![Screenshot 2](Screenshots/ClusteredCulling.png)
 
 ## Building project
