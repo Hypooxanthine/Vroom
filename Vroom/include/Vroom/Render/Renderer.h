@@ -6,7 +6,6 @@
 
 #include "Vroom/Render/Abstraction/VertexArray.h"
 #include "Vroom/Render/Abstraction/VertexBuffer.h"
-#include "Vroom/Render/Abstraction/VertexBufferLayout.h"
 #include "Vroom/Render/Abstraction/IndexBuffer.h"
 
 #include "Vroom/Render/Clustering/LightRegistry.h"

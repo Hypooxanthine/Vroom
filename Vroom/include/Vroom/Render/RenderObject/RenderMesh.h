@@ -6,7 +6,6 @@
 #include "Vroom/Render/Abstraction/VertexArray.h"
 #include "Vroom/Render/Abstraction/IndexBuffer.h"
 #include "Vroom/Render/Abstraction/VertexBuffer.h"
-#include "Vroom/Render/Abstraction/VertexBufferLayout.h"
 
 namespace vrm
 {
@@ -31,7 +30,6 @@ private:
     gl::VertexBuffer<Vertex> m_VertexBuffer;
     gl::IndexBuffer m_IndexBuffer;
     gl::VertexArray m_VertexArray;
-    gl::VertexBufferLayout m_VertexBufferLayout;
 };
 
 } // namespace vrm

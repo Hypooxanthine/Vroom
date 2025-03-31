@@ -1,52 +1,106 @@
 #pragma once
 
+#include <unordered_set>
+
+#include "Vroom/Render/Abstraction/VertexAttribInfo.h"
 #include "Vroom/Render/Abstraction/VertexBuffer.h"
-#include "Vroom/Render/Abstraction/Vertex.h"
 
 namespace vrm::gl
 {
 
-class VertexBufferLayout;
+  class VertexArray
+  {
+  public:
+    inline VertexArray() : m_renderID(0)
+    {
+    }
 
-class VertexArray
-{
-public:
+    inline virtual ~VertexArray()
+    {
+      destroy();
+    }
 
-	/**
-	 * @brief Constructs a VertexArray object.
-	 */
-	VertexArray();
+    VertexArray(const VertexArray &) = delete;
+    VertexArray &operator=(const VertexArray &) = delete;
 
-	VertexArray(const VertexArray&) = delete;
-	VertexArray& operator=(const VertexArray&) = delete;
+    inline VertexArray(VertexArray &&other) noexcept
+      : VertexArray()
+    {
+      m_renderID = std::move(other.m_renderID);
+      other.m_renderID = 0;
+    }
 
-	VertexArray(VertexArray&&);
-	VertexArray& operator=(VertexArray&&);
+    inline VertexArray &operator=(VertexArray &&other) noexcept
+    {
+      if (this != &other)
+      {
+        destroy();
 
-	/**
-	 * @brief Releases GPU memory.
-	 */
-	virtual ~VertexArray();
+        m_renderID = std::move(other.m_renderID);
+        other.m_renderID = 0;
+      }
 
-	/**
-	 * @brief Adds a vertex buffer and its layout to this vertex array.
-	 * @param vb Vertex buffer to add.
-	 * @param layout Corresponding layout.
-	 */
-	void addBuffer(const VertexBuffer<Vertex>& vb, const VertexBufferLayout& layout);
+      return *this;
+    }
 
-	/**
-	 * @brief Binds this vertex array.
-	 */
-	void bind() const;
+    inline bool isValid() const { return m_renderID != 0; }
 
-	/**
-	 * @brief Unbinds this vertex array.
-	 */
-	void unbind() const;
+    inline void bind() const { glBindVertexArray(m_renderID); }
 
-private:
-	unsigned int m_RendererID;
-};
+    inline void create()
+    {
+      destroy();
+      glGenVertexArrays(1, &m_renderID);
+    }
+
+    inline void destroy()
+    {
+      if (m_renderID != 0)
+      {
+        glDeleteVertexArrays(1, &m_renderID);
+        m_renderID = 0;
+      }
+    }
+
+    inline bool isBindingUsed(GLuint binding) const { return m_bindings.contains(binding); }
+
+    template <uint8_t VertexElementIndex, typename V>
+      requires CIVertex<V>
+    inline void defineAttribute(const VertexBuffer<V>& vb, GLuint binding = VertexElementIndex)
+    {
+      static_assert(VertexElementIndex < V::GetElementCount(), "Requested Vertex class attribute is too big");
+      constexpr VertexAttribInfo info = V::GetElementInfos().at(VertexElementIndex);
+
+      defineAttribute(vb, binding, VertexAttribInfo::GetGLType<info.type>(), info.elementCount, info.normalized, V::GetStride(), info.offset);
+    }
+
+    template <typename V>
+    inline void defineAttribute(const VertexBuffer<V>& vb, GLuint binding, GLenum glType, GLint elemCount, bool normalized, GLsizei stride, size_t offset)
+    {
+      VRM_ASSERT_MSG(isValid(), "You must create the vao first");
+      VRM_ASSERT_MSG(!isBindingUsed(binding), "Binding already used");
+
+      bind();
+      vb.bind();
+
+      glEnableVertexAttribArray(binding);
+      m_bindings.emplace(binding);
+
+      glVertexAttribPointer(
+        binding,
+        elemCount,
+        glType,
+        normalized ? GL_TRUE : GL_FALSE,
+        stride,
+        reinterpret_cast<const void*>(static_cast<uintptr_t>(offset))
+      );
+
+      vb.Unbind();
+    }
+
+  private:
+    GLuint m_renderID;
+    std::unordered_set<GLuint> m_bindings;
+  };
 
 } // namespace vrm::gl

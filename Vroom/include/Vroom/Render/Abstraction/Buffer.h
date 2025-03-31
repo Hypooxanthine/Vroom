@@ -25,6 +25,7 @@ namespace vrm::gl
     {
       if (m_renderID != 0)
       {
+        [[likely]]
         glDeleteBuffers(1, &m_renderID);
         m_renderID = 0;
         m_capacity = 0;
@@ -35,12 +36,8 @@ namespace vrm::gl
     inline Buffer &operator=(const Buffer &) = delete;
 
     inline constexpr Buffer(Buffer &&other) noexcept
+      : Buffer()
     {
-      if (m_renderID != 0)
-      {
-        glDeleteBuffers(1, &m_renderID);
-      }
-
       m_renderID = std::move(other.m_renderID);
       m_capacity = std::move(other.m_capacity);
 
@@ -52,6 +49,7 @@ namespace vrm::gl
     {
       if (this != &other)
       {
+        [[likely]]
         if (m_renderID != 0)
         {
           glDeleteBuffers(1, &m_renderID);
@@ -73,6 +71,11 @@ namespace vrm::gl
     inline void bind() const
     {
       glBindBuffer(TARGET, m_renderID);
+    }
+
+    inline static void Unbind()
+    {
+      glBindBuffer(TARGET, 0);
     }
 
     inline void reset(GLsizei capacity, GLenum usage = GL_DYNAMIC_DRAW)

@@ -1,6 +1,9 @@
 #pragma once
 
+#include <concepts>
+
 #include "Vroom/Render/Abstraction/Buffer.h"
+#include "Vroom/Render/Abstraction/VertexAttribInfo.h"
 
 namespace vrm::gl
 {

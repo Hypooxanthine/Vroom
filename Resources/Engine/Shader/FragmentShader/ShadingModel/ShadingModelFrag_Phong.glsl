@@ -50,16 +50,20 @@ vec4 ComputeColor()
     {
         PointLight pointLight = pointLights[clusters[clusterIndex].lightIndices[i]];
         vec3 lightPos = vec3(pointLight.position[0], pointLight.position[1], pointLight.position[2]);
+        vec3 lightDir = normalize(lightPos - v_Position);
+        float lightNormalDot = dot(normal, lightDir);
+        
+        if (lightNormalDot < 0)
+          continue;
 
         float lightDistance2 = dot(lightPos - v_Position, lightPos - v_Position);
         if (lightDistance2 > pointLight.radius * pointLight.radius)
             continue;
 
         vec3 lightColor = vec3(pointLight.color[0], pointLight.color[1], pointLight.color[2]) * pointLight.intensity / lightDistance2;
-        vec3 lightDir = normalize(lightPos - v_Position);
 
         // Diffuse factor
-        float diff = max(dot(normal, lightDir), 0.f);
+        float diff = max(lightNormalDot, 0.f);
 
         // Specular factor
         vec3 reflectDir = reflect(-lightDir, normal);
