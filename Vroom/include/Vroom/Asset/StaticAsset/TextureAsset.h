@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
-#include "Vroom/Asset/AssetInstance/TextureInstance.h"
 #include "Vroom/Render/Abstraction/Texture2D.h"
 
 namespace vrm
@@ -9,14 +8,11 @@ namespace vrm
 
   class TextureAsset : public StaticAsset
   {
-  public:
-    using InstanceType = TextureInstance;
-
+    public:
+      using Handle = AssetHandle<TextureAsset>;
   public:
     TextureAsset();
     ~TextureAsset();
-
-    [[nodiscard]] TextureInstance createInstance();
 
     [[nodiscard]] inline const gl::Texture2D &getGPUTexture() const { return m_GPUTexture; }
 

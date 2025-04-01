@@ -66,10 +66,10 @@ bool Scene::loadFromAsset2(const SceneData& data)
   return true;
 }
 
-bool Scene::loadFromAsset(const SceneInstance &sceneAsset)
+bool Scene::loadFromAsset(const SceneAsset::Handle &sceneAsset)
 {
   destroyAllEntities();
-  const auto &data = sceneAsset.getStaticAsset()->getSceneData();
+  const auto &data = sceneAsset->getSceneData();
 
   if (!loadFromAsset2(data))
   {

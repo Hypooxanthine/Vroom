@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vroom/Asset/AssetInstance/TextureInstance.h"
+#include "Vroom/Asset/StaticAsset/TextureAsset.h"
 #include "VroomEditor/UserInterface/ImGuiElement.h"
 
 #include <filesystem>
@@ -41,7 +41,7 @@ protected:
 
   virtual bool onImgui() override;
   virtual void onDrawPicto();
-  virtual TextureInstance getPicto() const;
+  virtual TextureAsset::Handle getPicto() const;
   virtual std::string getPictoAssetName() const;
   virtual void onDrawText();
   virtual std::string getText() const;
@@ -49,7 +49,7 @@ protected:
 
 protected:
   static ImVec2 s_ElementSize;
-  TextureInstance m_Picto;
+  TextureAsset::Handle m_Picto;
 
 private:
   std::filesystem::path m_ElementPath;

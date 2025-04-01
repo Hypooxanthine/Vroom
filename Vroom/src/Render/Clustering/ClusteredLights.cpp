@@ -15,7 +15,7 @@ ClusteredLights::ClusteredLights()
   using namespace std::string_literals;
 
   std::string_view builderPath = "Resources/Engine/Shader/ClusteredRendering/BuildClusters_Shader.json";
-  const auto &builderData = AssetManager::Get().getAsset<ShaderAsset>(builderPath.data()).getStaticAsset()->getShaderData();
+  const auto &builderData = AssetManager::Get().getAsset<ShaderAsset>(builderPath.data())->getShaderData();
 
   auto shaderSrc = builderData.combine();
   VRM_ASSERT_MSG(
@@ -30,7 +30,7 @@ ClusteredLights::ClusteredLights()
   // VRM_LOG_INFO("Builder dumped into {}", builderPath.data() + ".dump.glsl"s);
 
   std::string_view cullerPath = "Resources/Engine/Shader/ClusteredRendering/Cull_Shader.json";
-  const auto &cullerData = AssetManager::Get().getAsset<ShaderAsset>(cullerPath.data()).getStaticAsset()->getShaderData();
+  const auto &cullerData = AssetManager::Get().getAsset<ShaderAsset>(cullerPath.data())->getShaderData();
 
   shaderSrc = cullerData.combine();
   VRM_ASSERT_MSG(

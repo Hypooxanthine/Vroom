@@ -6,7 +6,8 @@
 
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Render/Camera/FirstPersonCamera.h"
-#include "Vroom/Asset/AssetInstance/SceneInstance.h"
+
+#include "Vroom/Asset/StaticAsset/SceneAsset.h"
 
 namespace vrm
 {
@@ -56,7 +57,7 @@ public:
      * 
      * @param sceneAsset Scene asset handle
      */
-    bool loadFromAsset(const SceneInstance& sceneAsset);
+    bool loadFromAsset(const SceneAsset::Handle& sceneAsset);
     
     
     /**

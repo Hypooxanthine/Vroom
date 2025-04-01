@@ -2,16 +2,14 @@
 
 #include <algorithm>
 
-#include "Vroom/Asset/AssetInstance/AssetInstance.h"
-
 using namespace vrm;
 
-void StaticAsset::notifyNewInstance()
+void StaticAsset::notifyNewInstance() const
 {
   m_InstanceCount++;
 }
 
-void StaticAsset::notifyDeleteInstance()
+void StaticAsset::notifyDeleteInstance() const
 {
   m_InstanceCount--;
 }

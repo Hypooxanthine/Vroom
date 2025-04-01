@@ -21,11 +21,6 @@ MaterialAsset::~MaterialAsset()
 {
 }
 
-MaterialInstance MaterialAsset::createInstance()
-{
-  return MaterialInstance(this);
-}
-
 bool MaterialAsset::loadImpl(const std::string& filePath)
 {
   VRM_LOG_INFO("Loading material: {}", filePath);

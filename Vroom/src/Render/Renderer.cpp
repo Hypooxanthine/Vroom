@@ -99,7 +99,7 @@ void Renderer::endScene(const FrameBuffer &target)
   m_Meshes.clear();
 }
 
-void Renderer::submitMesh(const MeshInstance &mesh, const glm::mat4 &model)
+void Renderer::submitMesh(const MeshAsset::Handle &mesh, const glm::mat4 &model)
 {
   m_Meshes.push_back({mesh, model});
 }
@@ -109,11 +109,11 @@ void Renderer::submitPointLight(const glm::vec3 &position, const PointLightCompo
   m_LightRegistry.submitPointLight(pointLight, position, identifier);
 }
 
-void Renderer::drawMesh(const MeshInstance &mesh, const glm::mat4 &model) const
+void Renderer::drawMesh(const MeshAsset::Handle &mesh, const glm::mat4 &model) const
 {
   VRM_DEBUG_ASSERT_MSG(m_Camera, "No camera set for rendering. Did you call beginScene?");
 
-  const auto &subMeshes = mesh.getStaticAsset()->getSubMeshes();
+  const auto &subMeshes = mesh->getSubMeshes();
 
   const auto cameraPos = m_Camera->getPosition();
 
@@ -123,7 +123,7 @@ void Renderer::drawMesh(const MeshInstance &mesh, const glm::mat4 &model) const
     subMesh.renderMesh.getVertexArray().bind();
     subMesh.renderMesh.getIndexBuffer().bind();
 
-    const Shader &shader = subMesh.materialInstance.getStaticAsset()->getShader();
+    const Shader &shader = subMesh.materialInstance->getShader();
     shader.bind();
 
     // Setting uniforms
@@ -139,14 +139,14 @@ void Renderer::drawMesh(const MeshInstance &mesh, const glm::mat4 &model) const
     shader.setStorageBuffer("ClusterInfoBlock", m_ClusteredLights.getClustersShaderStorage());
 
     // Setting material textures uniforms
-    size_t textureCount = subMesh.materialInstance.getStaticAsset()->getTextureCount();
+    size_t textureCount = subMesh.materialInstance->getTextureCount();
     if (textureCount > 0)
     {
       std::vector<int> textureSlots(textureCount);
       for (size_t i = 0; i < textureCount; ++i)
       {
-        const auto &texture = subMesh.materialInstance.getStaticAsset()->getTexture(i);
-        texture.getStaticAsset()->getGPUTexture().bind((unsigned int)i);
+        const auto &texture = subMesh.materialInstance->getTexture(i);
+        texture->getGPUTexture().bind((unsigned int)i);
         textureSlots[i] = (int)i;
       }
 

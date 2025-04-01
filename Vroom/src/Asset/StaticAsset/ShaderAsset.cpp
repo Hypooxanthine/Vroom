@@ -8,8 +8,6 @@
 
 using namespace vrm;
 
-VRM_IMPL_STATIC_ASSET(Shader)
-
 bool ShaderAsset::loadImpl(const std::string& filePath)
 {
   using json = nlohmann::json;
@@ -18,7 +16,7 @@ bool ShaderAsset::loadImpl(const std::string& filePath)
   ifs.open(filePath);
   if (!ifs.is_open())
     return false;
-  
+
   json j;
 
   try

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
-#include "Vroom/Asset/AssetInstance/ShaderInstance.h"
 
 #include "Vroom/Asset/AssetData/ShaderData.h"
 
@@ -10,11 +9,13 @@ namespace vrm
 
   class ShaderAsset : public StaticAsset
   {
-    VRM_DECLARE_STATIC_ASSET(Shader)
-
+  public:
+    using Handle = AssetHandle<ShaderAsset>;
   public:
     ShaderAsset() = default;
     ~ShaderAsset() = default;
+
+    bool loadImpl(const std::string& filePath) override;
 
     const auto& getShaderData() const { return m_data; }
 

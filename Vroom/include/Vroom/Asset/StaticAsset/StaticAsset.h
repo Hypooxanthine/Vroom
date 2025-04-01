@@ -2,15 +2,17 @@
 
 #include "Vroom/Asset/Macros.h"
 
+#include "Vroom/Asset/AssetHandle.h"
+
 #include <memory>
 #include <string>
 
 namespace vrm
 {
 
-class StaticAsset
-{
-public:
+  class StaticAsset
+  {
+  public:
     StaticAsset() = default;
     StaticAsset(const StaticAsset&) = delete;
     StaticAsset& operator=(const StaticAsset&) = delete;
@@ -20,18 +22,18 @@ public:
 
     size_t getInstanceCount() const;
 
-    void notifyNewInstance();
-    void notifyDeleteInstance();
+    void notifyNewInstance() const;
+    void notifyDeleteInstance() const;
 
     bool load(const std::string& filePath);
 
     inline const std::string& getFilePath() const { return m_filePath; }
 
-protected:
+  protected:
 
     /**
      * @brief Get the extension of a file from its path file.
-     * 
+     *
      * @param filePath The file path.
      * @return std::string Lowercase extension of the file, without the dot. Empty string if no extension could be found.
      */
@@ -39,9 +41,9 @@ protected:
 
     virtual bool loadImpl(const std::string& filePath) = 0;
 
-protected:
-    size_t m_InstanceCount = 0;
+  protected:
+    mutable size_t m_InstanceCount = 0;
     std::string m_filePath;
-};
+  };
 
 } // namespace vrm

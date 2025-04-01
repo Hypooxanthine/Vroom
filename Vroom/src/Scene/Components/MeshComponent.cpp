@@ -2,8 +2,7 @@
 
 #include "Vroom/Asset/Asset.h"
 
-namespace vrm
-{
+using namespace vrm;
 
 MeshComponent::MeshComponent()
   : MeshComponent(AssetManager::Get().getAsset<MeshAsset>("Resources/Engine/Meshes/default_cube.obj"))
@@ -11,19 +10,17 @@ MeshComponent::MeshComponent()
 
 }
 
-MeshComponent::MeshComponent(const MeshInstance& meshInstance)
-    : m_MeshInstance(meshInstance)
+MeshComponent::MeshComponent(const MeshAsset::Handle& meshInstance)
+  : m_MeshInstance(meshInstance)
 {
 }
 
-const MeshInstance& MeshComponent::getMesh() const
+const MeshAsset::Handle& MeshComponent::getMesh() const
 {
-    return m_MeshInstance;
+  return m_MeshInstance;
 }
 
-void MeshComponent::setMesh(const MeshInstance& meshInstance)
+void MeshComponent::setMesh(const MeshAsset::Handle& meshInstance)
 {
-    m_MeshInstance = meshInstance;
+  m_MeshInstance = meshInstance;
 }
-
-} // namespace vrm

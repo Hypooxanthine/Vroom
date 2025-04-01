@@ -203,7 +203,7 @@ VRM_REGISTER_COMPONENT_EDITOR(MeshComponent, e)
 
   constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsNoBlank;
 
-  std::string resourceName = component.getMesh().getStaticAsset()->getFilePath();
+  std::string resourceName = component.getMesh()->getFilePath();
   if (ImGui::InputText("Mesh", &resourceName, flags))
   {
     if (AssetManager::Get().tryLoadAsset<MeshAsset>(resourceName))

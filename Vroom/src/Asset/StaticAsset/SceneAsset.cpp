@@ -7,8 +7,7 @@
 #include "Vroom/Asset/AssetData/SceneData.h"
 #include "Vroom/Asset/Parsing/SceneParsing.h"
 
-namespace vrm
-{
+using namespace vrm;
 
 SceneAsset::SceneAsset()
 {
@@ -18,19 +17,14 @@ SceneAsset::~SceneAsset()
 {
 }
 
-SceneInstance SceneAsset::createInstance()
-{
-  return SceneInstance(this);
-}
-
-bool SceneAsset::loadImpl(const std::string &filePath)
+bool SceneAsset::loadImpl(const std::string& filePath)
 {
   using json = nlohmann::json;
 
   std::ifstream ifs;
   ifs.open(filePath);
   VRM_CHECK_RET_FALSE_MSG(ifs.is_open(), "Could not open {}", filePath);
-  
+
   json jsonData;
 
   try
@@ -49,5 +43,3 @@ bool SceneAsset::loadImpl(const std::string &filePath)
 
   return true;
 }
-
-} // namespace vrm

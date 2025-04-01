@@ -3,10 +3,8 @@
 #include <stb_image/stb_image.h>
 
 #include "Vroom/Core/Log.h"
-#include "Vroom/Asset/AssetInstance/TextureInstance.h"
 
-namespace vrm
-{
+using namespace vrm;
 
 TextureAsset::TextureAsset()
 {
@@ -16,26 +14,19 @@ TextureAsset::~TextureAsset()
 {
 }
 
-TextureInstance TextureAsset::createInstance()
-{
-    return TextureInstance(this);
-}
-
 bool TextureAsset::loadImpl(const std::string& filePath)
 {
-    VRM_LOG_INFO("Loading texture: {}", filePath);
-    
-    if (!m_TextureData.loadFromFile(filePath))
-    {
-        VRM_LOG_ERROR("Failed to load texture: {}", filePath);
-        return false;
-    }
+  VRM_LOG_INFO("Loading texture: {}", filePath);
 
-    m_GPUTexture.loadFromTextureData(m_TextureData);
+  if (!m_TextureData.loadFromFile(filePath))
+  {
+    VRM_LOG_ERROR("Failed to load texture: {}", filePath);
+    return false;
+  }
 
-    VRM_LOG_INFO("Texture loaded.");
+  m_GPUTexture.loadFromTextureData(m_TextureData);
 
-    return true;
-}
+  VRM_LOG_INFO("Texture loaded.");
 
+  return true;
 }

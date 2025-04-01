@@ -56,18 +56,18 @@ bool AssetElement::onImgui()
 
 void AssetElement::onDrawPicto()
 {
-  if (m_Picto.getStaticAsset() == nullptr)
+  if (!m_Picto.isValid())
     m_Picto = getPicto();
 
   ImVec2 imgSize = {GetElementSize().x * 0.6f, GetElementSize().y * 0.6f};
   ImGui::SetCursorPosX((GetElementSize().x - imgSize.x) / 2.f);
   ImGui::Image(
-      (ImTextureID)(intptr_t)m_Picto.getStaticAsset()->getGPUTexture().getRendererID(),
+      (ImTextureID)(intptr_t)m_Picto->getGPUTexture().getRendererID(),
       imgSize,
       ImVec2(0, 1), ImVec2(1, 0));
 }
 
-TextureInstance AssetElement::getPicto() const
+TextureAsset::Handle AssetElement::getPicto() const
 {
   const auto picto = AssetManager::Get().getAsset<TextureAsset>(getPictoAssetName());
   return picto;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vroom/Asset/AssetInstance/MeshInstance.h"
+#include "Vroom/Asset/StaticAsset/MeshAsset.h"
 
 namespace vrm
 {
@@ -22,21 +22,21 @@ public:
      * 
      * @param meshInstance The mesh instance.
      */
-    MeshComponent(const MeshInstance& meshInstance);
+    MeshComponent(const MeshAsset::Handle& meshInstance);
 
     /**
      * @brief Get the mesh instance.
      * 
      * @return The mesh instance.
      */
-    const MeshInstance& getMesh() const;
+    const MeshAsset::Handle& getMesh() const;
 
     /**
      * @brief Set the mesh instance.
      * 
      * @param meshInstance The mesh instance.
      */
-    void setMesh(const MeshInstance& meshInstance);
+    void setMesh(const MeshAsset::Handle& meshInstance);
 
     /**
      * @brief Set the visibility of the mesh.
@@ -53,7 +53,7 @@ public:
     inline bool isVisible() const { return m_IsVisible; }
 
 private:
-    MeshInstance m_MeshInstance;
+    MeshAsset::Handle m_MeshInstance;
     bool m_IsVisible = true;
 };
 

@@ -1,9 +1,7 @@
 #pragma once
 
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
-#include "Vroom/Asset/AssetInstance/MaterialInstance.h"
-#include "Vroom/Asset/AssetInstance/TextureInstance.h"
-
+#include "Vroom/Asset/StaticAsset/TextureAsset.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 
 #include <fstream>
@@ -15,18 +13,10 @@ namespace vrm
   class MaterialAsset : public StaticAsset
   {
   public:
-    using InstanceType = MaterialInstance;
-
+    using Handle = AssetHandle<MaterialAsset>;
   public:
     MaterialAsset();
     ~MaterialAsset();
-
-    /**
-     * @brief Create a new instance of the material.
-     *
-     * @return MaterialInstance The new instance.
-     */
-    [[nodiscard]] MaterialInstance createInstance();
 
     /**
      * @brief Get the shader of the material.
@@ -48,14 +38,14 @@ namespace vrm
      * @param slot The slot of the texture.
      * @return const TextureInstance& The texture.
      */
-    [[nodiscard]] inline const TextureInstance &getTexture(size_t slot) const { return m_Textures[slot]; }
+    [[nodiscard]] inline const TextureAsset::Handle &getTexture(size_t slot) const { return m_Textures[slot]; }
 
   protected:
     bool loadImpl(const std::string &filePath) override;
 
   private:
     gl::Shader m_Shader;
-    std::vector<TextureInstance> m_Textures;
+    std::vector<TextureAsset::Handle> m_Textures;
   };
 
 } // namespace vrm

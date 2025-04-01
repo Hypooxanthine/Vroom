@@ -11,10 +11,10 @@
 #include "Vroom/Render/Clustering/LightRegistry.h"
 #include "Vroom/Render/Clustering/ClusteredLights.h"
 
-#include "Vroom/Asset/AssetInstance/MeshInstance.h"
-#include "Vroom/Asset/AssetInstance/ShaderInstance.h"
-
 #include "Vroom/Render/Camera/CameraBasic.h"
+
+#include "Vroom/Asset/StaticAsset/MeshAsset.h"
+#include "Vroom/Asset/StaticAsset/ShaderAsset.h"
 
 namespace vrm
 {
@@ -84,7 +84,7 @@ public:
 	 * @param mesh  The mesh to submit.
 	 * @param model  The model matrix.
 	 */
-	void submitMesh(const MeshInstance& mesh, const glm::mat4& model);
+	void submitMesh(const MeshAsset::Handle& mesh, const glm::mat4& model);
 
 	/**
 	 * @brief Submits a point light to be drawn.
@@ -103,7 +103,7 @@ public:
 	 * @param mesh  The mesh to draw.
 	 * @param model  The model matrix.
 	 */
-	void drawMesh(const MeshInstance& mesh, const glm::mat4& model) const;
+	void drawMesh(const MeshAsset::Handle& mesh, const glm::mat4& model) const;
 
 	/**
 	 * @brief Gets the viewport origin.
@@ -147,7 +147,7 @@ private:
 	// Structs to store data to be drawn
 	struct QueuedMesh
 	{
-		MeshInstance mesh;
+		MeshAsset::Handle mesh;
 		const glm::mat4& model;
 	};
 
