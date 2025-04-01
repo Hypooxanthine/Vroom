@@ -39,7 +39,7 @@ namespace vrm
 
     virtual bool loadImpl(const std::string& filePath) = 0;
 
-  protected:
+  private:
     mutable size_t m_InstanceCount = 0;
     std::string m_filePath;
   };
