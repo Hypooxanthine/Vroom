@@ -101,6 +101,8 @@ namespace vrm::gl
     {
       StorageBufferBase::operator=(std::move(other));
       Parent::operator=(std::move(other));
+
+      return *this;
     }
 
     inline void reset(GLsizei capacity, GLenum usage = GL_DYNAMIC_DRAW)
@@ -144,6 +146,8 @@ namespace vrm::gl
     {
       StorageBufferBase::operator=(std::move(other));
       Parent::operator=(std::move(other));
+
+      return *this;
     }
 
     inline void reset(GLsizei capacity, GLenum usage = GL_DYNAMIC_DRAW)

@@ -1,6 +1,8 @@
 #ifndef _MATERIALBASE_FRAGMENT_GLSL_
 #define _MATERIALBASE_FRAGMENT_GLSL_
 
+#include "CommonLights.glsl"
+
 layout(location = 0) out vec4 finalColor;
 
 //--------------------------------------------------
