@@ -1,3 +1,0 @@
-shading-model Phong
-
-prefrag Resources/Engine/Shader/FragmentShader/PreFrag/PreFrag_Phong_Default.glsl

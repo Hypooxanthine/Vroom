@@ -21,6 +21,36 @@ void ShaderData::CombinedShader::dump(const std::string& path) const
   ofs.close();
 }
 
+void ShaderData::ShaderProperties::absorb(const ShaderProperties& other)
+{
+  enable = enable || other.enable;
+  if (version.empty())
+  {
+    version = other.version;
+  }
+  
+  extensions.insert(extensions.end(), other.extensions.begin(), other.extensions.end());
+  earlySources.insert(earlySources.end(), other.earlySources.begin(), other.earlySources.end());
+  sources.insert(sources.end(), other.sources.begin(), other.sources.end());
+  defines.insert(defines.end(), other.defines.begin(), other.defines.end());
+  vertexAttributes.insert(vertexAttributes.end(), other.vertexAttributes.begin(), other.vertexAttributes.end());
+  uniforms.insert(uniforms.end(), other.uniforms.begin(), other.uniforms.end());
+  uniformBuffers.insert(uniformBuffers.end(), other.uniformBuffers.begin(), other.uniformBuffers.end());
+  storageBuffers.insert(storageBuffers.end(), other.storageBuffers.begin(), other.storageBuffers.end());
+}
+
+void ShaderData::absorb(const ShaderData& other)
+{
+  m_varyings.insert(m_varyings.end(), other.m_varyings.begin(), other.m_varyings.end());
+  m_globalProperties.absorb(other.m_globalProperties);
+
+  for (uint8_t i = 0; i < static_cast<uint8_t>(EShaderType::eCount); ++i)
+  {
+    auto type = static_cast<EShaderType>(i);
+    getProps(type).absorb(other.getProps(type));
+  }
+}
+
 void ShaderData::setShaderEnabled(const EShaderType& shader, const bool enable)
 {
   getProps(shader).enable = enable;
@@ -46,7 +76,7 @@ void ShaderData::addVertexAttribute(const VertexAttribute& attrib)
   getProps(EShaderType::eVertex).vertexAttributes.emplace_back(attrib);
 }
 
-void ShaderData::addVarying(const EShaderType& shader, const Varying& varying)
+void ShaderData::addVarying(const Varying& varying)
 {
   m_varyings.emplace_back(varying);
 }

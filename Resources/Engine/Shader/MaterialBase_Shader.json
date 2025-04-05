@@ -26,15 +26,19 @@
       },
       {
         "Name": "u_ViewPosition",
-        "Type": "vec4"
+        "Type": "vec3"
       },
       {
         "Name": "u_Near",
         "Type": "float"
       },
       {
+        "Name": "u_Far",
+        "Type": "float"
+      },
+      {
         "Name": "u_ViewportSize",
-        "Type": "vec2"
+        "Type": "uvec2"
       }
     ]
   },
@@ -66,13 +70,13 @@
       {
         "File": "Resources/Engine/Shader/ClusteredRendering/Common.glsl",
         "EnableIf": "VRM_CLUSTERED_RENDERING"
-      },
-      {
-        "File": "Resources/Engine/Shader/ClusteredRendering/MaterialBase_ClusteredRendering.glsl",
-        "EnableIf": "VRM_CLUSTERED_RENDERING"
       }
     ],
     "Sources": [
+      {
+        "File": "Resources/Engine/Shader/ClusteredRendering/MaterialBase_FragmentClusteredRendering.glsl",
+        "EnableIf": "VRM_CLUSTERED_RENDERING"
+      },
       "Resources/Engine/Shader/MaterialBase_Fragment.glsl"
     ],
     "StorageBuffers": [

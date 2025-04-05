@@ -123,6 +123,9 @@ void Renderer::drawMesh(const MeshAsset::Handle &mesh, const glm::mat4 &model) c
     subMesh.renderMesh.getVertexArray().bind();
     subMesh.renderMesh.getIndexBuffer().bind();
 
+    // Material uniforms
+    subMesh.materialInstance->applyUniforms();
+
     const Shader &shader = subMesh.materialInstance->getShader();
     shader.bind();
 
@@ -137,21 +140,6 @@ void Renderer::drawMesh(const MeshAsset::Handle &mesh, const glm::mat4 &model) c
     shader.setUniform2ui("u_ViewportSize", m_ViewportSize.x, m_ViewportSize.y);
     shader.setStorageBuffer("LightBlock", m_LightRegistry.getPointLightsStorageBuffer());
     shader.setStorageBuffer("ClusterInfoBlock", m_ClusteredLights.getClustersShaderStorage());
-
-    // Setting material textures uniforms
-    size_t textureCount = subMesh.materialInstance->getTextureCount();
-    if (textureCount > 0)
-    {
-      std::vector<int> textureSlots(textureCount);
-      for (size_t i = 0; i < textureCount; ++i)
-      {
-        const auto &texture = subMesh.materialInstance->getTexture(i);
-        texture->getGPUTexture().bind((unsigned int)i);
-        textureSlots[i] = (int)i;
-      }
-
-      shader.setUniform1iv("u_Texture", (int)textureCount, textureSlots.data());
-    }
 
     // Drawing data
     GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)subMesh.meshData.getIndexCount(), GL_UNSIGNED_INT, nullptr));

@@ -19,14 +19,10 @@ static bool TryGetSource(const std::string& filePath, std::string& out)
 {
   std::ifstream ifs(filePath, std::ios::in | std::ios::binary);
   CHECK(ifs.is_open(), "Could not open file {}", filePath);
-  out.clear();
 
-  std::string line;
-  while (std::getline(ifs, line))
-  {
-    out += line;
-    out += '\n';
-  }
+  std::ostringstream ss;
+  ss << ifs.rdbuf();
+  out = ss.str();
 
   return true;
 }
@@ -414,7 +410,7 @@ PARSER_FUNC(ParseVarying)
     v.qualifier = table.at(QualifierVal);
   }
 
-  out.addVarying(type, v);
+  out.addVarying(v);
 
   return true;
 }
@@ -425,7 +421,7 @@ PARSER_FUNC(ParseVaryings)
 
   for (const auto& j_varying : j)
   {
-    CHECK(ParseVarying(type, j, out), "Error while parsing varying");
+    CHECK(ParseVarying(type, j_varying, out), "Error while parsing varying");
   }
 
   return true;
@@ -454,9 +450,9 @@ bool ShaderParsing::Parse(const json& j, ShaderData& out)
     }
   }
 
-  IF_HAS_ATTR_STRING(j, Varyings)
+  IF_HAS_ATTR(j, Varyings)
   {
-    CHECK(ParseVaryings(ShaderData::EShaderType::eNone, j, out), "Error while parsing varyings");
+    CHECK(ParseVaryings(ShaderData::EShaderType::eNone, Varyings, data), "Error while parsing varyings");
   }
 
   out = std::move(data);

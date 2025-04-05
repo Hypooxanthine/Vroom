@@ -98,7 +98,7 @@ namespace vrm
     struct ShaderProperties
     {
       bool enable = false;
-      std::string version;
+      std::string version; // Absorbed only if absorber version is empty
       std::vector<Extension> extensions;
       std::vector<SourceElement> earlySources;
       std::vector<SourceElement> sources;
@@ -107,6 +107,8 @@ namespace vrm
       std::vector<Uniform> uniforms;
       std::vector<UniformBuffer> uniformBuffers;
       std::vector<StorageBuffer> storageBuffers;
+
+      void absorb(const ShaderProperties& other);
     };
 
     struct CombinedShader
@@ -139,12 +141,14 @@ namespace vrm
 
   public:
 
+    void absorb(const ShaderData& other);
+
     void setShaderEnabled(const EShaderType& shader, const bool enable);
     void setVersion(const EShaderType& shader, const std::string& version);
     void addExtension(const EShaderType& shader, const Extension& ext);
     void addDefine(const EShaderType& shader, const Define& define);
     void addVertexAttribute(const VertexAttribute& attrib);
-    void addVarying(const EShaderType& shader, const Varying& varying);
+    void addVarying(const Varying& varying);
     void addUniform(const EShaderType& shader, const Uniform& uniform);
     void addUniformBuffer(const EShaderType& shader, const UniformBuffer& uniformBuffer);
     void addStorageBuffer(const EShaderType& shader, const StorageBuffer& storageBuffer);

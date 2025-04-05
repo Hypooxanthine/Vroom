@@ -1,43 +1,81 @@
 #pragma once
 
-#include <unordered_map>
-#include <string>
 #include <glm/glm.hpp>
+#include <string>
+#include <variant>
+#include <unordered_map>
 
 namespace vrm
 {
 
-namespace gl
-{
-  class Shader;
-}
+  class MaterialData
+  {
+  public:
+    enum class EShadingModel : uint8_t
+    {
+      ePhong = 0,
+      eCount,
+      eDefault = ePhong
+    };
 
-class MaterialData
-{
-public:
+    struct Parameter
+    {
+      std::string name;
+      std::variant<float, glm::vec2, glm::vec3, glm::vec4, std::string> value;
+
+      template <typename T>
+      inline void setValue(const T &val) { value = val; }
+
+      inline bool isFloat() const { return std::holds_alternative<float>(value); }
+      inline const float &getFloat() const { return std::get<float>(value); }
+
+      inline bool isVec2() const { return std::holds_alternative<glm::vec2>(value); }
+      inline const glm::vec2 &getVec2() const { return std::get<glm::vec2>(value); }
+
+      inline bool isVec3() const { return std::holds_alternative<glm::vec3>(value); }
+      inline const glm::vec3 &getVec3() const { return std::get<glm::vec3>(value); }
+
+      inline bool isVec4() const { return std::holds_alternative<glm::vec4>(value); }
+      inline const glm::vec4 &getVec4() const { return std::get<glm::vec4>(value); }
+
+      inline bool isTexture() const { return std::holds_alternative<std::string>(value); }
+      inline const std::string &getTexture() const { return std::get<std::string>(value); }
+    };
+
+  public:
     MaterialData();
     ~MaterialData();
 
-    void applyUniforms(const gl::Shader& shader) const;
+    inline static const std::string &GetShadingModelName(EShadingModel model);
 
-    void setMat4Uniform(const std::string& name, const glm::mat4& value);
-    void setVec4Uniform(const std::string& name, const glm::vec4& value);
-    void setVec3Uniform(const std::string& name, const glm::vec3& value);
-    void setVec2Uniform(const std::string& name, const glm::vec2& value);
-    void setFloatUniform(const std::string& name, float value);
-    void setIntUniform(const std::string& name, int value);
-    void setBoolUniform(const std::string& name, bool value);
-    void setTextureUniform(const std::string& name, unsigned int value);
+    void setShadingModel(EShadingModel model);
+    inline EShadingModel getShadingModel() const { return m_shadingModel; }
+    inline const std::string &getShadingModelName() const { return GetShadingModelName(m_shadingModel); }
 
-private:
-    std::unordered_map<std::string, glm::mat4> m_Mat4Uniforms;
-    std::unordered_map<std::string, glm::vec4> m_Vec4Uniforms;
-    std::unordered_map<std::string, glm::vec3> m_Vec3Uniforms;
-    std::unordered_map<std::string, glm::vec2> m_Vec2Uniforms;
-    std::unordered_map<std::string, float> m_FloatUniforms;
-    std::unordered_map<std::string, int> m_IntUniforms;
-    std::unordered_map<std::string, bool> m_BoolUniforms;
-    std::unordered_map<std::string, unsigned int> m_TextureUniforms;
-};
+
+    void addParameter(const Parameter &param);
+
+    bool hasParameter(const std::string &name) const;
+
+    const Parameter &getParameter(const std::string &name) const;
+
+    inline const auto &getParameters() const { return m_parameters; }
+
+    inline const auto &getTextureCount() const { return m_textureCount; }
+
+  private:
+    EShadingModel m_shadingModel = EShadingModel::eDefault;
+    std::unordered_map<std::string, Parameter> m_parameters;
+    uint8_t m_textureCount = 0;
+  };
+
+  inline const std::string &MaterialData::GetShadingModelName(EShadingModel model)
+  {
+    static const std::unordered_map<EShadingModel, std::string> table = {
+      { EShadingModel::ePhong, "Phong" }
+    };
+
+    return table.at(model);
+  }
 
 } // namespace vrm

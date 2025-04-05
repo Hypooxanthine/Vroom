@@ -1,7 +1,0 @@
-# Specifying default shaders will have no effect since default shaders will be used when none is specified.
-
-# vertex Resources/Engine/Shader/VertexShader/Vertex_Default.glsl
-
-shading-model    Phong
-# prefrag        Resources/Engine/Shader/FragmentShader/PreFrag/PreFrag_Phong_Default.glsl
-# postfrag       Resources/Engine/Shader/FragmentShader/PostFrag/PostFrag_Default.glsl

@@ -2,10 +2,9 @@
 
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
 #include "Vroom/Asset/StaticAsset/TextureAsset.h"
+#include "Vroom/Asset/AssetData/MaterialData.h"
+#include "Vroom/Asset/AssetData/ShaderData.h"
 #include "Vroom/Render/Abstraction/Shader.h"
-
-#include <fstream>
-#include <vector>
 
 namespace vrm
 {
@@ -14,38 +13,30 @@ namespace vrm
   {
   public:
     using Handle = AssetHandle<MaterialAsset>;
+
   public:
     MaterialAsset();
     ~MaterialAsset();
 
-    /**
-     * @brief Get the shader of the material.
-     *
-     * @return const Shader& The shader.
-     */
-    [[nodiscard]] inline const gl::Shader &getShader() const { return m_Shader; }
+    [[nodiscard]] inline const MaterialData &getData() const { return m_data; }
 
-    /**
-     * @brief Get the number of textures in the material.
-     *
-     * @return size_t The number of textures.
-     */
-    [[nodiscard]] inline size_t getTextureCount() const { return m_Textures.size(); }
+    [[nodiscard]] inline const gl::Shader &getShader() const { return m_gpuShader; }
 
-    /**
-     * @brief Get a texture from the material.
-     *
-     * @param slot The slot of the texture.
-     * @return const TextureInstance& The texture.
-     */
-    [[nodiscard]] inline const TextureAsset::Handle &getTexture(size_t slot) const { return m_Textures[slot]; }
+    [[nodiscard]] inline const std::vector<TextureAsset::Handle>& getTextures() const { return m_textures; }
+
+    void applyUniforms() const;
 
   protected:
     bool loadImpl(const std::string &filePath) override;
 
+    bool buildShader();
+
   private:
-    gl::Shader m_Shader;
-    std::vector<TextureAsset::Handle> m_Textures;
+    MaterialData m_data;
+    ShaderData m_shaderData;
+    std::vector<TextureAsset::Handle> m_textures;
+
+    gl::Shader m_gpuShader;
   };
 
 } // namespace vrm

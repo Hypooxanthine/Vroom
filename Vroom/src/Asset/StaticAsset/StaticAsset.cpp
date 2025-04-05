@@ -21,9 +21,10 @@ size_t StaticAsset::getInstanceCount() const
 
 bool StaticAsset::load(const std::string& filePath)
 {
+  m_filePath = filePath;
+  
   if (loadImpl(filePath))
   {
-    m_filePath = filePath;
     return true;
   }
   else

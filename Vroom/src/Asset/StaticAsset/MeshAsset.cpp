@@ -113,7 +113,7 @@ bool MeshAsset::loadObj(const std::string& filePath)
 
     if (!mesh.MaterialName.empty())
     {
-      MaterialAsset::Handle materialInstance = AssetManager::Get().getAsset<MaterialAsset>(fileDirectoryPath + mesh.MaterialName + ".asset");
+      MaterialAsset::Handle materialInstance = AssetManager::Get().getAsset<MaterialAsset>(fileDirectoryPath + mesh.MaterialName + ".json");
       MeshData meshData(std::move(vertices), std::move(indices));
       RenderMesh renderMesh(meshData);
 
@@ -121,7 +121,7 @@ bool MeshAsset::loadObj(const std::string& filePath)
     }
     else
     {
-      MaterialAsset::Handle materialInstance = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/Mat_Default.asset");
+      MaterialAsset::Handle materialInstance = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/DefaultMaterial.json");
       MeshData meshData(std::move(vertices), std::move(indices));
       RenderMesh renderMesh(meshData);
 

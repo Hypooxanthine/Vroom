@@ -3,10 +3,14 @@
 
 float linearizeDepth(float depth);
 
-vec3 g_clusterIndex;
+uint g_clusterIndex;
 
 void SetupGlobalVars_ClusteredRendering()
 {
+  uint xCount = ClusterInfoBlock_xCount;
+  uint yCount = ClusterInfoBlock_yCount;
+  uint zCount = ClusterInfoBlock_zCount;
+
   // Coordinates of the frag in VS for finding the right cluster
   uint zCoord = uint((log(abs(v_CameraDepth) / u_Near) * zCount) / log(u_Far / u_Near));
   vec2 clusterSizeXY = vec2(u_ViewportSize) / vec2(xCount, yCount);
@@ -24,13 +28,13 @@ uint GetClusterIndex()
 uint GetRelevantPointLightCount_ClusteredRendering()
 {
   uint clusterIndex = GetClusterIndex();
-  return clusters[clusterIndex].indexCount;
+  return ClusterInfoBlock_clusters[clusterIndex].indexCount;
 }
 
 PointLight GetRelevantPointLight_ClusteredRendering(in uint index)
 {
   uint clusterIndex = GetClusterIndex();
-  uint lightIndex = clusters[clusterIndex].lightIndices[index];
+  uint lightIndex = ClusterInfoBlock_clusters[clusterIndex].lightIndices[index];
   return LightBlock_pointLights[lightIndex];
 }
 

@@ -1,15 +1,13 @@
 #ifndef _MATERIALBASE_FRAGMENT_GLSL_
 #define _MATERIALBASE_FRAGMENT_GLSL_
 
-#include "CommonLights.glsl"
-
 layout(location = 0) out vec4 finalColor;
 
 //--------------------------------------------------
 // Function declarations
 
 // To be defined by the shading model
-vec3 ShadingModel(in vec3 lightColor, in vec3 lightDirection, in float lightIntensity, in vec3 viewDir);
+vec3 ShadingModel(in vec3 lightColor, in vec3 lightDirection, in vec3 viewDir);
 
 void SetupGlobalVars();
 vec4 ComputeFragmentColor();
@@ -45,7 +43,7 @@ void main()
 
 void SetupGlobalVars()
 {
-  g_viewDir = (u_ViewPosition - v_Position);
+  g_viewDir = (u_ViewPosition.xyz - v_Position.xyz);
   g_normal = normalize(v_Normal);
 
 #ifdef VRM_CLUSTERED_RENDERING
@@ -56,6 +54,7 @@ void SetupGlobalVars()
 vec4 ComputeFragmentColor()
 {
   uint pointLightCount = GetRelevantPointLightCount();
+  vec3 shadeColor = vec3(0.f, 0.f, 0.f);
   
   for (int i = 0; i < pointLightCount; ++i)
   {
@@ -71,7 +70,7 @@ vec4 ComputeFragmentColor()
     vec3 lightColor = vec3(pointLight.color[0], pointLight.color[1], pointLight.color[2]);
     float lightIntensity = pointLight.intensity / (4.f * VRM_PI * lightDistance2);
 
-    float lightContribution = ShadingModel(lightColor, lightDir, lightIntensity, g_viewDir);
+    vec3 lightContribution = ShadingModel(lightColor * lightIntensity, lightDir, g_viewDir);
 
     shadeColor += lightContribution;
   }

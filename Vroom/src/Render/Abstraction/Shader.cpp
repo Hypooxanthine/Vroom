@@ -6,6 +6,9 @@
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Core/Log.h"
 
+#include "Vroom/Render/Abstraction/StorageBuffer.h"
+#include "Vroom/Render/Abstraction/Texture2D.h"
+
 using namespace vrm;
 using namespace vrm::gl;
 
@@ -208,6 +211,12 @@ GLuint Shader::getStorageBufferIndex(const GLString& name) const
   }
 
   return m_ssboIndexCache.at(name);
+}
+
+void Shader::setTexture(const GLString &name, const Texture2D &texture, GLuint slot) const
+{
+  texture.bind(slot);
+  setUniform1i(name, slot);
 }
 
 void Shader::setStorageBuffer(const GLString& name, const StorageBufferBase& ssbo) const
