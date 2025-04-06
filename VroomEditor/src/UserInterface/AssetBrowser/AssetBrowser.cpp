@@ -4,22 +4,13 @@
 
 #include "VroomEditor/EditorLayer.h"
 
-#include "VroomEditor/UserInterface/AssetBrowser/AssetDirectory.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetUtils.h"
+
 #include "VroomEditor/UserInterface/AssetBrowser/AssetParentDir.h"
-#include "VroomEditor/UserInterface/AssetBrowser/AssetFile.h"
-#include "VroomEditor/UserInterface/AssetBrowser/AssetFileSceneAsset.h"
 
 #include "Vroom/Core/Log.h"
 
 using namespace vrm;
-
-AssetFile *AssetBrowser::CreateAssetFile(const std::filesystem::path &path)
-{
-  if (path.extension() == ".scene")
-    return new AssetFileSceneAsset(path);
-  else
-    return new AssetFile(path);
-}
 
 AssetBrowser::AssetBrowser(const std::filesystem::path &resourcesPath)
     : ImGuiElement(),
@@ -58,24 +49,32 @@ void AssetBrowser::updateDirectoryContent()
   {
     m_Assets.emplace_back().reset(new AssetParentDir(m_CurrentPath.parent_path()));
   }
+  
+  std::vector<std::unique_ptr<vrm::AssetElement>> dirs;
+  std::vector<std::unique_ptr<vrm::AssetElement>> files;
 
-  // Directories first
   for (const auto &entry : std::filesystem::directory_iterator(m_CurrentPath))
   {
+    auto element = AssetUtils::CreateAssetElement(entry.path());
+
+    if (element == nullptr)
+      continue;
+
     if (entry.is_directory())
     {
-      m_Assets.emplace_back().reset(new AssetDirectory(entry.path()));
+      dirs.emplace_back(std::move(element));
+    }
+    else
+    {
+      files.emplace_back(std::move(element));
     }
   }
 
-  // Files then
-  for (const auto &entry : std::filesystem::directory_iterator(m_CurrentPath))
-  {
-    if (entry.is_regular_file())
-    {
-      m_Assets.emplace_back().reset(CreateAssetFile(entry.path()));
-    }
-  }
+  m_Assets.reserve(m_Assets.size() + dirs.size() + files.size());
+  for (auto&& elem : dirs)
+    m_Assets.emplace_back(std::move(elem));
+  for (auto&& elem : files)
+    m_Assets.emplace_back(std::move(elem));
 }
 
 bool AssetBrowser::onImgui()

@@ -212,11 +212,12 @@ bool MeshComponentEditor::editEntityComponent(Entity& e) const
   std::pair<size_t, MaterialAsset::Handle> requestNewMaterial;
 
   std::string resourceName = component.getMesh()->getFilePath();
+  bool meshChanged = false;
   if (ImGui::InputText("Mesh", &resourceName, flags))
   {
     if (AssetManager::Get().tryLoadAsset<MeshAsset>(resourceName))
     {
-      requestNewMesh = AssetManager::Get().getAsset<MeshAsset>(resourceName);
+      meshChanged = true;
     }
     else
     {
@@ -227,6 +228,29 @@ bool MeshComponentEditor::editEntityComponent(Entity& e) const
     }
   }
 
+  if (ImGui::BeginDragDropTarget())
+  {
+    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MeshAsset"))
+    {
+      // Entity* newChild = (Entity*)payload->Data;
+      std::filesystem::path meshPath = *(std::filesystem::path*)payload->Data;
+
+      if (AssetManager::Get().tryLoadAsset<MeshAsset>(meshPath.string()))
+      {
+        auto here = std::filesystem::current_path();
+        resourceName = meshPath.lexically_relative(here).string();
+        meshChanged = true;
+      }
+    }
+
+    ImGui::EndDragDropTarget();
+  }
+
+  if (meshChanged)
+  {
+    requestNewMesh = AssetManager::Get().getAsset<MeshAsset>(resourceName);
+  }
+
   // ImGui::Text("Materials");
   uint8_t matSlot = 0;
   for (matSlot; matSlot < component.getMaterials().getSlotCount(); ++matSlot)
@@ -234,6 +258,7 @@ bool MeshComponentEditor::editEntityComponent(Entity& e) const
     const auto& mat = component.getMaterials().getMaterial(matSlot);
     std::string inputName = "Material " + std::to_string(matSlot);
     std::string resourceName = mat->getFilePath();
+    bool resourceChanged = false;
     
     constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsNoBlank;
 
@@ -241,8 +266,7 @@ bool MeshComponentEditor::editEntityComponent(Entity& e) const
     {
       if (AssetManager::Get().tryLoadAsset<MaterialAsset>(resourceName))
       {
-        requestNewMaterial.first = matSlot;
-        requestNewMaterial.second = AssetManager::Get().getAsset<MaterialAsset>(resourceName);
+        resourceChanged = true;
       }
       else
       {
@@ -251,6 +275,30 @@ bool MeshComponentEditor::editEntityComponent(Entity& e) const
           state->ReloadUserBufAndKeepSelection();
         }
       }
+    }
+
+    if (ImGui::BeginDragDropTarget())
+    {
+      if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MaterialAsset"))
+      {
+        // Entity* newChild = (Entity*)payload->Data;
+        std::filesystem::path materialPath = *(std::filesystem::path*)payload->Data;
+
+        if (AssetManager::Get().tryLoadAsset<MaterialAsset>(materialPath.string()))
+        {
+          auto here = std::filesystem::current_path();
+          resourceName = materialPath.lexically_relative(here).string();
+          resourceChanged = true;
+        }
+      }
+
+      ImGui::EndDragDropTarget();
+    }
+
+    if (resourceChanged)
+    {
+      requestNewMaterial.first = matSlot;
+      requestNewMaterial.second = AssetManager::Get().getAsset<MaterialAsset>(resourceName);
     }
   }
 

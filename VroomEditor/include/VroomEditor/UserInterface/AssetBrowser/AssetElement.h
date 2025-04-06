@@ -4,6 +4,7 @@
 #include "VroomEditor/UserInterface/ImGuiElement.h"
 
 #include <filesystem>
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 
 namespace vrm
@@ -46,6 +47,7 @@ protected:
   virtual void onDrawText();
   virtual std::string getText() const;
   virtual EAction onDoubleClick() { return EAction::eNone; }
+  virtual void onAddCustomBehaviour() {};
 
 protected:
   static ImVec2 s_ElementSize;

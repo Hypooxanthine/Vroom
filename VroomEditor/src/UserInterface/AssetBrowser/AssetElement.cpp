@@ -5,10 +5,11 @@
 
 #include <Vroom/Core/Log.h>
 #include <imgui.h>
+#include <imgui_internal.h>
 
 using namespace vrm;
 
-ImVec2 AssetElement::s_ElementSize = {100.f, 100.f};
+ImVec2 AssetElement::s_ElementSize = { 100.f, 100.f };
 
 AssetElement::AssetElement(const std::filesystem::path &elementPath)
     : ImGuiElement(), m_ElementPath(std::filesystem::canonical(elementPath))
@@ -26,11 +27,10 @@ bool AssetElement::onImgui()
 
   ImGui::PushID(ImGui::GetID(getPath().c_str()));
 
-  constexpr auto childFlags =
-      ImGuiChildFlags_Borders;
-  constexpr auto windowFlags =
-      ImGuiWindowFlags_None | ImGuiWindowFlags_ChildWindow;
+  constexpr auto childFlags = ImGuiChildFlags_Borders;
+  constexpr auto windowFlags = ImGuiWindowFlags_None | ImGuiWindowFlags_ChildWindow;
 
+  auto cursor = ImGui::GetCursorPos();
   if (ImGui::BeginChild("##element", GetElementSize(), childFlags, windowFlags))
   {
     ImGui::SetWindowFontScale(0.8f);
@@ -39,9 +39,11 @@ bool AssetElement::onImgui()
   }
   ImGui::EndChild();
 
-  ImGui::PopID();
+  ImGui::SetCursorPos(cursor);
+  static constexpr auto flags = ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_AllowOverlap | ImGuiButtonFlags_FlattenChildren;
+  ImGui::InvisibleButton("##interact", ImGui::GetItemRectSize(), flags);
 
-  if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+  if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()) && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
   {
     auto action = onDoubleClick();
     if (action != EAction::eNone)
@@ -51,8 +53,12 @@ bool AssetElement::onImgui()
     }
   }
 
+  onAddCustomBehaviour();
+
+  ImGui::PopID();
   return ret;
 }
+
 
 void AssetElement::onDrawPicto()
 {
