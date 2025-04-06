@@ -121,9 +121,9 @@ bool MaterialAsset::buildShader()
       m_gpuShader.validate(true),
       "Could not validate material shader. Error log:\n{}", m_gpuShader.getError());
 
-  std::string dumpPath = getFilePath() + ".dump.glsl";
-  rawShaderData.fragment.dump(dumpPath);
-  VRM_LOG_INFO("Fragment dumped in {}", dumpPath);
+  // std::string dumpPath = getFilePath() + ".dump.glsl";
+  // rawShaderData.fragment.dump(dumpPath);
+  // VRM_LOG_INFO("Fragment dumped in {}", dumpPath);
 
   return true;
 }
