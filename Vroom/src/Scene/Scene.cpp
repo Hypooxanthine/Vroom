@@ -79,7 +79,7 @@ void Scene::render()
     if (m.isVisible() == false)
       continue;
 
-    renderer.submitMesh(m.getMesh(), t.getTransform());
+    renderer.submitMesh(m, t.getTransform());
   }
 
   onRender();

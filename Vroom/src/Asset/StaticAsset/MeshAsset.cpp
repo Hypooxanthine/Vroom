@@ -111,22 +111,25 @@ bool MeshAsset::loadObj(const std::string& filePath)
       indices.emplace_back(index);
     }
 
+    MaterialAsset::Handle materialInstance;
+
     if (!mesh.MaterialName.empty())
     {
-      MaterialAsset::Handle materialInstance = AssetManager::Get().getAsset<MaterialAsset>(fileDirectoryPath + mesh.MaterialName + ".json");
-      MeshData meshData(std::move(vertices), std::move(indices));
-      RenderMesh renderMesh(meshData);
-
-      m_SubMeshes.emplace_back(std::move(renderMesh), std::move(meshData), materialInstance);
+      if (AssetManager::Get().tryLoadAsset<MaterialAsset>(mesh.MaterialName))
+        materialInstance = AssetManager::Get().getAsset<MaterialAsset>(mesh.MaterialName);
+      else
+        VRM_LOG_WARN("Couldn't load material \"{}\", falling back to default material.", mesh.MaterialName);
     }
-    else
+
+    if (!materialInstance.isValid()) // Fall back to default material
     {
-      MaterialAsset::Handle materialInstance = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/DefaultMaterial.json");
-      MeshData meshData(std::move(vertices), std::move(indices));
-      RenderMesh renderMesh(meshData);
-
-      m_SubMeshes.emplace_back(std::move(renderMesh), std::move(meshData), materialInstance);
+      materialInstance = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/DefaultMaterial.json");
     }
+
+    MeshData meshData(std::move(vertices), std::move(indices));
+    RenderMesh renderMesh(meshData);
+
+    m_SubMeshes.emplace_back(std::move(renderMesh), std::move(meshData), materialInstance);
 
     VRM_LOG_TRACE("| | Loaded sub mesh: {}", mesh.MeshName);
   }

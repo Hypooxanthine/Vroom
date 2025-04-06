@@ -160,9 +160,9 @@
             {
               "name": "Position",
               "value": [
-                0.0,
-                0.0,
-                0.0
+                5.0,
+                10.0,
+                5.0
               ]
             },
             {
@@ -208,17 +208,17 @@
               "name": "Color",
               "value": [
                 1.0,
-                0.0,
-                0.0
+                1.0,
+                1.0
               ]
             },
             {
               "name": "Intensity",
-              "value": 50.0
+              "value": 150.0
             },
             {
               "name": "Radius",
-              "value": 10.0
+              "value": 50.0
             }
           ]
         }

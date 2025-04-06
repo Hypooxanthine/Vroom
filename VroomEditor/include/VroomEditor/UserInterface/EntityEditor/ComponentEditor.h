@@ -15,6 +15,14 @@ public:
 
   virtual bool editEntityComponent(Entity& e) const = 0;
 
+  virtual bool canEditEntity(const Entity& e) const = 0;
+
+  virtual void removeFromEntity(Entity& e) const {};
+
+  virtual bool canBeRemoved() const = 0;
+
+  virtual std::string getComponentName() const { return "Component"; }
+
   static void EditEntity(Entity& e);
 };
 

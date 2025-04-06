@@ -21,6 +21,7 @@
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 
 #include "Vroom/Scene/Components/PointLightComponent.h"
+#include "Vroom/Scene/Components/MeshComponent.h"
 
 #include "Vroom/Scene/Scene.h"
 
@@ -89,9 +90,9 @@ void Renderer::endScene(const FrameBuffer &target)
   GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
 
   // Drawing meshes
-  for (const auto &mesh : m_Meshes)
+  for (const auto &queuedMesh : m_Meshes)
   {
-    drawMesh(mesh.mesh, mesh.model);
+    drawMesh(*queuedMesh.mesh, queuedMesh.material, *queuedMesh.model);
   }
 
   // Clearing data for next frame
@@ -99,9 +100,17 @@ void Renderer::endScene(const FrameBuffer &target)
   m_Meshes.clear();
 }
 
-void Renderer::submitMesh(const MeshAsset::Handle &mesh, const glm::mat4 &model)
+void Renderer::submitMesh(const MeshComponent &mesh, const glm::mat4 &model)
 {
-  m_Meshes.push_back({mesh, model});
+  uint8_t matSlot = 0;
+  for (const auto& submesh : mesh.getMesh()->getSubMeshes())
+  {
+    QueuedMesh m;
+    m.mesh = &submesh.renderMesh;
+    m.material = mesh.getMaterials().getMaterial(matSlot++);
+    m.model = &model;
+    m_Meshes.push_back(std::move(m));
+  }
 }
 
 void Renderer::submitPointLight(const glm::vec3 &position, const PointLightComponent &pointLight, const std::string &identifier)
@@ -109,41 +118,36 @@ void Renderer::submitPointLight(const glm::vec3 &position, const PointLightCompo
   m_LightRegistry.submitPointLight(pointLight, position, identifier);
 }
 
-void Renderer::drawMesh(const MeshAsset::Handle &mesh, const glm::mat4 &model) const
+void Renderer::drawMesh(const RenderMesh& mesh, MaterialAsset::Handle mat, const glm::mat4& model) const
 {
   VRM_DEBUG_ASSERT_MSG(m_Camera, "No camera set for rendering. Did you call beginScene?");
 
-  const auto &subMeshes = mesh->getSubMeshes();
-
   const auto cameraPos = m_Camera->getPosition();
 
-  for (const auto &subMesh : subMeshes)
-  {
-    // Binding data
-    subMesh.renderMesh.getVertexArray().bind();
-    subMesh.renderMesh.getIndexBuffer().bind();
+  // Binding data
+  mesh.getVertexArray().bind();
+  mesh.getIndexBuffer().bind();
 
-    // Material uniforms
-    subMesh.materialInstance->applyUniforms();
+  // Material uniforms
+  mat->applyUniforms();
 
-    const Shader &shader = subMesh.materialInstance->getShader();
-    shader.bind();
+  const Shader &shader = mat->getShader();
+  shader.bind();
 
-    // Setting uniforms
-    shader.setUniformMat4f("u_Model", model);
-    shader.setUniformMat4f("u_View", m_Camera->getView());
-    shader.setUniformMat4f("u_Projection", m_Camera->getProjection());
-    shader.setUniformMat4f("u_ViewProjection", m_Camera->getViewProjection());
-    shader.setUniform3f("u_ViewPosition", cameraPos);
-    shader.setUniform1f("u_Near", m_Camera->getNear());
-    shader.setUniform1f("u_Far", m_Camera->getFar());
-    shader.setUniform2ui("u_ViewportSize", m_ViewportSize.x, m_ViewportSize.y);
-    shader.setStorageBuffer("LightBlock", m_LightRegistry.getPointLightsStorageBuffer());
-    shader.setStorageBuffer("ClusterInfoBlock", m_ClusteredLights.getClustersShaderStorage());
+  // Setting uniforms
+  shader.setUniformMat4f("u_Model", model);
+  shader.setUniformMat4f("u_View", m_Camera->getView());
+  shader.setUniformMat4f("u_Projection", m_Camera->getProjection());
+  shader.setUniformMat4f("u_ViewProjection", m_Camera->getViewProjection());
+  shader.setUniform3f("u_ViewPosition", cameraPos);
+  shader.setUniform1f("u_Near", m_Camera->getNear());
+  shader.setUniform1f("u_Far", m_Camera->getFar());
+  shader.setUniform2ui("u_ViewportSize", m_ViewportSize.x, m_ViewportSize.y);
+  shader.setStorageBuffer("LightBlock", m_LightRegistry.getPointLightsStorageBuffer());
+  shader.setStorageBuffer("ClusterInfoBlock", m_ClusteredLights.getClustersShaderStorage());
 
-    // Drawing data
-    GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)subMesh.meshData.getIndexCount(), GL_UNSIGNED_INT, nullptr));
-  }
+  // Drawing data
+  GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)mesh.getIndexCount(), GL_UNSIGNED_INT, nullptr));
 }
 
 const glm::vec<2, unsigned int> &Renderer::getViewportOrigin() const

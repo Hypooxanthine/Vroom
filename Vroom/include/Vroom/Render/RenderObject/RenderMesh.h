@@ -26,10 +26,14 @@ public:
     const gl::VertexArray& getVertexArray() const { return m_VertexArray; }
     const gl::IndexBuffer& getIndexBuffer() const { return m_IndexBuffer; }
 
+    inline GLuint getIndexCount() const { return m_indexCount; }
+
 private:
     gl::VertexBuffer<Vertex> m_VertexBuffer;
     gl::IndexBuffer m_IndexBuffer;
     gl::VertexArray m_VertexArray;
+
+    GLuint m_indexCount;
 };
 
 } // namespace vrm

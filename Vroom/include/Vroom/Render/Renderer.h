@@ -12,6 +12,7 @@
 #include "Vroom/Render/Clustering/ClusteredLights.h"
 
 #include "Vroom/Render/Camera/CameraBasic.h"
+#include "Vroom/Render/MeshMaterials.h"
 
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Asset/StaticAsset/ShaderAsset.h"
@@ -22,6 +23,8 @@ namespace vrm
 class Application;
 class Scene;
 struct PointLightComponent;
+class MeshComponent;
+
 namespace gl
 {
   class FrameBuffer;
@@ -84,7 +87,7 @@ public:
 	 * @param mesh  The mesh to submit.
 	 * @param model  The model matrix.
 	 */
-	void submitMesh(const MeshAsset::Handle& mesh, const glm::mat4& model);
+	void submitMesh(const MeshComponent& mesh, const glm::mat4& model);
 
 	/**
 	 * @brief Submits a point light to be drawn.
@@ -98,12 +101,13 @@ public:
 	void submitPointLight(const glm::vec3& position, const PointLightComponent& pointLight, const std::string& identifier);
 
 	/**
-	 * @brief  Draws a mesh with a shader and a camera.
+	 * @brief  Draws a mesh with a material and a transform.
 	 * 
 	 * @param mesh  The mesh to draw.
+   * @param mat The material.
 	 * @param model  The model matrix.
 	 */
-	void drawMesh(const MeshAsset::Handle& mesh, const glm::mat4& model) const;
+	void drawMesh(const RenderMesh& mesh, MaterialAsset::Handle mat, const glm::mat4& model) const;
 
 	/**
 	 * @brief Gets the viewport origin.
@@ -147,8 +151,9 @@ private:
 	// Structs to store data to be drawn
 	struct QueuedMesh
 	{
-		MeshAsset::Handle mesh;
-		const glm::mat4& model;
+		const RenderMesh* mesh;
+    MaterialAsset::Handle material;
+		const glm::mat4* model;
 	};
 
 private:

@@ -1,60 +1,71 @@
 #pragma once
 
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
+#include "Vroom/Render/MeshMaterials.h"
 
 namespace vrm
 {
 
-class MeshData;
+  class MeshData;
 
-/**
- * @brief Mesh component.
- * 
- * A mesh component is a component that stores the mesh of an entity.
- */
-class MeshComponent
-{
-public:
+  /**
+   * @brief Mesh component.
+   *
+   * A mesh component is a component that stores the mesh of an entity.
+   */
+  class MeshComponent
+  {
+  public:
     MeshComponent();
 
     /**
      * @brief Constructor.
-     * 
+     *
      * @param meshInstance The mesh instance.
      */
-    MeshComponent(const MeshAsset::Handle& meshInstance);
+    MeshComponent(const MeshAsset::Handle &meshInstance);
 
     /**
      * @brief Get the mesh instance.
-     * 
+     *
      * @return The mesh instance.
      */
-    const MeshAsset::Handle& getMesh() const;
+    const MeshAsset::Handle &getMesh() const;
 
     /**
      * @brief Set the mesh instance.
-     * 
+     *
      * @param meshInstance The mesh instance.
      */
-    void setMesh(const MeshAsset::Handle& meshInstance);
+    void setMesh(const MeshAsset::Handle &meshInstance);
+
+    /**
+     * @brief Get materials of this mesh component. Could be default ones, or overriden.
+     * 
+     * @return const MeshMaterials& The materials.
+     */
+    inline const MeshMaterials& getMaterials() const { return m_Materials; }
+
+    void setMaterial(size_t slot, MaterialAsset::Handle mat);
 
     /**
      * @brief Set the visibility of the mesh.
-     * 
+     *
      * @param visible True if the mesh is visible, false otherwise.
      */
     inline void setVisible(bool visible) { m_IsVisible = visible; }
 
     /**
      * @brief Check if the mesh is visible.
-     * 
+     *
      * @return True if the mesh is visible, false otherwise.
      */
     inline bool isVisible() const { return m_IsVisible; }
 
-private:
+  private:
     MeshAsset::Handle m_MeshInstance;
+    MeshMaterials m_Materials;
     bool m_IsVisible = true;
-};
+  };
 
 } // namespace vrm

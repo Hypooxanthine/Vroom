@@ -2,26 +2,24 @@
   "ShadingModel": "Phong",
   "Parameters": {
     "Diffuse": {
-      "Type": "vec4",
+      "Type": "vec3",
       "Value": [
         0.001105,
         0.800339,
-        0.000000,
-        1.0
+        0.000000
       ]
     },
     "Specular": {
-      "Type": "vec4",
+      "Type": "vec3",
       "Value": [
-        0.500000,
-        0.500000,
-        0.500000,
-        1.0
+        0.100000,
+        0.100000,
+        0.100000
       ]
     },
     "Shininess": {
       "Type": "float",
-      "Value": 16.0
+      "Value": 1.0
     }
   }
 }

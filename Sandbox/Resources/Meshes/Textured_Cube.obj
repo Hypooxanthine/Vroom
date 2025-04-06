@@ -31,7 +31,7 @@ vt 0.625000 0.250000
 vt 0.875000 0.750000
 vt 0.625000 1.000000
 s 0
-usemtl Mat_Textured_Cube
+usemtl Resources/Meshes/Mat_Textured_Cube.json
 f 5/1/1 3/2/1 1/3/1
 f 3/2/2 8/4/2 4/5/2
 f 7/6/3 6/7/3 8/8/3

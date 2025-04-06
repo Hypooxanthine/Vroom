@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <misc/cpp/imgui_stdlib.h>
+#include <string_view>
 
 #include <Vroom/Scene/Scene.h>
 #include <Vroom/Asset/AssetManager.h>
@@ -36,7 +37,28 @@ void ComponentEditor::EditEntity(Entity& e)
 {
   for (auto &editor : ALL_EDITORS)
   {
+    if (!editor->canEditEntity(e))
+      continue;
+    
+    ImGui::SeparatorText(editor->getComponentName().c_str());
+
+    bool askedRemove = false;
+    ImGui::PushID(editor->getComponentName().c_str());
+    if (editor->canBeRemoved() && ImGui::BeginPopupContextItem("Popup"))
+    {
+      if (ImGui::Selectable("Remove component"))
+      {
+        askedRemove = true;
+      }
+
+      ImGui::EndPopup();
+    }
+    ImGui::PopID();
+
     editor->editEntityComponent(e);
+
+    if (askedRemove)
+      editor->removeFromEntity(e);
   }
 
   ImGui::Separator();
@@ -70,14 +92,19 @@ struct ComponentGetter
  * @brief Macro to register and implement a component editor
  * @param ComponentName The name of the component
  * @param entityName The name of the entity variable in the editor function
+ * @param removable (Optional) in {true, false}, to tell if the component can be removed or not
  * 
  */
-#define VRM_REGISTER_COMPONENT_EDITOR(ComponentName, entityName) \
+#define VRM_REGISTER_COMPONENT_EDITOR(ComponentName, displayName, removable) \
   class ComponentName##Editor : public ComponentEditor, public ComponentGetter<ComponentName>\
   {\
   public:\
     ~ComponentName##Editor() {}\
-    bool editEntityComponent(Entity& entityName) const override;\
+    bool editEntityComponent(Entity& ) const override;\
+    std::string getComponentName() const override { return displayName; }\
+    bool canEditEntity(const Entity& e) const override { return has(e); }\
+    bool canBeRemoved() const override { return removable; }\
+    void removeFromEntity(Entity& e) const override { if constexpr (removable) e.removeComponent<ComponentName>(); }\
   private:\
     ComponentName##Editor ()\
       : ComponentEditor(), ComponentGetter<ComponentName>()\
@@ -94,16 +121,14 @@ struct ComponentGetter
     static Registerer s_Registerer;\
   };\
   ComponentName##Editor ::Registerer ComponentName##Editor ::s_Registerer = {};\
-  bool ComponentName##Editor::editEntityComponent(Entity& entityName) const
 
 
 //--------------------------------------------------
 // Implementations of component editors
 
-VRM_REGISTER_COMPONENT_EDITOR(NameComponent, e)
+VRM_REGISTER_COMPONENT_EDITOR(NameComponent, "Name tag", false)
+bool NameComponentEditor::editEntityComponent(Entity& e) const
 {
-  ImGui::SeparatorText("Name tag");
-
   constexpr size_t bufferSize = 256;
   std::string name;
   name.reserve(bufferSize);
@@ -138,13 +163,10 @@ VRM_REGISTER_COMPONENT_EDITOR(NameComponent, e)
   return true;
 }
 
-VRM_REGISTER_COMPONENT_EDITOR(TransformComponent, e)
+VRM_REGISTER_COMPONENT_EDITOR(TransformComponent, "Transform component", false)
+bool TransformComponentEditor::editEntityComponent(Entity& e) const
 {
-  if (!has(e))
-    return false;
   auto &component = get(e);
-
-  ImGui::SeparatorText("Transform component");
 
   auto pos = component.getPosition();
   auto rot = component.getRotation() * 180.0f / glm::pi<float>();
@@ -160,13 +182,10 @@ VRM_REGISTER_COMPONENT_EDITOR(TransformComponent, e)
   return true;
 }
 
-VRM_REGISTER_COMPONENT_EDITOR(PointLightComponent, e)
+VRM_REGISTER_COMPONENT_EDITOR(PointLightComponent, "Point light component", true)
+bool PointLightComponentEditor::editEntityComponent(Entity& e) const
 {
-  if (!has(e))
-    return false;
   auto &component = get(e);
-
-  ImGui::SeparatorText("Point light component");
   
   auto color = component.color;
   auto intensity = component.intensity;
@@ -182,33 +201,22 @@ VRM_REGISTER_COMPONENT_EDITOR(PointLightComponent, e)
   return true;
 }
 
-VRM_REGISTER_COMPONENT_EDITOR(MeshComponent, e)
+VRM_REGISTER_COMPONENT_EDITOR(MeshComponent, "Mesh component", true)
+bool MeshComponentEditor::editEntityComponent(Entity& e) const
 {
-  if (!has(e))
-    return false;
   auto &component = get(e);
 
-  ImGui::SeparatorText("Mesh component");
-
-  bool askedRemove = false;
-  if (ImGui::BeginPopupContextItem("Popup"))
-  {
-    if (ImGui::Selectable("Remove component"))
-    {
-      askedRemove = true;
-    }
-
-    ImGui::EndPopup();
-  }
-
   constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsNoBlank;
+
+  MeshAsset::Handle requestNewMesh;
+  std::pair<size_t, MaterialAsset::Handle> requestNewMaterial;
 
   std::string resourceName = component.getMesh()->getFilePath();
   if (ImGui::InputText("Mesh", &resourceName, flags))
   {
     if (AssetManager::Get().tryLoadAsset<MeshAsset>(resourceName))
     {
-      component.setMesh(AssetManager::Get().getAsset<MeshAsset>(resourceName));
+      requestNewMesh = AssetManager::Get().getAsset<MeshAsset>(resourceName);
     }
     else
     {
@@ -219,12 +227,42 @@ VRM_REGISTER_COMPONENT_EDITOR(MeshComponent, e)
     }
   }
 
+  // ImGui::Text("Materials");
+  uint8_t matSlot = 0;
+  for (matSlot; matSlot < component.getMaterials().getSlotCount(); ++matSlot)
+  {
+    const auto& mat = component.getMaterials().getMaterial(matSlot);
+    std::string inputName = "Material " + std::to_string(matSlot);
+    std::string resourceName = mat->getFilePath();
+    
+    constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsNoBlank;
+
+    if (ImGui::InputText(inputName.c_str(), &resourceName, flags))
+    {
+      if (AssetManager::Get().tryLoadAsset<MaterialAsset>(resourceName))
+      {
+        requestNewMaterial.first = matSlot;
+        requestNewMaterial.second = AssetManager::Get().getAsset<MaterialAsset>(resourceName);
+      }
+      else
+      {
+        if (auto* state = ImGui::GetInputTextState(ImGui::GetItemID()))
+        {
+          state->ReloadUserBufAndKeepSelection();
+        }
+      }
+    }
+  }
+
   bool visible = component.isVisible();
   if (ImGui::Checkbox("Visible", &visible))
     component.setVisible(visible);
 
-  if (askedRemove)
-    e.removeComponent<MeshComponent>();
+  if (requestNewMesh.isValid())
+      component.setMesh(requestNewMesh);
+    
+  if (requestNewMaterial.second.isValid())
+    component.setMaterial(requestNewMaterial.first, requestNewMaterial.second);
 
   return true;
 }
