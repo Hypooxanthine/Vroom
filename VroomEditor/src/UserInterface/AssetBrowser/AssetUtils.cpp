@@ -1,6 +1,7 @@
 #include "VroomEditor/UserInterface/AssetBrowser/AssetUtils.h"
 
 #include <fstream>
+#include <thread>
 
 #include "Vroom/Asset/Parsing/Json.h"
 
@@ -100,4 +101,23 @@ std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const MetaFile& met
   default:
     return nullptr;
   }
+}
+
+static void OpenNativeFileExplorer_Impl(const std::filesystem::path& path)
+{
+  std::string strPath = std::filesystem::absolute(path).string();
+  std::string cmd;
+#if defined(_WIN32)
+  cmd = "explorer " + strPath;
+#elif defined(__UNIX__)
+  cmd = "open " + strPath;
+#else
+  return;
+#endif
+  system(cmd.c_str());
+}
+
+void AssetUtils::OpenNativeFileExplorer(const std::filesystem::path& path)
+{
+  std::thread(OpenNativeFileExplorer_Impl, path).detach();
 }

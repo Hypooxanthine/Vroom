@@ -130,10 +130,21 @@ bool AssetBrowser::onImgui()
         }
       }
     }
-    ImGui::End();
 
-    setCurrentPath(nextPath);
+    if (ImGui::BeginPopupContextWindow("##browserpopup", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
+    {
+      if (ImGui::Selectable("Open in OS explorer"))
+      {
+        AssetUtils::OpenNativeFileExplorer(m_CurrentPath);
+      }
+
+      ImGui::EndPopup();
+    }
   }
+
+  ImGui::End();
+
+  setCurrentPath(nextPath);
   
   return ret;
 }

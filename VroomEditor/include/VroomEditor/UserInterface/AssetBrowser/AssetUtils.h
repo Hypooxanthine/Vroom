@@ -43,6 +43,8 @@ namespace vrm
      * @return std::unique_ptr<AssetElement> Nullptr if it shouldn't appear in the browser.
      */
     static std::unique_ptr<AssetElement> CreateAssetElement(const MetaFile& meta);
+
+    static void OpenNativeFileExplorer(const std::filesystem::path& path);
   };
 
 }
