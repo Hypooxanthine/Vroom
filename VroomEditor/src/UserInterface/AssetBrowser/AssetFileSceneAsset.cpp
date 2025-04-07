@@ -13,5 +13,5 @@ AssetFileSceneAsset::~AssetFileSceneAsset()
 
 std::string AssetFileSceneAsset::getPictoAssetName() const
 {
-  return AssetFile::getPictoAssetName();
+  return "Resources/Editor/Picto/scene_asset.png";
 }

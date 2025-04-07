@@ -18,7 +18,7 @@ AssetFileMaterialAsset::~AssetFileMaterialAsset()
 
 std::string AssetFileMaterialAsset::getPictoAssetName() const
 {
-  return AssetFile::getPictoAssetName();
+  return "Resources/Editor/Picto/material_asset.png";
 }
 
 void AssetFileMaterialAsset::onAddCustomBehaviour()

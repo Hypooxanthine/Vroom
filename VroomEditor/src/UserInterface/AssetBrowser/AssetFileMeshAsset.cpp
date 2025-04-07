@@ -18,7 +18,7 @@ AssetFileMeshAsset::~AssetFileMeshAsset()
 
 std::string AssetFileMeshAsset::getPictoAssetName() const
 {
-  return AssetFile::getPictoAssetName();
+  return "Resources/Editor/Picto/mesh_asset.png";
 }
 
 void AssetFileMeshAsset::onAddCustomBehaviour()
