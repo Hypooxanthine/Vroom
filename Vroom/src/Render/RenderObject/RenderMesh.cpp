@@ -8,7 +8,7 @@ RenderMesh::RenderMesh(const MeshData &meshData)
 {
   m_VertexBuffer.setData(meshData.getVertices());
   m_IndexBuffer.setData(meshData.getIndices());
-  m_indexCount = meshData.getIndexCount();
+  m_indexCount = static_cast<GLuint>(meshData.getIndexCount());
 
   m_VertexArray.create();
   m_VertexArray.defineAttribute<0>(m_VertexBuffer);
