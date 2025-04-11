@@ -73,12 +73,7 @@ void Scene::render()
   auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent>();
   for (auto&& [e, pl, t] : viewPointLights.each())
   {
-    auto v = entt::to_version(e);
-    uint64_t id = v;
-    id = id << (sizeof(e) * 8);
-    id = id | static_cast<entt::id_type>(e);
-
-    renderer.updatePointLight(t.getPosition(), pl, id);
+    renderer.updatePointLight(t.getPosition(), pl, static_cast<entt::id_type>(e));
   }
 
   auto viewMeshes = m_Registry.view<MeshComponent, TransformComponent>();
@@ -266,22 +261,12 @@ void Scene::onPointLightAdded(entt::registry &registry, entt::entity e)
   TransformComponent& t = registry.get<TransformComponent>(e);
   PointLightComponent& pl = registry.get<PointLightComponent>(e);
 
-  auto v = entt::to_version(e);
-  uint64_t id = v;
-  id = id << (sizeof(e) * 8);
-  id = id | static_cast<entt::id_type>(e);
-
-  renderer.registerPointLight(t.getPosition(), pl, id);
+  renderer.registerPointLight(t.getPosition(), pl, static_cast<entt::id_type>(e));
 }
 
 void Scene::onPointLightRemoved(entt::registry &registry, entt::entity e)
 {
   Renderer& renderer = Renderer::Get();
 
-  auto v = entt::to_version(e);
-  uint64_t id = v;
-  id = id << (sizeof(e) * 8);
-  id = id | static_cast<entt::id_type>(e);
-
-  renderer.unregisterPointLight(id);
+  renderer.unregisterPointLight(static_cast<entt::id_type>(e));
 }
