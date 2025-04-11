@@ -214,11 +214,73 @@
             },
             {
               "name": "Intensity",
-              "value": 150.0
+              "value": 1500.0
             },
             {
               "name": "Radius",
               "value": 50.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Dir_light",
+      "type": "Entity",
+      "parent": "Root",
+      "components": [
+        {
+          "type": "TransformComponent",
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                5.0,
+                10.0,
+                5.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                45.0,
+                45.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                0.2,
+                0.2,
+                0.2
+              ]
+            }
+          ]
+        },
+        {
+          "type": "MeshComponent",
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Meshes/sphere.obj"
+            }
+          ]
+        },
+        {
+          "type": "DirectionalLightComponent",
+          "params": [
+            {
+              "name": "Color",
+              "value": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "Intensity",
+              "value": 0.5
             }
           ]
         }

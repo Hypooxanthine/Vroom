@@ -39,6 +39,14 @@ namespace vrm
       bool addToEntity(Entity& entity) override;
     };
 
+    struct DirectionalLightComponent : Component
+    {
+      glm::vec3 color;
+      float intensity;
+
+      bool addToEntity(Entity& entity) override;
+    };
+
     struct PointLightComponent : Component
     {
       glm::vec3 color;

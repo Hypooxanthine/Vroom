@@ -21,6 +21,7 @@
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 
 #include "Vroom/Scene/Components/PointLightComponent.h"
+#include "Vroom/Scene/Components/DirectionalLightComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
 
 #include "Vroom/Scene/Scene.h"
@@ -113,7 +114,7 @@ void Renderer::drawMesh(const MeshComponent &mesh, const glm::mat4 &model)
 
 void Renderer::registerPointLight(const glm::vec3 &position, const PointLightComponent &pointLight, size_t identifier)
 {
-  m_LightRegistry.submitPointLight(pointLight, position, identifier);
+  m_LightRegistry.submitLight(pointLight, position, identifier);
 }
 
 void Renderer::unregisterPointLight(size_t identifier)
@@ -123,7 +124,22 @@ void Renderer::unregisterPointLight(size_t identifier)
 
 void Renderer::updatePointLight(const glm::vec3& position, const PointLightComponent& pointLight, size_t identifier)
 {
-  m_LightRegistry.updatePointLight(pointLight, position, identifier);
+  m_LightRegistry.updateLight(pointLight, position, identifier);
+}
+
+void Renderer::registerDirectionalLight(const DirectionalLightComponent& dirLight, const glm::vec3& direction, size_t identifier)
+{
+  m_LightRegistry.submitLight(dirLight, direction, identifier);
+}
+
+void Renderer::unregisterDirectionalLight(size_t identifier)
+{
+  m_LightRegistry.removeDirectionalLight(identifier);
+}
+
+void Renderer::updateDirectionalLight(const DirectionalLightComponent& dirLight, const glm::vec3& direction, size_t identifier)
+{
+  m_LightRegistry.updateLight(dirLight, direction, identifier);
 }
 
 void Renderer::drawMesh(const RenderMesh& mesh, MaterialAsset::Handle mat, const glm::mat4& model) const

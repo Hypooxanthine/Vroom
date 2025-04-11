@@ -7,6 +7,7 @@
 #include "Vroom/Scene/Components/TransformComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
 #include "Vroom/Scene/Components/PointLightComponent.h"
+#include "Vroom/Scene/Components/DirectionalLightComponent.h"
 #include "Vroom/Scene/Components/ScriptComponent.h"
 
 using namespace vrm;
@@ -25,6 +26,15 @@ bool SceneData::MeshComponent::addToEntity(Entity& entity)
 {
   auto& mc = entity.addComponent<::MeshComponent>();
   mc.setMesh(AssetManager::Get().getAsset<MeshAsset>(resourceName));
+
+  return true;
+}
+
+bool SceneData::DirectionalLightComponent::addToEntity(Entity& entity)
+{
+  auto& dlc = entity.addComponent<::DirectionalLightComponent>();
+  dlc.color = color;
+  dlc.intensity = intensity;
 
   return true;
 }

@@ -3,15 +3,19 @@
 #include <unordered_map>
 #include <set>
 #include <string>
+#include <array>
 
 #include <glm/glm.hpp>
 
-#include "Vroom/Scene/Components/PointLightComponent.h"
 #include "Vroom/Render/RawShaderData/SSBOPointLightData.h"
+#include "Vroom/Render/RawShaderData/SSBODirectionalLightData.h"
+#include "Vroom/Render/Helpers/StorageBufferRegistry.h"
 #include "Vroom/Render/Abstraction/StorageBuffer.h"
 
 namespace vrm
 {
+  struct PointLightComponent;
+  struct DirectionalLightComponent;
 
   class LightRegistry
   {
@@ -24,33 +28,29 @@ namespace vrm
     LightRegistry &operator=(const LightRegistry &) = delete;
     LightRegistry &operator=(LightRegistry &&) = default;
 
-    void submitPointLight(const PointLightComponent &pointLight, const glm::vec3 &position, size_t identifier);
-    void updatePointLight(const PointLightComponent &pointLight, const glm::vec3 &position, size_t identifier);
+    void submitLight(const PointLightComponent &pointLight, const glm::vec3 &position, size_t identifier);
+    void updateLight(const PointLightComponent &pointLight, const glm::vec3 &position, size_t identifier);
     void removePointLight(size_t identifier);
 
+    void submitLight(const DirectionalLightComponent &dirLight, const glm::vec3 &direction, size_t identifier);
+    void updateLight(const DirectionalLightComponent &dirLight, const glm::vec3 &direction, size_t identifier);
+    void removeDirectionalLight(size_t identifier);
+
     void update();
-    inline bool isDirty() const { return m_dirty; }
 
     inline const gl::AutoResizeStorageBuffer& getPointLightsStorageBuffer() const { return m_ssbo; }
 
   private:
-    size_t getValidAddress();
-    inline void markDirty() { m_dirty = true; }
-
-    void updateGpuSize();
-
-    SSBOPointLightData& getPointLight(size_t identifier);
 
   private:
-    static constexpr GLintptr s_ssboOffset = sizeof(uint32_t);
+    static constexpr size_t s_maxDirLights = 10;
+    static constexpr GLsizei s_dirLightSize = sizeof(SSBODirectionalLightData);
+    static constexpr GLintptr s_dirLightOffset = 0;
+    static constexpr GLintptr s_pointLightOffset = sizeof(uint32_t) + s_maxDirLights * s_dirLightSize;
     static constexpr GLsizei s_pointLightSize = sizeof(SSBOPointLightData);
-
-    bool m_dirty = false;
-
-    std::vector<SSBOPointLightData> m_lights;
-    std::unordered_map<size_t, size_t> m_idToAddress;
-    std::set<size_t> m_freeAddresses;
-    std::vector<bool> m_activeLights;
+    
+    StorageBufferRegistry<SSBODirectionalLightData, size_t, s_maxDirLights> m_dirLightsRegistry;
+    StorageBufferRegistry<SSBOPointLightData, size_t> m_pointLightsRegistry;
 
     gl::AutoResizeStorageBuffer m_ssbo;
   };

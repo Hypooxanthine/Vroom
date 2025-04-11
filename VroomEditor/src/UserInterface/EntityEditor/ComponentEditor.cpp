@@ -15,6 +15,7 @@
 #include "Vroom/Scene/Components/TransformComponent.h"
 #include "Vroom/Scene/Components/NameComponent.h"
 #include "Vroom/Scene/Components/PointLightComponent.h"
+#include "Vroom/Scene/Components/DirectionalLightComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
 
 //--------------------------------------------------
@@ -53,9 +54,10 @@ void ComponentEditor::EditEntity(Entity& e)
 
       ImGui::EndPopup();
     }
-    ImGui::PopID();
 
     editor->editEntityComponent(e);
+
+    ImGui::PopID();
 
     if (askedRemove)
       editor->removeFromEntity(e);
@@ -65,6 +67,7 @@ void ComponentEditor::EditEntity(Entity& e)
 
   if (!e.isRoot() && ImGui::BeginCombo("##Add component", "Add component"))
   {
+    AddComponentItem<DirectionalLightComponent>(e, "Directional light");
     AddComponentItem<PointLightComponent>(e, "Point light");
     AddComponentItem<MeshComponent>(e, "Mesh");
 
@@ -178,6 +181,22 @@ bool TransformComponentEditor::editEntityComponent(Entity& e) const
     component.setRotation(rot * glm::pi<float>() / 180.0f);
   if (ImGui::DragFloat3("Scale", &scale.x, 0.1f))
     component.setScale(scale);
+
+  return true;
+}
+
+VRM_REGISTER_COMPONENT_EDITOR(DirectionalLightComponent, "Directional light component", true)
+bool DirectionalLightComponentEditor::editEntityComponent(Entity& e) const
+{
+  auto &component = get(e);
+
+  auto color = component.color;
+  auto intensity = component.intensity;
+
+  if (ImGui::ColorEdit3("Color", &color.x))
+    component.color = color;
+  if (ImGui::DragFloat("Intensity", &intensity, 0.01f, 0.f, 1.f, "%.3f", ImGuiSliderFlags_AlwaysClamp))
+    component.intensity = intensity;
 
   return true;
 }

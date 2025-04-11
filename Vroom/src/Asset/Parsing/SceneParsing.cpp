@@ -13,6 +13,7 @@ using namespace vrm;
 #include "Vroom/Scene/Components/MeshComponent.h"
 #include "Vroom/Scene/Components/ScriptComponent.h"
 #include "Vroom/Scene/Components/PointLightComponent.h"
+#include "Vroom/Scene/Components/DirectionalLightComponent.h"
 
 static bool HandleEntityTransformComponent(SceneData::SceneNode& e, const json& params)
 {
@@ -85,6 +86,34 @@ static bool HandleEntityScriptComponent(SceneData::SceneNode& e, const json& par
   return true;
 }
 
+static bool HandleEntityDirectionalLightComponent(SceneData::SceneNode& e, const json& params)
+{
+  auto dlc = std::make_unique<SceneData::DirectionalLightComponent>();
+
+  for (const auto& param : params)
+  {
+    CHECK(param.is_object(), "Unexpected DirectionalLightComponent parameter {}", param.dump(2));
+    CHECK_ATTR_STRING(param, name);
+
+    if (nameVal == "Color")
+    {
+      CHECK_ATTR_ARRAY(param, value);
+      CHECK(GetParamValue(value, dlc->color), "Error while parsing color parameter");
+    }
+    else if (nameVal == "Intensity")
+    {
+      CHECK_ATTR_FLOAT(param, value);
+      CHECK(GetParamValue(value, dlc->intensity), "Error while parsing intensity parameter");
+    }
+    else
+      CHECK(false, "Unsupported DirectionalLightComponent parameter {}", nameVal);
+  }
+
+  e.components[std::type_index(typeid(SceneData::PointLightComponent))] = std::move(dlc);
+
+  return true;
+}
+
 static bool HandleEntityPointLightComponent(SceneData::SceneNode& e, const json& params)
 {
   auto plc = std::make_unique<SceneData::PointLightComponent>();
@@ -127,6 +156,7 @@ static bool HandleEntityNodeComponents(SceneData::SceneNode& node, const json& c
     {"TransformComponent", HandleEntityTransformComponent},
     {"MeshComponent", HandleEntityMeshComponent},
     {"ScriptComponent", HandleEntityScriptComponent},
+    {"DirectionalLightComponent", HandleEntityDirectionalLightComponent},
     {"PointLightComponent", HandleEntityPointLightComponent}
   };
 

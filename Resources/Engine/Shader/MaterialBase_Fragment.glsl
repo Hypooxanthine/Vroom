@@ -7,7 +7,7 @@ layout(location = 0) out vec4 finalColor;
 // Function declarations
 
 // To be defined by the shading model
-vec3 ShadingModel(in vec3 lightColor, in vec3 lightDirection, in vec3 viewDir);
+vec3 ShadingModel(in vec3 lightColor, in vec3 lightDirection);
 
 void SetupGlobalVars();
 vec4 ComputeFragmentColor();
@@ -15,6 +15,10 @@ float GetLightComplexity();
 
 uint GetTotalLightCount();
 uint GetRelevantLightCount();
+
+uint GetTotalDirectionalLightCount();
+uint GetRelevantDirectionalLightCount();
+DirectionalLight GetRelevantDirectionalLight(in uint index);
 
 uint GetTotalPointLightCount();
 uint GetRelevantPointLightCount();
@@ -43,7 +47,7 @@ void main()
 
 void SetupGlobalVars()
 {
-  g_viewDir = (u_ViewPosition.xyz - v_Position.xyz);
+  g_viewDir = normalize(u_ViewPosition.xyz - v_Position.xyz);
   g_normal = normalize(v_Normal);
 
 #ifdef VRM_CLUSTERED_RENDERING
@@ -53,8 +57,27 @@ void SetupGlobalVars()
 
 vec4 ComputeFragmentColor()
 {
-  uint pointLightCount = GetRelevantPointLightCount();
   vec3 shadeColor = vec3(0.f, 0.f, 0.f);
+
+  uint dirLightCount = GetRelevantDirectionalLightCount();
+
+  for (int i = 0; i < dirLightCount; ++i)
+  {
+    DirectionalLight dirLight = GetRelevantDirectionalLight(i);
+    vec3 lightDir = normalize(vec3(dirLight.direction[0], dirLight.direction[1], dirLight.direction[2]));
+    vec3 lightColor = vec3(dirLight.color[0], dirLight.color[1], dirLight.color[2]);
+
+    if (dot(lightDir, g_normal) < 0)
+      continue;
+    
+    lightDir = normalize(lightDir);
+
+    vec3 lightContribution = ShadingModel(lightColor * dirLight.intensity, lightDir);
+
+    shadeColor += lightContribution;
+  }
+
+  uint pointLightCount = GetRelevantPointLightCount();
   
   for (int i = 0; i < pointLightCount; ++i)
   {
@@ -63,14 +86,18 @@ vec4 ComputeFragmentColor()
     vec3 lightPos = vec3(pointLight.position[0], pointLight.position[1], pointLight.position[2]);
     vec3 lightDir = (lightPos - v_Position);
 
+    if (dot(lightDir, g_normal) < 0)
+      continue;
+
     float lightDistance2 = dot(lightDir, lightDir);
     if (lightDistance2 > pointLight.radius * pointLight.radius)
         continue;
 
+    lightDir = normalize(lightDir);
     vec3 lightColor = vec3(pointLight.color[0], pointLight.color[1], pointLight.color[2]);
     float lightIntensity = pointLight.intensity / (4.f * VRM_PI * lightDistance2);
 
-    vec3 lightContribution = ShadingModel(lightColor * lightIntensity, lightDir, g_viewDir);
+    vec3 lightContribution = ShadingModel(lightColor * lightIntensity, lightDir);
 
     shadeColor += lightContribution;
   }
@@ -85,12 +112,27 @@ float GetLightComplexity()
 
 uint GetTotalLightCount()
 {
-  return GetTotalPointLightCount();
+  return GetTotalPointLightCount() + GetTotalDirectionalLightCount();
 }
 
 uint GetRelevantLightCount()
 {
-  return GetRelevantPointLightCount();
+  return GetRelevantPointLightCount() + GetRelevantDirectionalLightCount();
+}
+
+uint GetTotalDirectionalLightCount()
+{
+  return LightBlock_directionalLightCount;
+}
+
+uint GetRelevantDirectionalLightCount()
+{
+  return GetTotalDirectionalLightCount();
+}
+
+DirectionalLight GetRelevantDirectionalLight(in uint index)
+{
+  return LightBlock_directionalLights[index];
 }
 
 uint GetTotalPointLightCount()

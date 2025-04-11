@@ -211,6 +211,9 @@ namespace vrm
     void onPointLightAdded(entt::registry &registry, entt::entity e);
     void onPointLightRemoved(entt::registry &registry, entt::entity e);
 
+    void onDirectionalLightAdded(entt::registry &registry, entt::entity e);
+    void onDirectionalLightRemoved(entt::registry &registry, entt::entity e);
+
   private:
     entt::registry m_Registry;
     size_t m_EntityCounter = 0;

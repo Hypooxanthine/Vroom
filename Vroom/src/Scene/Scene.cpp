@@ -1,5 +1,7 @@
 #include "Vroom/Scene/Scene.h"
 
+#include <glm/gtx/euler_angles.hpp>
+
 #include "Vroom/Core/Application.h"
 #include "Vroom/Core/GameLayer.h"
 
@@ -14,6 +16,7 @@
 #include "Vroom/Scene/Components/TransformComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
 #include "Vroom/Scene/Components/PointLightComponent.h"
+#include "Vroom/Scene/Components/DirectionalLightComponent.h"
 #include "Vroom/Scene/Components/HierarchyComponent.h"
 
 vrm::FirstPersonCamera vrm::Scene::s_DefaultCamera = {0.1f, 100.f, glm::radians(90.f), 0.f, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f)};
@@ -27,9 +30,6 @@ Scene::Scene()
 
   // Setting a default camera
   setCamera(&s_DefaultCamera);
-
-  m_Registry.on_construct<PointLightComponent>().connect<&Scene::onPointLightAdded>(this);
-  m_Registry.on_destroy<PointLightComponent>().connect<&Scene::onPointLightRemoved>(this);
 }
 
 Scene::~Scene()
@@ -38,6 +38,32 @@ Scene::~Scene()
 
 void Scene::init()
 {
+  Renderer &renderer = Renderer::Get();
+
+  // Registering lights that have been added before init (when loading the scene).
+  auto viewDirLights = m_Registry.view<DirectionalLightComponent, TransformComponent>();
+  for (auto&& [e, dl, t] : viewDirLights.each())
+  {
+    const glm::vec3& rot = t.getRotation();
+    auto rotMatrix = glm::eulerAngleXYZ(rot.x, rot.y, rot.z);
+    glm::vec4 forward = { 1.f, 0.f, 0.f, 0.f };
+
+    renderer.registerDirectionalLight(dl, glm::vec3(rotMatrix * forward), static_cast<entt::id_type>(e));
+  }
+
+  auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent>();
+  for (auto&& [e, pl, t] : viewPointLights.each())
+  {
+    renderer.registerPointLight(t.getPosition(), pl, static_cast<entt::id_type>(e));
+  }
+
+  // At runtime, lights registering is done by entt callbacks.
+  m_Registry.on_construct<DirectionalLightComponent>().connect<&Scene::onDirectionalLightAdded>(this);
+  m_Registry.on_destroy<DirectionalLightComponent>().connect<&Scene::onDirectionalLightRemoved>(this);
+
+  m_Registry.on_construct<PointLightComponent>().connect<&Scene::onPointLightAdded>(this);
+  m_Registry.on_destroy<PointLightComponent>().connect<&Scene::onPointLightRemoved>(this);
+
   Application::Get().getGameLayer()
     .getCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
     .bindCallback(
@@ -69,6 +95,16 @@ void Scene::render()
   Application &app = Application::Get();
   Renderer &renderer = Renderer::Get();
   renderer.beginScene(getCamera());
+
+  auto viewDirLights = m_Registry.view<DirectionalLightComponent, TransformComponent>();
+  for (auto&& [e, dl, t] : viewDirLights.each())
+  {
+    const glm::vec3& rot = t.getRotation();
+    auto rotMatrix = glm::eulerAngleXYZ(rot.x, rot.y, rot.z);
+    glm::vec4 forward = { 1.f, 0.f, 0.f, 0.f };
+
+    renderer.updateDirectionalLight(dl, glm::vec3(rotMatrix * forward), static_cast<entt::id_type>(e));
+  }
 
   auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent>();
   for (auto&& [e, pl, t] : viewPointLights.each())
@@ -269,4 +305,24 @@ void Scene::onPointLightRemoved(entt::registry &registry, entt::entity e)
   Renderer& renderer = Renderer::Get();
 
   renderer.unregisterPointLight(static_cast<entt::id_type>(e));
+}
+
+void Scene::onDirectionalLightAdded(entt::registry &registry, entt::entity e)
+{
+  Renderer& renderer = Renderer::Get();
+  
+  const glm::vec3& rot = registry.get<TransformComponent>(e).getRotation();
+  DirectionalLightComponent& dl = registry.get<DirectionalLightComponent>(e);
+
+  auto rotMatrix = glm::eulerAngleXYZ(rot.x, rot.y, rot.z);
+  glm::vec4 forward = { 1.f, 0.f, 0.f, 0.f };
+
+  renderer.registerDirectionalLight(dl, glm::vec3(rotMatrix * forward), static_cast<entt::id_type>(e));
+}
+
+void Scene::onDirectionalLightRemoved(entt::registry &registry, entt::entity e)
+{
+  Renderer& renderer = Renderer::Get();
+
+  renderer.unregisterDirectionalLight(static_cast<entt::id_type>(e));
 }

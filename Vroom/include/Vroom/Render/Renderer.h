@@ -23,6 +23,7 @@ namespace vrm
 class Application;
 class Scene;
 struct PointLightComponent;
+struct DirectionalLightComponent;
 class MeshComponent;
 
 namespace gl
@@ -103,6 +104,12 @@ public:
   void unregisterPointLight(size_t identifier);
 
   void updatePointLight(const glm::vec3& position, const PointLightComponent& pointLight, size_t identifier);
+
+  void registerDirectionalLight(const DirectionalLightComponent& dirLight, const glm::vec3& direction, size_t identifier);
+
+  void unregisterDirectionalLight(size_t identifier);
+
+  void updateDirectionalLight(const DirectionalLightComponent& dirLight, const glm::vec3& direction, size_t identifier);
 
 	/**
 	 * @brief Gets the viewport origin.

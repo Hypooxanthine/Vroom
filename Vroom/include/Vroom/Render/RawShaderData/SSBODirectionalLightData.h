@@ -5,12 +5,11 @@
 namespace vrm
 {
 
-  struct SSBOPointLightData
+  struct SSBODirectionalLightData
   {
-    glm::vec3 position;
+    glm::vec3 direction;
     glm::vec3 color;
     float intensity;
-    float radius;
   };
 
 } // namespace vrm

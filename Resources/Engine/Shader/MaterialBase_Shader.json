@@ -85,6 +85,14 @@
         "Layout": "std430",
         "Variables": [
           {
+            "Name": "directionalLightCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "directionalLights[10]",
+            "Type": "DirectionalLight"
+          },
+          {
             "Name": "pointLightCount",
             "Type": "uint"
           },

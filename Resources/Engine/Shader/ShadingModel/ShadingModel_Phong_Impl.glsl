@@ -34,11 +34,11 @@ float GetShininess()
 #endif
 }
 
-vec3 ShadingModel(in vec3 lightColor, in vec3 lightDirection, in vec3 viewDir)
+vec3 ShadingModel(in vec3 lightColor, in vec3 lightDirection)
 {
   float diff = max(dot(g_normal, lightDirection), 0.f);
   vec3 reflectDir = reflect(-lightDirection, g_normal);
-  float spec = pow(max(dot(viewDir, reflectDir), 0.f), GetShininess());
+  float spec = pow(max(dot(g_viewDir, reflectDir), 0.f), GetShininess());
 
   // return diff * GetDiffuse() * lightColor;
   return (diff * GetDiffuse() + spec * GetSpecular()) * lightColor;
