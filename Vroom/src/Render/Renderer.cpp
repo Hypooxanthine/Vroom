@@ -71,14 +71,12 @@ Renderer &Renderer::Get()
 void Renderer::beginScene(const CameraBasic &camera)
 {
   m_Camera = &camera;
-
-  m_LightRegistry.beginFrame();
 }
 
 void Renderer::endScene(const FrameBuffer &target)
 {
   // Setting up lights
-  m_LightRegistry.endFrame();
+  m_LightRegistry.update();
 
   // Clustered shading
   m_ClusteredLights.setupClusters({12, 12, 24}, *m_Camera);
@@ -100,7 +98,7 @@ void Renderer::endScene(const FrameBuffer &target)
   m_Meshes.clear();
 }
 
-void Renderer::submitMesh(const MeshComponent &mesh, const glm::mat4 &model)
+void Renderer::drawMesh(const MeshComponent &mesh, const glm::mat4 &model)
 {
   uint8_t matSlot = 0;
   for (const auto& submesh : mesh.getMesh()->getSubMeshes())
@@ -113,9 +111,19 @@ void Renderer::submitMesh(const MeshComponent &mesh, const glm::mat4 &model)
   }
 }
 
-void Renderer::submitPointLight(const glm::vec3 &position, const PointLightComponent &pointLight, const std::string &identifier)
+void Renderer::registerPointLight(const glm::vec3 &position, const PointLightComponent &pointLight, size_t identifier)
 {
   m_LightRegistry.submitPointLight(pointLight, position, identifier);
+}
+
+void Renderer::unregisterPointLight(size_t identifier)
+{
+  m_LightRegistry.removePointLight(identifier);
+}
+
+void Renderer::updatePointLight(const glm::vec3& position, const PointLightComponent& pointLight, size_t identifier)
+{
+  m_LightRegistry.updatePointLight(pointLight, position, identifier);
 }
 
 void Renderer::drawMesh(const RenderMesh& mesh, MaterialAsset::Handle mat, const glm::mat4& model) const

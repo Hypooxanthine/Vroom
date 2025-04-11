@@ -87,7 +87,7 @@ public:
 	 * @param mesh  The mesh to submit.
 	 * @param model  The model matrix.
 	 */
-	void submitMesh(const MeshComponent& mesh, const glm::mat4& model);
+	void drawMesh(const MeshComponent& mesh, const glm::mat4& model);
 
 	/**
 	 * @brief Submits a point light to be drawn.
@@ -98,16 +98,11 @@ public:
 	 * @param pointLight  The point light component.
 	 * @param identifier  The identifier of the light.
 	 */
-	void submitPointLight(const glm::vec3& position, const PointLightComponent& pointLight, const std::string& identifier);
+	void registerPointLight(const glm::vec3& position, const PointLightComponent& pointLight, size_t identifier);
 
-	/**
-	 * @brief  Draws a mesh with a material and a transform.
-	 * 
-	 * @param mesh  The mesh to draw.
-   * @param mat The material.
-	 * @param model  The model matrix.
-	 */
-	void drawMesh(const RenderMesh& mesh, MaterialAsset::Handle mat, const glm::mat4& model) const;
+  void unregisterPointLight(size_t identifier);
+
+  void updatePointLight(const glm::vec3& position, const PointLightComponent& pointLight, size_t identifier);
 
 	/**
 	 * @brief Gets the viewport origin.
@@ -155,6 +150,17 @@ private:
     MaterialAsset::Handle material;
 		const glm::mat4* model;
 	};
+
+private:
+
+	/**
+	 * @brief  Draws a mesh with a material and a transform.
+	 * 
+	 * @param mesh  The mesh to draw.
+   * @param mat The material.
+	 * @param model  The model matrix.
+	 */
+	void drawMesh(const RenderMesh& mesh, MaterialAsset::Handle mat, const glm::mat4& model) const;
 
 private:
 	static std::unique_ptr<Renderer> s_Instance;

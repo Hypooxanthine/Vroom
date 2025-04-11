@@ -16,21 +16,6 @@ struct alignas(16) SSBOPointLightData
     glm::vec3 color;
     float intensity;
     float radius;
-
-    bool operator==(const SSBOPointLightData& other) const
-    {
-        return position == other.position && color == other.color && intensity == other.intensity && radius == other.radius;
-    }
-
-    bool operator!=(const SSBOPointLightData& other) const
-    {
-        return !(*this == other);
-    }
-
-    std::vector<std::pair<const void*, size_t>> getData() const
-    {
-        return { { &position, sizeof(glm::vec3) * 2 + sizeof(float) * 2 } };
-    }
 };
 
 } // namespace vrm

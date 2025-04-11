@@ -27,6 +27,9 @@ Scene::Scene()
 
   // Setting a default camera
   setCamera(&s_DefaultCamera);
+
+  m_Registry.on_construct<PointLightComponent>().connect<&Scene::onPointLightAdded>(this);
+  m_Registry.on_destroy<PointLightComponent>().connect<&Scene::onPointLightRemoved>(this);
 }
 
 Scene::~Scene()
@@ -67,10 +70,15 @@ void Scene::render()
   Renderer &renderer = Renderer::Get();
   renderer.beginScene(getCamera());
 
-  auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent, NameComponent>();
-  for (auto&& [e, pl, t, n] : viewPointLights.each())
+  auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent>();
+  for (auto&& [e, pl, t] : viewPointLights.each())
   {
-    renderer.submitPointLight(t.getPosition(), pl, n.name);
+    auto v = entt::to_version(e);
+    uint64_t id = v;
+    id = id << (sizeof(e) * 8);
+    id = id | static_cast<entt::id_type>(e);
+
+    renderer.updatePointLight(t.getPosition(), pl, id);
   }
 
   auto viewMeshes = m_Registry.view<MeshComponent, TransformComponent>();
@@ -79,7 +87,7 @@ void Scene::render()
     if (m.isVisible() == false)
       continue;
 
-    renderer.submitMesh(m, t.getTransform());
+    renderer.drawMesh(m, t.getTransform());
   }
 
   onRender();
@@ -246,4 +254,34 @@ void Scene::renameRoot(const std::string& rootName)
   m_EntitiesByName.erase(m_Root.getName());
   m_EntitiesByName[rootName] = m_Root.clone();
   m_Root.getComponentInternal<NameComponent>().name = rootName;
+}
+
+// --------------------------------------------------
+// Notifications
+
+void Scene::onPointLightAdded(entt::registry &registry, entt::entity e)
+{
+  Renderer& renderer = Renderer::Get();
+  
+  TransformComponent& t = registry.get<TransformComponent>(e);
+  PointLightComponent& pl = registry.get<PointLightComponent>(e);
+
+  auto v = entt::to_version(e);
+  uint64_t id = v;
+  id = id << (sizeof(e) * 8);
+  id = id | static_cast<entt::id_type>(e);
+
+  renderer.registerPointLight(t.getPosition(), pl, id);
+}
+
+void Scene::onPointLightRemoved(entt::registry &registry, entt::entity e)
+{
+  Renderer& renderer = Renderer::Get();
+
+  auto v = entt::to_version(e);
+  uint64_t id = v;
+  id = id << (sizeof(e) * 8);
+  id = id | static_cast<entt::id_type>(e);
+
+  renderer.unregisterPointLight(id);
 }
