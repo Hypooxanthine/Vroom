@@ -36,6 +36,9 @@ static bool HandleEntityTransformComponent(SceneData::SceneNode& e, const json& 
       CHECK(false, "Unsupported TransformComponent parameter {}", nameVal);
 
     CHECK(GetParamValue(value, *outVec), "Error while parsing vec3");
+
+    if (nameVal == "Rotation")
+      *outVec = glm::radians(*outVec);
   }
 
   e.components[std::type_index(typeid(SceneData::TransformComponent))] = std::move(tc);
