@@ -132,7 +132,7 @@ bool MaterialAsset::loadImpl(const std::string &filePath)
 {
   using json = nlohmann::json;
 
-  VRM_LOG_INFO("Loading material: {}", filePath);
+  VRM_LOG_TRACE("Loading material: {}", filePath);
 
   std::ifstream ifs;
   ifs.open(filePath);

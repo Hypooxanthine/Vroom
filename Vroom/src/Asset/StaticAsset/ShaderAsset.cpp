@@ -12,6 +12,8 @@ bool ShaderAsset::loadImpl(const std::string& filePath)
 {
   using json = nlohmann::json;
 
+  VRM_LOG_TRACE("Loading shader: {}", filePath);
+
   std::ifstream ifs;
   ifs.open(filePath);
   if (!ifs.is_open())

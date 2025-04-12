@@ -16,7 +16,7 @@ TextureAsset::~TextureAsset()
 
 bool TextureAsset::loadImpl(const std::string& filePath)
 {
-  VRM_LOG_INFO("Loading texture: {}", filePath);
+  VRM_LOG_TRACE("Loading texture: {}", filePath);
 
   if (!m_TextureData.loadFromFile(filePath))
   {
@@ -25,8 +25,6 @@ bool TextureAsset::loadImpl(const std::string& filePath)
   }
 
   m_GPUTexture.loadFromTextureData(m_TextureData);
-
-  VRM_LOG_INFO("Texture loaded.");
 
   return true;
 }

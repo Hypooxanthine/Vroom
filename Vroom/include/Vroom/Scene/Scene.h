@@ -208,6 +208,8 @@ namespace vrm
 
     bool loadFromAsset2(const SceneData &data);
 
+    void setupLights();
+
     void onPointLightAdded(entt::registry &registry, entt::entity e);
     void onPointLightRemoved(entt::registry &registry, entt::entity e);
 

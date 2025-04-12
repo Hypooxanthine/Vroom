@@ -12,7 +12,7 @@ using namespace vrm;
 ImVec2 AssetElement::s_ElementSize = { 100.f, 100.f };
 
 AssetElement::AssetElement(const std::filesystem::path &elementPath)
-    : ImGuiElement(), m_ElementPath(std::filesystem::canonical(elementPath))
+    : ImGuiElement(), m_ElementPath((elementPath))
 {
 }
 

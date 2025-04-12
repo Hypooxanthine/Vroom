@@ -38,24 +38,8 @@ Scene::~Scene()
 
 void Scene::init()
 {
-  Renderer &renderer = Renderer::Get();
-
   // Registering lights that have been added before init (when loading the scene).
-  auto viewDirLights = m_Registry.view<DirectionalLightComponent, TransformComponent>();
-  for (auto&& [e, dl, t] : viewDirLights.each())
-  {
-    const glm::vec3& rot = t.getRotation();
-    auto rotMatrix = glm::eulerAngleXYZ(rot.x, rot.y, rot.z);
-    glm::vec4 forward = { 1.f, 0.f, 0.f, 0.f };
-
-    renderer.registerDirectionalLight(dl, glm::vec3(rotMatrix * forward), static_cast<entt::id_type>(e));
-  }
-
-  auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent>();
-  for (auto&& [e, pl, t] : viewPointLights.each())
-  {
-    renderer.registerPointLight(t.getPosition(), pl, static_cast<entt::id_type>(e));
-  }
+  setupLights();
 
   // At runtime, lights registering is done by entt callbacks.
   m_Registry.on_construct<DirectionalLightComponent>().connect<&Scene::onDirectionalLightAdded>(this);
@@ -285,6 +269,27 @@ void Scene::renameRoot(const std::string& rootName)
   m_EntitiesByName.erase(m_Root.getName());
   m_EntitiesByName[rootName] = m_Root.clone();
   m_Root.getComponentInternal<NameComponent>().name = rootName;
+}
+
+void Scene::setupLights()
+{
+  Renderer &renderer = Renderer::Get();
+  
+  auto viewDirLights = m_Registry.view<DirectionalLightComponent, TransformComponent>();
+  for (auto&& [e, dl, t] : viewDirLights.each())
+  {
+    const glm::vec3& rot = t.getRotation();
+    auto rotMatrix = glm::eulerAngleXYZ(rot.x, rot.y, rot.z);
+    glm::vec4 forward = { 1.f, 0.f, 0.f, 0.f };
+
+    renderer.registerDirectionalLight(dl, glm::vec3(rotMatrix * forward), static_cast<entt::id_type>(e));
+  }
+
+  auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent>();
+  for (auto&& [e, pl, t] : viewPointLights.each())
+  {
+    renderer.registerPointLight(t.getPosition(), pl, static_cast<entt::id_type>(e));
+  }
 }
 
 // --------------------------------------------------

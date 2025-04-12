@@ -55,7 +55,10 @@ void AssetBrowser::updateDirectoryContent()
 
   for (const auto &entry : std::filesystem::directory_iterator(m_CurrentPath))
   {
-    auto element = AssetUtils::CreateAssetElement(entry.path());
+    auto p = entry.path();
+    p = p.lexically_relative(m_ResourcesPath.parent_path());
+    // VRM_LOG_TRACE("Element: {}", p.string());
+    auto element = AssetUtils::CreateAssetElement(p);
 
     if (element == nullptr)
       continue;

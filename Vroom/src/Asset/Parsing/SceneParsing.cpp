@@ -228,8 +228,6 @@ bool SceneParsing::Parse(const nlohmann::json& jsonData, SceneData& outSceneData
     }
   }
 
-  VRM_LOG_INFO("Scene loaded successfully");
-
   outSceneData = std::move(out);
   return true;
 }

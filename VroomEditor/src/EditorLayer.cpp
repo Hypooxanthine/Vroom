@@ -38,7 +38,6 @@ EditorLayer& EditorLayer::Get()
 
 void EditorLayer::loadScene(std::unique_ptr<Scene> &&scene)
 {
-  VRM_LOG_INFO("Opening scene...");
   scene->setCamera(&m_EditorCamera);
   auto &gameLayer = Application::Get().getGameLayer();
   gameLayer.loadScene(std::move(scene));
@@ -46,6 +45,7 @@ void EditorLayer::loadScene(std::unique_ptr<Scene> &&scene)
 
 void EditorLayer::loadScene(const std::string& sceneAssetName)
 {
+  VRM_LOG_INFO("Loading scene...");
   auto scene = std::make_unique<Scene>();
   scene->loadFromAsset(AssetManager::Get().getAsset<SceneAsset>(sceneAssetName));
   loadScene(std::move(scene));

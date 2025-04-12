@@ -22,6 +22,8 @@ bool ShadingModelAsset::loadImpl(const std::string &filePath)
 {
   AssetManager &manager = AssetManager::Get();
 
+  VRM_LOG_TRACE("Loading shading model: {}", filePath);
+
   // Base material shader
   {
     static const std::string baseShaderPath = "Resources/Engine/Shader/MaterialBase_Shader.json";

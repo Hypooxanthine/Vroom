@@ -41,6 +41,8 @@ void MeshAsset::clear()
 
 bool MeshAsset::loadImpl(const std::string& filePath)
 {
+  VRM_LOG_TRACE("Loading mesh: {}", filePath);
+  
   std::string extension = StaticAsset::getExtension(filePath);
   if (extension == "obj")
   {
@@ -79,15 +81,14 @@ bool MeshAsset::loadObj(const std::string& filePath)
     }
   }
 
-  VRM_LOG_INFO("Loading mesh from file: {}", filePath);
-  VRM_LOG_TRACE("| Loading {} submeshes.", loader.LoadedMeshes.size());
+  // VRM_LOG_TRACE("| Loading {} submeshes.", loader.LoadedMeshes.size());
 
   for (const auto& mesh : loader.LoadedMeshes)
   {
-    VRM_LOG_TRACE("| | SubMesh: {}", mesh.MeshName);
-    VRM_LOG_TRACE("| | | Vertices count: {}", mesh.Vertices.size());
-    VRM_LOG_TRACE("| | | Indices count: {}", mesh.Indices.size());
-    VRM_LOG_TRACE("| | | Material: {}", mesh.MaterialName);
+    // VRM_LOG_TRACE("| | SubMesh: {}", mesh.MeshName);
+    // VRM_LOG_TRACE("| | | Vertices count: {}", mesh.Vertices.size());
+    // VRM_LOG_TRACE("| | | Indices count: {}", mesh.Indices.size());
+    // VRM_LOG_TRACE("| | | Material: {}", mesh.MaterialName);
 
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
@@ -131,12 +132,12 @@ bool MeshAsset::loadObj(const std::string& filePath)
 
     m_SubMeshes.emplace_back(std::move(renderMesh), std::move(meshData), materialInstance);
 
-    VRM_LOG_TRACE("| | Loaded sub mesh: {}", mesh.MeshName);
+    // VRM_LOG_TRACE("| | Loaded sub mesh: {}", mesh.MeshName);
   }
 
-  VRM_LOG_TRACE("| Submeshes loaded.");
+  // VRM_LOG_TRACE("| Submeshes loaded.");
 
-  VRM_LOG_INFO("Mesh loaded.");
+  // VRM_LOG_INFO("Mesh loaded.");
 
   return true;
 }
