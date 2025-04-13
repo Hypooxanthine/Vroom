@@ -33,6 +33,10 @@ vec3 g_normal;
 
 void main()
 {
+#if defined(VRM_SHADOW_PASS)
+  discard;
+#endif
+
   SetupGlobalVars();
 
 #ifdef VRM_LIGHT_COMPLEXITY

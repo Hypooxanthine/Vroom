@@ -36,18 +36,18 @@ overloaded(Ts...) -> overloaded<Ts...>;
 
 void MaterialAsset::applyUniforms() const
 {
-  m_gpuShader.bind();
+  m_materialShader.gpuShader.bind();
 
   std::string prefix = "u_" + m_data.getShadingModelName();
   uint8_t textureCount = 0;
   for (const auto &[name, param] : m_data.getParameters())
   {
     auto visitor = overloaded{
-      [&, this](float value) { m_gpuShader.setUniform1f(prefix + name, value); },
-      [&, this](const glm::vec2& value) { m_gpuShader.setUniform2f(prefix + name, value); },
-      [&, this](const glm::vec3& value) { m_gpuShader.setUniform3f(prefix + name, value); },
-      [&, this](const glm::vec4& value) { m_gpuShader.setUniform4f(prefix + name, value); },
-      [&, this](const std::string& textureName) { m_gpuShader.setTexture(prefix + "Textures", m_textures.at(textureCount)->getGPUTexture(), textureCount); ++textureCount; }
+      [&, this](float value) { m_materialShader.gpuShader.setUniform1f(prefix + name, value); },
+      [&, this](const glm::vec2& value) { m_materialShader.gpuShader.setUniform2f(prefix + name, value); },
+      [&, this](const glm::vec3& value) { m_materialShader.gpuShader.setUniform3f(prefix + name, value); },
+      [&, this](const glm::vec4& value) { m_materialShader.gpuShader.setUniform4f(prefix + name, value); },
+      [&, this](const std::string& textureName) { m_materialShader.gpuShader.setTexture(prefix + "Textures", m_textures.at(textureCount)->getGPUTexture(), textureCount); ++textureCount; }
     };
 
     std::visit(visitor, param.value);
@@ -57,13 +57,15 @@ void MaterialAsset::applyUniforms() const
   {
     std::vector<int> slots(m_data.getTextureCount());
     std::iota(slots.begin(), slots.end(), 0);
-    m_gpuShader.setUniform1iv(prefix + "Textures", m_data.getTextureCount(), slots.data());
+    m_materialShader.gpuShader.setUniform1iv(prefix + "Textures", m_data.getTextureCount(), slots.data());
   }
 }
 
 bool MaterialAsset::buildShader()
 {
   AssetManager &manager = AssetManager::Get();
+
+  m_shadowCastingShader.data = m_materialShader.data;
 
   // Settings defines depending on material parameters
   {
@@ -74,13 +76,13 @@ bool MaterialAsset::buildShader()
       .name = prefix + "_TEXTURES_COUNT",
       .value = std::to_string(m_data.getTextureCount())
     };
-    m_shaderData.addDefine(ShaderData::EShaderType::eFragment, d);
+    m_materialShader.data.addDefine(ShaderData::EShaderType::eFragment, d);
 
     if (m_data.getTextureCount() > 0)
     {
       d = {.name = prefix + "_ENABLE_TEXTURES"};
 
-      m_shaderData.addDefine(ShaderData::EShaderType::eFragment, d);
+      m_materialShader.data.addDefine(ShaderData::EShaderType::eFragment, d);
     }
 
     for (const auto &[name, param] : m_data.getParameters())
@@ -90,9 +92,9 @@ bool MaterialAsset::buildShader()
       if (param.isTexture())
       {
         d = {.name = paramPrefix + "_TEXTURE"};
-        m_shaderData.addDefine(ShaderData::EShaderType::eFragment, d);
+        m_materialShader.data.addDefine(ShaderData::EShaderType::eFragment, d);
         d = {.name = paramPrefix + "_TEXTURE_SLOT", .value = std::to_string(m_textures.size())};
-        m_shaderData.addDefine(ShaderData::EShaderType::eFragment, d);
+        m_materialShader.data.addDefine(ShaderData::EShaderType::eFragment, d);
 
         VRM_CHECK_RET_FALSE_MSG(manager.tryLoadAsset<TextureAsset>(param.getTexture()), "Could not load material texture: {}", param.getTexture());
 
@@ -101,25 +103,44 @@ bool MaterialAsset::buildShader()
       else
       {
         d = {.name = paramPrefix + "_UNIFORM"};
-        m_shaderData.addDefine(ShaderData::EShaderType::eFragment, d);
+        m_materialShader.data.addDefine(ShaderData::EShaderType::eFragment, d);
       }
     }
   }
 
   // Last defines...
-  m_shaderData.addDefine(ShaderData::EShaderType::eAll, {.name = "VRM_CLUSTERED_RENDERING"});
+  m_materialShader.data.addDefine(ShaderData::EShaderType::eAll, {.name = "VRM_CLUSTERED_RENDERING"});
 
-  auto rawShaderData = m_shaderData.combine();
-  VRM_CHECK_RET_FALSE_MSG(
-      m_gpuShader.addShaderStage(gl::Shader::EShaderType::eVertex, rawShaderData.vertex.sourceCode, true),
-      "Could not compile material vertex shader. Error log:\n{}\n\nWith shader:\n{}", m_gpuShader.getError(), rawShaderData.vertex.sourceCode);
-  VRM_CHECK_RET_FALSE_MSG(
-      m_gpuShader.addShaderStage(gl::Shader::EShaderType::eFragment, rawShaderData.fragment.sourceCode, true),
-      "Could not compile material fragment shader. Error log:\n{}\n\nWith shader:\n{}", m_gpuShader.getError(), rawShaderData.fragment.sourceCode);
+  {
+    auto rawShaderData = m_materialShader.data.combine();
+    VRM_CHECK_RET_FALSE_MSG(
+        m_materialShader.gpuShader.addShaderStage(gl::Shader::EShaderType::eVertex, rawShaderData.vertex.sourceCode, true),
+        "Could not compile material vertex shader. Error log:\n{}\n\nWith shader:\n{}", m_materialShader.gpuShader.getError(), rawShaderData.vertex.sourceCode);
+    VRM_CHECK_RET_FALSE_MSG(
+        m_materialShader.gpuShader.addShaderStage(gl::Shader::EShaderType::eFragment, rawShaderData.fragment.sourceCode, true),
+        "Could not compile material fragment shader. Error log:\n{}\n\nWith shader:\n{}", m_materialShader.gpuShader.getError(), rawShaderData.fragment.sourceCode);
 
-  VRM_CHECK_RET_FALSE_MSG(
-      m_gpuShader.validate(true),
-      "Could not validate material shader. Error log:\n{}", m_gpuShader.getError());
+    VRM_CHECK_RET_FALSE_MSG(
+        m_materialShader.gpuShader.validate(true),
+        "Could not validate material shader. Error log:\n{}", m_materialShader.gpuShader.getError());
+  }
+
+  // Shadow casting shader
+  m_shadowCastingShader.data.addDefine(ShaderData::EShaderType::eAll, { .name = "VRM_SHADOW_PASS" });
+
+  {
+    auto rawShaderData = m_shadowCastingShader.data.combine();
+    VRM_CHECK_RET_FALSE_MSG(
+        m_shadowCastingShader.gpuShader.addShaderStage(gl::Shader::EShaderType::eVertex, rawShaderData.vertex.sourceCode, true),
+        "Could not compile shadow casting material vertex shader. Error log:\n{}\n\nWith shader:\n{}", m_shadowCastingShader.gpuShader.getError(), rawShaderData.vertex.sourceCode);
+    VRM_CHECK_RET_FALSE_MSG(
+        m_shadowCastingShader.gpuShader.addShaderStage(gl::Shader::EShaderType::eFragment, rawShaderData.fragment.sourceCode, true),
+        "Could not compile shadow casting material fragment shader. Error log:\n{}\n\nWith shader:\n{}", m_shadowCastingShader.gpuShader.getError(), rawShaderData.fragment.sourceCode);
+
+    VRM_CHECK_RET_FALSE_MSG(
+        m_shadowCastingShader.gpuShader.validate(true),
+        "Could not validate shadow casting material shader. Error log:\n{}", m_shadowCastingShader.gpuShader.getError());
+  }
 
   // std::string dumpPath = getFilePath() + ".dump.glsl";
   // rawShaderData.fragment.dump(dumpPath);
@@ -159,7 +180,7 @@ bool MaterialAsset::loadImpl(const std::string &filePath)
     VRM_CHECK_RET_FALSE_MSG(manager.tryLoadAsset<ShadingModelAsset>(ID), "Couldn't load {} shading model at path {}", m_data.getShadingModelName(), ID);
 
     ShadingModelAsset::Handle shadingModel = manager.getAsset<ShadingModelAsset>(ID);
-    m_shaderData = ShaderData{shadingModel->getData()};
+    m_materialShader.data = ShaderData{shadingModel->getData()};
   }
 
   VRM_CHECK_RET_FALSE_MSG(buildShader(), "Could not build material shader");

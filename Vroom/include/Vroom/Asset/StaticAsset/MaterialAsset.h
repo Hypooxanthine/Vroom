@@ -20,7 +20,9 @@ namespace vrm
 
     [[nodiscard]] inline const MaterialData &getData() const { return m_data; }
 
-    [[nodiscard]] inline const gl::Shader &getShader() const { return m_gpuShader; }
+    [[nodiscard]] inline const gl::Shader &getShader() const { return m_materialShader.gpuShader; }
+
+    [[nodiscard]] inline const gl::Shader &getShadowCastingShader() const { return m_shadowCastingShader.gpuShader; }
 
     [[nodiscard]] inline const std::vector<TextureAsset::Handle>& getTextures() const { return m_textures; }
 
@@ -32,11 +34,18 @@ namespace vrm
     bool buildShader();
 
   private:
+    struct Shader
+    {
+      ShaderData data;
+      gl::Shader gpuShader;
+    };
+
+  private:
     MaterialData m_data;
-    ShaderData m_shaderData;
     std::vector<TextureAsset::Handle> m_textures;
 
-    gl::Shader m_gpuShader;
+    Shader m_materialShader;
+    Shader m_shadowCastingShader;
   };
 
 } // namespace vrm

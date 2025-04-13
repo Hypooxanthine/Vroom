@@ -86,13 +86,7 @@ void Renderer::endScene(const FrameBuffer &target)
   // Rendering to the requested target
   target.bind();
   target.clearColorBuffer();
-  GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
-
-  // Drawing meshes
-  for (const auto &queuedMesh : m_Meshes)
-  {
-    drawMesh(*queuedMesh.mesh, queuedMesh.material, *queuedMesh.model);
-  }
+  renderScene();
 
   // Clearing data for next frame
   m_Camera = nullptr;
@@ -142,33 +136,13 @@ void Renderer::updateDirectionalLight(const DirectionalLightComponent& dirLight,
   m_LightRegistry.updateLight(dirLight, direction, identifier);
 }
 
-void Renderer::drawMesh(const RenderMesh& mesh, MaterialAsset::Handle mat, const glm::mat4& model) const
+void Renderer::drawMesh(const RenderMesh& mesh) const
 {
   VRM_DEBUG_ASSERT_MSG(m_Camera, "No camera set for rendering. Did you call beginScene?");
-
-  const auto cameraPos = m_Camera->getPosition();
 
   // Binding data
   mesh.getVertexArray().bind();
   mesh.getIndexBuffer().bind();
-
-  // Material uniforms
-  mat->applyUniforms();
-
-  const Shader &shader = mat->getShader();
-  shader.bind();
-
-  // Setting uniforms
-  shader.setUniformMat4f("u_Model", model);
-  shader.setUniformMat4f("u_View", m_Camera->getView());
-  shader.setUniformMat4f("u_Projection", m_Camera->getProjection());
-  shader.setUniformMat4f("u_ViewProjection", m_Camera->getViewProjection());
-  shader.setUniform3f("u_ViewPosition", cameraPos);
-  shader.setUniform1f("u_Near", m_Camera->getNear());
-  shader.setUniform1f("u_Far", m_Camera->getFar());
-  shader.setUniform2ui("u_ViewportSize", m_ViewportSize.x, m_ViewportSize.y);
-  shader.setStorageBuffer("LightBlock", m_LightRegistry.getPointLightsStorageBuffer());
-  shader.setStorageBuffer("ClusterInfoBlock", m_ClusteredLights.getClustersShaderStorage());
 
   // Drawing data
   GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)mesh.getIndexCount(), GL_UNSIGNED_INT, nullptr));
@@ -198,4 +172,55 @@ void Renderer::setViewportOrigin(const glm::vec<2, unsigned int> &o)
 void Renderer::setViewportSize(const glm::vec<2, unsigned int> &s)
 {
   m_ViewportSize = s;
+}
+
+// Passes
+
+void Renderer::renderShadows()
+{
+  GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
+
+  // Drawing meshes
+  for (const auto &queuedMesh : m_Meshes)
+  {
+    drawMesh(*queuedMesh.mesh);
+  }
+}
+
+void Renderer::renderScene()
+{
+  GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
+
+  const auto cameraPos = m_Camera->getPosition();
+
+  // Drawing meshes
+  for (const auto &queuedMesh : m_Meshes)
+  {
+    const auto& shader = queuedMesh.material->getShader();
+      shader.bind();
+      shader.setUniformMat4f("u_Model", *queuedMesh.model);
+      applyCameraUniforms(queuedMesh.material->getShader(), *m_Camera, m_ViewportSize);
+      applyLightsStorageBuffers(queuedMesh.material->getShader());
+    
+    queuedMesh.material->applyUniforms();
+
+    drawMesh(*queuedMesh.mesh);
+  }
+}
+
+void Renderer::applyCameraUniforms(const gl::Shader& shader, const CameraBasic& camera, const glm::uvec2& viewportSize)
+{
+  shader.setUniform2ui("u_ViewportSize", viewportSize.x, viewportSize.y);
+  shader.setUniformMat4f("u_View", camera.getView());
+  shader.setUniformMat4f("u_Projection", camera.getProjection());
+  shader.setUniformMat4f("u_ViewProjection", camera.getViewProjection());
+  shader.setUniform3f("u_ViewPosition", camera.getPosition());
+  shader.setUniform1f("u_Near", camera.getNear());
+  shader.setUniform1f("u_Far", camera.getFar());
+}
+
+void Renderer::applyLightsStorageBuffers(const gl::Shader& shader)
+{
+  shader.setStorageBuffer("LightBlock", m_LightRegistry.getPointLightsStorageBuffer());
+  shader.setStorageBuffer("ClusterInfoBlock", m_ClusteredLights.getClustersShaderStorage());
 }

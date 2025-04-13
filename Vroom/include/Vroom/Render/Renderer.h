@@ -2,11 +2,13 @@
 
 #include <memory>
 #include <vector>
+#include <unordered_map>
 #include <glm/glm.hpp>
 
 #include "Vroom/Render/Abstraction/VertexArray.h"
 #include "Vroom/Render/Abstraction/VertexBuffer.h"
 #include "Vroom/Render/Abstraction/IndexBuffer.h"
+#include "Vroom/Render/Abstraction/FrameBuffer.h"
 
 #include "Vroom/Render/Clustering/LightRegistry.h"
 #include "Vroom/Render/Clustering/ClusteredLights.h"
@@ -160,6 +162,10 @@ private:
 
 private:
 
+  void renderShadows();
+
+  void renderScene();
+
 	/**
 	 * @brief  Draws a mesh with a material and a transform.
 	 * 
@@ -167,13 +173,17 @@ private:
    * @param mat The material.
 	 * @param model  The model matrix.
 	 */
-	void drawMesh(const RenderMesh& mesh, MaterialAsset::Handle mat, const glm::mat4& model) const;
+	void drawMesh(const RenderMesh& mesh) const;
+
+  void applyCameraUniforms(const gl::Shader& shader, const CameraBasic& camera, const glm::uvec2& viewportSize);
+
+  void applyLightsStorageBuffers(const gl::Shader& shader);
 
 private:
 	static std::unique_ptr<Renderer> s_Instance;
 
-	glm::vec<2, unsigned int> m_ViewportOrigin = { 0, 0 };
-	glm::vec<2, unsigned int> m_ViewportSize = { 0, 0 };
+	glm::uvec2 m_ViewportOrigin = { 0, 0 };
+	glm::uvec2 m_ViewportSize = { 0, 0 };
 
 	const CameraBasic* m_Camera = nullptr;
 
@@ -181,6 +191,7 @@ private:
 
 	LightRegistry m_LightRegistry;
 	ClusteredLights m_ClusteredLights;
+  std::unordered_map<size_t, gl::FrameBuffer> m_directionalLightsShadowMaps;
 };
 
 } // namespace vrm
