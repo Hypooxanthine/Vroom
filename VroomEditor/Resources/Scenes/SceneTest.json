@@ -283,6 +283,15 @@
               "value": 0.5
             }
           ]
+        },
+        {
+          "type": "ScriptComponent",
+          "params": [
+            {
+              "name": "ScriptName",
+              "value": "VRM_RotatingDirLightScript_ID"
+            }
+          ]
         }
       ]
     }
