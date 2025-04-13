@@ -13,12 +13,11 @@ GameLayer::GameLayer()
 {
   Renderer &renderer = Renderer::Get();
 
-  m_FrameBuffer.create({.onScreen = true,
-                        .width = static_cast<int>(renderer.getViewportSize().x),
-                        .height = static_cast<int>(renderer.getViewportSize().y),
-                        .useBlending = true,
-                        .useDepthTest = true,
-                        .clearColor = {0.1f, 0.1f, 0.1f, 1.f}});
+  m_FrameBuffer.create(static_cast<GLuint>(renderer.getViewportSize().x), static_cast<GLuint>(renderer.getViewportSize().y));
+  m_FrameBuffer.bind();
+  m_FrameBuffer.addColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });
+  m_FrameBuffer.addDepthAttachment();
+  VRM_ASSERT_MSG(m_FrameBuffer.validate(), "Could not build GameLayer framebuffer");
 
   m_CustomEventManager.createCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
       .bindInput(Event::Type::WindowsResized);

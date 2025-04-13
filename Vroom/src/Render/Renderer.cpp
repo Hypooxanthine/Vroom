@@ -85,7 +85,9 @@ void Renderer::endScene(const FrameBuffer &target)
 
   // Rendering to the requested target
   target.bind();
-  target.clearColorBuffer();
+  target.clearColors();
+  target.clearDepth();
+  glEnable(GL_DEPTH_TEST);
   renderScene();
 
   // Clearing data for next frame

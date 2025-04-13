@@ -65,7 +65,7 @@ void UserInterfaceLayer::onInit()
   auto& assetBrowser = emplaceImGuiElement<AssetBrowser>();
   auto& sceneGraph = emplaceImGuiElement<SceneGraph>();
 
-  viewport.setFrameBuffer(&app.getGameLayer().getFrameBuffer());
+  viewport.setRenderTexture(&app.getGameLayer().getFrameBuffer().getColorAttachmentTexture(0));
 }
 
 void UserInterfaceLayer::onEnd()
@@ -82,6 +82,8 @@ void UserInterfaceLayer::onUpdate(float dt)
 
 void UserInterfaceLayer::onRender()
 {
+  auto& fb = gl::FrameBuffer::GetDefaultFrameBuffer();
+  fb.bind();
   resetUIInfos();
   renderImgui();
 }

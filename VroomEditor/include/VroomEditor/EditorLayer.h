@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Vroom/Core/Layer.h>
-#include <Vroom/Render/Abstraction/FrameBuffer.h>
 #include <Vroom/Event/CustomEvent/CustomEventManager.h>
 #include <Vroom/Event/Trigger/TriggerManager.h>
 #include <Vroom/Render/Camera/FirstPersonCamera.h>
@@ -45,7 +44,6 @@ private:
   void onViewportResize(int newWidth, int newHeight);
 
 private:
-  gl::FrameBuffer m_FrameBuffer;
   CustomEventManager m_CustomEventManager;
   TriggerManager m_TriggerManager;
   bool m_SceneLoaded = false;

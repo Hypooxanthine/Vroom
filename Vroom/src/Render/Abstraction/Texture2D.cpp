@@ -45,10 +45,6 @@ static constexpr GLint ToGlInternalFormat(TextureFormat format)
   }
 }
 
-Texture2D::Texture2D()
-{
-}
-
 Texture2D::~Texture2D()
 {
   release();
@@ -59,8 +55,14 @@ Texture2D &Texture2D::operator=(Texture2D &&other) noexcept
   if (this != &other)
   {
     m_RendererID = other.m_RendererID;
+    m_width = other.m_width;
+    m_height = other.m_height;
+    m_channels = other.m_channels;
 
     other.m_RendererID = 0;
+    other.m_width = 0;
+    other.m_height = 0;
+    other.m_channels = 0;
   }
 
   return *this;
@@ -103,6 +105,10 @@ void Texture2D::createColors(int width, int height, int channels, const void *da
       ToGlFormat(ChannelsToTextureFormat(channels)),
       GL_UNSIGNED_BYTE,
       data));
+
+  m_width = width;
+  m_height = height;
+  m_channels = channels;
 }
 
 void Texture2D::createFloats(int width, int height, int channels, const void *data)
@@ -125,6 +131,10 @@ void Texture2D::createFloats(int width, int height, int channels, const void *da
       ToGlFormat(ChannelsToTextureFormat(channels)),
       GL_FLOAT,
       data));
+
+  m_width = width;
+  m_height = height;
+  m_channels = channels;
 }
 
 void Texture2D::createDepth(int width, int height)
@@ -147,6 +157,10 @@ void Texture2D::createDepth(int width, int height)
       GL_DEPTH_COMPONENT,
       GL_FLOAT,
       nullptr));
+
+  m_width = width;
+  m_height = height;
+  m_channels = 1;
 }
 
 void Texture2D::release()
@@ -155,6 +169,9 @@ void Texture2D::release()
   {
     GLCall_nothrow(glDeleteTextures(1, &m_RendererID));
     m_RendererID = 0;
+    m_width = 0;
+    m_height = 0;
+    m_channels = 0;
   }
 }
 

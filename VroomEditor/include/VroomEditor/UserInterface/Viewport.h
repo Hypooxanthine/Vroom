@@ -8,7 +8,7 @@ namespace vrm
 
   namespace gl
   {
-    class FrameBuffer;
+    class Texture2D;
   }
 
   class Viewport : public ImGuiElement
@@ -20,7 +20,7 @@ namespace vrm
     inline const ImVec2 &getLastViewportSize() const { return m_LastViewportSize; }
     inline bool didSizeChangeLastFrame() const { return m_DidSizeChangeLastFrame; }
 
-    inline gl::FrameBuffer *getFrameBuffer() const { return frameBuffer; }
+    inline const gl::Texture2D *getRenderTexture() const { return renderTexture; }
 
     inline void setIdle()
     {
@@ -34,13 +34,13 @@ namespace vrm
     inline bool isIdle() const { return !m_Playing && !m_Simulating; }
     inline bool isActive() const { return m_Active; }
 
-    inline void setFrameBuffer(gl::FrameBuffer *fb) { frameBuffer = fb; }
+    inline void setRenderTexture(const gl::Texture2D *tex) { renderTexture = tex; }
 
   protected:
     bool onImgui() override;
 
   private: // ImGui related variables
-    gl::FrameBuffer *frameBuffer;
+    const gl::Texture2D *renderTexture;
 
     bool m_Active = false;
     bool m_Playing = false;

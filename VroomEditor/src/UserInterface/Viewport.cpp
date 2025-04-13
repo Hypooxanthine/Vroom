@@ -1,7 +1,7 @@
 #include "VroomEditor/UserInterface/Viewport.h"
 
 #include <Vroom/Core/Log.h>
-#include <Vroom/Render/Abstraction/FrameBuffer.h>
+#include <Vroom/Render/Abstraction/Texture2D.h>
 
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 
@@ -10,7 +10,7 @@
 using namespace vrm;
 
 Viewport::Viewport()
-    : frameBuffer(nullptr), m_LastViewportSize(ImVec2(0.f, 0.f))
+    : renderTexture(nullptr), m_LastViewportSize(ImVec2(0.f, 0.f))
 {
 }
 
@@ -63,12 +63,12 @@ bool Viewport::onImgui()
       m_DidSizeChangeLastFrame = (size.x != m_LastViewportSize.x || size.y != m_LastViewportSize.y);
       m_LastViewportSize = size;
 
-      if (frameBuffer)
+      if (renderTexture)
       {
-        ImTextureID textureID = (ImTextureID)(intptr_t)frameBuffer->getTexture().getRendererID();
+        ImTextureID textureID = (ImTextureID)(intptr_t)renderTexture->getRendererID();
         ImVec2 imageSize = ImVec2(
-            static_cast<float>(frameBuffer->getSpecification().width),
-            static_cast<float>(frameBuffer->getSpecification().height));
+            static_cast<float>(renderTexture->getWidth()),
+            static_cast<float>(renderTexture->getHeight()));
         ImGui::Image(textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
 
         m_Active = ImGui::IsWindowFocused() && ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.f);

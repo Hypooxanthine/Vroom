@@ -60,7 +60,6 @@ void EditorLayer::onInit()
 {
   // Engine setup
   auto &app = Application::Get();
-  app.getGameLayer().getFrameBuffer().setOnScreenRender(false);
   app.getGameLayer().setShouldHandleEvents(false);
   app.getGameLayer().setShouldUpdate(false);
   app.getGameLayer().setShouldRender(true);
@@ -72,17 +71,6 @@ void EditorLayer::onInit()
 
   m_CustomEventManager.bindPermanentCallback("Exit", [](const Event &e)
                                              { Application::Get().exit(); });
-
-  // Frame buffer
-  gl::FrameBuffer::Specification specs = {
-      .onScreen = true,
-      .width = app.getWindow().getWidth(),
-      .height = app.getWindow().getHeight(),
-      .useBlending = true,
-      .useDepthTest = true,
-      .clearColor = {0.1f, 0.1f, 0.1f, 1.0f}};
-  m_FrameBuffer.create(specs);
-  m_FrameBuffer.bind();
 
   // Events
   m_CustomEventManager.createCustomEvent("EditorCameraRotation")
@@ -153,8 +141,6 @@ void EditorLayer::onUpdate(float dt)
 
 void EditorLayer::onRender()
 {
-  m_FrameBuffer.bind();
-  m_FrameBuffer.clearColorBuffer();
 }
 
 void EditorLayer::onEvent(vrm::Event &e)
