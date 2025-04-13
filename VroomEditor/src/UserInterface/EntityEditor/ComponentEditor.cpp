@@ -256,8 +256,7 @@ bool MeshComponentEditor::editEntityComponent(Entity& e) const
 
       if (AssetManager::Get().tryLoadAsset<MeshAsset>(meshPath.string()))
       {
-        auto here = std::filesystem::current_path();
-        resourceName = meshPath.lexically_relative(here).string();
+        resourceName = meshPath.string();
         meshChanged = true;
       }
     }
@@ -305,8 +304,7 @@ bool MeshComponentEditor::editEntityComponent(Entity& e) const
 
         if (AssetManager::Get().tryLoadAsset<MaterialAsset>(materialPath.string()))
         {
-          auto here = std::filesystem::current_path();
-          resourceName = materialPath.lexically_relative(here).string();
+          resourceName = materialPath.string();
           resourceChanged = true;
         }
       }
