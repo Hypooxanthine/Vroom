@@ -52,6 +52,11 @@ void UserInterfaceLayer::onInit()
   ImGui::StyleColorsDark();
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
+  auto& style = ImGui::GetStyle();
+  style.AntiAliasedFill = true;
+  style.AntiAliasedLines = true;
+  style.AntiAliasedLinesUseTex = true;
+
   ImGui_ImplGlfw_InitForOpenGL(Application::Get().getWindow().getGLFWHandle(), true);
   ImGui_ImplOpenGL3_Init("#version 450");
 

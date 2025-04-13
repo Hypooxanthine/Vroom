@@ -91,7 +91,7 @@ void Texture2D::createColors(int width, int height, int channels, const void *da
     glGenTextures(1, &m_RendererID);
 
   bind();
-  GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+  GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
@@ -105,6 +105,8 @@ void Texture2D::createColors(int width, int height, int channels, const void *da
       ToGlFormat(ChannelsToTextureFormat(channels)),
       GL_UNSIGNED_BYTE,
       data));
+  
+  glGenerateMipmap(GL_TEXTURE_2D);
 
   m_width = width;
   m_height = height;
