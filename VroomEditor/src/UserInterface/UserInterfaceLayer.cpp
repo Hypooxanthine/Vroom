@@ -87,6 +87,10 @@ void UserInterfaceLayer::onUpdate(float dt)
 
 void UserInterfaceLayer::onRender()
 {
+  if (m_ViewportInfo.justChangedSize)
+  {
+    m_FrameBuffer.resize(m_ViewportInfo.width, m_ViewportInfo.height);
+  }
   const gl::FrameBuffer& gameFrameBuffer = Application::Get().getGameLayer().getFrameBuffer();
   gl::FrameBuffer::Blit(m_FrameBuffer, gameFrameBuffer);
 
@@ -131,10 +135,6 @@ void UserInterfaceLayer::onViewportResize(int w, int h)
   m_ViewportInfo.justChangedSize = true;
   m_ViewportInfo.width = w;
   m_ViewportInfo.height = h;
-  if (m_ViewportInfo.justChangedSize)
-  {
-    m_FrameBuffer.resize(m_ViewportInfo.width, m_ViewportInfo.height);
-  }
 }
 
 void UserInterfaceLayer::onViewportActive(bool active)
