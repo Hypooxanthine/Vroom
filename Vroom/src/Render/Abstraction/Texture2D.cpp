@@ -58,11 +58,13 @@ Texture2D &Texture2D::operator=(Texture2D &&other) noexcept
     m_width = other.m_width;
     m_height = other.m_height;
     m_channels = other.m_channels;
+    m_samples = other.m_samples;
 
     other.m_RendererID = 0;
     other.m_width = 0;
     other.m_height = 0;
     other.m_channels = 0;
+    other.m_samples = 0;
   }
 
   return *this;
@@ -73,11 +75,24 @@ Texture2D::Texture2D(Texture2D &&other) noexcept
   *this = std::move(other);
 }
 
-void Texture2D::bind(unsigned int slot) const
+void Texture2D::bind() const
 {
   VRM_DEBUG_ASSERT_MSG(isCreated(), "Texture not created.");
-  GLCall(glActiveTexture(GL_TEXTURE0 + slot));
-  GLCall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
+
+  if (m_samples > 1)
+  {
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID);
+  }
+  else
+  {
+    glBindTexture(GL_TEXTURE_2D, m_RendererID);
+  }
+}
+
+void Texture2D::bind(unsigned int slot) const
+{
+  glActiveTexture(GL_TEXTURE0 + slot);
+  bind();
 }
 
 void Texture2D::unbind() const
@@ -89,6 +104,8 @@ void Texture2D::createColors(int width, int height, int channels, const void *da
 {
   if (!isCreated())
     glGenTextures(1, &m_RendererID);
+
+  m_samples = 1;
 
   bind();
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
@@ -113,10 +130,40 @@ void Texture2D::createColors(int width, int height, int channels, const void *da
   m_channels = channels;
 }
 
+void Texture2D::createColorsMultisample(int width, int height, int channels, int samples)
+{
+  VRM_ASSERT_MSG(samples > 1, "Samples must be greater than 1");
+
+  if (!isCreated())
+    glGenTextures(1, &m_RendererID);
+
+  m_samples = samples;
+  
+  bind();
+  glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexImage2DMultisample(
+    GL_TEXTURE_2D_MULTISAMPLE,
+    samples,
+    ToGlInternalFormat(ChannelsToTextureFormat(channels)),
+    width,
+    height,
+    GL_TRUE
+  );
+
+  m_width = width;
+  m_height = height;
+  m_channels = channels;
+}
+
 void Texture2D::createFloats(int width, int height, int channels, const void *data)
 {
   if (!isCreated())
     glGenTextures(1, &m_RendererID);
+
+  m_samples = 1;
 
   bind();
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -143,6 +190,8 @@ void Texture2D::createDepth(int width, int height)
 {
   if (!isCreated())
     glGenTextures(1, &m_RendererID);
+
+  m_samples = 1;
 
   bind();
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -174,6 +223,7 @@ void Texture2D::release()
     m_width = 0;
     m_height = 0;
     m_channels = 0;
+    m_samples = 0;
   }
 }
 

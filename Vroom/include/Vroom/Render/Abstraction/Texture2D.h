@@ -21,10 +21,13 @@ namespace vrm::gl
     Texture2D &operator=(Texture2D &&other) noexcept;
     Texture2D(Texture2D &&other) noexcept;
 
-    void bind(unsigned int slot = 0) const;
+    void bind() const;
+    void bind(unsigned int slot) const;
     void unbind() const;
 
     void createColors(int width, int height, int channels, const void *data = nullptr);
+
+    void createColorsMultisample(int width, int height, int channels, int samples);
 
     void createFloats(int width, int height, int channels, const void *data = nullptr);
 
@@ -50,6 +53,7 @@ namespace vrm::gl
     unsigned int m_RendererID = 0;
     unsigned int m_width = 0, m_height = 0;
     unsigned int m_channels = 0;
+    unsigned int m_samples = 0;
   };
 
 } // namespace vrm::gl

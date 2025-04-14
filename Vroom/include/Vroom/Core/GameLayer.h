@@ -37,6 +37,8 @@ public:
    */
   inline const gl::FrameBuffer &getFrameBuffer() const { return m_FrameBuffer; }
 
+  void setAntialiasingLevel(uint8_t aa);
+
   /**
    * @brief Loads a scene into the game layer. Scene will start at the beginning of the next frame.
    *

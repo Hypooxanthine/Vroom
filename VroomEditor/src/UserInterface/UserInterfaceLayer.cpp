@@ -52,11 +52,6 @@ void UserInterfaceLayer::onInit()
   ImGui::StyleColorsDark();
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-  auto& style = ImGui::GetStyle();
-  style.AntiAliasedFill = true;
-  style.AntiAliasedLines = true;
-  style.AntiAliasedLinesUseTex = true;
-
   ImGui_ImplGlfw_InitForOpenGL(Application::Get().getWindow().getGLFWHandle(), true);
   ImGui_ImplOpenGL3_Init("#version 450");
 
@@ -70,7 +65,12 @@ void UserInterfaceLayer::onInit()
   auto& assetBrowser = emplaceImGuiElement<AssetBrowser>();
   auto& sceneGraph = emplaceImGuiElement<SceneGraph>();
 
-  viewport.setRenderTexture(&app.getGameLayer().getFrameBuffer().getColorAttachmentTexture(0));
+  // Framebuffer
+  
+  m_FrameBuffer.create(app.getWindow().getWidth(), app.getWindow().getHeight(), 1);
+  m_FrameBuffer.addColorAttachment(0, 4);
+
+  viewport.setRenderTexture(&m_FrameBuffer.getColorAttachmentTexture(0));
 }
 
 void UserInterfaceLayer::onEnd()
@@ -87,8 +87,10 @@ void UserInterfaceLayer::onUpdate(float dt)
 
 void UserInterfaceLayer::onRender()
 {
-  auto& fb = gl::FrameBuffer::GetDefaultFrameBuffer();
-  fb.bind();
+  const gl::FrameBuffer& gameFrameBuffer = Application::Get().getGameLayer().getFrameBuffer();
+  gl::FrameBuffer::Blit(m_FrameBuffer, gameFrameBuffer);
+
+  gl::FrameBuffer::GetDefaultFrameBuffer().bind();
   resetUIInfos();
   renderImgui();
 }
@@ -129,6 +131,10 @@ void UserInterfaceLayer::onViewportResize(int w, int h)
   m_ViewportInfo.justChangedSize = true;
   m_ViewportInfo.width = w;
   m_ViewportInfo.height = h;
+  if (m_ViewportInfo.justChangedSize)
+  {
+    m_FrameBuffer.resize(m_ViewportInfo.width, m_ViewportInfo.height);
+  }
 }
 
 void UserInterfaceLayer::onViewportActive(bool active)

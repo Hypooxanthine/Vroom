@@ -7,6 +7,7 @@
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Render/Abstraction/Texture2D.h"
+#include "Vroom/Render/Abstraction/RenderBuffer.h"
 
 namespace vrm::gl
 {
@@ -26,13 +27,17 @@ namespace vrm::gl
 
     inline static const FrameBuffer &GetDefaultFrameBuffer();
 
+    inline static void Blit(const FrameBuffer& dest, const FrameBuffer& src);
+
     inline constexpr GLuint getRenderID() const;
 
     inline constexpr bool isCreated() const;
 
     inline void bind() const;
 
-    inline void create(GLuint width, GLuint height);
+    inline void create(GLuint width, GLuint height, GLuint MSAA = 1);
+
+    inline void release();
 
     inline constexpr bool isColorAttachmentUsed(GLuint slot) const;
 
@@ -45,6 +50,10 @@ namespace vrm::gl
     inline void addDepthAttachment(float clearValue = 1.f);
 
     inline const Texture2D &getDepthAttachmentTexture() const;
+
+    inline constexpr bool isRenderBufferAttached() const;
+
+    inline void attachRenderBuffer(float clearValue = 1.f);
 
     inline bool validate();
 
@@ -64,11 +73,13 @@ namespace vrm::gl
 
     GLuint m_renderID = 0;
     GLuint m_width = 0, m_height = 0;
+    GLuint m_samples = 0;
 
     std::array<Texture2D, s_MaxColorAttachments> m_colorTextures;
     std::array<glm::vec4, s_MaxColorAttachments> m_clearColors = {glm::vec4(0.f)};
 
     Texture2D m_depthTexture;
+    RenderBuffer m_renderBuffer;
     float m_depthClearValue = 1.f;
 
     bool m_isDefault = false;
@@ -98,6 +109,21 @@ namespace vrm::gl
     return *s_DefaultFrameBuffer;
   }
 
+  inline void FrameBuffer::Blit(const FrameBuffer& dest, const FrameBuffer& src)
+  {
+    VRM_ASSERT_MSG(src.isCreated() && dest.isCreated(), "Src or dest framebuffer is not created");
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, src.getRenderID());
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dest.getRenderID());
+
+    glBlitFramebuffer
+    (
+      0, 0, src.m_width, src.m_height,
+      0, 0, dest.m_width, dest.m_height,
+      GL_COLOR_BUFFER_BIT, GL_NEAREST
+    );
+  }
+
   inline constexpr GLuint FrameBuffer::getRenderID() const { return m_renderID; }
 
   inline constexpr bool FrameBuffer::isCreated() const { return m_renderID != 0; }
@@ -107,17 +133,47 @@ namespace vrm::gl
     glBindFramebuffer(GL_FRAMEBUFFER, m_renderID);
   }
 
-  inline void FrameBuffer::create(GLuint width, GLuint height)
+  inline void FrameBuffer::create(GLuint width, GLuint height, GLuint MSAA)
   {
-    if (m_renderID != 0)
-    {
-      glDeleteFramebuffers(1, &m_renderID);
-    }
+    VRM_ASSERT_MSG(MSAA > 0, "You must specify > 0 samples");
+
+    release();
 
     glGenFramebuffers(1, &m_renderID);
 
     m_width = width;
     m_height = height;
+    m_samples = MSAA;
+  }
+
+  inline void FrameBuffer::release()
+  {
+    if (!isCreated())
+    {
+      return;
+    }
+
+    m_width = 0;
+    m_height = 0;
+    m_samples = 0;
+
+    for (auto& t : m_colorTextures)
+    {
+      t.release();
+    }
+
+    for (auto& c : m_clearColors)
+    {
+      c = glm::vec4 {0.f};
+    }
+
+    m_depthTexture.release();
+    m_renderBuffer.release();
+    m_depthClearValue = 1.f;
+    m_isDefault = false;
+
+    glDeleteFramebuffers(1, &m_renderID);
+    m_renderID = 0;
   }
 
   inline constexpr bool FrameBuffer::isColorAttachmentUsed(GLuint slot) const
@@ -131,9 +187,17 @@ namespace vrm::gl
     VRM_ASSERT_MSG(slot < s_MaxColorAttachments, "Invalid slot {}. Valid slots are 0-{}", slot, s_MaxColorAttachments - 1);
     VRM_ASSERT_MSG(!isColorAttachmentUsed(slot), "Slot {} is used", slot);
 
-    m_colorTextures.at(slot).createColors(m_width, m_height, channels);
+    if (m_samples > 1)
+    {
+      m_colorTextures.at(slot).createColorsMultisample(m_width, m_height, channels, m_samples);
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, GL_TEXTURE_2D_MULTISAMPLE, m_colorTextures.at(slot).getRendererID(), 0);
+    }
+    else
+    {
+      m_colorTextures.at(slot).createColors(m_width, m_height, channels);
+      glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, m_colorTextures.at(slot).getRendererID(), 0);
+    }
 
-    glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, m_colorTextures.at(slot).getRendererID(), 0);
 
     m_clearColors.at(slot) = clearColor;
   }
@@ -154,6 +218,7 @@ namespace vrm::gl
 
   inline void FrameBuffer::addDepthAttachment(float clearValue)
   {
+    VRM_ASSERT_MSG(m_samples == 1, "You cannot add a depth attachment to a multisampled framebuffer. Use attachRenderBuffer() instead");
     VRM_ASSERT_MSG(isCreated(), "This framebuffer is not created (or is default)");
     VRM_ASSERT_MSG(!m_depthTexture.isCreated(), "Framebuffer already has depth attachment");
 
@@ -170,6 +235,22 @@ namespace vrm::gl
     VRM_ASSERT_MSG(m_depthTexture.isCreated(), "Framebuffer has no depth attachment");
 
     return m_depthTexture;
+  }
+
+  inline constexpr bool FrameBuffer::isRenderBufferAttached() const
+  {
+    return m_renderBuffer.isCreated();
+  }
+
+  inline void FrameBuffer::attachRenderBuffer(float clearValue)
+  {
+    VRM_ASSERT_MSG(isCreated(), "This framebuffer is not created (or is default)");
+    VRM_ASSERT_MSG(!m_renderBuffer.isCreated(), "Framebuffer already has depth attachment");
+
+    m_renderBuffer.create(m_width, m_height, m_samples);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_renderBuffer.getRenderID());
+
+    m_depthClearValue = clearValue;
   }
 
   inline bool FrameBuffer::validate()
@@ -210,6 +291,8 @@ namespace vrm::gl
       return true;
     }
 
+    bind();
+
     m_width = width;
     m_height = height;
 
@@ -218,8 +301,11 @@ namespace vrm::gl
       if (isColorAttachmentUsed(slot))
       {
         auto &colTex = m_colorTextures.at(slot);
-        colTex.createColors(width, height, colTex.getChannels());
-        glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, m_colorTextures.at(slot).getRendererID(), 0);
+        auto channels = colTex.getChannels();
+        colTex.release();
+        addColorAttachment(slot, channels, m_clearColors.at(slot));
+        // colTex.createColors(width, height, colTex.getChannels());
+        // glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, m_colorTextures.at(slot).getRendererID(), 0);
       }
     }
 
@@ -227,6 +313,12 @@ namespace vrm::gl
     {
       m_depthTexture.createDepth(width, height);
       glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthTexture.getRendererID(), 0);
+    }
+
+    if (isRenderBufferAttached())
+    {
+      m_renderBuffer.create(width, height, m_samples);
+      glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_renderBuffer.getRenderID());
     }
 
     return validate();
@@ -286,10 +378,11 @@ namespace vrm::gl
   {
     VRM_ASSERT_MSG(isCreated() || m_isDefault, "This framebuffer is not created");
 
-    if (isDepthAttachmentUsed())
+    if (isDepthAttachmentUsed() || isRenderBufferAttached())
     {
       glClearBufferfv(GL_DEPTH, 0, &customClearDepth);
     }
+
   }
 
 } // namespace vrm::gl
