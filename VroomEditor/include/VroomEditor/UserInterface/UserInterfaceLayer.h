@@ -47,7 +47,6 @@ private:
   void renderImgui();
 
 private:
-  gl::FrameBuffer m_FrameBuffer;
   ImFont *m_Font;
 
   std::list<std::unique_ptr<ImGuiElement>> m_Elements;

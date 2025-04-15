@@ -19,7 +19,6 @@ GameLayer::GameLayer()
   // m_FrameBuffer.attachRenderBuffer();
   // VRM_ASSERT_MSG(m_FrameBuffer.validate(), "Could not build GameLayer framebuffer");
 
-  setAntialiasingLevel(1);
 
   m_CustomEventManager.createCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
       .bindInput(Event::Type::WindowsResized);
@@ -27,8 +26,6 @@ GameLayer::GameLayer()
   m_CustomEventManager
       .bindPermanentCallback("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE", [&renderer](const vrm::Event &e)
                              { renderer.setViewport({0.f, 0.f}, {static_cast<float>(e.newWidth), static_cast<float>(e.newHeight)}); })
-      .bindPermanentCallback("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE", [this](const vrm::Event &e)
-                             { this->m_FrameBuffer.resize(e.newWidth, e.newHeight); })
   ;
 }
 
@@ -36,15 +33,15 @@ GameLayer::~GameLayer()
 {
 }
 
-void GameLayer::setAntialiasingLevel(uint8_t aa)
-{
-  Renderer &renderer = Renderer::Get();
-  m_FrameBuffer.create(static_cast<GLuint>(renderer.getViewportSize().x), static_cast<GLuint>(renderer.getViewportSize().y), aa);
-  m_FrameBuffer.bind();
-  m_FrameBuffer.addColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });
-  m_FrameBuffer.attachRenderBuffer();
-  VRM_ASSERT_MSG(m_FrameBuffer.validate(), "Could not build GameLayer framebuffer");
-}
+// void GameLayer::setAntialiasingLevel(uint8_t aa)
+// {
+//   Renderer &renderer = Renderer::Get();
+//   m_FrameBuffer.create(static_cast<GLuint>(renderer.getViewportSize().x), static_cast<GLuint>(renderer.getViewportSize().y), aa);
+//   m_FrameBuffer.bind();
+//   m_FrameBuffer.addColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });
+//   m_FrameBuffer.attachRenderBuffer();
+//   VRM_ASSERT_MSG(m_FrameBuffer.validate(), "Could not build GameLayer framebuffer");
+// }
 
 void GameLayer::onInit()
 {

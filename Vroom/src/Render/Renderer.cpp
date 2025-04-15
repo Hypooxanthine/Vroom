@@ -5,12 +5,17 @@
 
 #include "Vroom/Core/Application.h"
 
+#include "Vroom/Render/Passes/RenderPass.h"
+#include "Vroom/Render/Passes/DrawScenePass.h"
+#include "Vroom/Render/Passes/BlitFrameBufferPass.h"
+
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Render/Abstraction/VertexArray.h"
 #include "Vroom/Render/Abstraction/VertexBuffer.h"
 #include "Vroom/Render/Abstraction/IndexBuffer.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
+#include "Vroom/Render/Camera/CameraBasic.h"
 
 #include "Vroom/Render/RawShaderData/SSBOPointLightData.h"
 
@@ -26,16 +31,6 @@
 
 #include "Vroom/Scene/Scene.h"
 
-static float SCREEN_QUAD_VERTICES[] = {
-    -1.f, -1.f, 0.f, 0.f,
-    1.f, -1.f, 1.f, 0.f,
-    1.f, 1.f, 1.f, 1.f,
-    -1.f, 1.f, 0.f, 1.f};
-
-static unsigned int SCREEN_QUAD_INDICES[] = {
-    0, 1, 2,
-    2, 3, 0};
-
 using namespace vrm;
 using namespace vrm::gl;
 
@@ -43,13 +38,23 @@ std::unique_ptr<Renderer> Renderer::s_Instance = nullptr;
 
 Renderer::Renderer()
 {
-  GLCall(glEnable(GL_CULL_FACE));
-  GLCall(glCullFace(GL_BACK));
-  GLCall(glFrontFace(GL_CCW));
+  m_mainFrameBuffer.create(1, 1, 1);
+  m_mainFrameBuffer.addColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });
+  m_mainFrameBuffer.attachRenderBuffer();
+  VRM_ASSERT_MSG(m_mainFrameBuffer.validate(), "Could not build GameLayer framebuffer");
 }
 
 Renderer::~Renderer()
 {
+}
+
+void Renderer::setRenderSettings(const RenderSettings& settings)
+{
+  if (m_renderSettings != settings)
+  {
+    m_renderSettings = settings;
+    m_passManagerDirty = true;
+  }
 }
 
 void Renderer::Init()
@@ -69,42 +74,110 @@ Renderer &Renderer::Get()
   return *s_Instance;
 }
 
-void Renderer::beginScene(const CameraBasic &camera)
+void Renderer::createRenderPasses()
 {
-  m_Camera = &camera;
+  m_passManager.reset();
+  m_frameBufferPool.clear();
+
+  auto aa = m_renderSettings.antiAliasingLevel;
+  bool aaOK = (aa != 0 && ((aa & (aa - 1)) == 0));
+  VRM_ASSERT_MSG(aaOK, "Invalid antialiasing value: {}", aa);
+
+  gl::FrameBuffer *renderFrameBuffer = nullptr;
+
+  if (aa > 1)
+  {
+    auto& fb = m_frameBufferPool.emplace_back();
+
+    fb = std::make_unique<gl::FrameBuffer>();
+    fb->create(m_ViewportSize.x, m_ViewportSize.y, aa);
+    fb->addColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });
+    fb->attachRenderBuffer();
+    VRM_ASSERT_MSG(fb->validate(), "Could not build GameLayer framebuffer");
+    
+    renderFrameBuffer = fb.get();
+  }
+  else
+  {
+    renderFrameBuffer = &m_mainFrameBuffer;
+  }
+  
+  m_mainFrameBuffer.resize(m_ViewportSize.x, m_ViewportSize.y);
+
+  {
+    auto& pass = m_passManager.pushPass<DrawSceneRenderPass>();
+    pass.meshRegistry = &m_meshRegistry;
+    pass.framebufferTarget = renderFrameBuffer;
+    pass.camera = &m_Camera;
+    pass.viewportOrigin = &m_ViewportOrigin;
+    pass.viewportSize = &m_ViewportSize;
+    pass.faceCulling = DrawSceneRenderPass::EFaceCulling::eCullBack;
+    pass.frontFace = DrawSceneRenderPass::EFrontFace::eCCW;
+    pass.storageBufferParameters["LightBlock"] = &m_LightRegistry.getPointLightsStorageBuffer();
+    pass.storageBufferParameters["ClusterInfoBlock"] = &m_ClusteredLights.getClustersShaderStorage();
+  }
+
+  if (aa > 1)
+  {
+    auto& pass = m_passManager.pushPass<BlitFrameBufferPass>();
+    pass.source = renderFrameBuffer;
+    pass.destination = &m_mainFrameBuffer;
+  }
+
+  m_passManager.init();
+  m_passManagerDirty = false;
 }
 
-void Renderer::endScene(const FrameBuffer &target)
+void Renderer::beginScene(const CameraBasic &camera)
 {
+  if (m_passManagerDirty)
+  {
+    createRenderPasses();
+  }
+
+  m_Camera = &camera;
+
+  m_meshRegistry.startRegistering();
+}
+
+void Renderer::endScene()
+{
+  m_meshRegistry.endRegistering();
+
   // Setting up lights
   m_LightRegistry.update();
+
+  // RenderPass setup stage
+  m_passManager.setup();
 
   // Clustered shading
   m_ClusteredLights.setupClusters({12, 12, 24}, *m_Camera);
   m_ClusteredLights.processLights(*m_Camera, m_LightRegistry.getPointLightsStorageBuffer());
 
-  // Rendering to the requested target
-  target.bind();
-  target.clearColors();
-  target.clearDepth();
-  glEnable(GL_DEPTH_TEST);
-  renderScene();
+  // RenderPass render/cleanup stages
+  m_passManager.render();
+  m_passManager.cleanup();
 
   // Clearing data for next frame
   m_Camera = nullptr;
-  m_Meshes.clear();
 }
 
-void Renderer::drawMesh(const MeshComponent &mesh, const glm::mat4 &model)
+void Renderer::submitMesh(uint32_t id, const MeshComponent& meshComponent, const glm::mat4* model)
 {
-  uint8_t matSlot = 0;
-  for (const auto& submesh : mesh.getMesh()->getSubMeshes())
+  uint32_t i = 0;
+  for (const auto& submesh : meshComponent.getMesh()->getSubMeshes())
   {
-    QueuedMesh m;
-    m.mesh = &submesh.renderMesh;
-    m.material = mesh.getMaterials().getMaterial(matSlot++);
-    m.model = &model;
-    m_Meshes.push_back(std::move(m));
+    MeshRenderInfo info;
+    info.mesh = &submesh.renderMesh;
+    info.material = meshComponent.getMaterials().getMaterial(i);
+    info.model = model;
+    size_t subMeshId = id;
+    subMeshId <<= 32;
+    subMeshId |= i;
+
+    m_meshRegistry.submit(subMeshId, std::move(info));
+
+    ++i;
   }
 }
 
@@ -174,55 +247,5 @@ void Renderer::setViewportOrigin(const glm::vec<2, unsigned int> &o)
 void Renderer::setViewportSize(const glm::vec<2, unsigned int> &s)
 {
   m_ViewportSize = s;
-}
-
-// Passes
-
-void Renderer::renderShadows()
-{
-  GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
-
-  // Drawing meshes
-  for (const auto &queuedMesh : m_Meshes)
-  {
-    drawMesh(*queuedMesh.mesh);
-  }
-}
-
-void Renderer::renderScene()
-{
-  GLCall(glViewport(m_ViewportOrigin.x, m_ViewportOrigin.y, m_ViewportSize.x, m_ViewportSize.y));
-
-  const auto cameraPos = m_Camera->getPosition();
-
-  // Drawing meshes
-  for (const auto &queuedMesh : m_Meshes)
-  {
-    const auto& shader = queuedMesh.material->getShader();
-      shader.bind();
-      shader.setUniformMat4f("u_Model", *queuedMesh.model);
-      applyCameraUniforms(queuedMesh.material->getShader(), *m_Camera, m_ViewportSize);
-      applyLightsStorageBuffers(queuedMesh.material->getShader());
-    
-    queuedMesh.material->applyUniforms();
-
-    drawMesh(*queuedMesh.mesh);
-  }
-}
-
-void Renderer::applyCameraUniforms(const gl::Shader& shader, const CameraBasic& camera, const glm::uvec2& viewportSize)
-{
-  shader.setUniform2ui("u_ViewportSize", viewportSize.x, viewportSize.y);
-  shader.setUniformMat4f("u_View", camera.getView());
-  shader.setUniformMat4f("u_Projection", camera.getProjection());
-  shader.setUniformMat4f("u_ViewProjection", camera.getViewProjection());
-  shader.setUniform3f("u_ViewPosition", camera.getPosition());
-  shader.setUniform1f("u_Near", camera.getNear());
-  shader.setUniform1f("u_Far", camera.getFar());
-}
-
-void Renderer::applyLightsStorageBuffers(const gl::Shader& shader)
-{
-  shader.setStorageBuffer("LightBlock", m_LightRegistry.getPointLightsStorageBuffer());
-  shader.setStorageBuffer("ClusterInfoBlock", m_ClusteredLights.getClustersShaderStorage());
+  m_passManagerDirty = true;
 }

@@ -8,11 +8,13 @@
 #include <Vroom/Core/Application.h>
 #include <Vroom/Core/Window.h>
 #include <Vroom/Core/GameLayer.h>
+#include <Vroom/Render/Renderer.h>
 
 #include "VroomEditor/EditorLayer.h"
 
 #include "VroomEditor/UserInterface/MainMenuBar.h"
 #include "VroomEditor/UserInterface/StatisticsPanel.h"
+#include "VroomEditor/UserInterface/RenderSettingsPanel.h"
 #include "VroomEditor/UserInterface/Viewport.h"
 #include "VroomEditor/UserInterface/AssetBrowser/AssetBrowser.h"
 #include "VroomEditor/UserInterface/SceneGraph.h"
@@ -61,16 +63,12 @@ void UserInterfaceLayer::onInit()
   // Interfaces setup
   auto& mainMenuBar = emplaceImGuiElement<MainMenuBar>();
   auto& statisticsPanel = emplaceImGuiElement<StatisticsPanel>();
+  auto& renderSettingsPanel = emplaceImGuiElement<RenderSettingsPanel>();
   auto& viewport = emplaceImGuiElement<Viewport>();
   auto& assetBrowser = emplaceImGuiElement<AssetBrowser>();
   auto& sceneGraph = emplaceImGuiElement<SceneGraph>();
 
-  // Framebuffer
-  
-  m_FrameBuffer.create(app.getWindow().getWidth(), app.getWindow().getHeight(), 1);
-  m_FrameBuffer.addColorAttachment(0, 4);
-
-  viewport.setRenderTexture(&m_FrameBuffer.getColorAttachmentTexture(0));
+  viewport.setRenderTexture(&Renderer::Get().getMainFrameBuffer().getColorAttachmentTexture(0));
 }
 
 void UserInterfaceLayer::onEnd()
@@ -87,13 +85,6 @@ void UserInterfaceLayer::onUpdate(float dt)
 
 void UserInterfaceLayer::onRender()
 {
-  if (m_ViewportInfo.justChangedSize)
-  {
-    m_FrameBuffer.resize(m_ViewportInfo.width, m_ViewportInfo.height);
-  }
-  const gl::FrameBuffer& gameFrameBuffer = Application::Get().getGameLayer().getFrameBuffer();
-  gl::FrameBuffer::Blit(m_FrameBuffer, gameFrameBuffer);
-
   gl::FrameBuffer::GetDefaultFrameBuffer().bind();
   resetUIInfos();
   renderImgui();

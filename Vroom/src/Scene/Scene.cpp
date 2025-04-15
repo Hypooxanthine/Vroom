@@ -102,12 +102,12 @@ void Scene::render()
     if (m.isVisible() == false)
       continue;
 
-    renderer.drawMesh(m, t.getTransform());
+    renderer.submitMesh(static_cast<uint32_t>(e), m, &t.getTransform());
   }
 
   onRender();
 
-  renderer.endScene(app.getGameLayer().getFrameBuffer());
+  renderer.endScene();
 }
 
 void Scene::end()

@@ -144,6 +144,8 @@ namespace vrm::gl
     m_width = width;
     m_height = height;
     m_samples = MSAA;
+
+    bind();
   }
 
   inline void FrameBuffer::release()

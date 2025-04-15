@@ -24,22 +24,6 @@ public:
   ~GameLayer();
 
   /**
-   * @brief Get the frame buffer of the game layer.
-   *
-   * @return const FrameBuffer& The frame buffer of the game layer.
-   */
-  inline gl::FrameBuffer &getFrameBuffer() { return m_FrameBuffer; }
-
-  /**
-   * @brief Get the frame buffer of the game layer.
-   *
-   * @return const FrameBuffer& The frame buffer of the game layer.
-   */
-  inline const gl::FrameBuffer &getFrameBuffer() const { return m_FrameBuffer; }
-
-  void setAntialiasingLevel(uint8_t aa);
-
-  /**
    * @brief Loads a scene into the game layer. Scene will start at the beginning of the next frame.
    *
    * @tparam S Scene type. Must be a child of Scene type.
@@ -132,7 +116,6 @@ protected:
   void onEvent(Event &e) override;
 
 private:
-  gl::FrameBuffer m_FrameBuffer;
   std::unique_ptr<Scene> m_CurrentScene, m_NextScene;
 
   TriggerManager m_TriggerManager;
