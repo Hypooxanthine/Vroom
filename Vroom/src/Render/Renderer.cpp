@@ -211,40 +211,28 @@ void Renderer::updateDirectionalLight(const DirectionalLightComponent& dirLight,
   m_LightRegistry.updateLight(dirLight, direction, identifier);
 }
 
-void Renderer::drawMesh(const RenderMesh& mesh) const
-{
-  VRM_DEBUG_ASSERT_MSG(m_Camera, "No camera set for rendering. Did you call beginScene?");
-
-  // Binding data
-  mesh.getVertexArray().bind();
-  mesh.getIndexBuffer().bind();
-
-  // Drawing data
-  GLCall(glDrawElements(GL_TRIANGLES, (GLsizei)mesh.getIndexCount(), GL_UNSIGNED_INT, nullptr));
-}
-
-const glm::vec<2, unsigned int> &Renderer::getViewportOrigin() const
+const glm::uvec2 &Renderer::getViewportOrigin() const
 {
   return m_ViewportOrigin;
 }
 
-const glm::vec<2, unsigned int> &Renderer::getViewportSize() const
+const glm::uvec2 &Renderer::getViewportSize() const
 {
   return m_ViewportSize;
 }
 
-void Renderer::setViewport(const glm::vec<2, unsigned int> &o, const glm::vec<2, unsigned int> &s)
+void Renderer::setViewport(const glm::uvec2 &o, const glm::uvec2 &s)
 {
   setViewportOrigin(o);
   setViewportSize(s);
 }
 
-void Renderer::setViewportOrigin(const glm::vec<2, unsigned int> &o)
+void Renderer::setViewportOrigin(const glm::uvec2 &o)
 {
   m_ViewportOrigin = o;
 }
 
-void Renderer::setViewportSize(const glm::vec<2, unsigned int> &s)
+void Renderer::setViewportSize(const glm::uvec2 &s)
 {
   m_ViewportSize = s;
   m_passManagerDirty = true;

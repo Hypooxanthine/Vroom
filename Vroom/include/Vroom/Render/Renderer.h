@@ -103,32 +103,32 @@ namespace vrm
      * @brief Gets the viewport origin.
      * @return The viewport origin.
      */
-    const glm::vec<2, unsigned int> &getViewportOrigin() const;
+    const glm::uvec2 &getViewportOrigin() const;
 
     /**
      * @brief Gets the viewport size.
      * @return The viewport size.
      */
-    const glm::vec<2, unsigned int> &getViewportSize() const;
+    const glm::uvec2 &getViewportSize() const;
 
     /**
      * @brief Sets viewport settings.
      * @param o New viewport origin.
      * @param s New viewport size.
      */
-    void setViewport(const glm::vec<2, unsigned int> &o, const glm::vec<2, unsigned int> &s);
+    void setViewport(const glm::uvec2 &o, const glm::uvec2 &s);
 
     /**
      * @brief Sets viewport origin.
      * @param o New viewport origin.
      */
-    void setViewportOrigin(const glm::vec<2, unsigned int> &o);
+    void setViewportOrigin(const glm::uvec2 &o);
 
     /**
      * @brief Sets viewport size.
      * @param s New viewport size.
      */
-    void setViewportSize(const glm::vec<2, unsigned int> &s);
+    void setViewportSize(const glm::uvec2 &s);
 
     const gl::FrameBuffer &getMainFrameBuffer() const { return m_mainFrameBuffer; }
 
@@ -140,15 +140,6 @@ namespace vrm
 
   private:
     void createRenderPasses();
-
-    /**
-     * @brief  Draws a mesh with a material and a transform.
-     *
-     * @param mesh  The mesh to draw.
-     * @param mat The material.
-     * @param model  The model matrix.
-     */
-    void drawMesh(const RenderMesh &mesh) const;
 
   private:
     static std::unique_ptr<Renderer> s_Instance;
