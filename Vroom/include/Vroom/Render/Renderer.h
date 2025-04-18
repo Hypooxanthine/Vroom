@@ -133,9 +133,7 @@ namespace vrm
     const gl::FrameBuffer &getMainFrameBuffer() const { return m_mainFrameBuffer; }
 
   private:
-    /**
-     * @brief Initializes OpenGl settings for the engine.
-     */
+  
     Renderer();
 
   private:

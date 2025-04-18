@@ -8,6 +8,7 @@
 #include "Vroom/Render/Passes/RenderPass.h"
 #include "Vroom/Render/Passes/DrawScenePass.h"
 #include "Vroom/Render/Passes/BlitFrameBufferPass.h"
+#include "Vroom/Render/Passes/LightClusteringPass.h"
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Render/Abstraction/VertexArray.h"
@@ -15,6 +16,7 @@
 #include "Vroom/Render/Abstraction/IndexBuffer.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
+#include "Vroom/Render/Abstraction/RawFrameBuffer.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
 
 #include "Vroom/Render/RawShaderData/SSBOPointLightData.h"
@@ -41,7 +43,7 @@ Renderer::Renderer()
   m_mainFrameBuffer.create(1, 1, 1);
   m_mainFrameBuffer.addColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });
   m_mainFrameBuffer.attachRenderBuffer();
-  VRM_ASSERT_MSG(m_mainFrameBuffer.validate(), "Could not build GameLayer framebuffer");
+  VRM_ASSERT_MSG(m_mainFrameBuffer.validate(), "Could not build main framebuffer");
 }
 
 Renderer::~Renderer()
@@ -83,8 +85,18 @@ void Renderer::createRenderPasses()
   bool aaOK = (aa != 0 && ((aa & (aa - 1)) == 0));
   VRM_ASSERT_MSG(aaOK, "Invalid antialiasing value: {}", aa);
 
+  // Shadow mapping
+  {
+    auto& fb = m_frameBufferPool.emplace_back();
+    fb = std::make_unique<gl::FrameBuffer>();
+    fb->create(m_ViewportSize.x, m_ViewportSize.y);
+    fb->addDepthAttachment(1.f);
+    VRM_ASSERT_MSG(fb->validate(), "Could not build shadow mapping framebuffer");
+  }
+
   gl::FrameBuffer *renderFrameBuffer = nullptr;
 
+  // MSAA
   if (aa > 1)
   {
     auto& fb = m_frameBufferPool.emplace_back();
@@ -93,7 +105,7 @@ void Renderer::createRenderPasses()
     fb->create(m_ViewportSize.x, m_ViewportSize.y, aa);
     fb->addColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });
     fb->attachRenderBuffer();
-    VRM_ASSERT_MSG(fb->validate(), "Could not build GameLayer framebuffer");
+    VRM_ASSERT_MSG(fb->validate(), "Could not build MSAA framebuffer");
     
     renderFrameBuffer = fb.get();
   }
@@ -104,6 +116,16 @@ void Renderer::createRenderPasses()
   
   m_mainFrameBuffer.resize(m_ViewportSize.x, m_ViewportSize.y);
 
+  // Light clustering
+  {
+    auto& pass = m_passManager.pushPass<LightClusteringPass>();
+    pass.camera = &m_Camera;
+    pass.clusterCount = { 12, 12, 24 };
+    pass.lightsStorageBuffer = &m_LightRegistry.getPointLightsStorageBuffer();
+    pass.clusteredLights = &m_ClusteredLights;
+  }
+
+  // Main scene rendering
   {
     auto& pass = m_passManager.pushPass<DrawSceneRenderPass>();
     pass.meshRegistry = &m_meshRegistry;
@@ -117,6 +139,7 @@ void Renderer::createRenderPasses()
     pass.storageBufferParameters["ClusterInfoBlock"] = &m_ClusteredLights.getClustersShaderStorage();
   }
 
+  // MSAA
   if (aa > 1)
   {
     auto& pass = m_passManager.pushPass<BlitFrameBufferPass>();
@@ -149,10 +172,6 @@ void Renderer::endScene()
 
   // RenderPass setup stage
   m_passManager.setup();
-
-  // Clustered shading
-  m_ClusteredLights.setupClusters({12, 12, 24}, *m_Camera);
-  m_ClusteredLights.processLights(*m_Camera, m_LightRegistry.getPointLightsStorageBuffer());
 
   // RenderPass render/cleanup stages
   m_passManager.render();

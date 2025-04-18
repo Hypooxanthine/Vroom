@@ -3,47 +3,11 @@
 #include "stb_image/stb_image.h"
 #include "stb_image/stb_image_write.h"
 
-#include "Vroom/Render/Abstraction/GLCall.h"
+#include "Vroom/Render/Abstraction/Texture.h"
 #include "Vroom/Core/Assert.h"
 
 using namespace vrm;
 using namespace vrm::gl;
-
-static constexpr GLenum ToGlFormat(TextureFormat format)
-{
-  switch (format)
-  {
-  case TextureFormat::Grayscale:
-    return GL_RED;
-  case TextureFormat::RG:
-    return GL_RG;
-  case TextureFormat::RGB:
-    return GL_RGB;
-  case TextureFormat::RGBA:
-    return GL_RGBA;
-  default:
-    VRM_ASSERT_MSG(false, "Unsupported format.");
-    return 0;
-  }
-}
-
-static constexpr GLint ToGlInternalFormat(TextureFormat format)
-{
-  switch (format)
-  {
-  case TextureFormat::Grayscale:
-    return GL_R8;
-  case TextureFormat::RG:
-    return GL_RG8;
-  case TextureFormat::RGB:
-    return GL_RGB8;
-  case TextureFormat::RGBA:
-    return GL_RGBA8;
-  default:
-    VRM_ASSERT_MSG(false, "Unsupported format.");
-    return 0;
-  }
-}
 
 Texture2D::~Texture2D()
 {
@@ -79,14 +43,7 @@ void Texture2D::bind() const
 {
   VRM_DEBUG_ASSERT_MSG(isCreated(), "Texture not created.");
 
-  if (m_samples > 1)
-  {
-    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID);
-  }
-  else
-  {
-    glBindTexture(GL_TEXTURE_2D, m_RendererID);
-  }
+  glBindTexture(getBindingTarget(), m_RendererID);
 }
 
 void Texture2D::bind(unsigned int slot) const
@@ -100,62 +57,60 @@ void Texture2D::unbind() const
   GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
-void Texture2D::createColors(int width, int height, int channels, const void *data)
+void Texture2D::createColors(int width, int height, int channels, int samples, const void *data, bool genMipMaps)
 {
+  VRM_ASSERT_MSG(!(genMipMaps && samples > 1), "Mipmapping for multisampled textures is unsupported");
+
   if (!isCreated())
     glGenTextures(1, &m_RendererID);
 
-  m_samples = 1;
+  m_width = width;
+  m_height = height;
+  m_channels = channels;
+  m_samples = samples;
 
   bind();
-  GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
-  GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-  GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-  GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-  GLCall(glTexImage2D(
-      GL_TEXTURE_2D,
-      0,
-      ToGlInternalFormat(ChannelsToTextureFormat(channels)),
+
+  GLenum target = getBindingTarget();
+  
+  if (samples > 1)
+  {
+    glTexImage2DMultisample(
+      target,
+      samples,
+      Texture::ToGlInternalFormat(ChannelsToTextureFormat(channels)),
       width,
       height,
+      GL_TRUE
+    );
+  }
+  else
+  {
+    glTexImage2D(
+      target,
       0,
-      ToGlFormat(ChannelsToTextureFormat(channels)),
+      Texture::ToGlInternalFormat(ChannelsToTextureFormat(channels)),
+      width, height,
+      0,
+      Texture::ToGlFormat(ChannelsToTextureFormat(channels)),
       GL_UNSIGNED_BYTE,
-      data));
-  
-  glGenerateMipmap(GL_TEXTURE_2D);
+      data
+    );
+  }
 
-  m_width = width;
-  m_height = height;
-  m_channels = channels;
-}
+  if (genMipMaps)
+  {
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  }
+  else
+  {
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  }
 
-void Texture2D::createColorsMultisample(int width, int height, int channels, int samples)
-{
-  VRM_ASSERT_MSG(samples > 1, "Samples must be greater than 1");
-
-  if (!isCreated())
-    glGenTextures(1, &m_RendererID);
-
-  m_samples = samples;
-  
-  bind();
-  glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexImage2DMultisample(
-    GL_TEXTURE_2D_MULTISAMPLE,
-    samples,
-    ToGlInternalFormat(ChannelsToTextureFormat(channels)),
-    width,
-    height,
-    GL_TRUE
-  );
-
-  m_width = width;
-  m_height = height;
-  m_channels = channels;
+  glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
 void Texture2D::createFloats(int width, int height, int channels, const void *data)
@@ -173,11 +128,11 @@ void Texture2D::createFloats(int width, int height, int channels, const void *da
   GLCall(glTexImage2D(
       GL_TEXTURE_2D,
       0,
-      ToGlInternalFormat(ChannelsToTextureFormat(channels)),
+      Texture::ToGlInternalFormat(ChannelsToTextureFormat(channels)),
       width,
       height,
       0,
-      ToGlFormat(ChannelsToTextureFormat(channels)),
+      Texture::ToGlFormat(ChannelsToTextureFormat(channels)),
       GL_FLOAT,
       data));
 
@@ -229,7 +184,7 @@ void Texture2D::release()
 
 void Texture2D::loadFromTextureData(const ByteTextureData &textureData)
 {
-  createColors(textureData.getWidth(), textureData.getHeight(), textureData.getChannels(), textureData.getData());
+  createColors(textureData.getWidth(), textureData.getHeight(), textureData.getChannels(), 1, textureData.getData(), true);
 }
 
 void Texture2D::loadFromTextureData(const FloatTextureData &textureData)

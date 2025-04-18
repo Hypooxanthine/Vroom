@@ -17,7 +17,7 @@ namespace vrm::gl
   public:
     inline constexpr FrameBuffer();
 
-    inline ~FrameBuffer();
+    inline virtual ~FrameBuffer();
 
     FrameBuffer(const FrameBuffer &other) = delete;
     FrameBuffer &operator=(const FrameBuffer &other) = delete;
@@ -68,7 +68,6 @@ namespace vrm::gl
     inline void clearDepth(float customClearDepth) const;
 
   private:
-  private:
     static inline constexpr size_t s_MaxColorAttachments = 8;
 
     GLuint m_renderID = 0;
@@ -76,7 +75,7 @@ namespace vrm::gl
     GLuint m_samples = 0;
 
     std::array<Texture2D, s_MaxColorAttachments> m_colorTextures;
-    std::array<glm::vec4, s_MaxColorAttachments> m_clearColors = {glm::vec4(0.f)};
+    std::array<glm::vec4, s_MaxColorAttachments> m_clearColors = { glm::vec4(0.f) };
 
     Texture2D m_depthTexture;
     RenderBuffer m_renderBuffer;
@@ -189,17 +188,9 @@ namespace vrm::gl
     VRM_ASSERT_MSG(slot < s_MaxColorAttachments, "Invalid slot {}. Valid slots are 0-{}", slot, s_MaxColorAttachments - 1);
     VRM_ASSERT_MSG(!isColorAttachmentUsed(slot), "Slot {} is used", slot);
 
-    if (m_samples > 1)
-    {
-      m_colorTextures.at(slot).createColorsMultisample(m_width, m_height, channels, m_samples);
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, GL_TEXTURE_2D_MULTISAMPLE, m_colorTextures.at(slot).getRendererID(), 0);
-    }
-    else
-    {
-      m_colorTextures.at(slot).createColors(m_width, m_height, channels);
-      glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, m_colorTextures.at(slot).getRendererID(), 0);
-    }
-
+    m_colorTextures.at(slot).createColors(m_width, m_height, channels, m_samples);
+    // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, m_colorTextures.at(slot).getBindingTarget(), m_colorTextures.at(slot).getRendererID(), 0);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + slot, m_colorTextures.at(slot).getRendererID(), 0);
 
     m_clearColors.at(slot) = clearColor;
   }

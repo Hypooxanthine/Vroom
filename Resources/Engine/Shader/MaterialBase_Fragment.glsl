@@ -34,7 +34,7 @@ vec3 g_normal;
 void main()
 {
 #if defined(VRM_SHADOW_PASS)
-  discard;
+  return;
 #endif
 
   SetupGlobalVars();
