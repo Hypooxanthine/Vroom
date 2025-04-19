@@ -39,6 +39,8 @@ std::unique_ptr<Renderer> Renderer::s_Instance = nullptr;
 
 Renderer::Renderer()
 {
+  m_gpuFeatures.query();
+  
   m_mainFrameBuffer.create(1, 1, 1);
   m_mainFrameBuffer.setColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });
   m_mainFrameBuffer.setRenderBufferDepthAttachment();

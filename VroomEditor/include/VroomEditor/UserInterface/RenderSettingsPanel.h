@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "VroomEditor/UserInterface/ImGuiElement.h"
 
 namespace vrm
@@ -13,6 +15,9 @@ namespace vrm
 
   protected:
     bool onImgui() override;
+
+  protected:
+    std::vector<uint8_t> m_msaaPossibleValues;
   };
 
 } // namespace vrm

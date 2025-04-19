@@ -11,6 +11,13 @@ using namespace vrm;
 
 RenderSettingsPanel::RenderSettingsPanel()
 {
+  const auto& features = Renderer::Get().getGPUFeatures();
+  
+
+  for (uint8_t i = 1; i <= features.maxMSAA; i = i * 2)
+  {
+    m_msaaPossibleValues.emplace_back(i);
+  }
 }
 
 RenderSettingsPanel::~RenderSettingsPanel()
@@ -24,16 +31,16 @@ bool RenderSettingsPanel::onImgui()
   if (ImGui::Begin("Render settings"))
   {
     static std::array<std::string, 5> possibleValues = { "1", "2", "4", "8", "16" };
-    static size_t currentVal = 0;
+    static uint8_t currentVal = 0;
 
-    if (ImGui::BeginCombo("Antialiasing", possibleValues.at(currentVal).c_str()))
+    if (ImGui::BeginCombo("Antialiasing", std::to_string(m_msaaPossibleValues.at(currentVal)).c_str()))
     {
-      for (size_t i = 0; i < possibleValues.size(); ++i)
+      for (uint8_t i = 0, imax = static_cast<uint8_t>(m_msaaPossibleValues.size()); i < imax; ++i)
       {
-        const auto& val = possibleValues.at(i);
+        const auto& valStr = std::to_string(m_msaaPossibleValues.at(i));
         bool selected = currentVal == i;
 
-        if (ImGui::Selectable(val.c_str(), &selected))
+        if (ImGui::Selectable(valStr.c_str(), &selected))
         {
           currentVal = i;
           uint8_t aa = static_cast<uint8_t>(std::pow(2, i));

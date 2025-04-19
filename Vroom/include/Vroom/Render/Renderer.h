@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <glm/glm.hpp>
 
+#include "Vroom/Render/GPURuntimeFeatures.h"
 #include "Vroom/Render/RenderSettings.h"
 #include "Vroom/Render/Passes/RenderPassManager.h"
 #include "Vroom/Render/MeshRegistry.h"
@@ -48,17 +49,19 @@ namespace vrm
      * @brief Gets the renderer instance.
      * @return The renderer instance.
      */
-    static Renderer &Get();
+    static Renderer& Get();
 
-    Renderer(const Renderer &) = delete;
-    Renderer(Renderer &&) = delete;
-    Renderer &operator=(const Renderer &) = delete;
-    Renderer &operator=(Renderer &&) = delete;
+    Renderer(const Renderer&) = delete;
+    Renderer(Renderer&&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
+    Renderer& operator=(Renderer&&) = delete;
 
     /**
      * @brief Releases GPU memory.
      */
     ~Renderer();
+
+    inline const GPURuntimeFeatures& getGPUFeatures() const { return m_gpuFeatures; }
 
     void setRenderSettings(const RenderSettings& settings);
 
@@ -68,7 +71,7 @@ namespace vrm
      * @brief Has to be called before any rendering of current frame.
      *
      */
-    void beginScene(const CameraBasic &camera);
+    void beginScene(const CameraBasic& camera);
 
     /**
      * @brief Has to be called after any rendering scene.
@@ -76,7 +79,7 @@ namespace vrm
      */
     void endScene();
 
-    void submitMesh(uint32_t id, const MeshComponent &meshComponent, const glm::mat4 *model);
+    void submitMesh(uint32_t id, const MeshComponent& meshComponent, const glm::mat4* model);
 
     /**
      * @brief Submits a point light to be drawn.
@@ -87,53 +90,53 @@ namespace vrm
      * @param pointLight  The point light component.
      * @param identifier  The identifier of the light.
      */
-    void registerPointLight(const glm::vec3 &position, const PointLightComponent &pointLight, size_t identifier);
+    void registerPointLight(const glm::vec3& position, const PointLightComponent& pointLight, size_t identifier);
 
     void unregisterPointLight(size_t identifier);
 
-    void updatePointLight(const glm::vec3 &position, const PointLightComponent &pointLight, size_t identifier);
+    void updatePointLight(const glm::vec3& position, const PointLightComponent& pointLight, size_t identifier);
 
-    void registerDirectionalLight(const DirectionalLightComponent &dirLight, const glm::vec3 &direction, size_t identifier);
+    void registerDirectionalLight(const DirectionalLightComponent& dirLight, const glm::vec3& direction, size_t identifier);
 
     void unregisterDirectionalLight(size_t identifier);
 
-    void updateDirectionalLight(const DirectionalLightComponent &dirLight, const glm::vec3 &direction, size_t identifier);
+    void updateDirectionalLight(const DirectionalLightComponent& dirLight, const glm::vec3& direction, size_t identifier);
 
     /**
      * @brief Gets the viewport origin.
      * @return The viewport origin.
      */
-    const glm::uvec2 &getViewportOrigin() const;
+    const glm::uvec2& getViewportOrigin() const;
 
     /**
      * @brief Gets the viewport size.
      * @return The viewport size.
      */
-    const glm::uvec2 &getViewportSize() const;
+    const glm::uvec2& getViewportSize() const;
 
     /**
      * @brief Sets viewport settings.
      * @param o New viewport origin.
      * @param s New viewport size.
      */
-    void setViewport(const glm::uvec2 &o, const glm::uvec2 &s);
+    void setViewport(const glm::uvec2& o, const glm::uvec2& s);
 
     /**
      * @brief Sets viewport origin.
      * @param o New viewport origin.
      */
-    void setViewportOrigin(const glm::uvec2 &o);
+    void setViewportOrigin(const glm::uvec2& o);
 
     /**
      * @brief Sets viewport size.
      * @param s New viewport size.
      */
-    void setViewportSize(const glm::uvec2 &s);
+    void setViewportSize(const glm::uvec2& s);
 
-    const gl::OwningFrameBuffer &getMainFrameBuffer() const { return m_mainFrameBuffer; }
+    const gl::OwningFrameBuffer& getMainFrameBuffer() const { return m_mainFrameBuffer; }
 
   private:
-  
+
     Renderer();
 
   private:
@@ -142,12 +145,13 @@ namespace vrm
   private:
     static std::unique_ptr<Renderer> s_Instance;
 
+    GPURuntimeFeatures m_gpuFeatures;
     RenderSettings m_renderSettings;
 
-    glm::uvec2 m_ViewportOrigin = {0, 0};
-    glm::uvec2 m_ViewportSize = {1, 1};
+    glm::uvec2 m_ViewportOrigin = { 0, 0 };
+    glm::uvec2 m_ViewportSize = { 1, 1 };
 
-    const CameraBasic *m_Camera = nullptr;
+    const CameraBasic* m_Camera = nullptr;
 
     bool m_passManagerDirty = false;
     RenderPassManager m_passManager;
