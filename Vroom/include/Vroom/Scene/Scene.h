@@ -148,24 +148,6 @@ namespace vrm
      */
     void destroyAllEntities();
 
-    // --------------------------------------------------
-    // Notifications
-
-    template <typename C>
-    inline void notifyComponentAdded(const C &component, const Entity &entity) {}
-
-    template <>
-    void notifyComponentAdded(const PointLightComponent &component, const Entity &entity);
-
-    template <typename C>
-    inline void notifyComponentRemoved(const C &component, const Entity &entity) {}
-
-    template <>
-    void notifyComponentRemoved(const PointLightComponent &component, const Entity &entity);
-
-    template <typename C>
-    inline void notifyComponentUpdated(const C &component, const Entity &entity) {}
-
   protected:
     /**
      * @brief Allows extending scene behaviour by executing procedures at the end of the initialization step.

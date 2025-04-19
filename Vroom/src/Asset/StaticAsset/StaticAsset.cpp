@@ -4,6 +4,11 @@
 
 using namespace vrm;
 
+StaticAsset::~StaticAsset()
+{
+  
+}
+
 void StaticAsset::notifyNewInstance() const
 {
   m_InstanceCount++;

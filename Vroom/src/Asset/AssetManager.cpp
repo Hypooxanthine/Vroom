@@ -15,7 +15,7 @@ void AssetManager::Init()
 
 void AssetManager::Shutdown()
 {
-    s_Instance.reset();
+    s_Instance = nullptr;
 }
 
 AssetManager& AssetManager::Get()

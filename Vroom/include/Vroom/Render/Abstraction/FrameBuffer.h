@@ -25,6 +25,31 @@ namespace vrm::gl
       eRenderBufferDepthStencil
     };
 
+    protected:
+      static inline constexpr size_t s_MaxColorAttachments = 8;
+  
+    private:
+      template <typename T, size_t Count>
+      inline consteval static std::array<T, Count> GetFilledArray(const T &defaultVal)
+      {
+        std::array<T, Count> arr{};
+        for (size_t i = 0; i < Count; ++i)
+          arr[i] = defaultVal;
+        return arr;
+      }
+  
+      template <size_t N = s_MaxColorAttachments>
+      inline consteval static std::array<GLenum, N> GetEmptyDrawBuffers()
+      {
+        return GetFilledArray<GLenum, N>(GL_NONE);
+      }
+  
+      template <size_t N = s_MaxColorAttachments>
+      inline consteval static std::array<glm::vec4, N> GetEmptyClearColors()
+      {
+        return GetFilledArray<glm::vec4, N>(glm::vec4{0.f, 0.f, 0.f, 1.f});
+      }
+
   public:
     inline constexpr FrameBuffer()
     {
@@ -266,31 +291,6 @@ namespace vrm::gl
           0, 0, src.m_width, src.m_height,
           0, 0, dest.m_width, dest.m_height,
           GL_COLOR_BUFFER_BIT, GL_NEAREST);
-    }
-
-  protected:
-    static inline constexpr size_t s_MaxColorAttachments = 8;
-
-  private:
-    template <typename T, size_t Count>
-    inline consteval static std::array<T, Count> GetFilledArray(const T &defaultVal)
-    {
-      std::array<T, Count> arr{};
-      for (size_t i = 0; i < Count; ++i)
-        arr[i] = defaultVal;
-      return arr;
-    }
-
-    template <size_t N = s_MaxColorAttachments>
-    inline consteval static std::array<GLenum, N> GetEmptyDrawBuffers()
-    {
-      return GetFilledArray<GLenum, N>(GL_NONE);
-    }
-
-    template <size_t N = s_MaxColorAttachments>
-    inline consteval static std::array<glm::vec4, N> GetEmptyClearColors()
-    {
-      return GetFilledArray<glm::vec4, N>(glm::vec4{0.f, 0.f, 0.f, 1.f});
     }
 
   protected:

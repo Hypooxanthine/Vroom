@@ -49,9 +49,7 @@ Application::~Application()
     AssetManager::Shutdown();
     m_Window.release();
 
-#if !defined(VRM_PLATFORM_LINUX) // This makes app crash on linux for some reason
     glfwTerminate();
-#endif
 }
 
 bool Application::initGLFW()

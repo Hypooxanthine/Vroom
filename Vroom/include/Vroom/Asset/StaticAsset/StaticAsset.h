@@ -16,7 +16,7 @@ namespace vrm
     StaticAsset& operator=(const StaticAsset&) = delete;
     StaticAsset(StaticAsset&&) = delete;
     StaticAsset& operator=(StaticAsset&&) = delete;
-    virtual ~StaticAsset() = default;
+    virtual ~StaticAsset();
 
     size_t getInstanceCount() const;
 
