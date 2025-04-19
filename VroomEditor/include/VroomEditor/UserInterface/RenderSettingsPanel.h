@@ -18,6 +18,7 @@ namespace vrm
 
   protected:
     std::vector<uint8_t> m_msaaPossibleValues;
+    decltype(m_msaaPossibleValues)::iterator m_currentMsaaValue;
   };
 
 } // namespace vrm

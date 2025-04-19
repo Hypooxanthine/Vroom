@@ -12,12 +12,12 @@ using namespace vrm;
 RenderSettingsPanel::RenderSettingsPanel()
 {
   const auto& features = Renderer::Get().getGPUFeatures();
-  
 
   for (uint8_t i = 1; i <= features.maxMSAA; i = i * 2)
   {
     m_msaaPossibleValues.emplace_back(i);
   }
+  m_currentMsaaValue = m_msaaPossibleValues.begin();
 }
 
 RenderSettingsPanel::~RenderSettingsPanel()
@@ -30,23 +30,20 @@ bool RenderSettingsPanel::onImgui()
 
   if (ImGui::Begin("Render settings"))
   {
-    static std::array<std::string, 5> possibleValues = { "1", "2", "4", "8", "16" };
-    static uint8_t currentVal = 0;
 
-    if (ImGui::BeginCombo("Antialiasing", std::to_string(m_msaaPossibleValues.at(currentVal)).c_str()))
+    if (ImGui::BeginCombo("Antialiasing", std::to_string(*m_currentMsaaValue).c_str()))
     {
-      for (uint8_t i = 0, imax = static_cast<uint8_t>(m_msaaPossibleValues.size()); i < imax; ++i)
+      for (auto it = m_msaaPossibleValues.begin(); it != m_msaaPossibleValues.end(); ++it)
       {
-        const auto& valStr = std::to_string(m_msaaPossibleValues.at(i));
-        bool selected = currentVal == i;
+        const auto& valStr = std::to_string(*it);
+        bool selected = (m_currentMsaaValue == it);
 
         if (ImGui::Selectable(valStr.c_str(), &selected))
         {
-          currentVal = i;
-          uint8_t aa = static_cast<uint8_t>(std::pow(2, i));
+          m_currentMsaaValue = it;
 
           auto settings = Renderer::Get().getRenderSettings();
-          settings.antiAliasingLevel = aa;
+          settings.antiAliasingLevel = *it;
           Renderer::Get().setRenderSettings(settings);
         }
       }
