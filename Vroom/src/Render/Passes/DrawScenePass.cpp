@@ -32,7 +32,7 @@ void DrawSceneRenderPass::onRender() const
 
   setupFaceCulling();
 
-  if (framebufferTarget->isDepthAttachmentUsed() || framebufferTarget->isRenderBufferAttached())
+  if (framebufferTarget->isDepthAttachmentUsed())
   {
     glEnable(GL_DEPTH_TEST);
   }

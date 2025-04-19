@@ -16,7 +16,6 @@
 #include "Vroom/Render/Abstraction/IndexBuffer.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
-#include "Vroom/Render/Abstraction/RawFrameBuffer.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
 
 #include "Vroom/Render/RawShaderData/SSBOPointLightData.h"
@@ -41,8 +40,8 @@ std::unique_ptr<Renderer> Renderer::s_Instance = nullptr;
 Renderer::Renderer()
 {
   m_mainFrameBuffer.create(1, 1, 1);
-  m_mainFrameBuffer.addColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });
-  m_mainFrameBuffer.attachRenderBuffer();
+  m_mainFrameBuffer.setColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });
+  m_mainFrameBuffer.setRenderBufferDepthAttachment();
   VRM_ASSERT_MSG(m_mainFrameBuffer.validate(), "Could not build main framebuffer");
 }
 
@@ -87,11 +86,11 @@ void Renderer::createRenderPasses()
 
   // Shadow mapping
   {
-    auto& fb = m_frameBufferPool.emplace_back();
-    fb = std::make_unique<gl::FrameBuffer>();
-    fb->create(m_ViewportSize.x, m_ViewportSize.y);
-    fb->addDepthAttachment(1.f);
-    VRM_ASSERT_MSG(fb->validate(), "Could not build shadow mapping framebuffer");
+    // auto& fb = m_frameBufferPool.emplace_back();
+    // fb = std::make_unique<gl::FrameBuffer>();
+    // fb->create(m_ViewportSize.x, m_ViewportSize.y, 1);
+    // fb->setDepthAttachment()
+    // VRM_ASSERT_MSG(fb->validate(), "Could not build shadow mapping framebuffer");
   }
 
   gl::FrameBuffer *renderFrameBuffer = nullptr;
@@ -99,15 +98,15 @@ void Renderer::createRenderPasses()
   // MSAA
   if (aa > 1)
   {
-    auto& fb = m_frameBufferPool.emplace_back();
-
-    fb = std::make_unique<gl::FrameBuffer>();
+    auto fb = std::make_unique<gl::OwningFrameBuffer>();
     fb->create(m_ViewportSize.x, m_ViewportSize.y, aa);
-    fb->addColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });
-    fb->attachRenderBuffer();
+    fb->setColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });
+    fb->setRenderBufferDepthAttachment(1.f);
     VRM_ASSERT_MSG(fb->validate(), "Could not build MSAA framebuffer");
-    
+
     renderFrameBuffer = fb.get();
+    
+    m_frameBufferPool.emplace_back(std::move(fb));
   }
   else
   {

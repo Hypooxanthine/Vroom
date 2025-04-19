@@ -50,9 +50,10 @@ namespace vrm::gl
     VRM_ASSERT_MSG(width != 0 && height != 0, "Width and height must be > 0");
     VRM_ASSERT_MSG(samples > 0, "Samples must be > 0");
 
-    release();
-
-    glGenRenderbuffers(1, &m_renderID);
+    if (!isCreated())
+    {
+      glGenRenderbuffers(1, &m_renderID);
+    }
 
     m_Width = width;
     m_Height = height;

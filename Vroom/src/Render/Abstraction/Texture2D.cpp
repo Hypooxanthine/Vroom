@@ -75,7 +75,7 @@ void Texture2D::createColors(int width, int height, int channels, int samples, c
   
   if (samples > 1)
   {
-    glTexImage2DMultisample(
+     glTexImage2DMultisample(
       target,
       samples,
       Texture::ToGlInternalFormat(ChannelsToTextureFormat(channels)),
@@ -83,7 +83,7 @@ void Texture2D::createColors(int width, int height, int channels, int samples, c
       height,
       GL_TRUE
     );
-  }
+   }
   else
   {
     glTexImage2D(

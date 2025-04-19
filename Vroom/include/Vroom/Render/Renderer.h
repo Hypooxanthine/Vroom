@@ -8,7 +8,7 @@
 #include "Vroom/Render/RenderSettings.h"
 #include "Vroom/Render/Passes/RenderPassManager.h"
 #include "Vroom/Render/MeshRegistry.h"
-#include "Vroom/Render/Abstraction/FrameBuffer.h"
+#include "Vroom/Render/Abstraction/OwningFrameBuffer.h"
 #include "Vroom/Render/Clustering/LightRegistry.h"
 #include "Vroom/Render/Clustering/ClusteredLights.h"
 
@@ -130,7 +130,7 @@ namespace vrm
      */
     void setViewportSize(const glm::uvec2 &s);
 
-    const gl::FrameBuffer &getMainFrameBuffer() const { return m_mainFrameBuffer; }
+    const gl::OwningFrameBuffer &getMainFrameBuffer() const { return m_mainFrameBuffer; }
 
   private:
   
@@ -152,7 +152,7 @@ namespace vrm
     bool m_passManagerDirty = false;
     RenderPassManager m_passManager;
 
-    gl::FrameBuffer m_mainFrameBuffer;
+    gl::OwningFrameBuffer m_mainFrameBuffer;
 
     MeshRegistry m_meshRegistry;
 
