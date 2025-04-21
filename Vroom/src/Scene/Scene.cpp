@@ -210,7 +210,7 @@ void Scene::destroyEntity(Entity& entity)
   VRM_ASSERT_MSG(entity != m_Root, "You cannot delete root entity!");
 
   auto parent = entity.getComponentInternal<HierarchyComponent>().parent.clone();
-  VRM_ASSERT_MSG(parent.isValid(), "The parent of the entity you want to destroy is not valid");
+  VRM_ASSERT_MSG(m_Registry.valid(parent.getHandle()), "The parent of the entity you want to destroy is not valid");
 
   destroyEntityRecursive(entity);
 

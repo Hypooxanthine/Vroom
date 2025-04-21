@@ -4,12 +4,12 @@
 #include <unordered_map>
 #include <string>
 
-#include "Vroom/Render/Passes/RenderPass.h"
-
 #include "Vroom/Render/MeshRegistry.h"
+#include "Vroom/Render/Passes/RenderPass.h"
 
 namespace vrm::gl
 {
+  class Shader;
   class FrameBuffer;
   class StorageBufferBase;
 }

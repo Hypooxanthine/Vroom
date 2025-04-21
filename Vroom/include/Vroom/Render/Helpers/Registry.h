@@ -7,7 +7,7 @@
 
 namespace vrm
 {
-  
+
   template <typename T, typename IdType>
   class Registry
   {
@@ -58,16 +58,21 @@ namespace vrm
       {
         m_data.erase(missingId);
       }
+
+      m_waitingKeys.clear();
     }
 
-    inline void submit(const IdType& id, const T& element)
+    template <typename uT>
+      requires std::is_same_v<std::decay_t<uT>, T>
+    inline void submit(const IdType& id, uT&& element)
     {
-      submit(id, T(element));
+      notifyUsed(id);
+      m_data.insert_or_assign(id, std::forward<uT>(element));
     }
 
-    inline void submit(const IdType& id, T&& element)
+    inline void notifyUsed(const IdType& id)
     {
-      m_data.insert_or_assign(id, std::move(element));
+      VRM_ASSERT_MSG(m_isRegistering == true, "Wasn't registering");
       m_waitingKeys.erase(id);
       m_confirmedKeys.insert(id);
     }

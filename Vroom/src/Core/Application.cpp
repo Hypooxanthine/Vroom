@@ -11,11 +11,11 @@
 namespace vrm
 {
 
-Application* Application::s_Instance = nullptr;
+  Application* Application::s_Instance = nullptr;
 
-Application::Application(int argc, char** argv)
+  Application::Application(int argc, char** argv)
     : m_Window(nullptr), m_LastFrameTimePoint(std::chrono::high_resolution_clock::now())
-{
+  {
     VRM_ASSERT_MSG(s_Instance == nullptr, "Application already exists.");
     s_Instance = this;
 
@@ -28,21 +28,21 @@ Application::Application(int argc, char** argv)
 
     glewExperimental = GL_TRUE;
     VRM_ASSERT(glewInit() == GLEW_OK);
-    
+
     AssetManager::Init();
 
     Renderer::Init();
-    Renderer::Get().setViewport({ 0, 0 }, { m_Window->getWidth(), m_Window->getHeight()});
+    Renderer::Get().setViewport({ 0, 0 }, { m_Window->getWidth(), m_Window->getHeight() });
 
     // Pushing the game layer and storing it in a pointer (GameLayer is a special layer that can always be accessed)
     /// @todo Make sure the game layer is never deleted.
     m_GameLayer = &pushLayer<GameLayer>();
 
     VRM_LOG_TRACE("Vroom application created.");
-}
+  }
 
-Application::~Application()
-{
+  Application::~Application()
+  {
     m_LayerStack.clear(); // Layer destructors called before shutting down the rendering context.
 
     Renderer::Shutdown();
@@ -50,43 +50,45 @@ Application::~Application()
     m_Window.release();
 
     glfwTerminate();
-}
 
-bool Application::initGLFW()
-{
+    s_Instance = nullptr;
+  }
+
+  bool Application::initGLFW()
+  {
     if (!glfwInit()) return false;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 
     return true;
-}
+  }
 
-void Application::initLayers()
-{
+  void Application::initLayers()
+  {
     for (Layer& layer : m_LayerStack)
-        layer.init();
-}
+      layer.init();
+  }
 
-void Application::run()
-{
+  void Application::run()
+  {
     initLayers();
 
     while (!m_PendingKilled)
     {
-        newFrame();
-        update();
-        draw();
+      newFrame();
+      update();
+      draw();
     }
-}
+  }
 
-void Application::exit()
-{
+  void Application::exit()
+  {
     m_PendingKilled = true;
-}
+  }
 
-void Application::newFrame()
-{
+  void Application::newFrame()
+  {
     auto now = std::chrono::high_resolution_clock::now();
     m_DeltaTime = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - m_LastFrameTimePoint).count()) / 1'000'000'000.f;
     m_LastFrameTimePoint = now;
@@ -94,32 +96,32 @@ void Application::newFrame()
     // Notifying new frame to all layers
     for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
       it->newFrame();
-}
+  }
 
-void Application::update()
-{
+  void Application::update()
+  {
     // Updating from top to bottom
     for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
-        it->update(m_DeltaTime);
+      it->update(m_DeltaTime);
 
     m_Window->updateEvents();
 
     while (m_Window->hasPendingEvents())
     {
-        Event e = m_Window->pollEvent();
-        
-        for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
-            it->submitEvent(e);
+      Event e = m_Window->pollEvent();
+
+      for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
+        it->submitEvent(e);
     }
 
-}
+  }
 
-void Application::draw()
-{
+  void Application::draw()
+  {
     for (Layer& layer : m_LayerStack)
-        layer.render();
+      layer.render();
 
     m_Window->swapBuffers();
-}
+  }
 
 } // namespace vrm

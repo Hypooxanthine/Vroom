@@ -9,6 +9,7 @@
 #include "Vroom/Render/Passes/DrawScenePass.h"
 #include "Vroom/Render/Passes/BlitFrameBufferPass.h"
 #include "Vroom/Render/Passes/LightClusteringPass.h"
+#include "Vroom/Render/Passes/ShadowMappingPass.h"
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Render/Abstraction/VertexArray.h"
@@ -16,6 +17,7 @@
 #include "Vroom/Render/Abstraction/IndexBuffer.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
+#include "Vroom/Render/Abstraction/ArrayTexture2D.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
 
 #include "Vroom/Render/RawShaderData/SSBOPointLightData.h"
@@ -40,9 +42,9 @@ std::unique_ptr<Renderer> Renderer::s_Instance = nullptr;
 Renderer::Renderer()
 {
   m_gpuFeatures.query();
-  
+
   m_mainFrameBuffer.create(1, 1, 1);
-  m_mainFrameBuffer.setColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });
+  m_mainFrameBuffer.setColorAttachment(0, 4, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
   m_mainFrameBuffer.setRenderBufferDepthAttachment();
   VRM_ASSERT_MSG(m_mainFrameBuffer.validate(), "Could not build main framebuffer");
 }
@@ -71,7 +73,7 @@ void Renderer::Shutdown()
   s_Instance.reset();
 }
 
-Renderer &Renderer::Get()
+Renderer& Renderer::Get()
 {
   VRM_ASSERT_MSG(s_Instance != nullptr, "Renderer not initialized.");
   return *s_Instance;
@@ -81,6 +83,7 @@ void Renderer::createRenderPasses()
 {
   m_passManager.reset();
   m_frameBufferPool.clear();
+  m_arrayTexture2DPool.clear();
 
   auto aa = m_renderSettings.antiAliasingLevel;
   bool aaOK = (aa != 0 && ((aa & (aa - 1)) == 0));
@@ -88,33 +91,35 @@ void Renderer::createRenderPasses()
 
   // Shadow mapping
   {
-    // auto& fb = m_frameBufferPool.emplace_back();
-    // fb = std::make_unique<gl::FrameBuffer>();
-    // fb->create(m_ViewportSize.x, m_ViewportSize.y, 1);
-    // fb->setDepthAttachment()
-    // VRM_ASSERT_MSG(fb->validate(), "Could not build shadow mapping framebuffer");
+    auto& dirLightMaps = m_arrayTexture2DPool.emplace_back(std::make_unique<gl::ArrayTexture2D>());
+    dirLightMaps->createDepth(2048, 2048, static_cast<GLsizei>(LightRegistry::GetMaxDirectionalLights()));
+
+    auto& pass = m_passManager.pushPass<ShadowMappingPass>();
+    pass.dirLightMaps = dirLightMaps.get();
+    pass.lights = &m_LightRegistry;
+    pass.meshRegistry = &m_meshRegistry;
   }
 
-  gl::FrameBuffer *renderFrameBuffer = nullptr;
+  gl::FrameBuffer* renderFrameBuffer = nullptr;
 
   // MSAA
   if (aa > 1)
   {
     auto fb = std::make_unique<gl::OwningFrameBuffer>();
     fb->create(m_ViewportSize.x, m_ViewportSize.y, aa);
-    fb->setColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });
+    fb->setColorAttachment(0, 4, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
     fb->setRenderBufferDepthAttachment(1.f);
     VRM_ASSERT_MSG(fb->validate(), "Could not build MSAA framebuffer");
 
     renderFrameBuffer = fb.get();
-    
+
     m_frameBufferPool.emplace_back(std::move(fb));
   }
   else
   {
     renderFrameBuffer = &m_mainFrameBuffer;
   }
-  
+
   m_mainFrameBuffer.resize(m_ViewportSize.x, m_ViewportSize.y);
 
   // Light clustering
@@ -152,7 +157,7 @@ void Renderer::createRenderPasses()
   m_passManagerDirty = false;
 }
 
-void Renderer::beginScene(const CameraBasic &camera)
+void Renderer::beginScene(const CameraBasic& camera)
 {
   if (m_passManagerDirty)
   {
@@ -201,7 +206,7 @@ void Renderer::submitMesh(uint32_t id, const MeshComponent& meshComponent, const
   }
 }
 
-void Renderer::registerPointLight(const glm::vec3 &position, const PointLightComponent &pointLight, size_t identifier)
+void Renderer::registerPointLight(const glm::vec3& position, const PointLightComponent& pointLight, size_t identifier)
 {
   m_LightRegistry.submitLight(pointLight, position, identifier);
 }
@@ -231,28 +236,28 @@ void Renderer::updateDirectionalLight(const DirectionalLightComponent& dirLight,
   m_LightRegistry.updateLight(dirLight, direction, identifier);
 }
 
-const glm::uvec2 &Renderer::getViewportOrigin() const
+const glm::uvec2& Renderer::getViewportOrigin() const
 {
   return m_ViewportOrigin;
 }
 
-const glm::uvec2 &Renderer::getViewportSize() const
+const glm::uvec2& Renderer::getViewportSize() const
 {
   return m_ViewportSize;
 }
 
-void Renderer::setViewport(const glm::uvec2 &o, const glm::uvec2 &s)
+void Renderer::setViewport(const glm::uvec2& o, const glm::uvec2& s)
 {
   setViewportOrigin(o);
   setViewportSize(s);
 }
 
-void Renderer::setViewportOrigin(const glm::uvec2 &o)
+void Renderer::setViewportOrigin(const glm::uvec2& o)
 {
   m_ViewportOrigin = o;
 }
 
-void Renderer::setViewportSize(const glm::uvec2 &s)
+void Renderer::setViewportSize(const glm::uvec2& s)
 {
   m_ViewportSize = s;
   m_passManagerDirty = true;

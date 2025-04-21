@@ -49,7 +49,8 @@ void LightRegistry::submitLight(const DirectionalLightComponent &dirLight, const
     SSBODirectionalLightData {
       .direction = direction,
       .color = dirLight.color,
-      .intensity = dirLight.intensity
+      .intensity = dirLight.intensity,
+      .castsShadows = dirLight.castsShadows
     }
   );
 }
@@ -61,7 +62,8 @@ void LightRegistry::updateLight(const DirectionalLightComponent &dirLight, const
     SSBODirectionalLightData {
       .direction = direction,
       .color = dirLight.color,
-      .intensity = dirLight.intensity
+      .intensity = dirLight.intensity,
+      .castsShadows = dirLight.castsShadows
     }
   );
 }

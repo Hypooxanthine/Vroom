@@ -6,6 +6,7 @@ struct DirectionalLight
   float direction[3];
   float color[3];
   float intensity;
+  bool castsShadows;
 };
 
 struct PointLight

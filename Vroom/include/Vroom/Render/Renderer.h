@@ -26,6 +26,7 @@ namespace vrm
   namespace gl
   {
     class FrameBuffer;
+    class ArrayTexture2D;
   }
 
   /**
@@ -164,6 +165,7 @@ namespace vrm
     ClusteredLights m_ClusteredLights;
 
     std::vector<std::unique_ptr<gl::FrameBuffer>> m_frameBufferPool;
+    std::vector<std::unique_ptr<gl::ArrayTexture2D>> m_arrayTexture2DPool;
   };
 
 } // namespace vrm

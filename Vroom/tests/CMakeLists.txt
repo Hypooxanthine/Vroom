@@ -15,17 +15,7 @@ include_directories(Vroom PUBLIC
     ${INCLUDES}
 )
 
-set(TEST_SOURCES
-    "test_TriggerCallbackList.cc"
-    "test_Trigger.cc"
-    "test_TriggerManagerAndBinder.cc"
-    "test_CustomEvent.cc"
-    "test_CustomEventManagerAndBinder.cc"
-    "test_AssetManager.cc"
-    "test_StaticAsset.cc"
-    "test_MeshAsset.cc"
-    "test_Scene.cc"
-)
+file(GLOB_RECURSE TEST_SOURCES  *.cc)
 
 add_executable(VroomTests ${TEST_SOURCES})
 

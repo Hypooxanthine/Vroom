@@ -9,6 +9,10 @@ using namespace vrm;
 void GPURuntimeFeatures::query()
 {
   GLint integerv;
+
   glGetIntegerv(GL_MAX_SAMPLES, &integerv);
   CAST_SET(maxMSAA, integerv);
+  
+  glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &integerv);
+  CAST_SET(maxArrayTextureLayers, integerv);
 }
