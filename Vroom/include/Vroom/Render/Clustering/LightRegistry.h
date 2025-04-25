@@ -30,15 +30,12 @@ namespace vrm
 
     inline static consteval size_t GetMaxDirectionalLights() { return s_maxDirLights; }
 
+    void startRegistering();
+    void endRegistering();
+
     void submitLight(const PointLightComponent& pointLight, const glm::vec3& position, size_t identifier);
-    void updateLight(const PointLightComponent& pointLight, const glm::vec3& position, size_t identifier);
-    void removePointLight(size_t identifier);
 
     void submitLight(const DirectionalLightComponent& dirLight, const glm::vec3& direction, size_t identifier);
-    void updateLight(const DirectionalLightComponent& dirLight, const glm::vec3& direction, size_t identifier);
-    void removeDirectionalLight(size_t identifier);
-
-    void update();
 
     inline const gl::AutoResizeStorageBuffer& getPointLightsStorageBuffer() const { return m_ssbo; }
 

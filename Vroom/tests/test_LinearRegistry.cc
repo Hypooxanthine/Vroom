@@ -134,12 +134,74 @@ TEST(test_LinearRegistry, TestContainsAfterDeletion)
   EXPECT_TRUE(registry.contains(1));
   EXPECT_TRUE(registry.contains(2));
 
+  EXPECT_TRUE(registry.getRegisteredKeys().size() == 2);
+  EXPECT_TRUE(registry.getRegisteredKeys().contains(1));
+  EXPECT_TRUE(registry.getRegisteredKeys().contains(2));
+  EXPECT_TRUE(registry.getJustRemovedKeys().empty());
+
   registry.startRegistering();
-  registry.submit(1, 0);
-  registry.submit(2, 0);
+  registry.notifyUsed(2);
   registry.endRegistering();
 
-  EXPECT_TRUE(registry.contains(1));
+  EXPECT_FALSE(registry.contains(1));
   EXPECT_TRUE(registry.contains(2));
+
+  EXPECT_TRUE(registry.getJustRemovedKeys().size() == 1);
+  EXPECT_TRUE(registry.getJustRemovedKeys().contains(1));
+  EXPECT_TRUE(registry.getRegisteredKeys().size() == 1);
+  EXPECT_TRUE(registry.getRegisteredKeys().contains(2));
 }
 
+TEST(test_LinearRegistry, BigTest)
+{
+  static constexpr int itemCount = 1'000;
+  vrm::LinearRegistry<int, int> registry;
+
+  registry.startRegistering();
+
+  for (int i = 0; i < itemCount; ++i)
+  {
+    registry.submit(i, 10 * i + i % 10);
+  }
+
+  registry.endRegistering();
+  
+  EXPECT_TRUE(registry.getRegisteredKeys().size() == itemCount);
+  EXPECT_TRUE(registry.getJustRemovedKeys().size() == 0);
+
+  for (int i = 0; i < itemCount; ++i)
+  {
+    EXPECT_TRUE(registry.contains(i));
+    EXPECT_TRUE(registry.getRegisteredKeys().contains(i));
+    EXPECT_TRUE(!registry.getJustRemovedKeys().contains(i));
+    EXPECT_TRUE(std::find(registry.begin(), registry.end(), std::make_pair(i, 10 * i + i % 10)) != registry.end());
+  }
+
+  registry.startRegistering();
+
+  for (int i = 0; i < itemCount; i += 2)
+  {
+    registry.notifyUsed(i);
+  }
+
+  registry.endRegistering();
+  
+  EXPECT_TRUE(registry.getRegisteredKeys().size() == itemCount / 2);
+  EXPECT_TRUE(registry.getJustRemovedKeys().size() == itemCount / 2);
+
+  for (int i = 0; i < itemCount; i += 2)
+  {
+    EXPECT_TRUE(registry.contains(i));
+    EXPECT_TRUE(registry.getRegisteredKeys().contains(i));
+    EXPECT_TRUE(!registry.getJustRemovedKeys().contains(i));
+    EXPECT_TRUE(std::find(registry.begin(), registry.end(), std::make_pair(i, 10 * i + i % 10)) != registry.end());
+  }
+
+  for (int i = 1; i < itemCount; i += 2)
+  {
+    EXPECT_TRUE(!registry.contains(i));
+    EXPECT_TRUE(!registry.getRegisteredKeys().contains(i));
+    EXPECT_TRUE(registry.getJustRemovedKeys().contains(i));
+    EXPECT_TRUE(std::find(registry.begin(), registry.end(), std::make_pair(i, 10 * i + i % 10)) == registry.end());
+  }
+}

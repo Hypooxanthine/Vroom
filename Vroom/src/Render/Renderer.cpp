@@ -167,14 +167,13 @@ void Renderer::beginScene(const CameraBasic& camera)
   m_Camera = &camera;
 
   m_meshRegistry.startRegistering();
+  m_LightRegistry.startRegistering();
 }
 
 void Renderer::endScene()
 {
   m_meshRegistry.endRegistering();
-
-  // Setting up lights
-  m_LightRegistry.update();
+  m_LightRegistry.endRegistering();
 
   // RenderPass setup stage
   m_passManager.setup();
@@ -206,34 +205,14 @@ void Renderer::submitMesh(uint32_t id, const MeshComponent& meshComponent, const
   }
 }
 
-void Renderer::registerPointLight(const glm::vec3& position, const PointLightComponent& pointLight, size_t identifier)
+void Renderer::submitPointLight(size_t id, const PointLightComponent& pointLight, const glm::vec3& position)
 {
-  m_LightRegistry.submitLight(pointLight, position, identifier);
+  m_LightRegistry.submitLight(pointLight, position, id);
 }
 
-void Renderer::unregisterPointLight(size_t identifier)
+void Renderer::submitDirectionalLight(size_t id, const DirectionalLightComponent& dirLight, const glm::vec3& direction)
 {
-  m_LightRegistry.removePointLight(identifier);
-}
-
-void Renderer::updatePointLight(const glm::vec3& position, const PointLightComponent& pointLight, size_t identifier)
-{
-  m_LightRegistry.updateLight(pointLight, position, identifier);
-}
-
-void Renderer::registerDirectionalLight(const DirectionalLightComponent& dirLight, const glm::vec3& direction, size_t identifier)
-{
-  m_LightRegistry.submitLight(dirLight, direction, identifier);
-}
-
-void Renderer::unregisterDirectionalLight(size_t identifier)
-{
-  m_LightRegistry.removeDirectionalLight(identifier);
-}
-
-void Renderer::updateDirectionalLight(const DirectionalLightComponent& dirLight, const glm::vec3& direction, size_t identifier)
-{
-  m_LightRegistry.updateLight(dirLight, direction, identifier);
+  m_LightRegistry.submitLight(dirLight, direction, id);
 }
 
 const glm::uvec2& Renderer::getViewportOrigin() const

@@ -24,24 +24,6 @@ void LightRegistry::submitLight(const PointLightComponent &pointLight, const glm
   );
 }
 
-void LightRegistry::updateLight(const PointLightComponent &pointLight, const glm::vec3 &position, size_t identifier)
-{
-  m_pointLightsRegistry.update(
-    identifier,
-    SSBOPointLightData {
-      .position = position,
-      .color = pointLight.color,
-      .intensity = pointLight.intensity,
-      .radius = pointLight.radius
-    }
-  );
-}
-
-void LightRegistry::removePointLight(size_t identifier)
-{
-  m_pointLightsRegistry.remove(identifier);
-}
-
 void LightRegistry::submitLight(const DirectionalLightComponent &dirLight, const glm::vec3 &direction, size_t identifier)
 {
   m_dirLightsRegistry.submit(
@@ -55,26 +37,14 @@ void LightRegistry::submitLight(const DirectionalLightComponent &dirLight, const
   );
 }
 
-void LightRegistry::updateLight(const DirectionalLightComponent &dirLight, const glm::vec3 &direction, size_t identifier)
+void LightRegistry::startRegistering()
 {
-  m_dirLightsRegistry.update(
-    identifier,
-    SSBODirectionalLightData {
-      .direction = direction,
-      .color = dirLight.color,
-      .intensity = dirLight.intensity,
-      .castsShadows = dirLight.castsShadows
-    }
-  );
+  m_dirLightsRegistry.startRegistering();
+  m_pointLightsRegistry.startRegistering();
 }
 
-void LightRegistry::removeDirectionalLight(size_t identifier)
+void LightRegistry::endRegistering()
 {
-  m_dirLightsRegistry.remove(identifier);
-}
-
-void LightRegistry::update()
-{
-  m_dirLightsRegistry.updateStorageBuffer();
-  m_pointLightsRegistry.updateStorageBuffer();
+  m_dirLightsRegistry.endRegistering();
+  m_pointLightsRegistry.endRegistering();
 }

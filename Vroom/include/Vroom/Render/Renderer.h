@@ -82,26 +82,9 @@ namespace vrm
 
     void submitMesh(uint32_t id, const MeshComponent& meshComponent, const glm::mat4* model);
 
-    /**
-     * @brief Submits a point light to be drawn.
-     *
-     * @warning Position and pointLightComponent must be still alive when calling endScene. This is needed because the renderer does not store the data, it only stores references to it.
-     *
-     * @param position  The position of the light.
-     * @param pointLight  The point light component.
-     * @param identifier  The identifier of the light.
-     */
-    void registerPointLight(const glm::vec3& position, const PointLightComponent& pointLight, size_t identifier);
+    void submitPointLight(size_t id, const PointLightComponent& pointLight, const glm::vec3& position);
 
-    void unregisterPointLight(size_t identifier);
-
-    void updatePointLight(const glm::vec3& position, const PointLightComponent& pointLight, size_t identifier);
-
-    void registerDirectionalLight(const DirectionalLightComponent& dirLight, const glm::vec3& direction, size_t identifier);
-
-    void unregisterDirectionalLight(size_t identifier);
-
-    void updateDirectionalLight(const DirectionalLightComponent& dirLight, const glm::vec3& direction, size_t identifier);
+    void submitDirectionalLight(size_t id, const DirectionalLightComponent& dirLight, const glm::vec3& direction);
 
     /**
      * @brief Gets the viewport origin.

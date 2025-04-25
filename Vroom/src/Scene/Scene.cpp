@@ -38,16 +38,6 @@ Scene::~Scene()
 
 void Scene::init()
 {
-  // Registering lights that have been added before init (when loading the scene).
-  setupLights();
-
-  // At runtime, lights registering is done by entt callbacks.
-  m_Registry.on_construct<DirectionalLightComponent>().connect<&Scene::onDirectionalLightAdded>(this);
-  m_Registry.on_destroy<DirectionalLightComponent>().connect<&Scene::onDirectionalLightRemoved>(this);
-
-  m_Registry.on_construct<PointLightComponent>().connect<&Scene::onPointLightAdded>(this);
-  m_Registry.on_destroy<PointLightComponent>().connect<&Scene::onPointLightRemoved>(this);
-
   Application::Get().getGameLayer()
     .getCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
     .bindCallback(
@@ -87,13 +77,13 @@ void Scene::render()
     auto rotMatrix = glm::eulerAngleXYZ(rot.x, rot.y, rot.z);
     glm::vec4 forward = { 1.f, 0.f, 0.f, 0.f };
 
-    renderer.updateDirectionalLight(dl, glm::vec3(rotMatrix * forward), static_cast<entt::id_type>(e));
+    renderer.submitDirectionalLight(static_cast<entt::id_type>(e), dl, glm::vec3(rotMatrix * forward));
   }
 
   auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent>();
   for (auto&& [e, pl, t] : viewPointLights.each())
   {
-    renderer.updatePointLight(t.getPosition(), pl, static_cast<entt::id_type>(e));
+    renderer.submitPointLight(static_cast<entt::id_type>(e), pl, t.getPosition());
   }
 
   auto viewMeshes = m_Registry.view<MeshComponent, TransformComponent>();
@@ -269,65 +259,4 @@ void Scene::renameRoot(const std::string& rootName)
   m_EntitiesByName.erase(m_Root.getName());
   m_EntitiesByName[rootName] = m_Root.clone();
   m_Root.getComponentInternal<NameComponent>().name = rootName;
-}
-
-void Scene::setupLights()
-{
-  Renderer &renderer = Renderer::Get();
-  
-  auto viewDirLights = m_Registry.view<DirectionalLightComponent, TransformComponent>();
-  for (auto&& [e, dl, t] : viewDirLights.each())
-  {
-    const glm::vec3& rot = t.getRotation();
-    auto rotMatrix = glm::eulerAngleXYZ(rot.x, rot.y, rot.z);
-    glm::vec4 forward = { 1.f, 0.f, 0.f, 0.f };
-
-    renderer.registerDirectionalLight(dl, glm::vec3(rotMatrix * forward), static_cast<entt::id_type>(e));
-  }
-
-  auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent>();
-  for (auto&& [e, pl, t] : viewPointLights.each())
-  {
-    renderer.registerPointLight(t.getPosition(), pl, static_cast<entt::id_type>(e));
-  }
-}
-
-// --------------------------------------------------
-// Notifications
-
-void Scene::onPointLightAdded(entt::registry &registry, entt::entity e)
-{
-  Renderer& renderer = Renderer::Get();
-  
-  TransformComponent& t = registry.get<TransformComponent>(e);
-  PointLightComponent& pl = registry.get<PointLightComponent>(e);
-
-  renderer.registerPointLight(t.getPosition(), pl, static_cast<entt::id_type>(e));
-}
-
-void Scene::onPointLightRemoved(entt::registry &registry, entt::entity e)
-{
-  Renderer& renderer = Renderer::Get();
-
-  renderer.unregisterPointLight(static_cast<entt::id_type>(e));
-}
-
-void Scene::onDirectionalLightAdded(entt::registry &registry, entt::entity e)
-{
-  Renderer& renderer = Renderer::Get();
-  
-  const glm::vec3& rot = registry.get<TransformComponent>(e).getRotation();
-  DirectionalLightComponent& dl = registry.get<DirectionalLightComponent>(e);
-
-  auto rotMatrix = glm::eulerAngleXYZ(rot.x, rot.y, rot.z);
-  glm::vec4 forward = { 1.f, 0.f, 0.f, 0.f };
-
-  renderer.registerDirectionalLight(dl, glm::vec3(rotMatrix * forward), static_cast<entt::id_type>(e));
-}
-
-void Scene::onDirectionalLightRemoved(entt::registry &registry, entt::entity e)
-{
-  Renderer& renderer = Renderer::Get();
-
-  renderer.unregisterDirectionalLight(static_cast<entt::id_type>(e));
 }
