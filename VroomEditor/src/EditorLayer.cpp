@@ -24,7 +24,7 @@ EditorLayer::EditorLayer() :
   INSTANCE = this;
   // We need to load a first scene before initialization of layers, because game layer will be initialized first.
   // Just loading the default scene.
-  loadScene<Scene>();
+  unloadScene(true);
 }
 
 EditorLayer::~EditorLayer()
@@ -37,11 +37,12 @@ EditorLayer& EditorLayer::Get()
   return *INSTANCE;
 }
 
-void EditorLayer::loadScene(std::unique_ptr<Scene>&& scene)
+void EditorLayer::loadScene(const std::string& name, std::unique_ptr<Scene>&& scene)
 {
   scene->setCamera(&m_EditorCamera);
   auto& gameLayer = Application::Get().getGameLayer();
   gameLayer.loadScene(std::move(scene));
+  m_loadedScene = name;
 }
 
 void EditorLayer::loadScene(const std::string& sceneAssetName)
@@ -49,16 +50,25 @@ void EditorLayer::loadScene(const std::string& sceneAssetName)
   VRM_LOG_INFO("Loading scene...");
   auto scene = std::make_unique<Scene>();
   scene->loadFromAsset(AssetManager::Get().getAsset<SceneAsset>(sceneAssetName));
-  loadScene(std::move(scene));
+  loadScene(sceneAssetName, std::move(scene));
 }
 
-void EditorLayer::unloadScene()
+void EditorLayer::unloadScene(bool force)
 {
-  loadScene<Scene>();
+  if (isSceneLoaded() || force)
+  {
+    loadScene<Scene>("");
+  }
 }
 
 void EditorLayer::saveScene()
 {
+  if (!isSceneLoaded())
+  {
+    VRM_LOG_WARN("Could not save scene: no scene is loaded");
+    return;
+  }
+
   auto& gameLayer = Application::Get().getGameLayer();
   const Scene& scene = gameLayer.getScene();
   auto data = scene.getSceneData();
@@ -68,20 +78,12 @@ void EditorLayer::saveScene()
 
   {
     std::ofstream ofs;
-    ofs.open("Resources/test_savescene.json");
+    ofs.open(m_loadedScene, std::ios_base::trunc);
 
     ofs << j;
   }
 
-  {
-    std::ofstream ofs;
-    ofs.open("Resources/test_savescene.json.meta");
-
-    json mj = json::object();
-    mj["Type"] = "Scene";
-
-    ofs << mj;
-  }
+  AssetManager::Get().reloadAsset<SceneAsset>(m_loadedScene);
 }
 
 void EditorLayer::onInit()

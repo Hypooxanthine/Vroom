@@ -22,16 +22,18 @@ public:
   static EditorLayer& Get();
 
   template <typename S, typename... Args>
-  void loadScene(Args&&... args)
+  void loadScene(const std::string& name, Args&&... args)
   {
+    m_loadedScene = name;
     auto scene = std::make_unique<S>(std::forward<Args>(args)...);
-    loadScene(std::move(scene));
+    loadScene(name, std::move(scene));
   }
 
-  void loadScene(std::unique_ptr<Scene>&& scene);
+  void loadScene(const std::string& name, std::unique_ptr<Scene>&& scene);
   void loadScene(const std::string& sceneAssetName);
 
-  void unloadScene();
+  inline bool isSceneLoaded() const { return m_loadedScene.size() > 0; }
+  void unloadScene(bool force = false);
   void saveScene();
 
 protected:
@@ -47,7 +49,7 @@ private:
 private:
   CustomEventManager m_CustomEventManager;
   TriggerManager m_TriggerManager;
-  bool m_SceneLoaded = false;
+  std::string m_loadedScene = "";
 
   EditorCamera m_EditorCamera;
 };

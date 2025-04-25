@@ -57,7 +57,7 @@ void UserInterfaceLayer::onInit()
   ImGui_ImplGlfw_InitForOpenGL(Application::Get().getWindow().getGLFWHandle(), true);
   ImGui_ImplOpenGL3_Init("#version 450");
 
-  m_Font = io.Fonts->AddFontFromFileTTF("Resources/Fonts/Roboto/Roboto-Regular.ttf", 24.0f);
+  m_Font = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/Roboto/Roboto-Regular.ttf", 24.0f);
   VRM_ASSERT_MSG(m_Font, "Failed to load font.");
 
   // Interfaces setup

@@ -71,18 +71,27 @@ namespace vrm
     }
 
     template <typename T>
+    void reloadAsset(const std::string& assetID)
+    {
+      VRM_ASSERT_MSG(tryReloadAsset<T>(assetID), "Failed to load asset: {}", assetID);
+    }
+
+    template <typename T>
     bool tryLoadAsset(const std::string& assetID)
     {
-      if (!isAssetLoaded(assetID))
-      {
-        auto asset = std::make_unique<T>();
-        if (!asset->load(assetID))
-        {
-          return false;
-        }
+      return isAssetLoaded(assetID) || tryReloadAsset<T>(assetID);
+    }
 
-        m_Assets[assetID] = std::move(asset);
+    template <typename T>
+    inline bool tryReloadAsset(const std::string& assetID)
+    {
+      auto asset = std::make_unique<T>();
+      if (!asset->load(assetID))
+      {
+        return false;
       }
+
+      m_Assets[assetID] = std::move(asset);
 
       return true;
     }
