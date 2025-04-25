@@ -3,6 +3,7 @@
 #include "Vroom/Core/Assert.h"
 
 #include "Vroom/Scene/Scripting/ScriptFactory.h"
+#include "Vroom/Scene/Components/ScriptComponent.h"
 
 using namespace vrm;
 
@@ -43,12 +44,10 @@ void ScriptEngine::unregisterScript(const std::string& scriptId)
   m_Factories.erase(scriptId);
 }
 
-const ScriptFactory& ScriptEngine::getScriptFactory(const std::string& scriptId) const
-{
-  return *m_Factories.at(scriptId);
-}
-
 ScriptComponent* ScriptEngine::createScriptComponent(const std::string& scriptId) const
 {
-  return getScriptFactory(scriptId).create();
+  auto* script = m_Factories.at(scriptId)->create();
+  script->m_scriptName = scriptId;
+
+  return script;
 }

@@ -61,6 +61,8 @@ namespace vrm
      */
     bool loadFromAsset(const SceneAsset::Handle &sceneAsset);
 
+    SceneData getSceneData() const;
+
     /**
      * @brief Sets the camera of the scene.
      * @warning Scene does not take ownership of the camera, it only stores a pointer to it.
@@ -122,6 +124,8 @@ namespace vrm
      * @return Entity The entity.
      */
     inline Entity &getRoot() { return m_Root; }
+
+    inline const Entity& getRoot() const { return m_Root; }
 
     /**
      * @brief Check if "parent" is the parent of "child"
@@ -189,6 +193,10 @@ namespace vrm
     void destroyEntityRecursive(Entity entity);
 
     bool loadFromAsset2(const SceneData &data);
+
+    void addNodeRecursive(const Entity& e, SceneData& data, const std::string& parent, const SceneData::SceneNode::EType& nodetype) const;
+    
+    void addNodeComponents(const Entity& e, SceneData& data, size_t nodeID) const;
 
     void setupLights();
 

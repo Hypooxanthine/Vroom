@@ -24,7 +24,6 @@ public:
   void registerScript(const std::string& scriptId, std::unique_ptr<ScriptFactory>&& factory);
   void unregisterScript(const std::string& scriptId);
 
-  const ScriptFactory& getScriptFactory(const std::string& scriptId) const;
   [[nodiscard]] ScriptComponent* createScriptComponent(const std::string& scriptId) const;
 
 private:

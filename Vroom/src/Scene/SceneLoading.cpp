@@ -13,6 +13,7 @@
 #include "Vroom/Scene/Components/MeshComponent.h"
 #include "Vroom/Scene/Components/ScriptComponent.h"
 #include "Vroom/Scene/Components/PointLightComponent.h"
+#include "Vroom/Scene/Components/DirectionalLightComponent.h"
 
 using namespace vrm;
 
@@ -46,7 +47,7 @@ bool Scene::loadFromAsset2(const SceneData& data)
         VRM_LOG_ERROR("Could not set {}'s parent \"{}\": unknown entity", node.name, node.parent);
         return false;
       }
-      
+
       father = getEntity(node.parent);
     }
     else
@@ -66,10 +67,10 @@ bool Scene::loadFromAsset2(const SceneData& data)
   return true;
 }
 
-bool Scene::loadFromAsset(const SceneAsset::Handle &sceneAsset)
+bool Scene::loadFromAsset(const SceneAsset::Handle& sceneAsset)
 {
   destroyAllEntities();
-  const auto &data = sceneAsset->getSceneData();
+  const auto& data = sceneAsset->getSceneData();
 
   if (!loadFromAsset2(data))
   {
@@ -81,4 +82,79 @@ bool Scene::loadFromAsset(const SceneAsset::Handle &sceneAsset)
   VRM_LOG_INFO("Scene loaded successfully");
 
   return true;
+}
+
+void Scene::addNodeComponents(const Entity& e, SceneData& data, size_t nodeID) const
+{
+  if (const auto* c = m_Registry.try_get<TransformComponent>(e); c != nullptr)
+  {
+    auto cd = std::make_unique<SceneData::TransformComponent>();
+
+    cd->position = c->getPosition();
+    cd->rotation = c->getRotation();
+    cd->scale = c->getScale();
+
+    data.addComponent(nodeID, std::move(cd));
+  }
+
+  if (const auto* c = m_Registry.try_get<MeshComponent>(e); c != nullptr)
+  {
+    auto cd = std::make_unique<SceneData::MeshComponent>();
+
+    cd->resourceName = c->getMesh()->getFilePath();
+
+    data.addComponent(nodeID, std::move(cd));
+  }
+
+  if (const auto* c = m_Registry.try_get<DirectionalLightComponent>(e); c != nullptr)
+  {
+    auto cd = std::make_unique<SceneData::DirectionalLightComponent>();
+
+    cd->color = c->color;
+    cd->intensity = c->intensity;
+    cd->castsShadows = c->castsShadows;
+
+    data.addComponent(nodeID, std::move(cd));
+  }
+
+  if (const auto* c = m_Registry.try_get<PointLightComponent>(e); c != nullptr)
+  {
+    auto cd = std::make_unique<SceneData::PointLightComponent>();
+
+    cd->color = c->color;
+    cd->intensity = c->intensity;
+    cd->radius = c->radius;
+
+    data.addComponent(nodeID, std::move(cd));
+  }
+
+  if (const auto* c = m_Registry.try_get<ScriptHandler>(e); c != nullptr)
+  {
+    auto cd = std::make_unique<SceneData::ScriptComponent>();
+
+    cd->resourceName = c->getScript().getScriptName();
+
+    data.addComponent(nodeID, std::move(cd));
+  }
+}
+
+void Scene::addNodeRecursive(const Entity& e, SceneData& data, const std::string& parent, const SceneData::SceneNode::EType& nodetype) const
+{
+  const std::string& name = e.getName();
+  size_t id = data.addNode(name, nodetype, parent);
+  addNodeComponents(e, data, id);
+
+  for (const auto& child : e.getChildren())
+  {
+    addNodeRecursive(child, data, name, SceneData::SceneNode::EType::eEntity);
+  }
+}
+
+SceneData Scene::getSceneData() const
+{
+  SceneData data;
+
+  addNodeRecursive(getRoot(), data, "", SceneData::SceneNode::EType::eRoot);
+
+  return std::move(data);
 }

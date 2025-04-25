@@ -3,6 +3,7 @@
 #include <Vroom/Core/Application.h>
 #include <Vroom/Core/GameLayer.h>
 #include <Vroom/Core/Window.h>
+#include <fstream>
 
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 
@@ -17,7 +18,7 @@ using namespace vrm;
 static EditorLayer* INSTANCE = nullptr;
 
 EditorLayer::EditorLayer() :
-    m_EditorCamera(0.1f, 100.f, glm::radians(90.f), 0.f, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f))
+  m_EditorCamera(0.1f, 100.f, glm::radians(90.f), 0.f, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f))
 {
   VRM_ASSERT_MSG(INSTANCE == nullptr, "Only one instance of EditorLayer is allowed");
   INSTANCE = this;
@@ -36,10 +37,10 @@ EditorLayer& EditorLayer::Get()
   return *INSTANCE;
 }
 
-void EditorLayer::loadScene(std::unique_ptr<Scene> &&scene)
+void EditorLayer::loadScene(std::unique_ptr<Scene>&& scene)
 {
   scene->setCamera(&m_EditorCamera);
-  auto &gameLayer = Application::Get().getGameLayer();
+  auto& gameLayer = Application::Get().getGameLayer();
   gameLayer.loadScene(std::move(scene));
 }
 
@@ -56,10 +57,37 @@ void EditorLayer::unloadScene()
   loadScene<Scene>();
 }
 
+void EditorLayer::saveScene()
+{
+  auto& gameLayer = Application::Get().getGameLayer();
+  const Scene& scene = gameLayer.getScene();
+  auto data = scene.getSceneData();
+
+  json j;
+  to_json(j, data);
+
+  {
+    std::ofstream ofs;
+    ofs.open("Resources/test_savescene.json");
+
+    ofs << j;
+  }
+
+  {
+    std::ofstream ofs;
+    ofs.open("Resources/test_savescene.json.meta");
+
+    json mj = json::object();
+    mj["Type"] = "Scene";
+
+    ofs << mj;
+  }
+}
+
 void EditorLayer::onInit()
 {
   // Engine setup
-  auto &app = Application::Get();
+  auto& app = Application::Get();
   app.getGameLayer().setShouldHandleEvents(false);
   app.getGameLayer().setShouldUpdate(false);
   app.getGameLayer().setShouldRender(true);
@@ -69,42 +97,34 @@ void EditorLayer::onInit()
     .bindInput(Event::Type::Exit)
     ;
 
-  m_CustomEventManager.bindPermanentCallback("Exit", [](const Event &e)
-                                             { Application::Get().exit(); });
+  m_CustomEventManager.bindPermanentCallback("Exit", [] (const Event& e) { Application::Get().exit(); });
 
   // Events
   m_CustomEventManager.createCustomEvent("EditorCameraRotation")
-      .bindInput(Event::Type::MouseMoved);
-  m_CustomEventManager.bindPermanentCallback("EditorCameraRotation", [this](const Event &e)
-                                             {
-          m_EditorCamera.submitLookRight(static_cast<float>(e.mouseDeltaX));
-          m_EditorCamera.submitLookUp(static_cast<float>(-e.mouseDeltaY));
-          e.handled = true; });
+    .bindInput(Event::Type::MouseMoved);
+  m_CustomEventManager.bindPermanentCallback("EditorCameraRotation", [this] (const Event& e) {
+    m_EditorCamera.submitLookRight(static_cast<float>(e.mouseDeltaX));
+    m_EditorCamera.submitLookUp(static_cast<float>(-e.mouseDeltaY));
+    e.handled = true; });
 
   m_TriggerManager.createTrigger("MoveForward")
-      .bindInput(vrm::KeyCode::W);
-  m_TriggerManager.bindPermanentCallback("MoveForward", [this](bool triggered)
-                                         { m_EditorCamera.addMoveForward(triggered ? 1.f : -1.f); });
+    .bindInput(vrm::KeyCode::W);
+  m_TriggerManager.bindPermanentCallback("MoveForward", [this] (bool triggered) { m_EditorCamera.addMoveForward(triggered ? 1.f : -1.f); });
   m_TriggerManager.createTrigger("MoveBackward")
-      .bindInput(vrm::KeyCode::S);
-  m_TriggerManager.bindPermanentCallback("MoveBackward", [this](bool triggered)
-                                         { m_EditorCamera.addMoveForward(-(triggered ? 1.f : -1.f)); });
+    .bindInput(vrm::KeyCode::S);
+  m_TriggerManager.bindPermanentCallback("MoveBackward", [this] (bool triggered) { m_EditorCamera.addMoveForward(-(triggered ? 1.f : -1.f)); });
   m_TriggerManager.createTrigger("MoveRight")
-      .bindInput(vrm::KeyCode::D);
-  m_TriggerManager.bindPermanentCallback("MoveRight", [this](bool triggered)
-                                         { m_EditorCamera.addMoveRight(triggered ? 1.f : -1.f); });
+    .bindInput(vrm::KeyCode::D);
+  m_TriggerManager.bindPermanentCallback("MoveRight", [this] (bool triggered) { m_EditorCamera.addMoveRight(triggered ? 1.f : -1.f); });
   m_TriggerManager.createTrigger("MoveLeft")
-      .bindInput(vrm::KeyCode::A);
-  m_TriggerManager.bindPermanentCallback("MoveLeft", [this](bool triggered)
-                                         { m_EditorCamera.addMoveRight(-(triggered ? 1.f : -1.f)); });
+    .bindInput(vrm::KeyCode::A);
+  m_TriggerManager.bindPermanentCallback("MoveLeft", [this] (bool triggered) { m_EditorCamera.addMoveRight(-(triggered ? 1.f : -1.f)); });
   m_TriggerManager.createTrigger("MoveUp")
-      .bindInput(vrm::KeyCode::Space);
-  m_TriggerManager.bindPermanentCallback("MoveUp", [this](bool triggered)
-                                         { m_EditorCamera.addMoveUp(triggered ? 1.f : -1.f); });
+    .bindInput(vrm::KeyCode::Space);
+  m_TriggerManager.bindPermanentCallback("MoveUp", [this] (bool triggered) { m_EditorCamera.addMoveUp(triggered ? 1.f : -1.f); });
   m_TriggerManager.createTrigger("MoveDown")
-      .bindInput(vrm::KeyCode::LeftShift);
-  m_TriggerManager.bindPermanentCallback("MoveDown", [this](bool triggered)
-                                         { m_EditorCamera.addMoveUp(-(triggered ? 1.f : -1.f)); });
+    .bindInput(vrm::KeyCode::LeftShift);
+  m_TriggerManager.bindPermanentCallback("MoveDown", [this] (bool triggered) { m_EditorCamera.addMoveUp(-(triggered ? 1.f : -1.f)); });
 }
 
 void EditorLayer::onEnd()
@@ -113,7 +133,7 @@ void EditorLayer::onEnd()
 
 void EditorLayer::onUpdate(float dt)
 {
-  auto &app = Application::Get();
+  auto& app = Application::Get();
 
   const auto& viewportInfo = UserInterfaceLayer::Get().getViewportInfo();
 
@@ -143,7 +163,7 @@ void EditorLayer::onRender()
 {
 }
 
-void EditorLayer::onEvent(vrm::Event &e)
+void EditorLayer::onEvent(vrm::Event& e)
 {
   m_CustomEventManager.check(e);
   m_TriggerManager.check(e);
@@ -155,7 +175,7 @@ void EditorLayer::onViewportResize(int newWidth, int newHeight)
   e.type = Event::Type::WindowsResized;
   e.newWidth = newWidth;
   e.newHeight = newHeight;
-  auto &gameLayer = Application::Get().getGameLayer();
+  auto& gameLayer = Application::Get().getGameLayer();
 
   // We trick the game layer to handle resize event even if it is not handling events
   // because we want the viewport to be smooth on resize, even when the game isn't playing.

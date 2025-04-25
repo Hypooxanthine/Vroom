@@ -12,6 +12,28 @@
 
 using namespace vrm;
 
+static json GetBasicParameterJson(const std::string& paramName)
+{
+  json j = json::object();
+  j["name"] = paramName;
+  j["value"];
+
+  return std::move(j);
+}
+
+static json GetBasicComponentJson(const std::string& type, bool hasParams = true)
+{
+  json j = json::object();
+  j["type"] = type;
+
+  if (hasParams)
+  {
+    j["params"] = json::array();
+  }
+
+  return std::move(j);
+}
+
 bool SceneData::TransformComponent::addToEntity(Entity& entity)
 {
   auto& tc = entity.getComponent<::TransformComponent>();
@@ -22,6 +44,32 @@ bool SceneData::TransformComponent::addToEntity(Entity& entity)
   return true;
 }
 
+json SceneData::TransformComponent::serialize() const
+{
+  json j = GetBasicComponentJson("TransformComponent");
+  auto& j_params = j["params"];
+  
+  // Position
+  {
+    json& pos = j_params.emplace_back(GetBasicParameterJson("Position")).at("value");
+    to_json(pos, this->position);
+  }
+  
+  // Rotation
+  {
+    json& rot = j_params.emplace_back(GetBasicParameterJson("Rotation")).at("value");
+    to_json(rot, this->rotation);
+  }
+  
+  // Scale
+  {
+    json& sc = j_params.emplace_back(GetBasicParameterJson("Scale")).at("value");
+    to_json(sc, this->scale);
+  }
+
+  return std::move(j);
+}
+
 bool SceneData::MeshComponent::addToEntity(Entity& entity)
 {
   auto& mc = entity.addComponent<::MeshComponent>();
@@ -30,13 +78,50 @@ bool SceneData::MeshComponent::addToEntity(Entity& entity)
   return true;
 }
 
+json SceneData::MeshComponent::serialize() const
+{
+  json j = GetBasicComponentJson("MeshComponent");
+  json& j_params = j["params"];
+
+  {
+    json& j = j_params.emplace_back(GetBasicParameterJson("ResourceName")).at("value");
+    to_json(j, this->resourceName);
+  }
+
+  return std::move(j);
+}
+
 bool SceneData::DirectionalLightComponent::addToEntity(Entity& entity)
 {
   auto& dlc = entity.addComponent<::DirectionalLightComponent>();
   dlc.color = color;
   dlc.intensity = intensity;
+  dlc.castsShadows = castsShadows;
 
   return true;
+}
+
+json SceneData::DirectionalLightComponent::serialize() const
+{
+  json j = GetBasicComponentJson("DirectionalLightComponent");
+  json& j_params = j["params"];
+
+  {
+    json& j = j_params.emplace_back(GetBasicParameterJson("Color")).at("value");
+    to_json(j, this->color);
+  }
+
+  {
+    json& j = j_params.emplace_back(GetBasicParameterJson("Intensity")).at("value");
+    to_json(j, this->intensity);
+  }
+
+  {
+    json& j = j_params.emplace_back(GetBasicParameterJson("CastsShadows")).at("value");
+    to_json(j, this->castsShadows);
+  }
+
+  return std::move(j);
 }
 
 bool SceneData::PointLightComponent::addToEntity(Entity& entity)
@@ -49,6 +134,29 @@ bool SceneData::PointLightComponent::addToEntity(Entity& entity)
   return true;
 }
 
+json SceneData::PointLightComponent::serialize() const
+{
+  json j = GetBasicComponentJson("PointLightComponent");
+  json& j_params = j["params"];
+
+  {
+    json& j = j_params.emplace_back(GetBasicParameterJson("Color")).at("value");
+    to_json(j, this->color);
+  }
+
+  {
+    json& j = j_params.emplace_back(GetBasicParameterJson("Intensity")).at("value");
+    to_json(j, this->intensity);
+  }
+
+  {
+    json& j = j_params.emplace_back(GetBasicParameterJson("Radius")).at("value");
+    to_json(j, this->radius);
+  }
+
+  return std::move(j);
+}
+
 bool SceneData::ScriptComponent::addToEntity(Entity& entity)
 {
   VRM_CHECK_RET_FALSE_MSG(ScriptEngine::Get().isScriptRegistered(resourceName), "Script {} is not registered", resourceName);
@@ -57,4 +165,61 @@ bool SceneData::ScriptComponent::addToEntity(Entity& entity)
   entity.addScriptComponent(std::move(sc));
 
   return true;
+}
+
+json SceneData::ScriptComponent::serialize() const
+{
+  json j = GetBasicComponentJson("ScriptComponent");
+  json& j_params = j["params"];
+
+  {
+    json& j = j_params.emplace_back(GetBasicParameterJson("ScriptName")).at("value");
+    to_json(j, this->resourceName);
+  }
+
+  return std::move(j);
+}
+
+void vrm::to_json(json& j, const SceneData::Component* component)
+{
+  if (component != nullptr)
+    j = component->serialize();
+}
+
+void vrm::to_json(json& j, const SceneData::SceneNode& node)
+{
+  j = json::object();
+  to_json(j["name"], node.name);
+  to_json(j["type"], node.type);
+
+  auto& j_parents = (j["parent"] = nullptr);
+
+  if (!node.parent.empty())
+  {
+    j_parents = node.parent;
+  }
+
+  if (node.components.empty())
+  {
+    return; 
+  }
+
+  auto& j_components = (j["components"] = json::array());
+
+  for (const auto& [_, component] : node.components)
+  {
+    json& j = j_components.emplace_back();
+    to_json(j, component.get());
+  }
+}
+
+void vrm::to_json(json& j, const SceneData& scene)
+{
+  j = json::object();
+  json& nodes = j["scene_nodes"] = json::array();
+
+  for (const SceneData::SceneNode& node : scene.getNodes())
+  {
+    to_json(nodes.emplace_back(), node);
+  }
 }

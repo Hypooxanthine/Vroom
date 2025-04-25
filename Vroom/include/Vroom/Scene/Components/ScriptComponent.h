@@ -8,14 +8,15 @@
 namespace vrm
 {
 
-class Scene;
-class Entity;
+  class Scene;
+  class Entity;
 
-class ScriptComponent
-{
-public:
+  class ScriptComponent
+  {
+  public:
     friend Entity;
-public:
+    friend class ScriptEngine;
+  public:
     ScriptComponent() = default;
     ScriptComponent(const ScriptComponent&) = delete;
     ScriptComponent& operator=(const ScriptComponent&) = delete;
@@ -27,18 +28,21 @@ public:
     virtual void onUpdate(float dt) {}
     virtual void onDestroy() {}
 
-protected:
+    inline const std::string& getScriptName() const { return m_scriptName; }
+
+  protected:
     Entity getEntity() const;
     Scene& getScene() const;
 
-private:
+  private:
     void setEntityHandle(entt::entity handle);
     void setSceneRef(Scene* scene) { m_Scene = scene; }
 
-private:
+  private:
+    std::string m_scriptName;
     entt::entity m_EntityHandle = entt::null;
     Scene* m_Scene = nullptr;
-};
+  };
 
 #define VRM_FACTORY_CLASS_NAME(ScriptClass) ScriptClass ## _Factory
 #define VRM_SCRIPT(ScriptClass) \

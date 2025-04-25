@@ -36,9 +36,6 @@ static bool HandleEntityTransformComponent(SceneData::SceneNode& e, const json& 
       CHECK(false, "Unsupported TransformComponent parameter {}", nameVal);
 
     CHECK(GetParamValue(value, *outVec), "Error while parsing vec3");
-
-    if (nameVal == "Rotation")
-      *outVec = glm::radians(*outVec);
   }
 
   e.components[std::type_index(typeid(SceneData::TransformComponent))] = std::move(tc);
@@ -107,6 +104,11 @@ static bool HandleEntityDirectionalLightComponent(SceneData::SceneNode& e, const
     {
       CHECK_ATTR_FLOAT(param, value);
       CHECK(GetParamValue(value, dlc->intensity), "Error while parsing intensity parameter");
+    }
+    else if (nameVal == "CastsShadows")
+    {
+      CHECK_ATTR_BOOL(param, value);
+      CHECK(GetParamValue(value, dlc->castsShadows), "Error while parsing castsShadows parameter");
     }
     else
       CHECK(false, "Unsupported DirectionalLightComponent parameter {}", nameVal);
@@ -233,8 +235,4 @@ bool SceneParsing::Parse(const nlohmann::json& jsonData, SceneData& outSceneData
 
   outSceneData = std::move(out);
   return true;
-}
-
-void SceneParsing::Serialize(const SceneData& sceneData, nlohmann::json& outJson)
-{
 }

@@ -32,6 +32,7 @@ public:
   void loadScene(const std::string& sceneAssetName);
 
   void unloadScene();
+  void saveScene();
 
 protected:
   virtual void onInit() override;

@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <typeindex>
 
+#include "Vroom/Asset/Parsing/Json.h"
+
 #include <glm/glm.hpp>
 
 namespace vrm
@@ -21,6 +23,8 @@ namespace vrm
     struct Component
     {
       virtual bool addToEntity(Entity& entity) = 0;
+
+      virtual nlohmann::json serialize() const = 0;
     };
 
     struct TransformComponent : Component
@@ -30,6 +34,7 @@ namespace vrm
       glm::vec3 scale;
 
       bool addToEntity(Entity& entity) override;
+      nlohmann::json serialize() const override;
     };
 
     struct MeshComponent : Component
@@ -37,14 +42,17 @@ namespace vrm
       std::string resourceName;
 
       bool addToEntity(Entity& entity) override;
+      nlohmann::json serialize() const override;
     };
 
     struct DirectionalLightComponent : Component
     {
       glm::vec3 color;
       float intensity;
+      bool castsShadows;
 
       bool addToEntity(Entity& entity) override;
+      nlohmann::json serialize() const override;
     };
 
     struct PointLightComponent : Component
@@ -54,6 +62,7 @@ namespace vrm
       float radius;
 
       bool addToEntity(Entity& entity) override;
+      nlohmann::json serialize() const override;
     };
 
     struct ScriptComponent : Component
@@ -61,6 +70,7 @@ namespace vrm
       std::string resourceName;
 
       bool addToEntity(Entity& entity) override;
+      nlohmann::json serialize() const override;
     };
 
     struct SceneNode
@@ -107,11 +117,9 @@ namespace vrm
 
     inline ~SceneData() = default;
 
-    inline SceneData& operator=(SceneData&& other)
-    {
-      m_nodes = std::move(other.m_nodes);
-      return *this;
-    }
+    inline SceneData(SceneData&&) = default;
+
+    inline SceneData& operator=(SceneData&& other) = default;
 
     inline const auto& getNodes() const { return m_nodes; }
 
@@ -142,5 +150,19 @@ namespace vrm
     std::vector<SceneNode> m_nodes;
 
   };
+
+NLOHMANN_JSON_SERIALIZE_ENUM(
+  SceneData::SceneNode::EType,
+  {
+    { SceneData::SceneNode::EType::eRoot  , "Root"    },
+    { SceneData::SceneNode::EType::eEntity, "Entity"  },
+  }
+)
+
+void to_json(json& j, const SceneData::Component* component);
+
+void to_json(json& j, const SceneData::SceneNode& node);
+
+void to_json(json& j, const SceneData& scene);
 
 } // namespace vrm

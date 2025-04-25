@@ -9,6 +9,9 @@
 
 #define CHECK(x, ...) VRM_CHECK_RET_FALSE_MSG(x, __VA_ARGS__)
 
+namespace vrm
+{
+
 using json = nlohmann::json;
 
 #define ELSE else{} else
@@ -77,6 +80,9 @@ using json = nlohmann::json;
 #define CHECK_ATTR_FLOAT(x, attr) \
   CHECK_ATTR_TYPE(x, attr, float)
 
+#define CHECK_ATTR_BOOL(x, attr) \
+  CHECK_ATTR_TYPE(x, attr, bool)
+
 #define IF_HAS_ATTR_TYPE(x, attr, type)\
   IF_HAS_ATTR(x, attr){}\
   std::optional<type> attr##Val##_opt;\
@@ -99,7 +105,7 @@ using json = nlohmann::json;
 
 #define IF_HAS_ATTR_FLOAT(x, attr) \
   IF_HAS_ATTR_TYPE(x, attr, float)
-  
+
 
 template <typename T>
 inline consteval std::string_view ToString() { return "Unsupported"; }
@@ -112,6 +118,12 @@ inline consteval std::string_view ToString<float>() { return "float"; }
 
 template <>
 inline bool IsType<float>(const json& value) { return value.is_number_float(); }
+
+template<>
+inline consteval std::string_view ToString<bool>() { return "bool"; }
+
+template <>
+inline bool IsType<bool>(const json& value) { return value.is_boolean(); }
 
 template<>
 inline consteval std::string_view ToString<int>() { return "int"; }
@@ -164,3 +176,16 @@ inline bool GetParamValue(const json& paramValue, glm::vec<L, T>& outValue)
 
   return true;
 }
+  
+template <glm::length_t L, typename T>
+void to_json(json& j, const glm::vec<L, T>& p)
+{
+  j = json::array();
+  
+  for (glm::length_t i = 0; i < L; ++i)
+  {
+    j.emplace_back(p[i]);
+  }
+}
+
+} // namespace vrm
