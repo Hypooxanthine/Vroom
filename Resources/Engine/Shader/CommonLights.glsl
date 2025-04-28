@@ -3,6 +3,7 @@
 
 struct DirectionalLight
 {
+  // mat4 viewProj;
   float direction[3];
   float color[3];
   float intensity;

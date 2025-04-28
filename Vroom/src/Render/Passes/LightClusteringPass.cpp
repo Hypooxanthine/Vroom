@@ -16,7 +16,7 @@ LightClusteringPass::~LightClusteringPass()
 
 }
 
-void LightClusteringPass::onRender() const
+void LightClusteringPass::onRender(const RenderPassContext& ctx) const
 {
   VRM_ASSERT_MSG(clusteredLights != nullptr, "Invalid clustered lights");
   VRM_ASSERT_MSG(lightsStorageBuffer != nullptr, "Invalid lightsStorageBuffer");

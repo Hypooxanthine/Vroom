@@ -30,26 +30,26 @@ void RenderPassManager::init()
   m_initialized = true;
 }
 
-void RenderPassManager::setup()
+void RenderPassManager::setup(const RenderPassContext& ctx)
 {
   for (auto& p : m_passes)
   {
-    p->setup();
+    p->setup(ctx);
   }
 }
 
-void RenderPassManager::render() const
+void RenderPassManager::render(const RenderPassContext& ctx) const
 {
   for (const auto& p : m_passes)
   {
-    p->render();
+    p->render(ctx);
   }
 }
 
-void RenderPassManager::cleanup()
+void RenderPassManager::cleanup(const RenderPassContext& ctx)
 {
   for (auto& p : m_passes)
   {
-    p->cleanup();
+    p->cleanup(ctx);
   }
 }

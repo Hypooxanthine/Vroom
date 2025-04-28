@@ -5,8 +5,9 @@
 namespace vrm
 {
 
-  struct SSBODirectionalLightData
+  struct alignas(sizeof(glm::vec4)) SSBODirectionalLightData
   {
+    // glm::mat4 viewProj;
     glm::vec3 direction;
     glm::vec3 color;
     float intensity;

@@ -18,6 +18,6 @@ namespace vrm
 		const glm::mat4* model;
   };
   
-  using MeshRegistry = Registry<MeshRenderInfo, size_t>;
+  class MeshRegistry : public Registry<MeshRenderInfo, size_t> {};
 
 } // namespace vrm

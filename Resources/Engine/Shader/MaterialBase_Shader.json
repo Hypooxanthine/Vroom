@@ -79,6 +79,12 @@
       },
       "Resources/Engine/Shader/MaterialBase_Fragment.glsl"
     ],
+    "Uniforms": [
+      {
+        "Name": "u_DirectionalShadowMaps",
+        "Type": "sampler2DArray"
+      }
+    ],
     "StorageBuffers": [
       {
         "Name": "LightBlock",

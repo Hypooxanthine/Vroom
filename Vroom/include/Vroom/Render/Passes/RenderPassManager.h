@@ -29,11 +29,11 @@ namespace vrm
 
     void init();
 
-    void setup();
+    void setup(const RenderPassContext& ctx);
 
-    void render() const;
+    void render(const RenderPassContext& ctx) const;
 
-    void cleanup();
+    void cleanup(const RenderPassContext& ctx);
 
   private:
 

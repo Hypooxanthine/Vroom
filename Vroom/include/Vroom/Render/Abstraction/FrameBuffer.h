@@ -80,6 +80,7 @@ namespace vrm::gl
         m_height = 0;
         m_samples = 0;
 
+        m_anyColorAttachment = false;
         m_drawBuffers = GetEmptyDrawBuffers();
         m_depthAttachment = EDepthAttachmentType::eNone;
       }
@@ -160,6 +161,8 @@ namespace vrm::gl
       glFramebufferTexture(GL_FRAMEBUFFER, attachment, colorTexture.getRendererID(), mipLevel);
       m_drawBuffers.at(slot) = attachment;
       m_clearColors.at(slot) = clearColor;
+
+      m_anyColorAttachment = true;
     }
 
     inline void setColorAttachment(GLuint slot, const ArrayTexture2D &arrayColorTexture, GLuint layer, GLint mipLevel = 0, const glm::vec4 &clearColor = glm::vec4{0.f, 0.f, 0.f, 1.f})
@@ -177,6 +180,8 @@ namespace vrm::gl
       glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, arrayColorTexture.getRenderID(), mipLevel, layer);
       m_drawBuffers.at(slot) = attachment;
       m_clearColors.at(slot) = clearColor;
+
+      m_anyColorAttachment = true;
     }
 
     inline void setDepthAttachment(const Texture2D &depthTexture, GLuint mipLevel = 0, float depthClearValue = 1.f)
@@ -228,16 +233,24 @@ namespace vrm::gl
     {
       bind();
 
-      glDrawBuffers(s_MaxColorAttachments, m_drawBuffers.data());
+      if (m_anyColorAttachment)
+      {
+        glDrawBuffers(s_MaxColorAttachments, m_drawBuffers.data());
+      }
+      else
+      {
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+      }
 
-      GLenum errCode = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
+      GLenum errCode = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 
       if (errCode == GL_FRAMEBUFFER_COMPLETE)
       {
         return true;
       }
 
-      VRM_LOG_WARN("Framebuffer incomplete");
+      VRM_LOG_WARN("Framebuffer incomplete, error code: {:x}", errCode);
       return false;
     }
 
@@ -298,6 +311,7 @@ namespace vrm::gl
     GLuint m_samples = 0;
 
   private:
+    bool m_anyColorAttachment = false;
     std::array<GLenum, s_MaxColorAttachments> m_drawBuffers = GetEmptyDrawBuffers();
     std::array<glm::vec4, s_MaxColorAttachments> m_clearColors = GetEmptyClearColors();
 

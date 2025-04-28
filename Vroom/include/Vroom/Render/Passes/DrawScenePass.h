@@ -4,14 +4,16 @@
 #include <unordered_map>
 #include <string>
 
-#include "Vroom/Render/MeshRegistry.h"
 #include "Vroom/Render/Passes/RenderPass.h"
+#include "Vroom/Render/RenderViewport.h"
+#include "Vroom/Render/MeshRegistry.h"
 
 namespace vrm::gl
 {
   class Shader;
   class FrameBuffer;
   class StorageBufferBase;
+  class ArrayTexture2D;
 }
 
 namespace vrm
@@ -42,8 +44,8 @@ namespace vrm
 
     const MeshRegistry* meshRegistry = nullptr;
     gl::FrameBuffer* framebufferTarget = nullptr;
-    glm::uvec2 *viewportOrigin, *viewportSize;
-    const CameraBasic** camera = nullptr;
+    const RenderViewport* viewport = nullptr;
+    const gl::ArrayTexture2D* dirLightShadowMaps = nullptr;
     EFaceCulling faceCulling = EFaceCulling::eNone;
     EFrontFace frontFace = EFrontFace::eCCW;
 
@@ -51,13 +53,11 @@ namespace vrm
 
   protected:
 
-    virtual void onRender() const override;
+    virtual void onRender(const RenderPassContext& ctx) const override;
 
     void setupFaceCulling() const;
 
-    void renderMeshes() const;
-
-    void applyCameraUniforms(const gl::Shader& shader) const;
+    void renderMeshes(const CameraBasic& camera) const;
 
     void applyStorageBufferParameters(const gl::Shader& shader) const;
   };

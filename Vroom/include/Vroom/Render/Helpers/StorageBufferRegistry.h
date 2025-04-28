@@ -28,10 +28,16 @@ namespace vrm
   {
   public:
 
+    using RegistryType = LinearRegistry<GpuType, IdType>;
+
+  public:
+
     inline StorageBufferRegistry(gl::AutoResizeStorageBuffer* storageBuffer, GLuint offset)
       : m_ssbo(storageBuffer), m_offset(offset)
     {
     }
+
+    inline const RegistryType& getCPURegistry() const { return m_data; }
 
     inline void startRegistering()
     {
@@ -74,7 +80,7 @@ namespace vrm
     }
 
   private:
-    LinearRegistry<GpuType, IdType> m_data;
+    RegistryType m_data;
 
     gl::AutoResizeStorageBuffer* m_ssbo;
     GLuint m_offset;

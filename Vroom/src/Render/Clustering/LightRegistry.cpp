@@ -17,7 +17,7 @@ void LightRegistry::submitLight(const PointLightComponent &pointLight, const glm
     identifier,
     SSBOPointLightData {
       .position = position,
-      .color = pointLight.color,
+      .color = pointLight.color, 
       .intensity = pointLight.intensity,
       .radius = pointLight.radius
     }

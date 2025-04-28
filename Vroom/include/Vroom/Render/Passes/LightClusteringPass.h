@@ -33,7 +33,7 @@ namespace vrm
 
   protected:
 
-    virtual void onRender() const override;
+    virtual void onRender(const RenderPassContext& ctx) const override;
   };
 
 } // namespace vrm

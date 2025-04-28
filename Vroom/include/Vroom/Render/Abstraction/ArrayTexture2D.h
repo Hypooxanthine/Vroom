@@ -68,6 +68,12 @@ namespace vrm::gl
       glBindTexture(getBindingTarget(), m_renderID);
     }
 
+    inline void bind(GLuint slot) const
+    {
+      glActiveTexture(GL_TEXTURE0 + slot);
+      bind();
+    }
+
     inline constexpr void release() noexcept
     {
       if (isCreated())
@@ -98,14 +104,18 @@ namespace vrm::gl
       bind();
 
       GLenum target = getBindingTarget();
-      
+
+      const auto textureFormat = ChannelsToTextureFormat(channels);
+
       if (sampleCount > 1)
       {
-        glTexStorage3DMultisample(target, sampleCount, Texture::ToGlInternalFormat(ChannelsToTextureFormat(channels)), width, height, layerCount, GL_TRUE);
+        glTexStorage3DMultisample(target, sampleCount, Texture::ToGlInternalFormat(textureFormat), width, height, layerCount, GL_TRUE);
       }
       else
       {
-        glTexStorage3D(target, 0, Texture::ToGlInternalFormat(ChannelsToTextureFormat(channels)), width, height, layerCount);
+        glTexImage3D(target, 0, Texture::ToGlInternalFormat(textureFormat),
+          width, height, layerCount, 0,
+          Texture::ToGlFormat(textureFormat), GL_UNSIGNED_BYTE, nullptr);
       }
 
       glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -116,10 +126,9 @@ namespace vrm::gl
 
     inline void createDepth(GLsizei width, GLsizei height, GLsizei layerCount)
     {
-      if (!isCreated())
-      {
-        glGenTextures(1, &m_renderID);
-      }
+      // Not reusing renderID because using glTexStorage. Maybe I will need to change that someday.
+      release();
+      glGenTextures(1, &m_renderID);
 
       m_layerCount = layerCount;
       m_width = width;
@@ -131,12 +140,14 @@ namespace vrm::gl
 
       bind();
 
-      glTexStorage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT, width, height, layerCount);
+      glTexStorage3D(target, 1, GL_DEPTH_COMPONENT32F, width, height, layerCount);
 
-      glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+      glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+      static constexpr float borderColor[] = {1.0, 1.0, 1.0, 1.0};
+      glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, borderColor);
     }
 
   protected:

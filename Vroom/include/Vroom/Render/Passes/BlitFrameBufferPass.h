@@ -9,22 +9,22 @@ namespace vrm::gl
 
 namespace vrm
 {
-  
+
   class BlitFrameBufferPass : public RenderPass
   {
   public:
-    
+
     BlitFrameBufferPass();
     virtual ~BlitFrameBufferPass();
 
   public:
 
-    gl::FrameBuffer *source = nullptr;
-    gl::FrameBuffer * destination = nullptr;
+    gl::FrameBuffer* source = nullptr;
+    gl::FrameBuffer* destination = nullptr;
 
   protected:
 
-    virtual void onRender() const override;
+    virtual void onRender(const RenderPassContext& ctx) const override;
   };
 
 } // namespace vrm

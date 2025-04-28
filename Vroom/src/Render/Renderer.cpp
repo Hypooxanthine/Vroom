@@ -89,15 +89,18 @@ void Renderer::createRenderPasses()
   bool aaOK = (aa != 0 && ((aa & (aa - 1)) == 0));
   VRM_ASSERT_MSG(aaOK, "Invalid antialiasing value: {}", aa);
 
+  gl::ArrayTexture2D* dirLightsShadowMaps = nullptr;
+
   // Shadow mapping
   {
-    auto& dirLightMaps = m_arrayTexture2DPool.emplace_back(std::make_unique<gl::ArrayTexture2D>());
-    dirLightMaps->createDepth(2048, 2048, static_cast<GLsizei>(LightRegistry::GetMaxDirectionalLights()));
+    dirLightsShadowMaps = m_arrayTexture2DPool.emplace_back(std::make_unique<gl::ArrayTexture2D>()).get();
 
     auto& pass = m_passManager.pushPass<ShadowMappingPass>();
-    pass.dirLightMaps = dirLightMaps.get();
+
     pass.lights = &m_LightRegistry;
     pass.meshRegistry = &m_meshRegistry;
+    pass.resolution = 2048;
+    pass.depthTextures = dirLightsShadowMaps;
   }
 
   gl::FrameBuffer* renderFrameBuffer = nullptr;
@@ -106,7 +109,7 @@ void Renderer::createRenderPasses()
   if (aa > 1)
   {
     auto fb = std::make_unique<gl::OwningFrameBuffer>();
-    fb->create(m_ViewportSize.x, m_ViewportSize.y, aa);
+    fb->create(m_viewport.getSize().x, m_viewport.getSize().y, aa);
     fb->setColorAttachment(0, 4, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
     fb->setRenderBufferDepthAttachment(1.f);
     VRM_ASSERT_MSG(fb->validate(), "Could not build MSAA framebuffer");
@@ -120,7 +123,7 @@ void Renderer::createRenderPasses()
     renderFrameBuffer = &m_mainFrameBuffer;
   }
 
-  m_mainFrameBuffer.resize(m_ViewportSize.x, m_ViewportSize.y);
+  m_mainFrameBuffer.resize(m_viewport.getSize().x, m_viewport.getSize().y);
 
   // Light clustering
   {
@@ -136,9 +139,8 @@ void Renderer::createRenderPasses()
     auto& pass = m_passManager.pushPass<DrawSceneRenderPass>();
     pass.meshRegistry = &m_meshRegistry;
     pass.framebufferTarget = renderFrameBuffer;
-    pass.camera = &m_Camera;
-    pass.viewportOrigin = &m_ViewportOrigin;
-    pass.viewportSize = &m_ViewportSize;
+    pass.dirLightShadowMaps = dirLightsShadowMaps;
+    pass.viewport = &m_viewport;
     pass.faceCulling = DrawSceneRenderPass::EFaceCulling::eCullBack;
     pass.frontFace = DrawSceneRenderPass::EFrontFace::eCCW;
     pass.storageBufferParameters["LightBlock"] = &m_LightRegistry.getPointLightsStorageBuffer();
@@ -175,12 +177,15 @@ void Renderer::endScene()
   m_meshRegistry.endRegistering();
   m_LightRegistry.endRegistering();
 
+  RenderPassContext renderContext;
+  renderContext.mainCamera = m_Camera;
+
   // RenderPass setup stage
-  m_passManager.setup();
+  m_passManager.setup(renderContext);
 
   // RenderPass render/cleanup stages
-  m_passManager.render();
-  m_passManager.cleanup();
+  m_passManager.render(renderContext);
+  m_passManager.cleanup(renderContext);
 
   // Clearing data for next frame
   m_Camera = nullptr;
@@ -217,12 +222,12 @@ void Renderer::submitDirectionalLight(size_t id, const DirectionalLightComponent
 
 const glm::uvec2& Renderer::getViewportOrigin() const
 {
-  return m_ViewportOrigin;
+  return m_viewport.getOrigin();
 }
 
 const glm::uvec2& Renderer::getViewportSize() const
 {
-  return m_ViewportSize;
+  return m_viewport.getSize();
 }
 
 void Renderer::setViewport(const glm::uvec2& o, const glm::uvec2& s)
@@ -233,11 +238,11 @@ void Renderer::setViewport(const glm::uvec2& o, const glm::uvec2& s)
 
 void Renderer::setViewportOrigin(const glm::uvec2& o)
 {
-  m_ViewportOrigin = o;
+  m_viewport.setOrigin(o);
 }
 
 void Renderer::setViewportSize(const glm::uvec2& s)
 {
-  m_ViewportSize = s;
+  m_viewport.setSize(s);
   m_passManagerDirty = true;
 }

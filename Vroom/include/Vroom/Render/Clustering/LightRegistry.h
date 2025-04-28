@@ -20,6 +20,18 @@ namespace vrm
   class LightRegistry
   {
   public:
+    static constexpr size_t s_maxDirLights = 10;
+    static constexpr GLsizei s_dirLightSize = sizeof(SSBODirectionalLightData);
+    static constexpr GLintptr s_dirLightOffset = 0;
+    static constexpr GLintptr s_pointLightOffset = sizeof(uint32_t) + s_maxDirLights * s_dirLightSize;
+    static constexpr GLsizei s_pointLightSize = sizeof(SSBOPointLightData);
+
+    using DirLightsSBR = StorageBufferRegistry<SSBODirectionalLightData, size_t, s_maxDirLights>;
+    using DirLightRegistry = DirLightsSBR::RegistryType;
+    using PointLightsSBR = StorageBufferRegistry<SSBOPointLightData, size_t>;
+    using PointLightRegistry = PointLightsSBR::RegistryType;
+
+  public:
     LightRegistry();
     LightRegistry(const LightRegistry&) = delete;
     LightRegistry(LightRegistry&&) = default;
@@ -27,6 +39,9 @@ namespace vrm
 
     LightRegistry& operator=(const LightRegistry&) = delete;
     LightRegistry& operator=(LightRegistry&&) = default;
+
+    inline const DirLightRegistry& getDirectionalLights() const { return m_dirLightsRegistry.getCPURegistry(); }
+    inline const PointLightRegistry& getPointLights() const { return m_pointLightsRegistry.getCPURegistry(); }
 
     inline static consteval size_t GetMaxDirectionalLights() { return s_maxDirLights; }
 
@@ -42,14 +57,9 @@ namespace vrm
   private:
 
   private:
-    static constexpr size_t s_maxDirLights = 10;
-    static constexpr GLsizei s_dirLightSize = sizeof(SSBODirectionalLightData);
-    static constexpr GLintptr s_dirLightOffset = 0;
-    static constexpr GLintptr s_pointLightOffset = sizeof(uint32_t) + s_maxDirLights * s_dirLightSize;
-    static constexpr GLsizei s_pointLightSize = sizeof(SSBOPointLightData);
 
-    StorageBufferRegistry<SSBODirectionalLightData, size_t, s_maxDirLights> m_dirLightsRegistry;
-    StorageBufferRegistry<SSBOPointLightData, size_t> m_pointLightsRegistry;
+    DirLightsSBR m_dirLightsRegistry;
+    PointLightsSBR m_pointLightsRegistry;
 
     gl::AutoResizeStorageBuffer m_ssbo;
   };

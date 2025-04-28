@@ -21,10 +21,11 @@ DrawSceneRenderPass::~DrawSceneRenderPass()
 
 }
 
-void DrawSceneRenderPass::onRender() const
+void DrawSceneRenderPass::onRender(const RenderPassContext& ctx) const
 {
   VRM_ASSERT_MSG(framebufferTarget != nullptr, "Invalid framebuffer");
   VRM_ASSERT_MSG(framebufferTarget->isCreated(), "Framebuffer is not created");
+  VRM_ASSERT(ctx.mainCamera != nullptr);
 
   framebufferTarget->bind();
   framebufferTarget->clearColors();
@@ -41,7 +42,7 @@ void DrawSceneRenderPass::onRender() const
     glDisable(GL_DEPTH_TEST);
   }
 
-  renderMeshes();
+  renderMeshes(*ctx.mainCamera);
 }
 
 void DrawSceneRenderPass::setupFaceCulling() const
@@ -83,20 +84,21 @@ void DrawSceneRenderPass::setupFaceCulling() const
   }
 }
 
-void DrawSceneRenderPass::renderMeshes() const
+void DrawSceneRenderPass::renderMeshes(const CameraBasic& camera) const
 {
-  VRM_DEBUG_ASSERT_MSG(camera && *camera, "No camera set for rendering");
-
-  glViewport(viewportOrigin->x, viewportOrigin->y, viewportSize->x, viewportSize->y);
-  const auto cameraPos = (*camera)->getPosition();
+  glViewport(viewport->getOrigin().x, viewport->getOrigin().y, viewport->getSize().x, viewport->getSize().y);
+  const auto cameraPos = camera.getPosition();
 
   for (const auto &[id, queuedMesh] : *meshRegistry)
   {
     const auto& shader = queuedMesh.material->getShader();
       shader.bind();
       shader.setUniformMat4f("u_Model", *queuedMesh.model);
-      applyCameraUniforms(queuedMesh.material->getShader());
-      applyStorageBufferParameters(queuedMesh.material->getShader());
+      if (dirLightShadowMaps)
+        shader.setTexture("u_DirectionalShadowMaps", *dirLightShadowMaps, 10);
+      applyCameraUniforms(shader, camera);
+      applyViewportUniforms(shader, *viewport);
+      applyStorageBufferParameters(shader);
     
     queuedMesh.material->applyUniforms();
 
@@ -108,17 +110,6 @@ void DrawSceneRenderPass::renderMeshes() const
     glDrawElements(GL_TRIANGLES, (GLsizei)mesh.getIndexCount(), GL_UNSIGNED_INT, nullptr);
   }
 
-}
-
-void DrawSceneRenderPass::applyCameraUniforms(const gl::Shader& shader) const
-{
-  shader.setUniform2ui("u_ViewportSize", viewportSize->x, viewportSize->y);
-  shader.setUniformMat4f("u_View", (*camera)->getView());
-  shader.setUniformMat4f("u_Projection", (*camera)->getProjection());
-  shader.setUniformMat4f("u_ViewProjection", (*camera)->getViewProjection());
-  shader.setUniform3f("u_ViewPosition", (*camera)->getPosition());
-  shader.setUniform1f("u_Near", (*camera)->getNear());
-  shader.setUniform1f("u_Far", (*camera)->getFar());
 }
 
 void DrawSceneRenderPass::applyStorageBufferParameters(const gl::Shader& shader) const

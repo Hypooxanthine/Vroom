@@ -281,6 +281,10 @@
             {
               "name": "Intensity",
               "value": 0.5
+            },
+            {
+              "name": "CastsShadows",
+              "value": true
             }
           ]
         },

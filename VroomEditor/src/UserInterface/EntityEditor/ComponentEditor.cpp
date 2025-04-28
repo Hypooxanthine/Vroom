@@ -197,6 +197,7 @@ bool DirectionalLightComponentEditor::editEntityComponent(Entity& e) const
     component.color = color;
   if (ImGui::DragFloat("Intensity", &intensity, 0.01f, 0.f, 1.f, "%.3f", ImGuiSliderFlags_AlwaysClamp))
     component.intensity = intensity;
+  ImGui::Checkbox("Casts shadows", &component.castsShadows);
 
   return true;
 }

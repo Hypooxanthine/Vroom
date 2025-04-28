@@ -47,6 +47,8 @@ namespace vrm
       m_isRegistering = true;
 
       std::swap(m_waitingKeys, m_confirmedKeys);
+
+      m_waitingKeys.clear();
     }
 
     inline void endRegistering()
@@ -58,8 +60,6 @@ namespace vrm
       {
         m_data.erase(missingId);
       }
-
-      m_waitingKeys.clear();
     }
 
     template <typename uT>

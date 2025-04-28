@@ -15,7 +15,7 @@ BlitFrameBufferPass::~BlitFrameBufferPass()
 
 }
 
-void BlitFrameBufferPass::onRender() const
+void BlitFrameBufferPass::onRender(const RenderPassContext& ctx) const
 {
   VRM_ASSERT_MSG(source != nullptr, "Invalid source framebuffer");
   VRM_ASSERT_MSG(destination != nullptr, "Invalid destination framebuffer");

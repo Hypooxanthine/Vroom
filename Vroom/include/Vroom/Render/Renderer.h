@@ -7,6 +7,7 @@
 
 #include "Vroom/Render/GPURuntimeFeatures.h"
 #include "Vroom/Render/RenderSettings.h"
+#include "Vroom/Render/RenderViewport.h"
 #include "Vroom/Render/Passes/RenderPassManager.h"
 #include "Vroom/Render/MeshRegistry.h"
 #include "Vroom/Render/Abstraction/OwningFrameBuffer.h"
@@ -132,8 +133,7 @@ namespace vrm
     GPURuntimeFeatures m_gpuFeatures;
     RenderSettings m_renderSettings;
 
-    glm::uvec2 m_ViewportOrigin = { 0, 0 };
-    glm::uvec2 m_ViewportSize = { 1, 1 };
+    RenderViewport m_viewport = { { 0, 0 }, { 1, 1} };
 
     const CameraBasic* m_Camera = nullptr;
 

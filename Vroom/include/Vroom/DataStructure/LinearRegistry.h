@@ -125,6 +125,8 @@ namespace vrm
 
     inline const T* getRawData() const { return m_data.data(); }
 
+    inline const T& at(size_t index) const { return m_data.at(index); }
+
     inline const bool wasJustModified() const
     {
       VRM_ASSERT_MSG(m_isRegistering == false, "Registry data is undefined while registering. Call endregistering() first");
