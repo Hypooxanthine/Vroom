@@ -45,6 +45,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glew)
 add_compile_definitions(GLEW_STATIC)
 
+#glfw
 FetchContent_Declare(
     glfw
     GIT_REPOSITORY https://github.com/glfw/glfw.git
