@@ -21,13 +21,13 @@ namespace vrm
 
     Log::Init();
     GLFWEventsConverter::Init();
-
     VRM_ASSERT(initGLFW());
     m_Window = std::make_unique<Window>();
     VRM_ASSERT(m_Window->create("Vroom engine", 800, 600));
 
     glewExperimental = GL_TRUE;
-    VRM_ASSERT(glewInit() == GLEW_OK);
+    auto glewStatus = glewInit();
+    VRM_ASSERT_MSG(glewStatus == GLEW_OK, "glewInit() failed with error code {}. Message: {}", glewStatus, (const char*)(glewGetErrorString(glewStatus)));
 
     AssetManager::Init();
 

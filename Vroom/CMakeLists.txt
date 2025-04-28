@@ -45,15 +45,13 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glew)
 add_compile_definitions(GLEW_STATIC)
 
-# glfw
-if (NOT UNIX) # For unix systems, glfw must be installed via package manager
-    FetchContent_Declare(
-        glfw
-        GIT_REPOSITORY https://github.com/glfw/glfw.git
-        GIT_TAG master
-    )
-    FetchContent_MakeAvailable(glfw)
-endif()
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG master
+)
+set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(glfw)
 
 FetchContent_Declare(
   json
