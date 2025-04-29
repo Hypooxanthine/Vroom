@@ -89,18 +89,16 @@ void Renderer::createRenderPasses()
   bool aaOK = (aa != 0 && ((aa & (aa - 1)) == 0));
   VRM_ASSERT_MSG(aaOK, "Invalid antialiasing value: {}", aa);
 
-  gl::ArrayTexture2D* dirLightsShadowMaps = nullptr;
-
   // Shadow mapping
   {
-    dirLightsShadowMaps = m_arrayTexture2DPool.emplace_back(std::make_unique<gl::ArrayTexture2D>()).get();
+    auto& maps = m_arrayTexture2DPool.emplace("DirLightsShadowMaps");
 
     auto& pass = m_passManager.pushPass<ShadowMappingPass>();
 
     pass.lights = &m_LightRegistry;
     pass.meshRegistry = &m_meshRegistry;
     pass.resolution = 2048;
-    pass.depthTextures = dirLightsShadowMaps;
+    pass.depthTextures = &maps;
   }
 
   gl::FrameBuffer* renderFrameBuffer = nullptr;
@@ -108,15 +106,13 @@ void Renderer::createRenderPasses()
   // MSAA
   if (aa > 1)
   {
-    auto fb = std::make_unique<gl::OwningFrameBuffer>();
-    fb->create(m_viewport.getSize().x, m_viewport.getSize().y, aa);
-    fb->setColorAttachment(0, 4, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
-    fb->setRenderBufferDepthAttachment(1.f);
-    VRM_ASSERT_MSG(fb->validate(), "Could not build MSAA framebuffer");
+    auto& fb = m_frameBufferPool.emplace<gl::OwningFrameBuffer>("MsaaFramebuffer");
+    fb.create(m_viewport.getSize().x, m_viewport.getSize().y, aa);
+    fb.setColorAttachment(0, 4, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
+    fb.setRenderBufferDepthAttachment(1.f);
+    VRM_ASSERT_MSG(fb.validate(), "Could not build MSAA framebuffer");
 
-    renderFrameBuffer = fb.get();
-
-    m_frameBufferPool.emplace_back(std::move(fb));
+    renderFrameBuffer = &fb;
   }
   else
   {
@@ -139,7 +135,7 @@ void Renderer::createRenderPasses()
     auto& pass = m_passManager.pushPass<DrawSceneRenderPass>();
     pass.meshRegistry = &m_meshRegistry;
     pass.framebufferTarget = renderFrameBuffer;
-    pass.dirLightShadowMaps = dirLightsShadowMaps;
+    pass.dirLightShadowMaps = &m_arrayTexture2DPool.get("DirLightsShadowMaps");
     pass.viewport = &m_viewport;
     pass.faceCulling = DrawSceneRenderPass::EFaceCulling::eCullBack;
     pass.frontFace = DrawSceneRenderPass::EFrontFace::eCCW;

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <memory>
-#include <vector>
-#include <unordered_map>
 #include <glm/glm.hpp>
+
+#include "Vroom/Render/Helpers/ResourcePool.h"
 
 #include "Vroom/Render/GPURuntimeFeatures.h"
 #include "Vroom/Render/RenderSettings.h"
@@ -146,9 +146,9 @@ namespace vrm
 
     LightRegistry m_LightRegistry;
     ClusteredLights m_ClusteredLights;
-
-    std::vector<std::unique_ptr<gl::FrameBuffer>> m_frameBufferPool;
-    std::vector<std::unique_ptr<gl::ArrayTexture2D>> m_arrayTexture2DPool;
+    
+    ResourcePool<gl::FrameBuffer> m_frameBufferPool;
+    ResourcePool<gl::ArrayTexture2D> m_arrayTexture2DPool;
   };
 
 } // namespace vrm
