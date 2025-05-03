@@ -1,13 +1,15 @@
 #include "Vroom/Render/Passes/ShadowMappingPass.h"
 
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/string_cast.hpp>
+
+#include "Vroom/Asset/AssetManager.h"
 
 #include "Vroom/Math/Aabb.h"
 #include "Vroom/Math/Frustum.h"
 
 #include "Vroom/Render/RenderViewport.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
-#include "Vroom/Render/Camera/OrthographicCamera.h"
 #include "Vroom/Render/Clustering/LightRegistry.h"
 #include "Vroom/Render/MeshRegistry.h"
 #include "Vroom/Render/RenderObject/RenderMesh.h"
@@ -26,21 +28,45 @@ ShadowMappingPass::~ShadowMappingPass()
 void ShadowMappingPass::onInit()
 {
   VRM_ASSERT(lights != nullptr);
+  VRM_ASSERT(lightMatricesStorageBuffer != nullptr);
+  lightMatricesStorageBuffer->reset(sizeof(glm::vec4) + sizeof(glm::mat4) * LightRegistry::s_maxDirLights);
+  m_lightMatricesSBR = std::make_unique<decltype(m_lightMatricesSBR)::element_type>(lightMatricesStorageBuffer, 0);
 }
 
 void ShadowMappingPass::onSetup(const RenderPassContext& ctx)
 {
   bool dirShadowCastersChanged = updateShadowCasters();
-
   if (dirShadowCastersChanged)
   {
     resetDepthMapsAndFramebuffers();
   }
+
+  m_lightMatricesSBR->startRegistering();
+  m_dirLightCameras.clear();
+  m_debugDirLights.clear();
+  m_dirLightCameras.reserve(m_dirLightShadowCasters.size());
+  m_debugDirLights.reserve(m_dirLightShadowCasters.size());
+
+  for (size_t i = 0; i < m_dirLightShadowCasters.size(); ++i)
+  {
+    size_t shadowCasterId = m_dirLightShadowCasters.at(i);
+    const auto& dirLight = lights->getDirectionalLights().at(shadowCasterId);
+    m_dirLightCameras.emplace_back(constructViewProjFromDirLight(*ctx.mainCamera, dirLight.direction));
+    // VRM_LOG_TRACE("Light direction: {}", glm::to_string(dirLight.direction));
+    m_debugDirLights.emplace_back(m_dirLightCameras.back().generateViewVolumeMesh());
+
+    m_lightMatricesSBR->submit(i, m_dirLightCameras.back().getViewProjection());
+  }
+
+  m_lightMatricesSBR->endRegistering();
+
 }
 
 void ShadowMappingPass::onRender(const RenderPassContext& ctx) const
 {
   VRM_ASSERT(ctx.mainCamera != nullptr);
+
+  bool debugDirLights = false;
 
   glEnable(GL_CULL_FACE);
   glFrontFace(GL_CCW);
@@ -52,13 +78,20 @@ void ShadowMappingPass::onRender(const RenderPassContext& ctx) const
     size_t shadowCasterId = m_dirLightShadowCasters.at(i);
     const auto& dirLight = lights->getDirectionalLights().at(shadowCasterId);
 
-    OrthographicCamera camera = constructViewProjFromDirLight(*ctx.mainCamera, dirLight.direction);
-
     const auto& framebuffer = m_frameBuffers.at(i);
     framebuffer.bind();
     framebuffer.clearDepth();
 
-    renderMeshes(camera, RenderViewport({ 0u, 0u }, { resolution, resolution }));
+    renderMeshes(m_dirLightCameras.at(i), RenderViewport({ 0u, 0u }, { resolution, resolution }));
+  }
+
+  if (debugDirLights)
+  {
+    VRM_ASSERT(ctx.mainFrameBuffer != nullptr);
+    ctx.mainFrameBuffer->bind();
+    glDisable(GL_CULL_FACE);
+
+    renderDirLightsFrustums(ctx);
   }
 }
 
@@ -115,11 +148,15 @@ void ShadowMappingPass::resetDepthMapsAndFramebuffers()
   depthTextures->createDepth(res, res, static_cast<GLsizei>(shadowCasters));
   m_frameBuffers.resize(shadowCasters);
 
+  // static gl::ArrayTexture2D debugColors;
+  // debugColors.createColor(res, res, 4, static_cast<GLsizei>(shadowCasters));
+
   for (size_t i = 0; i < shadowCasters; ++i)
   {
     auto& fb = m_frameBuffers.at(i);
     fb.create(res, res, 1);
     fb.setDepthAttachment(*depthTextures, static_cast<GLuint>(i), 0, 1.f);
+    // fb.setColorAttachment(0, debugColors, static_cast<GLuint>(i));
     fb.validate();
   }
 }
@@ -127,11 +164,10 @@ void ShadowMappingPass::resetDepthMapsAndFramebuffers()
 void ShadowMappingPass::renderMeshes(const CameraBasic& camera, const RenderViewport& viewport) const
 {
   glViewport(viewport.getOrigin().x, viewport.getOrigin().y, viewport.getSize().x, viewport.getSize().y);
-  const auto cameraPos = camera.getPosition();
 
   for (const auto& [id, queuedMesh] : *meshRegistry)
   {
-    const auto& shader = queuedMesh.material->getShadowCastingShader();
+    const auto& shader = queuedMesh.material->getShader();
     shader.bind();
     shader.setUniformMat4f("u_Model", *queuedMesh.model);
     applyCameraUniforms(shader, camera);
@@ -147,11 +183,41 @@ void ShadowMappingPass::renderMeshes(const CameraBasic& camera, const RenderView
 
 }
 
-OrthographicCamera ShadowMappingPass::constructViewProjFromDirLight(const CameraBasic& camera, const glm::vec3& direction)
+OrthographicCamera ShadowMappingPass::constructViewProjFromDirLight(const CameraBasic& renderCamera, const glm::vec3& direction)
 {
-  const glm::mat4& viewProjInv = glm::inverse(camera.getViewProjection());
+  // {
+  //   const float width = 10.f, height = 10.f, depth = 100.f;
+  //   const float near = 0.1f;
+  //   const float far = near + depth;
 
-  Frustum frustum_world = Frustum::CreateFromAabb(Aabb::GetNDC());
+  //   OrthographicCamera out(width, height, near, far);
+  //   out.setWorldPosition(direction * depth / 2.f);
+  //   out.setViewDir(-direction);
+
+  //   return out;
+  // }
+
+  /* Simple algo : light frustum looking towards view position */
+
+  {
+    glm::vec3 viewPos = renderCamera.getPosition();
+
+    float width = 50.f, height = width, depth = 100.f;
+    float near = 0.1f;
+    float far = depth - near;
+
+    OrthographicCamera out(width, height, near, far);
+    out.setWorldPosition(viewPos + direction * depth / 2.f);
+    out.setViewDir(-direction);
+
+    return out;
+  }
+
+  /* Trying the algorithm "view frustum always inside light frustum". Couldnt make it work for now :) */
+
+  const glm::mat4& viewProjInv = glm::inverse(renderCamera.getViewProjection());
+
+  Frustum frustum_world = Frustum::CreateFromAabb(Aabb::GetNDC(), true);
 
   frustum_world.transform(viewProjInv);
 
@@ -176,7 +242,7 @@ OrthographicCamera ShadowMappingPass::constructViewProjFromDirLight(const Camera
   Aabb finalAabb;
   // Computing the real bounding box with the real origin
   {
-    glm::mat4 world_to_light = glm::lookAt(lightPos_world_space, direction, up); // Now we know the real light position
+    glm::mat4 world_to_light = glm::lookAt(lightPos_world_space, lightPos_world_space + direction, up); // Now we know the real light position
 
     Frustum frustum_light_space = frustum_world;
     frustum_light_space.transform(world_to_light);
@@ -185,11 +251,34 @@ OrthographicCamera ShadowMappingPass::constructViewProjFromDirLight(const Camera
   }
 
   const float width = finalAabb.calcWidth(), height = finalAabb.calcHeight(), depth = finalAabb.calcDepth();
-  const float near = 0.01f;
+  const float near = 0.1f;
   const float far = near + depth;
 
   OrthographicCamera out(width, height, near, far);
-  out.setViewDir(direction);
+  out.setWorldPosition(lightPos_world_space);
+  out.setViewDir(-direction);
 
   return out;
+}
+
+void ShadowMappingPass::renderDirLightsFrustums(const RenderPassContext& ctx) const
+{
+  glViewport(ctx.viewport.getOrigin().x, ctx.viewport.getOrigin().y, ctx.viewport.getSize().x, ctx.viewport.getSize().y);
+  
+  for (const auto& mesh : m_debugDirLights)
+  {
+    auto material = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/FrustumViewerMaterial.json");
+    const auto& shader = material->getShader();
+    shader.bind();
+    shader.setUniformMat4f("u_Model", glm::mat4(1.f));
+    applyCameraUniforms(shader, *ctx.mainCamera);
+    applyViewportUniforms(shader, ctx.viewport);
+    material->applyUniforms();
+
+
+    mesh.getVertexArray().bind();
+    mesh.getIndexBuffer().bind();
+
+    glDrawElements(GL_TRIANGLES, (GLsizei)mesh.getIndexCount(), GL_UNSIGNED_INT, nullptr);
+  }
 }

@@ -13,13 +13,19 @@ namespace vrm
   {
   public:
 
-    inline static constexpr Frustum CreateFromAabb(const Aabb& aabb);
+    enum EXAxis      : uint8_t { eLeft = 0, eRight };
+    enum EYAxis      : uint8_t { eDown = 0, eUp };
+    enum EZAxis      : uint8_t { eNear = 0, eFar };
 
   public:
 
-    enum EXAxis : uint8_t { eLeft = 0, eRight };
-    enum EYAxis : uint8_t { eDown = 0, eUp };
-    enum EZAxis : uint8_t { eNear = 0, eFar };
+    /**
+     * @brief Create a From Aabb object
+     * 
+     * @param aabb 
+     * @param fromNDC If true: camera pointing +Z in left-handed coordinates system. If false: camera pointing -Z in right-handed coordinates system.
+     */
+    inline static constexpr Frustum CreateFromAabb(const Aabb& aabb, bool fromNDC);
 
   public:
 
@@ -64,15 +70,17 @@ namespace vrm
 
 #include "Vroom/Math/Aabb.h"
 
-inline constexpr vrm::Frustum vrm::Frustum::CreateFromAabb(const vrm::Aabb& aabb)
+inline constexpr vrm::Frustum vrm::Frustum::CreateFromAabb(const vrm::Aabb& aabb, bool fromNDC)
 {
   std::array<glm::vec3, 2> minMax = { aabb.getMin(), aabb.getMax() };
+  if (!fromNDC) // => if right-handed
+    std::swap(minMax[0].z, minMax[1].z);
 
   vrm::Frustum f;
   
-  for (uint8_t x = 0; x < 2; ++x)
-  for (uint8_t y = 0; y < 2; ++y)
   for (uint8_t z = 0; z < 2; ++z)
+  for (uint8_t y = 0; y < 2; ++y)
+  for (uint8_t x = 0; x < 2; ++x)
     f.corner(static_cast<EXAxis>(x), static_cast<EYAxis>(y), static_cast<EZAxis>(z)) = glm::vec3{ minMax[x].x, minMax[y].y, minMax[z].z };
 
   return f;

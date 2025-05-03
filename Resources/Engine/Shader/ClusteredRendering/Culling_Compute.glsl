@@ -49,7 +49,7 @@ bool sphereAABBIntersection(vec3 center, float radius, vec3 aabbMin, vec3 aabbMa
 bool testSphereAABB(uint i, Cluster cluster)
 {
   PointLight pointLight = LightBlock_pointLights[i];
-  vec3 center = vec3(u_View * vec4(pointLight.position[0], pointLight.position[1], pointLight.position[2], 1.0));
+  vec3 center = vec3(u_View * pointLight.position);
   float radius = pointLight.radius;
 
   vec3 aabbMin = cluster.minAABB_VS.xyz;

@@ -20,10 +20,11 @@ namespace vrm
   class LightRegistry
   {
   public:
+    static constexpr size_t s_SBRAlignment = std::max(SSBODirectionalLightData::Alignment, SSBOPointLightData::Alignment);
     static constexpr size_t s_maxDirLights = 10;
     static constexpr GLsizei s_dirLightSize = sizeof(SSBODirectionalLightData);
     static constexpr GLintptr s_dirLightOffset = 0;
-    static constexpr GLintptr s_pointLightOffset = sizeof(uint32_t) + s_maxDirLights * s_dirLightSize;
+    static constexpr GLintptr s_pointLightOffset = s_SBRAlignment  + s_maxDirLights * s_dirLightSize;
     static constexpr GLsizei s_pointLightSize = sizeof(SSBOPointLightData);
 
     using DirLightsSBR = StorageBufferRegistry<SSBODirectionalLightData, size_t, s_maxDirLights>;

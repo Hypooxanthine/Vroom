@@ -5,9 +5,11 @@
 namespace vrm
 {
 
-class CameraBasic
-{
-public:
+  class MeshData;
+
+  class CameraBasic
+  {
+  public:
     CameraBasic() = default;
     CameraBasic(float near, float far);
     virtual ~CameraBasic() = default;
@@ -30,27 +32,29 @@ public:
     glm::vec3 getUpVector() const;
     glm::vec3 getRightVector() const;
 
-protected:
+    MeshData generateViewVolumeMesh() const;
+
+  protected:
     void markViewDirty() { m_ViewDirty = true; m_ViewProjectionDirty = true; }
-    void markProjectionDirty() { m_ProjectionDirty = true; m_ViewProjectionDirty = true;}
+    void markProjectionDirty() { m_ProjectionDirty = true; m_ViewProjectionDirty = true; }
 
     virtual glm::mat4 onViewComputed() const = 0;
     virtual glm::mat4 onProjectionComputed() const = 0;
 
-private:
+  private:
     void computeView() const;
     void computeProjection() const;
     void computeViewProjection() const;
 
-private:
+  private:
     float m_Near = 0.f, m_Far = 0.f;
 
     mutable glm::mat4 m_View,
-        m_Projection,
-        m_ViewProjection;
+      m_Projection,
+      m_ViewProjection;
     mutable bool m_ViewDirty = true,
-        m_ProjectionDirty = true,
-        m_ViewProjectionDirty = true;
-};
+      m_ProjectionDirty = true,
+      m_ViewProjectionDirty = true;
+  };
 
 } // namespace vrm

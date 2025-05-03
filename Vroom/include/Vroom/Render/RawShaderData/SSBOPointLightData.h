@@ -5,12 +5,15 @@
 namespace vrm
 {
 
-  struct SSBOPointLightData
+  struct alignas(sizeof(glm::vec4)) SSBOPointLightData
   {
-    glm::vec3 position;
-    glm::vec3 color;
+    static constexpr size_t Alignment = sizeof(glm::vec4);
+
+    glm::vec4 position;
+    glm::vec4 color;
     float intensity;
     float radius;
+    float _pad0[2];
   };
 
 } // namespace vrm

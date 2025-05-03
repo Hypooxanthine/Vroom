@@ -9,7 +9,6 @@ using namespace vrm;
 OrthographicCamera::OrthographicCamera(float left, float right, float bottom, float top, float near, float far)
   : CameraBasic(near, far), m_left(left), m_right(right), m_bottom(bottom), m_top(top)
 {
-  markViewDirty();
 }
 
 OrthographicCamera::OrthographicCamera(float width, float height, float near, float far)
@@ -17,6 +16,17 @@ OrthographicCamera::OrthographicCamera(float width, float height, float near, fl
 {
 
 }
+
+// OrthographicCamera::OrthographicCamera(const OrthographicCamera& other)
+//   : CameraBasic(other)
+// {
+//   m_left = other.m_left;
+//   m_right = other.m_right;
+//   m_bottom = other.m_bottom;
+//   m_top = other.m_top;
+//   m_worldPosition = other.m_worldPosition;
+//   m_viewDir = other.m_viewDir;
+// }
 
 OrthographicCamera::~OrthographicCamera()
 {

@@ -3,17 +3,17 @@
 
 struct DirectionalLight
 {
-  // mat4 viewProj;
-  float direction[3];
-  float color[3];
+  mat4 viewProj;
+  vec4  direction;
+  vec4  color;
   float intensity;
-  bool castsShadows;
+  uint  castsShadows;
 };
 
 struct PointLight
 {
-  float position[3];
-  float color[3];
+  vec4  position;
+  vec4  color;
   float intensity;
   float radius;
 };

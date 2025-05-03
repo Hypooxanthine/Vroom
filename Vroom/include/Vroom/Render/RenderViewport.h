@@ -9,6 +9,8 @@ namespace vrm
   {
   public:
 
+    inline RenderViewport() = default;
+
     inline RenderViewport(const glm::uvec2& origin, const glm::uvec2& size)
       : m_origin(origin), m_size(size)
     {}

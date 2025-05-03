@@ -23,7 +23,7 @@ namespace vrm
    * @tparam IdType The identifier type, to retrieve and update elements (std::string, size_t, ...)
    * @tparam MaxElements If 0, no check will be made on the number of registered elements
    */
-  template <typename GpuType, typename IdType, GLuint MaxElements = 0>
+  template <typename GpuType, typename IdType, GLuint MaxElements = 0, GLuint Alignment = static_cast<GLuint>(GpuType::Alignment)>
   class StorageBufferRegistry
   {
   public:
@@ -75,8 +75,9 @@ namespace vrm
     {
       uint32_t elementsCount = static_cast<uint32_t>(m_data.getElementCount());
       m_ssbo->setData(&elementsCount, sizeof(elementsCount), m_offset);
+      GLuint counterSize = std::max(static_cast<GLuint>(sizeof(elementsCount)), Alignment);
 
-      m_ssbo->setData(m_data.getRawData(), static_cast<GLsizei>(m_data.getElementCount() * sizeof(GpuType)), m_offset + sizeof(elementsCount));
+      m_ssbo->setData(m_data.getRawData(), static_cast<GLsizei>(m_data.getElementCount() * sizeof(GpuType)), m_offset + counterSize);
     }
 
   private:

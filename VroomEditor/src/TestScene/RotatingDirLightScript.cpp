@@ -9,7 +9,7 @@ void RotatingDirLightScript::onSpawn()
 {
   auto& tc = getEntity().getComponent<vrm::TransformComponent>();
 
-  m_angle = tc.getRotation().z;
+  m_angle = tc.getRotation().y;
 }
 
 void RotatingDirLightScript::onUpdate(float dt)
@@ -18,6 +18,6 @@ void RotatingDirLightScript::onUpdate(float dt)
   m_angle = std::fmod(m_angle, glm::radians(360.f));
   auto& tc = getEntity().getComponent<vrm::TransformComponent>();
   auto rot = tc.getRotation();
-  rot.z = m_angle;
+  rot.y = m_angle;
   tc.setRotation(rot);
 }

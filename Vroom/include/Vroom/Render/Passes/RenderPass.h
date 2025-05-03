@@ -1,8 +1,11 @@
 #pragma once
 
+#include "Vroom/Render/RenderViewport.h"
+
 namespace vrm::gl
 {
   class Shader;
+  class FrameBuffer;
 }
 
 namespace vrm
@@ -10,7 +13,6 @@ namespace vrm
 
   struct RenderPassContext;
   class CameraBasic;
-  class RenderViewport;
 
   class RenderPass
   {
@@ -64,6 +66,8 @@ namespace vrm
   struct RenderPassContext
   {
     const CameraBasic* mainCamera = nullptr;
+    const gl::FrameBuffer* mainFrameBuffer = nullptr;
+    RenderViewport viewport;
   };
 
 } // namespace vrm

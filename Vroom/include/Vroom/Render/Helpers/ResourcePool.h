@@ -30,14 +30,14 @@ namespace vrm
     }
 
     template <typename... Args>
-    inline T& emplace(const NameType& name, Args&&... args)
+    inline T* emplace(const NameType& name, Args&&... args)
     {
       return emplace<T>(name, std::forward<Args>(args)...);
     }
 
     template <typename Child, typename... Args>
       requires (std::is_base_of_v<T, Child> || std::is_same_v<Child, T>)
-    inline Child& emplace(const NameType& name, Args&&... args)
+    inline Child* emplace(const NameType& name, Args&&... args)
     {
       VRM_ASSERT(!m_data.contains(name));
       auto ptr = std::make_unique<Child>(std::forward<Args>(args)...);
@@ -45,15 +45,15 @@ namespace vrm
 
       m_data.emplace(name, std::move(ptr));
 
-      return *rawPtr;
+      return rawPtr;
     }
 
-    inline T& get(const NameType& name)
+    inline T* get(const NameType& name)
     {
       auto it = m_data.find(name);
       VRM_ASSERT(it != m_data.end());
 
-      return *it->second;
+      return it->second.get();
     }
 
     inline void release(const NameType& name)

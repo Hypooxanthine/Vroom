@@ -16,8 +16,8 @@ void LightRegistry::submitLight(const PointLightComponent &pointLight, const glm
   m_pointLightsRegistry.submit(
     identifier,
     SSBOPointLightData {
-      .position = position,
-      .color = pointLight.color, 
+      .position = glm::vec4(position, 1.f),
+      .color = glm::vec4(pointLight.color, 1.f),
       .intensity = pointLight.intensity,
       .radius = pointLight.radius
     }
@@ -29,8 +29,8 @@ void LightRegistry::submitLight(const DirectionalLightComponent &dirLight, const
   m_dirLightsRegistry.submit(
     identifier,
     SSBODirectionalLightData {
-      .direction = direction,
-      .color = dirLight.color,
+      .direction = glm::vec4(direction, 1.f),
+      .color = glm::vec4(dirLight.color, 1.f),
       .intensity = dirLight.intensity,
       .castsShadows = dirLight.castsShadows
     }

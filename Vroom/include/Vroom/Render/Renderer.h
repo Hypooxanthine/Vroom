@@ -11,6 +11,7 @@
 #include "Vroom/Render/Passes/RenderPassManager.h"
 #include "Vroom/Render/MeshRegistry.h"
 #include "Vroom/Render/Abstraction/OwningFrameBuffer.h"
+#include "Vroom/Render/Abstraction/StorageBuffer.h"
 #include "Vroom/Render/Clustering/LightRegistry.h"
 #include "Vroom/Render/Clustering/ClusteredLights.h"
 
@@ -141,14 +142,17 @@ namespace vrm
     RenderPassManager m_passManager;
 
     gl::OwningFrameBuffer m_mainFrameBuffer;
+    gl::FrameBuffer* m_renderFrameBuffer = nullptr;
 
     MeshRegistry m_meshRegistry;
 
     LightRegistry m_LightRegistry;
     ClusteredLights m_ClusteredLights;
-    
+
     ResourcePool<gl::FrameBuffer> m_frameBufferPool;
     ResourcePool<gl::ArrayTexture2D> m_arrayTexture2DPool;
+    ResourcePool<gl::StorageBuffer> m_storageBufferPool;
+    ResourcePool<gl::AutoResizeStorageBuffer> m_autoresizeStorageBufferPool;
   };
 
 } // namespace vrm

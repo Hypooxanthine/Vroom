@@ -27,6 +27,8 @@ RenderSettingsPanel::~RenderSettingsPanel()
 bool RenderSettingsPanel::onImgui()
 {
   bool ret = false;
+  auto settings = Renderer::Get().getRenderSettings();
+  bool settingsChanged = false;
 
   if (ImGui::Begin("Render settings"))
   {
@@ -42,16 +44,26 @@ bool RenderSettingsPanel::onImgui()
         {
           m_currentMsaaValue = it;
 
-          auto settings = Renderer::Get().getRenderSettings();
           settings.antiAliasingLevel = *it;
-          Renderer::Get().setRenderSettings(settings);
+          settingsChanged = true;
         }
       }
 
       ImGui::EndCombo();
     }
+
+    if (ImGui::Checkbox("Enable shadows", &settings.shadowsEnable))
+    {
+      settingsChanged = true;
+    }
+
   }
   ImGui::End();
+
+  if (settingsChanged)
+  {
+    Renderer::Get().setRenderSettings(settings);
+  }
 
   return ret;
 }

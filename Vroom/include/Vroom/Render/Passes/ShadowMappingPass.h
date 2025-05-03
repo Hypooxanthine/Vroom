@@ -4,20 +4,23 @@
 
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
 #include "Vroom/Render/Abstraction/ArrayTexture2D.h"
+#include "Vroom/Render/Helpers/StorageBufferRegistry.h"
+#include "Vroom/Render/Clustering/LightRegistry.h"
+#include "Vroom/Render/Camera/OrthographicCamera.h"
 
 namespace vrm::gl
 {
-  
+  class AutoResizeStorageBuffer;
 }
 
 namespace vrm
 {
 
   class MeshRegistry;
-  class LightRegistry;
   class CameraBasic;
   class RenderViewport;
   class OrthographicCamera;
+  class RenderMesh;
 
   class ShadowMappingPass : public RenderPass
   {
@@ -29,6 +32,7 @@ namespace vrm
     LightRegistry* lights = nullptr;
     const MeshRegistry* meshRegistry = nullptr;
     gl::ArrayTexture2D* depthTextures = nullptr;
+    gl::AutoResizeStorageBuffer* lightMatricesStorageBuffer = nullptr;
 
   protected:
 
@@ -44,12 +48,17 @@ namespace vrm
 
     void renderMeshes(const CameraBasic& camera, const RenderViewport& viewport) const;
 
-    static OrthographicCamera constructViewProjFromDirLight(const CameraBasic& renderCamera, const glm::vec3& direction);
+    OrthographicCamera constructViewProjFromDirLight(const CameraBasic& renderCamera, const glm::vec3& direction);
+
+    void renderDirLightsFrustums(const RenderPassContext& ctx) const;
 
   private:
 
     std::vector<gl::FrameBuffer> m_frameBuffers;
     std::vector<size_t> m_dirLightShadowCasters;
+    std::unique_ptr<StorageBufferRegistry<glm::mat4, size_t, LightRegistry::s_maxDirLights, sizeof(glm::vec4)>> m_lightMatricesSBR;
+    std::vector<OrthographicCamera> m_dirLightCameras;
+    std::vector<RenderMesh> m_debugDirLights;
 
   };
 

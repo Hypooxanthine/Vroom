@@ -16,7 +16,7 @@ public:
 
 private:
   float m_angle = 0.f;
-  float m_rotSpeed = glm::radians(30.f);
+  float m_rotSpeed = glm::radians(90.f);
 };
 
 VRM_SCRIPT(RotatingDirLightScript)

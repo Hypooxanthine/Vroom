@@ -8,6 +8,7 @@
 #include "Vroom/Render/Passes/RenderPass.h"
 #include "Vroom/Render/Passes/DrawScenePass.h"
 #include "Vroom/Render/Passes/BlitFrameBufferPass.h"
+#include "Vroom/Render/Passes/ClearFrameBufferPass.h"
 #include "Vroom/Render/Passes/LightClusteringPass.h"
 #include "Vroom/Render/Passes/ShadowMappingPass.h"
 
@@ -84,14 +85,43 @@ void Renderer::createRenderPasses()
   m_passManager.reset();
   m_frameBufferPool.clear();
   m_arrayTexture2DPool.clear();
+  m_storageBufferPool.clear();
+  m_autoresizeStorageBufferPool.clear();
 
   auto aa = m_renderSettings.antiAliasingLevel;
   bool aaOK = (aa != 0 && ((aa & (aa - 1)) == 0));
   VRM_ASSERT_MSG(aaOK, "Invalid antialiasing value: {}", aa);
 
-  // Shadow mapping
+  // MSAA
+  if (aa > 1)
   {
-    auto& maps = m_arrayTexture2DPool.emplace("DirLightsShadowMaps");
+    auto& fb = *m_frameBufferPool.emplace<gl::OwningFrameBuffer>("MsaaFramebuffer");
+    fb.create(m_viewport.getSize().x, m_viewport.getSize().y, aa);
+    fb.setColorAttachment(0, 4, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
+    fb.setRenderBufferDepthAttachment(1.f);
+    VRM_ASSERT_MSG(fb.validate(), "Could not build MSAA framebuffer");
+
+    m_renderFrameBuffer = &fb;
+  }
+  else
+  {
+    m_renderFrameBuffer = &m_mainFrameBuffer;
+  }
+
+  // Clearing render framebuffer
+  // Useful to do it before everything because we could draw things at any pass
+  {
+    auto& pass = m_passManager.pushPass<ClearFrameBufferPass>();
+
+    pass.framebuffer = m_renderFrameBuffer;
+  }
+
+  m_mainFrameBuffer.resize(m_viewport.getSize().x, m_viewport.getSize().y);
+
+  // Shadow mapping
+  if (m_renderSettings.shadowsEnable)
+  {
+    auto& maps = *m_arrayTexture2DPool.emplace("DirLightsShadowMaps");
 
     auto& pass = m_passManager.pushPass<ShadowMappingPass>();
 
@@ -99,27 +129,8 @@ void Renderer::createRenderPasses()
     pass.meshRegistry = &m_meshRegistry;
     pass.resolution = 2048;
     pass.depthTextures = &maps;
+    pass.lightMatricesStorageBuffer = m_autoresizeStorageBufferPool.emplace("lightMatricesStorageBuffer");
   }
-
-  gl::FrameBuffer* renderFrameBuffer = nullptr;
-
-  // MSAA
-  if (aa > 1)
-  {
-    auto& fb = m_frameBufferPool.emplace<gl::OwningFrameBuffer>("MsaaFramebuffer");
-    fb.create(m_viewport.getSize().x, m_viewport.getSize().y, aa);
-    fb.setColorAttachment(0, 4, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
-    fb.setRenderBufferDepthAttachment(1.f);
-    VRM_ASSERT_MSG(fb.validate(), "Could not build MSAA framebuffer");
-
-    renderFrameBuffer = &fb;
-  }
-  else
-  {
-    renderFrameBuffer = &m_mainFrameBuffer;
-  }
-
-  m_mainFrameBuffer.resize(m_viewport.getSize().x, m_viewport.getSize().y);
 
   // Light clustering
   {
@@ -134,20 +145,25 @@ void Renderer::createRenderPasses()
   {
     auto& pass = m_passManager.pushPass<DrawSceneRenderPass>();
     pass.meshRegistry = &m_meshRegistry;
-    pass.framebufferTarget = renderFrameBuffer;
-    pass.dirLightShadowMaps = &m_arrayTexture2DPool.get("DirLightsShadowMaps");
+    pass.framebufferTarget = m_renderFrameBuffer;
     pass.viewport = &m_viewport;
     pass.faceCulling = DrawSceneRenderPass::EFaceCulling::eCullBack;
     pass.frontFace = DrawSceneRenderPass::EFrontFace::eCCW;
     pass.storageBufferParameters["LightBlock"] = &m_LightRegistry.getPointLightsStorageBuffer();
     pass.storageBufferParameters["ClusterInfoBlock"] = &m_ClusteredLights.getClustersShaderStorage();
+    
+    if (m_renderSettings.shadowsEnable)
+    {
+      pass.dirLightShadowMaps = m_arrayTexture2DPool.get("DirLightsShadowMaps");
+      pass.storageBufferParameters["LightMatricesBlock"] = m_autoresizeStorageBufferPool.get("lightMatricesStorageBuffer");
+    }
   }
 
   // MSAA
   if (aa > 1)
   {
     auto& pass = m_passManager.pushPass<BlitFrameBufferPass>();
-    pass.source = renderFrameBuffer;
+    pass.source = m_renderFrameBuffer;
     pass.destination = &m_mainFrameBuffer;
   }
 
@@ -175,6 +191,8 @@ void Renderer::endScene()
 
   RenderPassContext renderContext;
   renderContext.mainCamera = m_Camera;
+  renderContext.mainFrameBuffer = m_renderFrameBuffer;
+  renderContext.viewport = m_viewport;
 
   // RenderPass setup stage
   m_passManager.setup(renderContext);

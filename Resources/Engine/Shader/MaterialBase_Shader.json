@@ -109,6 +109,20 @@
         ]
       },
       {
+        "Name": "LightMatricesBlock",
+        "Layout": "std430",
+        "Variables": [
+          {
+            "Name": "directionalLightMatrixCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "directionalLightMatrices[10]",
+            "Type": "mat4"
+          }
+        ]
+      },
+      {
         "Name": "ClusterInfoBlock",
         "Layout": "std430",
         "EnableIf": "VRM_CLUSTERED_RENDERING",

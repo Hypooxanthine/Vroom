@@ -146,7 +146,7 @@ namespace vrm::gl
       glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
       glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-      static constexpr float borderColor[] = {1.0, 1.0, 1.0, 1.0};
+      static constexpr float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
       glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, borderColor);
     }
 

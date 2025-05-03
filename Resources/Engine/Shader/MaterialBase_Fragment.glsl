@@ -64,19 +64,47 @@ vec4 ComputeFragmentColor()
   vec3 shadeColor = vec3(0.f, 0.f, 0.f);
 
   uint dirLightCount = GetRelevantDirectionalLightCount();
+  uint shadowCasterId = 0;
 
   for (int i = 0; i < dirLightCount; ++i)
   {
     DirectionalLight dirLight = GetRelevantDirectionalLight(i);
-    vec3 lightDir = normalize(vec3(dirLight.direction[0], dirLight.direction[1], dirLight.direction[2]));
-    vec3 lightColor = vec3(dirLight.color[0], dirLight.color[1], dirLight.color[2]);
+    vec3 lightDir = normalize(dirLight.direction.xyz);
+    float lightDotNormal = dot(lightDir, g_normal);
 
-    if (dot(lightDir, g_normal) < 0)
-      continue;
+    float lightVisibility = 1.f;
+
+    if (lightDotNormal > 0 && dirLight.castsShadows > 0)
+    {
+      const mat4 lightMatrix = LightMatricesBlock_directionalLightMatrices[shadowCasterId];
+      const vec4 pos_clipspace_light = lightMatrix * vec4(v_Position, 1.f);
+      const vec4 pos_ndc_light = pos_clipspace_light / pos_clipspace_light.w;
+      if(pos_ndc_light.z < 1.0)
+      {
+        const vec3 texCoords = vec3
+        (
+          pos_ndc_light.x / 2.f + 0.5f,
+          pos_ndc_light.y / 2.f + 0.5f,
+          float(shadowCasterId)
+        );
+
+        float lightDepth = texture(u_DirectionalShadowMaps, texCoords).x;
+        const float bias = mix(0.0001f, 0.f, lightDotNormal);
+
+        if (pos_ndc_light.z / 2.f + 0.5f > lightDepth + bias)
+        {
+          // Frag is in the shadow of light i
+          lightVisibility = 0.1f;
+        }
+      }
+
+      ++shadowCasterId;
+    }
+
     
     lightDir = normalize(lightDir);
 
-    vec3 lightContribution = ShadingModel(lightColor * dirLight.intensity, lightDir);
+    vec3 lightContribution = ShadingModel(dirLight.color.xyz * dirLight.intensity * lightVisibility, lightDir);
 
     shadeColor += lightContribution;
   }
@@ -87,8 +115,7 @@ vec4 ComputeFragmentColor()
   {
     PointLight pointLight = GetRelevantPointLight(i);
 
-    vec3 lightPos = vec3(pointLight.position[0], pointLight.position[1], pointLight.position[2]);
-    vec3 lightDir = (lightPos - v_Position);
+    vec3 lightDir = (pointLight.position.xyz - v_Position);
 
     if (dot(lightDir, g_normal) < 0)
       continue;

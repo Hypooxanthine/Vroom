@@ -1,17 +1,53 @@
 {
   "scene_nodes": [
     {
-      "name": "Root",
-      "type": "Root",
-      "parent": null
-    },
-    {
-      "name": "Plane",
-      "type": "Entity",
-      "parent": "Root",
       "components": [
         {
-          "type": "TransformComponent",
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ],
+          "type": "TransformComponent"
+        }
+      ],
+      "name": "Root",
+      "parent": null,
+      "type": "Root"
+    },
+    {
+      "components": [
+        {
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Meshes/Textured_Cube.obj"
+            }
+          ],
+          "type": "MeshComponent"
+        },
+        {
           "params": [
             {
               "name": "Position",
@@ -33,80 +69,35 @@
               "name": "Scale",
               "value": [
                 50.0,
-                0.1,
+                0.10000000149011612,
                 50.0
               ]
             }
-          ]
-        },
-        {
-          "type": "MeshComponent",
-          "params": [
-            {
-              "name": "ResourceName",
-              "value": "Resources/Meshes/Textured_Cube.obj"
-            }
-          ]
+          ],
+          "type": "TransformComponent"
         }
-      ]
-    },
-    {
-      "name": "ColoredCube",
-      "type": "Entity",
-      "parent": "Plane",
-      "components": [
-        {
-          "type": "TransformComponent",
-          "params": [
-            {
-              "name": "Position",
-              "value": [
-                0.0,
-                0.0,
-                0.0
-              ]
-            },
-            {
-              "name": "Rotation",
-              "value": [
-                0.0,
-                0.0,
-                0.0
-              ]
-            },
-            {
-              "name": "Scale",
-              "value": [
-                1.0,
-                1.0,
-                1.0
-              ]
-            }
-          ]
-        },
-        {
-          "type": "MeshComponent",
-          "params": [
-            {
-              "name": "ResourceName",
-              "value": "Resources/Meshes/Textured_Cube.obj"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Suzanne_0",
-      "type": "Entity",
+      ],
+      "name": "Plane",
       "parent": "Root",
+      "type": "Entity"
+    },
+    {
       "components": [
         {
-          "type": "TransformComponent",
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Meshes/Textured_Cube.obj"
+            }
+          ],
+          "type": "MeshComponent"
+        },
+        {
           "params": [
             {
               "name": "Position",
               "value": [
-                10.0,
+                0.0,
                 0.0,
                 0.0
               ]
@@ -127,42 +118,42 @@
                 1.0
               ]
             }
-          ]
-        },
+          ],
+          "type": "TransformComponent"
+        }
+      ],
+      "name": "ColoredCube",
+      "parent": "Plane",
+      "type": "Entity"
+    },
+    {
+      "components": [
         {
-          "type": "MeshComponent",
-          "params": [
-            {
-              "name": "ResourceName",
-              "value": "Resources/Meshes/Suzanne.obj"
-            }
-          ]
-        },
-        {
-          "type": "ScriptComponent",
           "params": [
             {
               "name": "ScriptName",
               "value": "VRM_SuzanneScript_ID"
             }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Light_0",
-      "type": "Entity",
-      "parent": "Root",
-      "components": [
+          ],
+          "type": "ScriptComponent"
+        },
         {
-          "type": "TransformComponent",
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Meshes/Suzanne.obj"
+            }
+          ],
+          "type": "MeshComponent"
+        },
+        {
           "params": [
             {
               "name": "Position",
               "value": [
-                5.0,
                 10.0,
-                5.0
+                0.0,
+                0.0
               ]
             },
             {
@@ -176,33 +167,31 @@
             {
               "name": "Scale",
               "value": [
-                0.2,
-                0.2,
-                0.2
+                1.0,
+                1.0,
+                1.0
               ]
             }
-          ]
-        },
+          ],
+          "type": "TransformComponent"
+        }
+      ],
+      "name": "Suzanne_0",
+      "parent": "Root",
+      "type": "Entity"
+    },
+    {
+      "components": [
         {
-          "type": "MeshComponent",
-          "params": [
-            {
-              "name": "ResourceName",
-              "value": "Resources/Meshes/sphere.obj"
-            }
-          ]
-        },
-        {
-          "type": "ScriptComponent",
           "params": [
             {
               "name": "ScriptName",
               "value": "VRM_MovingLightScript_ID"
             }
-          ]
+          ],
+          "type": "ScriptComponent"
         },
         {
-          "type": "PointLightComponent",
           "params": [
             {
               "name": "Color",
@@ -220,17 +209,19 @@
               "name": "Radius",
               "value": 50.0
             }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Dir_light",
-      "type": "Entity",
-      "parent": "Root",
-      "components": [
+          ],
+          "type": "PointLightComponent"
+        },
         {
-          "type": "TransformComponent",
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Meshes/sphere.obj"
+            }
+          ],
+          "type": "MeshComponent"
+        },
+        {
           "params": [
             {
               "name": "Position",
@@ -244,31 +235,38 @@
               "name": "Rotation",
               "value": [
                 0.0,
-                45.0,
-                45.0
+                0.0,
+                0.0
               ]
             },
             {
               "name": "Scale",
               "value": [
-                0.2,
-                0.2,
-                0.2
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
               ]
             }
-          ]
-        },
+          ],
+          "type": "TransformComponent"
+        }
+      ],
+      "name": "Light_0",
+      "parent": "Root",
+      "type": "Entity"
+    },
+    {
+      "components": [
         {
-          "type": "MeshComponent",
           "params": [
             {
-              "name": "ResourceName",
-              "value": "Resources/Meshes/sphere.obj"
+              "name": "ScriptName",
+              "value": "VRM_RotatingDirLightScript_ID"
             }
-          ]
+          ],
+          "type": "ScriptComponent"
         },
         {
-          "type": "DirectionalLightComponent",
           "params": [
             {
               "name": "Color",
@@ -286,18 +284,51 @@
               "name": "CastsShadows",
               "value": true
             }
-          ]
+          ],
+          "type": "DirectionalLightComponent"
         },
         {
-          "type": "ScriptComponent",
           "params": [
             {
-              "name": "ScriptName",
-              "value": "VRM_RotatingDirLightScript_ID"
+              "name": "ResourceName",
+              "value": "Resources/Meshes/sphere.obj"
             }
-          ]
+          ],
+          "type": "MeshComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                5.0,
+                10.0,
+                5.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.7853981852531433,
+                0.7853981852531433
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+              ]
+            }
+          ],
+          "type": "TransformComponent"
         }
-      ]
+      ],
+      "name": "Dir_light",
+      "parent": "Root",
+      "type": "Entity"
     }
   ]
 }

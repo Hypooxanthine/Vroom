@@ -57,7 +57,7 @@ namespace vrm
 
     void setupFaceCulling() const;
 
-    void renderMeshes(const CameraBasic& camera) const;
+    void renderMeshes(const RenderPassContext& ctx) const;
 
     void applyStorageBufferParameters(const gl::Shader& shader) const;
   };

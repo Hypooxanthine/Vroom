@@ -28,8 +28,6 @@ void DrawSceneRenderPass::onRender(const RenderPassContext& ctx) const
   VRM_ASSERT(ctx.mainCamera != nullptr);
 
   framebufferTarget->bind();
-  framebufferTarget->clearColors();
-  framebufferTarget->clearDepth();
 
   setupFaceCulling();
 
@@ -42,7 +40,7 @@ void DrawSceneRenderPass::onRender(const RenderPassContext& ctx) const
     glDisable(GL_DEPTH_TEST);
   }
 
-  renderMeshes(*ctx.mainCamera);
+  renderMeshes(ctx);
 }
 
 void DrawSceneRenderPass::setupFaceCulling() const
@@ -84,10 +82,9 @@ void DrawSceneRenderPass::setupFaceCulling() const
   }
 }
 
-void DrawSceneRenderPass::renderMeshes(const CameraBasic& camera) const
+void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
 {
-  glViewport(viewport->getOrigin().x, viewport->getOrigin().y, viewport->getSize().x, viewport->getSize().y);
-  const auto cameraPos = camera.getPosition();
+  glViewport(ctx.viewport.getOrigin().x, ctx.viewport.getOrigin().y, ctx.viewport.getSize().x, ctx.viewport.getSize().y);
 
   for (const auto &[id, queuedMesh] : *meshRegistry)
   {
@@ -96,8 +93,8 @@ void DrawSceneRenderPass::renderMeshes(const CameraBasic& camera) const
       shader.setUniformMat4f("u_Model", *queuedMesh.model);
       if (dirLightShadowMaps)
         shader.setTexture("u_DirectionalShadowMaps", *dirLightShadowMaps, 10);
-      applyCameraUniforms(shader, camera);
-      applyViewportUniforms(shader, *viewport);
+      applyCameraUniforms(shader, *ctx.mainCamera);
+      applyViewportUniforms(shader, ctx.viewport);
       applyStorageBufferParameters(shader);
     
     queuedMesh.material->applyUniforms();

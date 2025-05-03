@@ -69,12 +69,13 @@ namespace vrm
     {
       Aabb out;
       out.addPoint(glm::vec3{ -1.f, -1.f, -1.f });
-      out.addPoint(glm::vec3{ 1.f, 1.f, 1.f });
+      out.addPoint(glm::vec3{  1.f,  1.f,  1.f });
       return out;
     }
 
   private:
-    glm::vec3 m_min = glm::vec3{ 0.f }, m_max = glm::vec3{ 0.f };
+    glm::vec3 m_min = glm::vec3{ std::numeric_limits<float>::max() };
+    glm::vec3 m_max = glm::vec3{ std::numeric_limits<float>::min() };
   };
 
 }
