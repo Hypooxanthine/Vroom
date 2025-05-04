@@ -83,6 +83,10 @@
       {
         "Name": "u_DirectionalShadowMaps",
         "Type": "sampler2DArray"
+      },
+      {
+        "Name": "u_SoftShadowKernelRadius",
+        "Type": "uint"
       }
     ],
     "StorageBuffers": [

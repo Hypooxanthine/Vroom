@@ -57,6 +57,14 @@ bool RenderSettingsPanel::onImgui()
       settingsChanged = true;
     }
 
+    int softShadowKernelRadius = static_cast<int>(settings.softShadowKernelRadius);
+
+    if (ImGui::SliderInt("Soft shadows kernel radius", &softShadowKernelRadius, 0, 10, "%d", ImGuiSliderFlags_ClampOnInput))
+    {
+      settings.softShadowKernelRadius = static_cast<uint8_t>(softShadowKernelRadius);
+      settingsChanged = true;
+    }
+
   }
   ImGui::End();
 

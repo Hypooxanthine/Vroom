@@ -48,6 +48,8 @@ namespace vrm
     const gl::ArrayTexture2D* dirLightShadowMaps = nullptr;
     EFaceCulling faceCulling = EFaceCulling::eNone;
     EFrontFace frontFace = EFrontFace::eCCW;
+    bool shadowsEnable = true;
+    uint8_t softShadowKernelRadius = 2;
 
     std::unordered_map<std::string, const gl::StorageBufferBase*> storageBufferParameters;
 

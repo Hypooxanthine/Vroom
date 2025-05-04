@@ -9,12 +9,14 @@ namespace vrm
   {
     uint8_t antiAliasingLevel = 1;
     bool shadowsEnable = true;
+    uint8_t softShadowKernelRadius = 1;
 
     inline constexpr bool operator==(const RenderSettings& s) const
     {
       return true
         && antiAliasingLevel == s.antiAliasingLevel
         && shadowsEnable == s.shadowsEnable
+        && softShadowKernelRadius == s.softShadowKernelRadius
       ;
     }
   };

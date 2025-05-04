@@ -127,7 +127,7 @@ void Renderer::createRenderPasses()
 
     pass.lights = &m_LightRegistry;
     pass.meshRegistry = &m_meshRegistry;
-    pass.resolution = 2048;
+    pass.resolution = 4096;
     pass.depthTextures = &maps;
     pass.lightMatricesStorageBuffer = m_autoresizeStorageBufferPool.emplace("lightMatricesStorageBuffer");
   }
@@ -152,10 +152,12 @@ void Renderer::createRenderPasses()
     pass.storageBufferParameters["LightBlock"] = &m_LightRegistry.getPointLightsStorageBuffer();
     pass.storageBufferParameters["ClusterInfoBlock"] = &m_ClusteredLights.getClustersShaderStorage();
     
+    pass.shadowsEnable = m_renderSettings.shadowsEnable;
     if (m_renderSettings.shadowsEnable)
     {
       pass.dirLightShadowMaps = m_arrayTexture2DPool.get("DirLightsShadowMaps");
       pass.storageBufferParameters["LightMatricesBlock"] = m_autoresizeStorageBufferPool.get("lightMatricesStorageBuffer");
+      pass.softShadowKernelRadius = m_renderSettings.softShadowKernelRadius;
     }
   }
 

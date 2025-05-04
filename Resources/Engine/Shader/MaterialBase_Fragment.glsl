@@ -24,6 +24,8 @@ uint GetTotalPointLightCount();
 uint GetRelevantPointLightCount();
 PointLight GetRelevantPointLight(in uint index);
 
+float ComputeDirectionalShadowFactor(in uint shadowCasterId, in float lightDotNormal);
+
 
 //--------------------------------------------------
 // Global vars
@@ -76,28 +78,7 @@ vec4 ComputeFragmentColor()
 
     if (lightDotNormal > 0 && dirLight.castsShadows > 0)
     {
-      const mat4 lightMatrix = LightMatricesBlock_directionalLightMatrices[shadowCasterId];
-      const vec4 pos_clipspace_light = lightMatrix * vec4(v_Position, 1.f);
-      const vec4 pos_ndc_light = pos_clipspace_light / pos_clipspace_light.w;
-      if(pos_ndc_light.z < 1.0)
-      {
-        const vec3 texCoords = vec3
-        (
-          pos_ndc_light.x / 2.f + 0.5f,
-          pos_ndc_light.y / 2.f + 0.5f,
-          float(shadowCasterId)
-        );
-
-        float lightDepth = texture(u_DirectionalShadowMaps, texCoords).x;
-        const float bias = mix(0.0001f, 0.f, lightDotNormal);
-
-        if (pos_ndc_light.z / 2.f + 0.5f > lightDepth + bias)
-        {
-          // Frag is in the shadow of light i
-          lightVisibility = 0.1f;
-        }
-      }
-
+      lightVisibility = (1.f - ComputeDirectionalShadowFactor(shadowCasterId, lightDotNormal));
       ++shadowCasterId;
     }
 
@@ -192,6 +173,63 @@ PointLight GetRelevantPointLight(in uint index)
 float linearizeDepth(float depth)
 {
   return (2.0 * u_Near * u_Far) / (u_Far + u_Near - (depth * 2.0 - 1.0) * (u_Far - u_Near));
+}
+
+float ComputeDirectionalShadowFactor(in uint shadowCasterId, in float lightDotNormal)
+{
+  const mat4 lightMatrix = LightMatricesBlock_directionalLightMatrices[shadowCasterId];
+  const vec4 pos_clipspace_light = lightMatrix * vec4(v_Position, 1.f);
+  const vec4 pos_ndc_light = pos_clipspace_light / pos_clipspace_light.w;
+
+  if(pos_ndc_light.z >= 1.0)
+    return 0.f;
+  
+  const vec3 texCoords = vec3
+  (
+    pos_ndc_light.x / 2.f + 0.5f,
+    pos_ndc_light.y / 2.f + 0.5f,
+    float(shadowCasterId)
+  );
+
+  const float fragDepth = pos_ndc_light.z / 2.f + 0.5f;
+  const float bias = 0.f;//mix(0.001f, 0.f, lightDotNormal);
+  const vec2 pxSize = 1.f / textureSize(u_DirectionalShadowMaps, 0).xy;
+
+  const int kernelRadius = int(u_SoftShadowKernelRadius);
+
+  if (kernelRadius == 0)
+  {
+    const float lightDepth = texture(u_DirectionalShadowMaps, texCoords, 0.f).x;
+
+    if (fragDepth > lightDepth + bias) // Fragment is further than the closest fragment recorded on this px
+    {
+      // Frag is in the shadow of light i
+      return 1.f;
+    }
+    else
+    {
+      return 0.f;
+    }
+  }
+
+  const int kernelSize = kernelRadius * 2 + 1;
+  const int kernelArea = kernelSize * kernelSize;
+  float shadowFactor = 0.f;
+
+  for (int i = -kernelRadius; i <= kernelRadius; ++i)
+  {
+    for (int j = -kernelRadius; j <= kernelRadius; ++j)
+    {
+      const float lightDepth = texture(u_DirectionalShadowMaps, texCoords + vec3(vec2(float(i), float(j)) * pxSize, 0.f), 0.f).x;
+
+      if (fragDepth > lightDepth + bias)
+      {
+        shadowFactor += 1.f;
+      }
+    }
+  }
+  
+  return shadowFactor / float(kernelArea);
 }
 
 #endif

@@ -91,8 +91,14 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
     const auto& shader = queuedMesh.material->getShader();
       shader.bind();
       shader.setUniformMat4f("u_Model", *queuedMesh.model);
-      if (dirLightShadowMaps)
+      
+      if (shadowsEnable)
+      {
+        VRM_ASSERT(dirLightShadowMaps);
         shader.setTexture("u_DirectionalShadowMaps", *dirLightShadowMaps, 10);
+        shader.setUniform1ui("u_SoftShadowKernelRadius", softShadowKernelRadius);
+      }
+
       applyCameraUniforms(shader, *ctx.mainCamera);
       applyViewportUniforms(shader, ctx.viewport);
       applyStorageBufferParameters(shader);
