@@ -3,6 +3,8 @@
 #include <fstream>
 #include <thread>
 
+#include "Vroom/Core/Log.h"
+
 #include "Vroom/Asset/Parsing/Json.h"
 
 #include "VroomEditor/UserInterface/AssetBrowser/AssetElement.h"
@@ -105,15 +107,22 @@ std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const MetaFile& met
 
 static void OpenNativeFileExplorer_Impl(const std::filesystem::path& path)
 {
-  std::string strPath = std::filesystem::absolute(path).string();
   std::string cmd;
+
 #if defined(_WIN32)
-  cmd = "explorer " + strPath;
-#elif defined(__UNIX__)
-  cmd = "open " + strPath;
+  cmd = "explorer";
+#elif defined(__APPLE__)
+  cmd = "open";
+#elif defined(__linux__)
+  cmd = "xdg-open";
 #else
+  VRM_LOG_WARN("Unsupported platform");
   return;
 #endif
+
+  std::string strPath = std::filesystem::absolute(path).string();
+  cmd += " \"" + strPath + "\"";
+
   system(cmd.c_str());
 }
 

@@ -3,7 +3,7 @@
   "Parameters": {
     "Diffuse": {
       "Type": "texture",
-      "Value": "Resources/Textures/Texture_Textured_Cube.png"
+      "Value": "Resources/Editor/Tests/Textures/Texture_Textured_Cube.png"
     },
     "Specular": {
       "Type": "vec3",
