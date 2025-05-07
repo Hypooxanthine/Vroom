@@ -74,6 +74,7 @@ bool SceneData::MeshComponent::addToEntity(Entity& entity)
 {
   auto& mc = entity.addComponent<::MeshComponent>();
   mc.setMesh(AssetManager::Get().getAsset<MeshAsset>(resourceName));
+  mc.setCastsShadow(this->castsShadow);
 
   return true;
 }
@@ -86,6 +87,11 @@ json SceneData::MeshComponent::serialize() const
   {
     json& j = j_params.emplace_back(GetBasicParameterJson("ResourceName")).at("value");
     to_json(j, this->resourceName);
+  }
+
+  {
+    json& j = j_params.emplace_back(GetBasicParameterJson("CastsShadow")).at("value");
+    to_json(j, this->castsShadow);
   }
 
   return std::move(j);

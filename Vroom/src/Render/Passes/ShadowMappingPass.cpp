@@ -167,6 +167,11 @@ void ShadowMappingPass::renderMeshes(const CameraBasic& camera, const RenderView
 
   for (const auto& [id, queuedMesh] : *meshRegistry)
   {
+    if (!queuedMesh.castsShadow)
+    {
+      continue;
+    }
+    
     const auto& shader = queuedMesh.material->getShader();
     shader.bind();
     shader.setUniformMat4f("u_Model", *queuedMesh.model);

@@ -324,6 +324,10 @@ bool MeshComponentEditor::editEntityComponent(Entity& e) const
   if (ImGui::Checkbox("Visible", &visible))
     component.setVisible(visible);
 
+  bool castsShadow = component.doesCastShadow();
+  if (ImGui::Checkbox("Casts shadow", &castsShadow))
+    component.setCastsShadow(castsShadow);
+
   if (requestNewMesh.isValid())
       component.setMesh(requestNewMesh);
     

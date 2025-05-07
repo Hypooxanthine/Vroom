@@ -40,6 +40,7 @@ namespace vrm
     struct MeshComponent : Component
     {
       std::string resourceName;
+      bool castsShadow;
 
       bool addToEntity(Entity& entity) override;
       nlohmann::json serialize() const override;

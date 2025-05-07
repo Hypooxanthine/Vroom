@@ -62,10 +62,15 @@ namespace vrm
      */
     inline bool isVisible() const { return m_IsVisible; }
 
+    inline void setCastsShadow(bool value) { m_castsShadow = value; }
+
+    inline bool doesCastShadow() const { return m_castsShadow; }
+
   private:
     MeshAsset::Handle m_MeshInstance;
     MeshMaterials m_Materials;
     bool m_IsVisible = true;
+    bool m_castsShadow = true;
   };
 
 } // namespace vrm

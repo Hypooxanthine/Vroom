@@ -216,6 +216,7 @@ void Renderer::submitMesh(uint32_t id, const MeshComponent& meshComponent, const
     info.mesh = &submesh.renderMesh;
     info.material = meshComponent.getMaterials().getMaterial(i);
     info.model = model;
+    info.castsShadow = meshComponent.doesCastShadow();
     size_t subMeshId = id;
     subMeshId <<= 32;
     subMeshId |= i;

@@ -51,11 +51,22 @@ static bool HandleEntityMeshComponent(SceneData::SceneNode& e, const json& param
   {
     CHECK(param.is_object(), "Unexpected MeshComponent parameter {}", param.dump(2));
     CHECK_ATTR_STRING(param, name);
-    CHECK(nameVal == "ResourceName", "Unsupported MeshComponent parameter {}", nameVal);
-    CHECK(mc->resourceName.empty(), "Only one ResourceName parameter is supported");
-    CHECK_ATTR_STRING(param, value);
 
-    mc->resourceName = valueVal;
+    if (nameVal == "ResourceName")
+    {
+      CHECK_ATTR_STRING(param, value);
+      CHECK(mc->resourceName.empty(), "Only one ResourceName parameter is supported");
+      mc->resourceName = valueVal;
+    }
+    else if (nameVal == "CastsShadow")
+    {
+      CHECK_ATTR_BOOL(param, value);
+      mc->castsShadow = valueVal;
+    }
+    else
+    {
+      CHECK(false, "Unsupported MeshComponent parameter {}", nameVal);
+    }
   }
 
   e.components[std::type_index(typeid(SceneData::MeshComponent))] = std::move(mc);

@@ -106,6 +106,9 @@ using json = nlohmann::json;
 #define IF_HAS_ATTR_FLOAT(x, attr) \
   IF_HAS_ATTR_TYPE(x, attr, float)
 
+#define IF_HAS_ATTR_BOOL(x, att) \
+  IF_HAS_ATTR_TYPE(x, attr, bool)
+
 
 template <typename T>
 inline consteval std::string_view ToString() { return "Unsupported"; }

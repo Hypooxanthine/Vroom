@@ -48,7 +48,7 @@ namespace vrm
 
       std::swap(m_waitingKeys, m_confirmedKeys);
 
-      m_waitingKeys.clear();
+      m_confirmedKeys.clear();
     }
 
     inline void endRegistering()

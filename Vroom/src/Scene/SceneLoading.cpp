@@ -102,6 +102,7 @@ void Scene::addNodeComponents(const Entity& e, SceneData& data, size_t nodeID) c
     auto cd = std::make_unique<SceneData::MeshComponent>();
 
     cd->resourceName = c->getMesh()->getFilePath();
+    cd->castsShadow = c->doesCastShadow();
 
     data.addComponent(nodeID, std::move(cd));
   }
