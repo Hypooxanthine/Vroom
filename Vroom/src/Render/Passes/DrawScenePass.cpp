@@ -88,6 +88,11 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
 
   for (const auto &[id, queuedMesh] : *meshRegistry)
   {
+    if (!queuedMesh.visible)
+    {
+      continue;
+    }
+
     const auto& shader = queuedMesh.material->getShader();
       shader.bind();
       shader.setUniformMat4f("u_Model", *queuedMesh.model);

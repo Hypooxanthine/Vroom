@@ -16,6 +16,7 @@ namespace vrm
 		const RenderMesh* mesh;
     MaterialAsset::Handle material;
 		const glm::mat4* model;
+    bool visible;
     bool castsShadow;
   };
   

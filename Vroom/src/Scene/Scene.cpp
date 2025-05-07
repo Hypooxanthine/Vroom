@@ -89,9 +89,6 @@ void Scene::render()
   auto viewMeshes = m_Registry.view<MeshComponent, TransformComponent>();
   for (auto&& [e, m, t] : viewMeshes.each())
   {
-    if (m.isVisible() == false)
-      continue;
-
     renderer.submitMesh(static_cast<uint32_t>(e), m, &t.getTransform());
   }
 
