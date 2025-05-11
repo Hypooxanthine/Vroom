@@ -33,7 +33,8 @@ bool RenderSettingsPanel::onImgui()
   if (ImGui::Begin("Render settings"))
   {
 
-    if (ImGui::BeginCombo("Antialiasing", std::to_string(*m_currentMsaaValue).c_str()))
+    ImGui::TextWrapped("Antialiasing:");
+    if (ImGui::BeginCombo("##Antialiasing", std::to_string(*m_currentMsaaValue).c_str()))
     {
       for (auto it = m_msaaPossibleValues.begin(); it != m_msaaPossibleValues.end(); ++it)
       {
@@ -59,7 +60,8 @@ bool RenderSettingsPanel::onImgui()
 
     int softShadowKernelRadius = static_cast<int>(settings.softShadowKernelRadius);
 
-    if (ImGui::SliderInt("Soft shadows kernel radius", &softShadowKernelRadius, 0, 10, "%d", ImGuiSliderFlags_ClampOnInput))
+    ImGui::TextWrapped("Soft shadows kernel radius:");
+    if (ImGui::SliderInt("##Soft shadows kernel radius", &softShadowKernelRadius, 0, 10, "%d", ImGuiSliderFlags_ClampOnInput))
     {
       settings.softShadowKernelRadius = static_cast<uint8_t>(softShadowKernelRadius);
       settingsChanged = true;
