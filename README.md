@@ -85,8 +85,3 @@ sudo apt install ninja-build
 - [Hazel](https://github.com/TheCherno/Hazel), game engine created by TheCherno.
 - [Unreal Engine](https://www.unrealengine.com/)
 - [javidx9 (YouTube)](https://www.youtube.com/channel/UC-yuWVUplUJZvieEligKBkA)
-
-## Known problems
-
-- Unbinding trigger and custom event inputs is buggy.
-- On my Ubuntu system, mouse movement is not detected when the cursor input mode is set to GLFW_CURSOR_DISABLED.
