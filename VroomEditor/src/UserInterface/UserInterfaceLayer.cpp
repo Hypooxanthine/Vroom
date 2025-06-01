@@ -72,6 +72,12 @@ void UserInterfaceLayer::onInit()
 
   m_CustomEventManager.createCustomEvent("OSFileDrop").bindInput(Event::Type::FileDrop);
   m_CustomEventManager.bindPermanentCallback("OSFileDrop", [this](const Event& e) { this->fileDropCallback(e); e.handled = true; });
+
+  m_CustomEventManager.createCustomEvent("OSDragEnter").bindInput(Event::Type::FileDragEnter);
+  m_CustomEventManager.bindPermanentCallback("OSDragEnter", [this](const Event& e) { this->m_isDraggingOSFile = true; e.handled = true; });
+
+  m_CustomEventManager.createCustomEvent("OSDragLeave").bindInput(Event::Type::FileDragLeave);
+  m_CustomEventManager.bindPermanentCallback("OSDragLeave", [this](const Event& e) { this->m_isDraggingOSFile = false; e.handled = true; });
 }
 
 void UserInterfaceLayer::onEnd()
@@ -114,11 +120,14 @@ void UserInterfaceLayer::renderImgui()
 
   ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
-  if (m_fileDrop.files)
+  if (m_isDraggingOSFile || m_fileDrop.files)
   {
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceExtern))
     {
-      ImGui::SetDragDropPayload("OSFileDrop", &m_fileDrop, sizeof(m_fileDrop));
+      if (m_fileDrop.files)
+        ImGui::SetDragDropPayload("OSFileDrop", &m_fileDrop, sizeof(m_fileDrop));
+      else
+        ImGui::SetDragDropPayload("OSFileDrop", nullptr, 0);
       ImGui::EndDragDropSource();
     }
   }

@@ -57,6 +57,12 @@ void glfwWindowCloseCallback(GLFWwindow* window)
     ACTIVE_WINDOW->closeCallback();
 }
 
+void glfwDragEnterCallback(GLFWwindow* window, int entered)
+{
+  VRM_ASSERT(ACTIVE_WINDOW != nullptr);
+  ACTIVE_WINDOW->dragEnterCallback(entered);
+}
+
 void glfwDropCallback(GLFWwindow* window, int path_count, const char* paths[])
 {
   VRM_ASSERT(ACTIVE_WINDOW != nullptr);
@@ -118,6 +124,7 @@ bool Window::create(const std::string& windowTitle, uint32_t width, uint32_t hei
     glfwSetWindowSizeCallback(m_Handle, glfwWindowSizeCallback);
     glfwSetWindowFocusCallback(m_Handle, glfwFocusedCallback);
     glfwSetWindowCloseCallback(m_Handle, glfwWindowCloseCallback);
+    glfwSetDragEnterCallback(m_Handle, glfwDragEnterCallback);
     glfwSetDropCallback(m_Handle, glfwDropCallback);
 
     glfwMakeContextCurrent(m_Handle);
@@ -328,6 +335,12 @@ void vrm::Window::closeCallback()
 {
     Event& e = m_EventQueue.emplace();
     e.type = Event::Type::Exit;
+}
+
+void Window::dragEnterCallback(int entered)
+{
+  Event& e = m_EventQueue.emplace();
+  e.type = (entered == GLFW_TRUE ? Event::Type::FileDragEnter : Event::Type::FileDragLeave);
 }
 
 void Window::dropCallback(std::string&& filePaths)

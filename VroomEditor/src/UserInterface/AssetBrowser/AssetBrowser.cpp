@@ -104,7 +104,6 @@ bool AssetBrowser::onImgui()
     float windowWidth = ImGui::GetContentRegionAvail().x;
 
     ImVec2 fileDropStart = ImGui::GetCursorScreenPos();
-    ImVec2 windowStartToFileDropStart = fileDropStart - ImGui::GetWindowPos();
     
 
     for (auto &elem : m_Assets)
@@ -140,7 +139,7 @@ bool AssetBrowser::onImgui()
     }
 
     // windowSize.y = ImGui::GetCursorPosY() - windowPos.y;
-    ImRect regionBox = { fileDropStart, fileDropStart + ImGui::GetWindowSize() - windowStartToFileDropStart };
+    ImRect regionBox = { fileDropStart, ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMax() };
 
     if (ImGui::BeginPopupContextWindow("##browserpopup", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
     {
@@ -154,10 +153,8 @@ bool AssetBrowser::onImgui()
     
     if (ImGui::BeginDragDropTargetCustom(regionBox, ImGui::GetID("FileDropTarget")))
     {
-      if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("OSFileDrop"))
+      if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("OSFileDrop"); payload && payload->DataSize == sizeof(OSFileDrop))
       {
-        VRM_ASSERT(payload->DataSize == sizeof(OSFileDrop));
-        
         OSFileDrop* fileDrop = reinterpret_cast<OSFileDrop*>(payload->Data);
         VRM_ASSERT(fileDrop->files);
         VRM_LOG_TRACE("Dropped {}", fileDrop->files);

@@ -55,6 +55,7 @@ private:
   ImFont *m_Font;
 
   std::list<std::unique_ptr<ImGuiElement>> m_Elements;
+  bool m_isDraggingOSFile = false;
   OSFileDrop m_fileDrop;
   std::string m_fileDropData;
 

@@ -20,7 +20,7 @@ struct Event
         MousePressed, MouseReleased, Scroll,
         MouseMoved, MouseEntered, MouseLeft,
         WindowsResized, GainedFocus, LostFocus,
-        FileDrop,
+        FileDragEnter, FileDragLeave, FileDrop,
         Exit,
     };
 

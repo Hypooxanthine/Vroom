@@ -162,6 +162,7 @@ public:
     friend void glfwWindowSizeCallback(GLFWwindow* window, int width, int height);
     friend void glfwFocusedCallback(GLFWwindow* window, int focused);
     friend void glfwWindowCloseCallback(GLFWwindow* window);
+    friend void glfwDragEnterCallback(GLFWwindow* window, int entered);
     friend void glfwDropCallback(GLFWwindow* window, int path_count, const char* paths[]);
 
 private:
@@ -173,6 +174,7 @@ private:
     void resizeCallback(int width, int height);
     void focusCallback(int focused);
     void closeCallback();
+    void dragEnterCallback(int entered);
     void dropCallback(std::string&& filePaths);
 
 private:
