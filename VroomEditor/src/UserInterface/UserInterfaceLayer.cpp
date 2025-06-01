@@ -69,6 +69,9 @@ void UserInterfaceLayer::onInit()
   auto& sceneGraph = emplaceImGuiElement<SceneGraph>();
 
   viewport.setRenderTexture(&Renderer::Get().getMainFrameBuffer().getColorAttachmentTexture(0));
+
+  m_CustomEventManager.createCustomEvent("OSFileDrop").bindInput(Event::Type::FileDrop);
+  m_CustomEventManager.bindPermanentCallback("OSFileDrop", [this](const Event& e) { this->fileDropCallback(e); e.handled = true; });
 }
 
 void UserInterfaceLayer::onEnd()
@@ -80,7 +83,7 @@ void UserInterfaceLayer::onEnd()
 
 void UserInterfaceLayer::onUpdate(float dt)
 {
-
+  m_fileDrop.clear();
 }
 
 void UserInterfaceLayer::onRender()
@@ -92,7 +95,7 @@ void UserInterfaceLayer::onRender()
 
 void UserInterfaceLayer::onEvent(vrm::Event &e)
 {
-
+  m_CustomEventManager.check(e);
 }
 
 void UserInterfaceLayer::resetUIInfos()
@@ -110,6 +113,15 @@ void UserInterfaceLayer::renderImgui()
   ImGui::PushFont(m_Font);
 
   ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+
+  if (m_fileDrop.files)
+  {
+    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceExtern))
+    {
+      ImGui::SetDragDropPayload("OSFileDrop", &m_fileDrop, sizeof(m_fileDrop));
+      ImGui::EndDragDropSource();
+    }
+  }
   
   for (auto& element : m_Elements)
   {
@@ -141,4 +153,13 @@ void UserInterfaceLayer::onViewportSimulating(bool simulating)
 void UserInterfaceLayer::onViewportPaused(bool paused)
 {
   m_ViewportInfo.paused = paused;
+}
+
+void UserInterfaceLayer::fileDropCallback(const Event& e)
+{
+  VRM_ASSERT(e.type == Event::Type::FileDrop);
+
+  m_fileDrop.cursorPos = Application::Get().getWindow().getCursorPos();
+  m_fileDropData = e.stringData;
+  m_fileDrop.files = m_fileDropData.c_str();
 }

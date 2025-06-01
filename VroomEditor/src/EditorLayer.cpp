@@ -71,7 +71,7 @@ void EditorLayer::saveScene()
 
   auto& gameLayer = Application::Get().getGameLayer();
   const Scene& scene = gameLayer.getScene();
-  auto data = scene.getSceneData();
+  SceneData data = scene.getSceneData();
 
   json j;
   to_json(j, data);

@@ -2,6 +2,7 @@
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include <glm/vec2.hpp>
 #include <string>
 #include <queue>
 
@@ -88,6 +89,8 @@ public:
      */
     void setKeyRepeatEnabled(bool keyRepeat);
 
+    glm::ivec2 getCursorPos() const;
+
     /**
      * @brief Gets the cursor visibility.
      * @return True if cursor is visible. False otherwise.
@@ -159,6 +162,7 @@ public:
     friend void glfwWindowSizeCallback(GLFWwindow* window, int width, int height);
     friend void glfwFocusedCallback(GLFWwindow* window, int focused);
     friend void glfwWindowCloseCallback(GLFWwindow* window);
+    friend void glfwDropCallback(GLFWwindow* window, int path_count, const char* paths[]);
 
 private:
     void keyCallback(int key, int scancode, int action, int mods);
@@ -169,6 +173,7 @@ private:
     void resizeCallback(int width, int height);
     void focusCallback(int focused);
     void closeCallback();
+    void dropCallback(std::string&& filePaths);
 
 private:
     std::string m_Title;
@@ -178,7 +183,7 @@ private:
 
     bool m_KeyRepeatEnabled = false;
 
-    double lastMouseX = 0.0, lastMouseY = 0.0;
+    double m_lastMouseX = 0.0, m_lastMouseY = 0.0;
 
     bool m_CursorVisible = true;
 };

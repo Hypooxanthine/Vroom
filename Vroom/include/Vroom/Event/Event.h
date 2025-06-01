@@ -20,6 +20,7 @@ struct Event
         MousePressed, MouseReleased, Scroll,
         MouseMoved, MouseEntered, MouseLeft,
         WindowsResized, GainedFocus, LostFocus,
+        FileDrop,
         Exit,
     };
 
@@ -42,6 +43,8 @@ struct Event
             int newWidth, newHeight;
         };
     };
+
+    std::string stringData;
 
     union
     {

@@ -3,10 +3,11 @@
 #include <memory>
 #include <list>
 
-#include <Vroom/Render/Abstraction/FrameBuffer.h>
+#include <Vroom/Event/CustomEvent/CustomEventManager.h>
 
 #include "VroomEditor/UserInterface/ImGuiElement.h"
 #include "Vroom/Core/Layer.h"
+#include "VroomEditor/UserInterface/OSFileDrop.h"
 
 struct ImFont;
 
@@ -46,10 +47,16 @@ private:
   void resetUIInfos();
   void renderImgui();
 
+  void fileDropCallback(const Event& e);
+
 private:
+  CustomEventManager m_CustomEventManager;
+  
   ImFont *m_Font;
 
   std::list<std::unique_ptr<ImGuiElement>> m_Elements;
+  OSFileDrop m_fileDrop;
+  std::string m_fileDropData;
 
   struct ViewportInfos
   {

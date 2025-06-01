@@ -1,6 +1,8 @@
 #include "VroomEditor/UserInterface/ImGuiElement.h"
 
 #include <imgui.h>
+#include <glm/common.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include <Vroom/Core/Log.h>
 
@@ -17,7 +19,7 @@ ImGuiElement::~ImGuiElement()
 
 bool ImGuiElement::renderImgui()
 {
-    return onImgui();
+  return onImgui();
 }
 
 void ImGuiElement::notImplemented()

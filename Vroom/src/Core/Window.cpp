@@ -57,6 +57,25 @@ void glfwWindowCloseCallback(GLFWwindow* window)
     ACTIVE_WINDOW->closeCallback();
 }
 
+void glfwDropCallback(GLFWwindow* window, int path_count, const char* paths[])
+{
+  VRM_ASSERT(ACTIVE_WINDOW != nullptr);
+  std::string pathsStr;
+
+  if (path_count > 0)
+  {
+    pathsStr += paths[0];
+    
+    for (int i = 1; i < path_count; ++i)
+    {
+      pathsStr += ';';
+      pathsStr += paths[i];
+    }
+  }
+  
+  ACTIVE_WINDOW->dropCallback(std::move(pathsStr));
+}
+
 Window::Window()
 {
 
@@ -99,6 +118,7 @@ bool Window::create(const std::string& windowTitle, uint32_t width, uint32_t hei
     glfwSetWindowSizeCallback(m_Handle, glfwWindowSizeCallback);
     glfwSetWindowFocusCallback(m_Handle, glfwFocusedCallback);
     glfwSetWindowCloseCallback(m_Handle, glfwWindowCloseCallback);
+    glfwSetDropCallback(m_Handle, glfwDropCallback);
 
     glfwMakeContextCurrent(m_Handle);
     ACTIVE_WINDOW = this;
@@ -154,7 +174,7 @@ void Window::setCursorVisible(bool visible)
     if (visible)
     {
         glfwSetInputMode(m_Handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        glfwGetCursorPos(m_Handle, &lastMouseX, &lastMouseY);
+        glfwGetCursorPos(m_Handle, &m_lastMouseX, &m_lastMouseY);
         glfwSetInputMode(m_Handle, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
     }
     else
@@ -168,6 +188,14 @@ void Window::setCursorVisible(bool visible)
 void Window::setKeyRepeatEnabled(bool keyRepeat)
 {
     m_KeyRepeatEnabled = keyRepeat;
+}
+
+glm::ivec2 Window::getCursorPos() const
+{
+  return {
+    static_cast<int>(m_lastMouseX),
+    static_cast<int>(m_lastMouseY)
+  };
 }
 
 bool Window::requestedClose() const
@@ -253,20 +281,20 @@ void Window::mouseMovedCallback(double xpos, double ypos)
     e.type = Event::Type::MouseMoved;
     e.mouseX = xpos;
     e.mouseY = ypos;
-    e.mouseDeltaX = xpos - lastMouseX;
-    e.mouseDeltaY = ypos - lastMouseY;
+    e.mouseDeltaX = xpos - m_lastMouseX;
+    e.mouseDeltaY = ypos - m_lastMouseY;
 
-    lastMouseX = xpos;
-    lastMouseY = ypos;
+    m_lastMouseX = xpos;
+    m_lastMouseY = ypos;
 }
 
 void Window::mouseEnteredCallback(int entered)
 {
     Event& e = m_EventQueue.emplace();
     e.type = (entered == GLFW_TRUE ? Event::Type::MouseEntered : Event::Type::MouseLeft);
-    glfwGetCursorPos(m_Handle, &lastMouseX, &lastMouseY);
-    e.mouseX = lastMouseX;
-    e.mouseY = lastMouseY;
+    glfwGetCursorPos(m_Handle, &m_lastMouseX, &m_lastMouseY);
+    e.mouseX = m_lastMouseX;
+    e.mouseY = m_lastMouseY;
 }
 
 void Window::scrollCallback(double xoffset, double yoffset)
@@ -300,6 +328,13 @@ void vrm::Window::closeCallback()
 {
     Event& e = m_EventQueue.emplace();
     e.type = Event::Type::Exit;
+}
+
+void Window::dropCallback(std::string&& filePaths)
+{
+  Event& e = m_EventQueue.emplace();
+  e.type = Event::Type::FileDrop;
+  e.stringData = std::move(filePaths);
 }
 
 } // namespace vrm

@@ -1,12 +1,13 @@
 #include "VroomEditor/UserInterface/AssetBrowser/AssetBrowser.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 #include "VroomEditor/EditorLayer.h"
 
 #include "VroomEditor/UserInterface/AssetBrowser/AssetUtils.h"
-
 #include "VroomEditor/UserInterface/AssetBrowser/AssetParentDir.h"
+#include "VroomEditor/UserInterface/OSFileDrop.h"
 
 #include "Vroom/Core/Log.h"
 
@@ -102,6 +103,10 @@ bool AssetBrowser::onImgui()
     bool first = true;
     float windowWidth = ImGui::GetContentRegionAvail().x;
 
+    ImVec2 fileDropStart = ImGui::GetCursorScreenPos();
+    ImVec2 windowStartToFileDropStart = fileDropStart - ImGui::GetWindowPos();
+    
+
     for (auto &elem : m_Assets)
     {
       if (first)
@@ -134,6 +139,9 @@ bool AssetBrowser::onImgui()
       }
     }
 
+    // windowSize.y = ImGui::GetCursorPosY() - windowPos.y;
+    ImRect regionBox = { fileDropStart, fileDropStart + ImGui::GetWindowSize() - windowStartToFileDropStart };
+
     if (ImGui::BeginPopupContextWindow("##browserpopup", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
     {
       if (ImGui::Selectable("Open in OS explorer"))
@@ -142,6 +150,45 @@ bool AssetBrowser::onImgui()
       }
 
       ImGui::EndPopup();
+    }
+    
+    if (ImGui::BeginDragDropTargetCustom(regionBox, ImGui::GetID("FileDropTarget")))
+    {
+      if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("OSFileDrop"))
+      {
+        VRM_ASSERT(payload->DataSize == sizeof(OSFileDrop));
+        
+        OSFileDrop* fileDrop = reinterpret_cast<OSFileDrop*>(payload->Data);
+        VRM_ASSERT(fileDrop->files);
+        VRM_LOG_TRACE("Dropped {}", fileDrop->files);
+        
+        std::filesystem::path from = fileDrop->files;
+        std::filesystem::path to = m_CurrentPath;
+        if (from.has_filename())
+          to = to / from.filename();
+
+        try
+        {
+          if (!std::filesystem::exists(from))
+          {
+            VRM_LOG_WARN("Source path does not exist: {}", from.string());
+          }
+          else
+          {
+            std::filesystem::copy(from, to, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
+            VRM_LOG_TRACE("Successfully copied from {} to {}", from.string(), to.string());
+          }
+        }
+        catch (const std::exception& e)
+        {
+          VRM_LOG_WARN("Could not copy {} to {}: {}", from.string(), to.string(), e.what());
+        }
+
+        
+        updateDirectoryContent();
+      }
+
+      ImGui::EndDragDropTarget();
     }
   }
 

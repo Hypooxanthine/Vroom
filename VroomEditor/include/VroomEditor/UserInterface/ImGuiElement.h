@@ -8,14 +8,14 @@ namespace vrm
 class ImGuiElement
 {
 public:
-    ImGuiElement();
-    virtual ~ImGuiElement();
+  ImGuiElement();
+  virtual ~ImGuiElement();
 
-    bool renderImgui();
+  bool renderImgui();
 
 protected:
-    virtual bool onImgui() = 0;
-    void notImplemented();
+  virtual bool onImgui() = 0;
+  void notImplemented();
 
 };
 
