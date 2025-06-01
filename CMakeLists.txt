@@ -52,6 +52,11 @@ get_filename_component(ROOT "${CMAKE_SOURCE_DIR}" ABSOLUTE)
 
 project ("VroomSolution")
 
+# ----- Subdmodules -----
+
+set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
+add_subdirectory("glfw")
+
 # ----- Subdirectories -----
 
 add_subdirectory ("Vroom")
