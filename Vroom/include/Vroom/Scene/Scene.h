@@ -17,6 +17,7 @@ namespace vrm
   class AssetManager;
   class SceneData;
   struct PointLightComponent;
+  class DeltaTime;
 
   class Scene
   {
@@ -40,7 +41,7 @@ namespace vrm
      *
      * @param dt Ellapsed time since last frame in seconds.
      */
-    void update(float dt);
+    void update(const DeltaTime& dt);
 
     /**
      * @brief Renders a frame of the scene.
@@ -164,7 +165,7 @@ namespace vrm
      *
      * @param dt Ellapsed time since last frame in seconds.
      */
-    virtual void onUpdate(float dt) {}
+    virtual void onUpdate(const DeltaTime& dt) {}
 
     /**
      * @brief Allows extending scene behaviour by executing procedures at the end of the rendering step.

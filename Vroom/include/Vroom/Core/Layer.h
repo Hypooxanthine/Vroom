@@ -3,6 +3,7 @@
 namespace vrm
 {
 
+class DeltaTime;
 struct Event;
 
 /**
@@ -38,7 +39,7 @@ public:
      * 
      * @param dt Delta time.
      */
-    void update(float dt);
+    void update(const DeltaTime& dt);
 
     /**
      * @brief Render the layer.
@@ -120,7 +121,7 @@ protected:
      * 
      * @param dt Delta time.
      */
-    virtual void onUpdate(float dt) {}
+    virtual void onUpdate(const DeltaTime& dt) {}
 
     /**
      * @brief Override this function to add custom render behavior.

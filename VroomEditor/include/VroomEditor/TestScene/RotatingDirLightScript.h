@@ -12,7 +12,7 @@ public:
 
   void onSpawn() override;
 
-  void onUpdate(float dt) override;
+  void onUpdate(const vrm::DeltaTime& dt) override;
 
 private:
   float m_angle = 0.f;

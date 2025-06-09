@@ -60,7 +60,7 @@ void GameLayer::onNewFrame()
   checkNextScene();
 }
 
-void GameLayer::onUpdate(float dt)
+void GameLayer::onUpdate(const DeltaTime& dt)
 {
   m_CurrentScene->update(dt);
 }

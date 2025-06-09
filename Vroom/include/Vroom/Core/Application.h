@@ -7,7 +7,7 @@
 #include <GL/glew.h>
 
 #include "Vroom/Core/LayerStack.h"
-
+#include "Vroom/Core/DeltaTime.h"
 
 namespace vrm
 {
@@ -111,7 +111,7 @@ public:
      * 
      * @return float The delta time.
      */
-    inline float getDeltaTime() const { return m_DeltaTime; }
+    inline const DeltaTime& getDeltaTime() const { return m_DeltaTime; }
 
     void setFrameRateLimit(uint16_t frameRate);
 
@@ -161,7 +161,7 @@ private:
     GameLayer* m_GameLayer;
 
     std::chrono::high_resolution_clock::time_point m_LastFrameTimePoint;
-    float m_DeltaTime = 0.f;
+    DeltaTime m_DeltaTime;
     
     uint16_t m_frameRateLimit = 0;
     uint64_t m_minFrameTimeNanoseconds = 0;

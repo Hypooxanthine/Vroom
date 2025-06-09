@@ -1,6 +1,7 @@
 #include "VroomEditor/TestScene/TestScene.h"
 
 #include <Vroom/Core/Application.h>
+#include <Vroom/Core/DeltaTime.h>
 #include <Vroom/Core/Window.h>
 #include <Vroom/Core/GameLayer.h>
 #include <Vroom/Scene/Scene.h>
@@ -65,11 +66,11 @@ void TestScene::onInit()
     }
 }
 
-void TestScene::onUpdate(float dt)
+void TestScene::onUpdate(const vrm::DeltaTime& dt)
 {
-    myCamera.move(forwardValue * myCameraSpeed * dt * myCamera.getForwardVector());
-    myCamera.move(rightValue * myCameraSpeed * dt * myCamera.getRightVector());
-    myCamera.move(upValue * myCameraSpeed * dt * glm::vec3{0.f, 1.f, 0.f});
+    myCamera.move(forwardValue * myCameraSpeed * dt.seconds() * myCamera.getForwardVector());
+    myCamera.move(rightValue * myCameraSpeed * dt.seconds() * myCamera.getRightVector());
+    myCamera.move(upValue * myCameraSpeed * dt.seconds() * glm::vec3{0.f, 1.f, 0.f});
     myCamera.addYaw(turnRightValue * myCameraAngularSpeed);
     myCamera.addPitch(lookUpValue * myCameraAngularSpeed);
 

@@ -7,12 +7,14 @@
 namespace vrm
 {
 
+class DeltaTime;
+
 class EditorCamera : public FirstPersonCamera
 {
 public:
     EditorCamera(float viewNear, float viewFar, float viewFov, float viewAspectRatio, const glm::vec3& position, const glm::vec3& rotation);
 
-    void onUpdate(float dt);
+    void onUpdate(const DeltaTime& dt);
 
     void submitLookUp(float value);
     void submitLookRight(float value);

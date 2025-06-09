@@ -1,6 +1,7 @@
 #include "VroomEditor/EditorCamera.h"
 
 #include <Vroom/Core/Application.h>
+#include <Vroom/Core/DeltaTime.h>
 
 namespace vrm
 {
@@ -10,11 +11,11 @@ EditorCamera::EditorCamera(float viewNear, float viewFar, float viewFov, float v
 {
 }
 
-void EditorCamera::onUpdate(float dt)
+void EditorCamera::onUpdate(const DeltaTime& dt)
 {
-    move(m_MoveForwardValue * m_Speed * dt * getForwardVector());
-    move(m_MoveRightValue * m_Speed * dt * getRightVector());
-    move(m_MoveUpValue * m_Speed * dt * glm::vec3{0.f, 1.f, 0.f});
+    move(m_MoveForwardValue * m_Speed * dt.seconds() * getForwardVector());
+    move(m_MoveRightValue * m_Speed * dt.seconds() * getRightVector());
+    move(m_MoveUpValue * m_Speed * dt.seconds() * glm::vec3{0.f, 1.f, 0.f});
     addYaw(m_LookRightValue * m_AngularSpeed);
     addPitch(m_LookUpValue * m_AngularSpeed);
 

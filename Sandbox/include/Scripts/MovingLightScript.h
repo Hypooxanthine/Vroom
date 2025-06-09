@@ -9,7 +9,7 @@ public:
     ~MovingLightScript();
 
     void onSpawn() override;
-    void onUpdate(float dt) override;
+    void onUpdate(const vrm::DeltaTime& dt) override;
     void onDestroy() override;
 
 private:

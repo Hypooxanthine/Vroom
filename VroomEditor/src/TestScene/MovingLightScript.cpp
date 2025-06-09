@@ -1,6 +1,7 @@
 #include "VroomEditor/TestScene/MovingLightScript.h"
 
 #include <Vroom/Core/Log.h>
+#include <Vroom/Core/DeltaTime.h>
 #include <Vroom/Scene/Entity.h>
 #include <Vroom/Scene/Components/TransformComponent.h>
 
@@ -19,14 +20,14 @@ void MovingLightScript::onSpawn()
     m_Angle = atan2(pos.z, pos.x);
 }
 
-void MovingLightScript::onUpdate(float dt)
+void MovingLightScript::onUpdate(const vrm::DeltaTime& dt)
 {
     updatePosition(dt);
 }
 
-void MovingLightScript::updatePosition(float dt)
+void MovingLightScript::updatePosition(const vrm::DeltaTime& dt)
 {
-    m_Angle += m_Speed * dt;
+    m_Angle += m_Speed * dt.seconds();
 
     auto& transform = getEntity().getComponent<vrm::TransformComponent>();
     // For the height, we add a bit of oscillation

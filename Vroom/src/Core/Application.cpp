@@ -92,13 +92,7 @@ namespace vrm
 
   void Application::newFrame()
   {
-    {
-      auto now = std::chrono::high_resolution_clock::now();
-      auto duration = now - m_LastFrameTimePoint;
-      uint64_t dtNanosecs = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
-      m_DeltaTime = static_cast<float>(dtNanosecs) / 1.0e9f;
-      m_LastFrameTimePoint = now;
-    }
+    m_DeltaTime.next();
 
     // Notifying new frame to all layers
     for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)

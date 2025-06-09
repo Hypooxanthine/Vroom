@@ -1,6 +1,7 @@
 #include "Scripts/SuzanneScript.h"
 
 #include <Vroom/Core/Log.h>
+#include <Vroom/Core/DeltaTime.h>
 #include <Vroom/Scene/Entity.h>
 #include <Vroom/Scene/Components/TransformComponent.h>
 
@@ -18,9 +19,9 @@ void SuzanneScript::onSpawn()
     VRM_LOG_INFO("Suzanne spawned!");
 }
 
-void SuzanneScript::onUpdate(float dt)
+void SuzanneScript::onUpdate(const vrm::DeltaTime& dt)
 {
-    m_Angle += m_Speed * dt;
+    m_Angle += m_Speed * dt.seconds();
 
     auto& transform = getEntity().getComponent<vrm::TransformComponent>();
     transform.setPosition({ m_CircleRadius * cos(m_Angle), 0.f, m_CircleRadius * sin(m_Angle) });

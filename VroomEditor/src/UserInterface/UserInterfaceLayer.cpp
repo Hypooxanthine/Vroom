@@ -87,7 +87,7 @@ void UserInterfaceLayer::onEnd()
   ImGui::DestroyContext();
 }
 
-void UserInterfaceLayer::onUpdate(float dt)
+void UserInterfaceLayer::onUpdate(const DeltaTime& dt)
 {
   m_fileDrop.clear();
 }

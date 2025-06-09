@@ -10,6 +10,7 @@ namespace vrm
 
   class Scene;
   class Entity;
+  class DeltaTime;
 
   class ScriptComponent
   {
@@ -25,7 +26,7 @@ namespace vrm
     virtual ~ScriptComponent() = default;
 
     virtual void onSpawn() {}
-    virtual void onUpdate(float dt) {}
+    virtual void onUpdate(const DeltaTime& dt) {}
     virtual void onDestroy() {}
 
     inline const std::string& getScriptName() const { return m_scriptName; }

@@ -52,7 +52,7 @@ void Scene::init()
   getCamera().setViewportSize(static_cast<float>(viewportSize.x), static_cast<float>(viewportSize.y));
 }
 
-void Scene::update(float dt)
+void Scene::update(const DeltaTime& dt)
 {
   onUpdate(dt);
 

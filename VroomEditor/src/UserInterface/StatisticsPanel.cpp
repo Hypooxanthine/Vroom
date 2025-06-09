@@ -4,6 +4,7 @@
 #include <imgui.h>
 
 #include <Vroom/Core/Application.h>
+#include <Vroom/Core/DeltaTime.h>
 #include <Vroom/Core/GameLayer.h>
 #include <Vroom/Render/Renderer.h>
 
@@ -20,15 +21,15 @@ StatisticsPanel::~StatisticsPanel()
 bool StatisticsPanel::onImgui()
 {
   bool ret = false;
-  float dt = Application::Get().getDeltaTime();
-  static float meanDt = dt;
+  const DeltaTime& dt = Application::Get().getDeltaTime();
+  static float meanDt = dt.seconds();
   static size_t framesCounter = 0;
-  static float meanFps = 1.f / dt;
+  static float meanFps = 1.f / dt.seconds();
   
   static float timeAccumulator = 0.f;
   constexpr float sampleTime = 2.f;
 
-  timeAccumulator += dt;
+  timeAccumulator += dt.seconds();
   ++framesCounter;
 
   if (timeAccumulator > sampleTime)

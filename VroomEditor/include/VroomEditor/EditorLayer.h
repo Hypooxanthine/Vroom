@@ -41,7 +41,7 @@ public:
 protected:
   virtual void onInit() override;
   virtual void onEnd() override;
-  virtual void onUpdate(float dt) override;
+  virtual void onUpdate(const DeltaTime& dt) override;
   virtual void onRender() override;
   virtual void onEvent(vrm::Event &e) override;
 

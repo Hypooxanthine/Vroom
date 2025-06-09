@@ -3,6 +3,7 @@
 #include <Vroom/Core/Log.h>
 #include <Vroom/Scene/Entity.h>
 #include <Vroom/Scene/Components/TransformComponent.h>
+#include <Vroom/Core/DeltaTime.h>
 
 MovingLightScript::MovingLightScript(float circleRadius, float height, float startAngle, float speed)
     : vrm::ScriptComponent(), m_CircleRadius(circleRadius), m_Height(height), m_Angle(startAngle), m_Speed(speed)
@@ -17,9 +18,9 @@ void MovingLightScript::onSpawn()
 {
 }
 
-void MovingLightScript::onUpdate(float dt)
+void MovingLightScript::onUpdate(const vrm::DeltaTime& dt)
 {
-    m_Angle += m_Speed * dt;
+    m_Angle += m_Speed * dt.seconds();
 
     auto& transform = getEntity().getComponent<vrm::TransformComponent>();
     // For the height, we add a bit of oscillation

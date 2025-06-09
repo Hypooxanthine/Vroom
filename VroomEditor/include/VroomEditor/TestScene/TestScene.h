@@ -16,7 +16,7 @@ public:
 
 protected:
     void onInit() override;
-    void onUpdate(float dt) override;
+    void onUpdate(const DeltaTime& dt) override;
     void onRender() override;
     void onEnd() override;
 

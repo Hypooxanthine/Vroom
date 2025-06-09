@@ -138,7 +138,7 @@ void EditorLayer::onEnd()
 {
 }
 
-void EditorLayer::onUpdate(float dt)
+void EditorLayer::onUpdate(const DeltaTime& dt)
 {
   auto& app = Application::Get();
 
