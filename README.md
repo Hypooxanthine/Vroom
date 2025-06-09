@@ -13,61 +13,23 @@ Light complexity per cluster (clustered rendering)
 
 ## Building project
 
-### Windows
-
-#### Visual Studio
-
-In repository root folder, open a terminal and type :
-
 ```bash
-mkdir build
-cd build
-cmake ..
-ctest # If you want to run unit tests
-doxygen ../Doxyfile # If you need to generate documentation
+git clone git@github.com:Hypooxanthine/Vroom.git --recursive
 ```
-
-Now you can either open the Visual Studio solution, or build the editor directly from the terminal:
-
-```bash
-cmake --build . --target=VroomEditor --config=Release --parallel
-```
-
-#### VS Code
-
-You can also build the project by opening the root folder on VS Code, and use the "CMake" and "CMake Tools" VS Code extensions (that is my workflow).
-
-### Linux
-
-> **_NOTE:_**  Vroom is actively developped for the Windows platform, but I try to keep it compatible with Linux as much as possible.
-
-Install required dependencies:
-```bash
-sudo apt install libglfw3-dev
-```
-
-#### CMake/Make
 
 - In repository root folder, open a terminal and type:
 ```bash
 mkdir build
 cd build
 cmake ..
+ctest # If you want to run unit tests
+doxygen ../Doxyfile # If you need to generate documentation
 cmake --build . --target=VroomEditor --config=Release --parallel
 ```
 
-- Launching Sandbox program:
 ```bash
 cd VroomEditor # Don't use ./VroomEditor/VroomEditor directly because the program won't be able to load resource files.
 ./VroomEditor
-```
-
-#### VS Code
-
-You can also build the project by opening the root folder on VS Code, and use the "CMake" and "CMake Tools" VS Code extensions. You might also need to install the [Ninja build system](https://github.com/ninja-build/ninja) if it is not already installed on your system:
-
-```bash
-sudo apt install ninja-build
 ```
 
 ## External libraries
