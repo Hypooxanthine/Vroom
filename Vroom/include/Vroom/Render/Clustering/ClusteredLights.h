@@ -22,11 +22,11 @@ namespace vrm
   {
   public:
     ClusteredLights();
-    ClusteredLights(const ClusteredLights&) = default;
+    ClusteredLights(const ClusteredLights&) = delete;
     ClusteredLights(ClusteredLights&&) = default;
     ~ClusteredLights() = default;
 
-    ClusteredLights& operator=(const ClusteredLights&) = default;
+    ClusteredLights& operator=(const ClusteredLights&) = delete;
     ClusteredLights& operator=(ClusteredLights&&) = default;
 
     void setupClusters(const glm::uvec3& clusterCount, const CameraBasic& camera);

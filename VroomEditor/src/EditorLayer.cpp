@@ -86,6 +86,11 @@ void EditorLayer::saveScene()
   AssetManager::Get().reloadAsset<SceneAsset>(m_loadedScene);
 }
 
+void EditorLayer::importFile(const std::filesystem::path& file)
+{
+  
+}
+
 void EditorLayer::onInit()
 {
   // Engine setup

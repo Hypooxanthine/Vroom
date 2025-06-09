@@ -14,9 +14,9 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Warnings
-if (UNIX)
-    add_compile_options(-Wno-volatile)
-endif(UNIX)
+# if (UNIX)
+#     add_compile_options(-Wno-volatile)
+# endif(UNIX)
 
 # Preprocessor defines
 if (VRM_PLATFORM_WINDOWS)

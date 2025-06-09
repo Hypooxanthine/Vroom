@@ -174,15 +174,13 @@ bool AssetBrowser::onImgui()
           {
             std::filesystem::copy(from, to, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
             VRM_LOG_TRACE("Successfully copied from {} to {}", from.string(), to.string());
+            updateDirectoryContent();
           }
         }
         catch (const std::exception& e)
         {
           VRM_LOG_WARN("Could not copy {} to {}: {}", from.string(), to.string(), e.what());
         }
-
-        
-        updateDirectoryContent();
       }
 
       ImGui::EndDragDropTarget();

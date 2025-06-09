@@ -40,7 +40,7 @@ bool AssetElement::onImgui()
   ImGui::EndChild();
 
   ImGui::SetCursorPos(cursor);
-  static constexpr auto flags = ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_AllowOverlap | ImGuiButtonFlags_FlattenChildren;
+  static constexpr auto flags = ImGuiButtonFlags_MouseButtonLeft | (ImGuiButtonFlags_AllowOverlap | ImGuiButtonFlags_FlattenChildren);
   ImGui::InvisibleButton("##interact", ImGui::GetItemRectSize(), flags);
 
   if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()) && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))

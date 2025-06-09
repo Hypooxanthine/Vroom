@@ -25,50 +25,42 @@ namespace vrm::gl
       eRenderBufferDepthStencil
     };
 
-    protected:
-      static inline constexpr size_t s_MaxColorAttachments = 8;
-  
-    private:
-      template <typename T, size_t Count>
-      inline consteval static std::array<T, Count> GetFilledArray(const T &defaultVal)
-      {
-        std::array<T, Count> arr{};
-        for (size_t i = 0; i < Count; ++i)
-          arr[i] = defaultVal;
-        return arr;
-      }
-  
-      template <size_t N = s_MaxColorAttachments>
-      inline consteval static std::array<GLenum, N> GetEmptyDrawBuffers()
-      {
-        return GetFilledArray<GLenum, N>(GL_NONE);
-      }
-  
-      template <size_t N = s_MaxColorAttachments>
-      inline consteval static std::array<glm::vec4, N> GetEmptyClearColors()
-      {
-        return GetFilledArray<glm::vec4, N>(glm::vec4{0.f, 0.f, 0.f, 1.f});
-      }
+  protected:
+    static inline constexpr size_t s_MaxColorAttachments = 8;
+
+  private:
+    template <typename T, size_t Count>
+    inline consteval static std::array<T, Count> GetFilledArray(const T& defaultVal)
+    {
+      std::array<T, Count> arr{};
+      for (size_t i = 0; i < Count; ++i)
+        arr[i] = defaultVal;
+      return arr;
+    }
+
+    template <size_t N = s_MaxColorAttachments>
+    inline consteval static std::array<GLenum, N> GetEmptyDrawBuffers()
+    {
+      return GetFilledArray<GLenum, N>(GL_NONE);
+    }
+
+    template <size_t N = s_MaxColorAttachments>
+    inline consteval static std::array<glm::vec4, N> GetEmptyClearColors()
+    {
+      return GetFilledArray<glm::vec4, N>(glm::vec4{ 0.f, 0.f, 0.f, 1.f });
+    }
 
   public:
     inline constexpr FrameBuffer()
     {
     }
 
-    inline virtual ~FrameBuffer() noexcept
+    inline ~FrameBuffer() noexcept
     {
       release();
     }
 
-    inline static const FrameBuffer &GetDefaultFrameBuffer()
-    {
-      if (s_DefaultFrameBuffer == nullptr)
-      {
-        s_DefaultFrameBuffer.reset(new FrameBuffer());
-      }
-
-      return *s_DefaultFrameBuffer;
-    }
+    inline static const FrameBuffer& GetDefaultFrameBuffer();
 
     inline virtual void release() noexcept
     {
@@ -147,7 +139,7 @@ namespace vrm::gl
 
     // Attachment setters
 
-    inline void setColorAttachment(GLuint slot, const Texture2D &colorTexture, GLuint mipLevel = 0, const glm::vec4 &clearColor = glm::vec4{0.f, 0.f, 0.f, 1.f})
+    inline void setColorAttachment(GLuint slot, const Texture2D& colorTexture, GLuint mipLevel = 0, const glm::vec4& clearColor = glm::vec4{ 0.f, 0.f, 0.f, 1.f })
     {
       VRM_ASSERT_MSG(slot < s_MaxColorAttachments, "Slot is too high: {}, max is {}", slot, s_MaxColorAttachments - 1);
       VRM_ASSERT_MSG(!isColorAttachmentUsed(slot), "Color attachment on slot {} is already used", slot);
@@ -165,7 +157,7 @@ namespace vrm::gl
       m_anyColorAttachment = true;
     }
 
-    inline void setColorAttachment(GLuint slot, const ArrayTexture2D &arrayColorTexture, GLuint layer, GLint mipLevel = 0, const glm::vec4 &clearColor = glm::vec4{0.f, 0.f, 0.f, 1.f})
+    inline void setColorAttachment(GLuint slot, const ArrayTexture2D& arrayColorTexture, GLuint layer, GLint mipLevel = 0, const glm::vec4& clearColor = glm::vec4{ 0.f, 0.f, 0.f, 1.f })
     {
       VRM_ASSERT_MSG(slot < s_MaxColorAttachments, "Slot is too high: {}, max is {}", slot, s_MaxColorAttachments - 1);
       VRM_ASSERT_MSG(!isColorAttachmentUsed(slot), "Color attachment on slot {} is already used", slot);
@@ -184,7 +176,7 @@ namespace vrm::gl
       m_anyColorAttachment = true;
     }
 
-    inline void setDepthAttachment(const Texture2D &depthTexture, GLuint mipLevel = 0, float depthClearValue = 1.f)
+    inline void setDepthAttachment(const Texture2D& depthTexture, GLuint mipLevel = 0, float depthClearValue = 1.f)
     {
       VRM_ASSERT_MSG(!isDepthAttachmentUsed(), "Depth attachment is already used");
       VRM_ASSERT_MSG(depthTexture.getSamples() == 1, "Only 1 sample for depth");
@@ -198,7 +190,7 @@ namespace vrm::gl
       m_depthClearValue = depthClearValue;
     }
 
-    inline void setDepthAttachment(const ArrayTexture2D &arrayDepthTexture, GLuint layer, GLint mipLevel = 0, float depthClearValue = 1.f)
+    inline void setDepthAttachment(const ArrayTexture2D& arrayDepthTexture, GLuint layer, GLint mipLevel = 0, float depthClearValue = 1.f)
     {
       VRM_ASSERT_MSG(!isDepthAttachmentUsed(), "Depth attachment is already used");
       VRM_ASSERT_MSG(arrayDepthTexture.getSamples() == 1, "Only 1 sample for depth");
@@ -213,7 +205,7 @@ namespace vrm::gl
       m_depthClearValue = depthClearValue;
     }
 
-    inline void setRenderBufferDepthAttachment(const RenderBuffer &renderBuffer, float depthClearValue = 1.f)
+    inline void setRenderBufferDepthAttachment(const RenderBuffer& renderBuffer, float depthClearValue = 1.f)
     {
       VRM_ASSERT_MSG(!isDepthAttachmentUsed(), "Depth attachment is already used");
       VRM_ASSERT_MSG(renderBuffer.isCreated(), "RenderBuffer not created");
@@ -267,7 +259,7 @@ namespace vrm::gl
       }
     }
 
-    inline void clearColors(const glm::vec4 &customClearColor) const
+    inline void clearColors(const glm::vec4& customClearColor) const
     {
       bind();
 
@@ -293,7 +285,7 @@ namespace vrm::gl
       }
     }
 
-    inline static void Blit(const FrameBuffer &dest, const FrameBuffer &src)
+    inline static void Blit(const FrameBuffer& dest, const FrameBuffer& src)
     {
       VRM_ASSERT_MSG(src.isCreated() && dest.isCreated(), "Src or dest framebuffer is not created");
 
@@ -301,9 +293,9 @@ namespace vrm::gl
       glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dest.getRenderID());
 
       glBlitFramebuffer(
-          0, 0, src.m_width, src.m_height,
-          0, 0, dest.m_width, dest.m_height,
-          GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        0, 0, src.m_width, src.m_height,
+        0, 0, dest.m_width, dest.m_height,
+        GL_COLOR_BUFFER_BIT, GL_NEAREST);
     }
 
   protected:
@@ -320,7 +312,19 @@ namespace vrm::gl
 
     GLuint m_renderID = 0;
 
-    inline static std::unique_ptr<FrameBuffer> s_DefaultFrameBuffer;
+    static std::unique_ptr<FrameBuffer> s_DefaultFrameBuffer;
   };
+
+  inline std::unique_ptr<FrameBuffer> FrameBuffer::s_DefaultFrameBuffer = nullptr;
+
+  inline const FrameBuffer& FrameBuffer::GetDefaultFrameBuffer()
+  {
+    if (s_DefaultFrameBuffer == nullptr)
+    {
+      s_DefaultFrameBuffer.reset(new FrameBuffer());
+    }
+
+    return *s_DefaultFrameBuffer;
+  }
 
 } // namespace vrm::gl

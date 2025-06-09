@@ -36,6 +36,8 @@ public:
   void unloadScene(bool force = false);
   void saveScene();
 
+  void importFile(const std::filesystem::path& file);
+
 protected:
   virtual void onInit() override;
   virtual void onEnd() override;

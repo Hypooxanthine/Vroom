@@ -70,6 +70,9 @@ inline std::string to_string(const vrm::KeyCode& code)
     case vrm::KeyCode::None:
         return "None";
         break;
+    default:
+        return "Unknown";
+        break;
     }
 
     if (asInt >= static_cast<int>(vrm::KeyCode::NUMPAD_0) && asInt <= static_cast<int>(vrm::KeyCode::NUMPAD_9))
@@ -93,6 +96,9 @@ inline std::string to_string(const vrm::MouseCode& code)
         break;
     case vrm::MouseCode::None:
         return "None";
+        break;
+    default:
+        return "Unknown";
         break;
     }
 

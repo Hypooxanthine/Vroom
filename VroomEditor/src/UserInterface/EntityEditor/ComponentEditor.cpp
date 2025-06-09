@@ -270,9 +270,8 @@ bool MeshComponentEditor::editEntityComponent(Entity& e) const
     requestNewMesh = AssetManager::Get().getAsset<MeshAsset>(resourceName);
   }
 
-  // ImGui::Text("Materials");
-  uint8_t matSlot = 0;
-  for (matSlot; matSlot < component.getMaterials().getSlotCount(); ++matSlot)
+  const auto matSlotMax = component.getMaterials().getSlotCount();
+  for (uint8_t matSlot = 0; matSlot < matSlotMax; ++matSlot)
   {
     const auto& mat = component.getMaterials().getMaterial(matSlot);
     std::string inputName = "Material " + std::to_string(matSlot);
