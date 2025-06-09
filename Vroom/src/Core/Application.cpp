@@ -1,5 +1,7 @@
 #include "Vroom/Core/Application.h"
 
+#include <thread>
+
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Event/GLFWEventsConverter.h"
 #include "Vroom/Core/Window.h"
@@ -74,6 +76,7 @@ namespace vrm
   {
     initLayers();
 
+    // Main loop
     while (!m_PendingKilled)
     {
       newFrame();
@@ -89,9 +92,13 @@ namespace vrm
 
   void Application::newFrame()
   {
-    auto now = std::chrono::high_resolution_clock::now();
-    m_DeltaTime = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - m_LastFrameTimePoint).count()) / 1'000'000'000.f;
-    m_LastFrameTimePoint = now;
+    {
+      auto now = std::chrono::high_resolution_clock::now();
+      auto duration = now - m_LastFrameTimePoint;
+      uint64_t dtNanosecs = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
+      m_DeltaTime = static_cast<float>(dtNanosecs) / 1.0e9f;
+      m_LastFrameTimePoint = now;
+    }
 
     // Notifying new frame to all layers
     for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
@@ -122,6 +129,14 @@ namespace vrm
       layer.render();
 
     m_Window->swapBuffers();
+  }
+
+
+  void Application::setFrameRateLimit(uint16_t framerate)
+  {
+    m_frameRateLimit = framerate;
+    m_minFrameTimeNanoseconds = static_cast<uint64_t>(1.0e9 / static_cast<double>(framerate));
+    m_timeSinceLastFrame = 0.f;
   }
 
 } // namespace vrm

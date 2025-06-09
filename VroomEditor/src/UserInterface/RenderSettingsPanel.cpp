@@ -33,6 +33,14 @@ bool RenderSettingsPanel::onImgui()
   if (ImGui::Begin("Render settings"))
   {
 
+    int framerateLimit = static_cast<int>(Application::Get().getFrameRateLimit());
+    ImGui::TextWrapped("Framerate limit:");
+    if (ImGui::SliderInt("##Framerate limit", &framerateLimit, 0, 360, "%d", ImGuiSliderFlags_ClampOnInput))
+    {
+      settings.frameRateLimit = static_cast<uint16_t>(framerateLimit);
+      settingsChanged = true;
+    }
+
     ImGui::TextWrapped("Antialiasing:");
     if (ImGui::BeginCombo("##Antialiasing", std::to_string(*m_currentMsaaValue).c_str()))
     {

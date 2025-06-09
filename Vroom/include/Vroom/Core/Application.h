@@ -113,6 +113,10 @@ public:
      */
     inline float getDeltaTime() const { return m_DeltaTime; }
 
+    void setFrameRateLimit(uint16_t frameRate);
+
+    inline uint16_t getFrameRateLimit() const { return m_frameRateLimit; }
+
 private:
     
     /**
@@ -158,6 +162,10 @@ private:
 
     std::chrono::high_resolution_clock::time_point m_LastFrameTimePoint;
     float m_DeltaTime = 0.f;
+    
+    uint16_t m_frameRateLimit = 0;
+    uint64_t m_minFrameTimeNanoseconds = 0;
+    float m_timeSinceLastFrame = 0.f;
 
     bool m_PendingKilled = false;
 

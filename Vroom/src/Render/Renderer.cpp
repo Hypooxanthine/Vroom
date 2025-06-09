@@ -177,6 +177,7 @@ void Renderer::beginScene(const CameraBasic& camera)
 {
   if (m_passManagerDirty)
   {
+    Application::Get().setFrameRateLimit(m_renderSettings.frameRateLimit);
     createRenderPasses();
   }
 
