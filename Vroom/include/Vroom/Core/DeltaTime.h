@@ -35,7 +35,7 @@ namespace vrm
       }
 
     private:
-      Duration(uint64_t nanosecs)
+      constexpr Duration(uint64_t nanosecs)
         : m_nanoseconds(nanosecs)
         {}
 
@@ -83,7 +83,7 @@ namespace vrm
 
   private:
 
-  inline uint64_t getNanosecondsCounts() const
+  inline constexpr uint64_t getNanosecondsCounts() const
   {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(m_duration).count();
   }
