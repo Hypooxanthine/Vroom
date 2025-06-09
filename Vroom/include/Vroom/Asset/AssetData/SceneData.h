@@ -22,6 +22,7 @@ namespace vrm
 
     struct Component
     {
+      virtual ~Component() {}
       virtual bool addToEntity(Entity& entity) = 0;
 
       virtual nlohmann::json serialize() const = 0;
@@ -142,7 +143,9 @@ namespace vrm
 
     inline void addComponent(size_t nodeIndex, std::unique_ptr<Component>&& component)
     {
-      m_nodes[nodeIndex].components[std::type_index(typeid(*component))] = std::move(component);
+      Component* raw = component.get();
+      auto id = std::type_index(typeid(*raw));
+      m_nodes[nodeIndex].components[id] = std::move(component);
     }
 
   protected:

@@ -187,9 +187,9 @@ public:
     inline constexpr bool isRGBA() const { return m_Channels == 4; }
 
 private:
-    inline T* getSTBIImage(const char* filePath, int* width, int* height, int* channels) const = delete;
+    inline T* getSTBIImage(const char* filePath, int* width, int* height, int* channels) const;
 
-    inline bool saveSTBIImage(const std::string& path) const = delete;
+    inline bool saveSTBIImage(const std::string& path) const;
 
 private:
     std::vector<T> m_Data;
