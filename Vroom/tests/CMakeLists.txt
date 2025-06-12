@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 3.31)
 
 project(VroomTests)
 
+add_library(DummyLib SHARED test_RuntimeLibrary_DummyLib.cpp)
+
 include(FetchContent)
 FetchContent_Declare(
     googletest
@@ -20,6 +22,8 @@ file(GLOB_RECURSE TEST_SOURCES  *.cc)
 
 add_executable(VroomTests ${TEST_SOURCES})
 
+add_dependencies(VroomTests DummyLib)
+
 target_compile_definitions(VroomTests PUBLIC -D GLEW_STATIC)
 
 enable_testing()
@@ -36,9 +40,20 @@ include(CTest)
 
 # Copy the resources to the build directory
 add_custom_command(TARGET VroomTests POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/Resources
-    $<TARGET_FILE_DIR:VroomTests>/Resources
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_SOURCE_DIR}/Resources
+  $<TARGET_FILE_DIR:VroomTests>/Resources
+)
+
+add_custom_command(TARGET VroomTests POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy
+    $<TARGET_FILE:DummyLib>
+    $<TARGET_FILE_DIR:VroomTests>
+)
+
+get_target_property(VRM_TEST_DUMMYLIB_FILENAME DummyLib TARGET_FILE_NAME)
+target_compile_definitions(VroomTests
+  PUBLIC DUMMYLIB_FILENAME="$<TARGET_FILE_NAME:DummyLib>"
 )
 
 # Visual Studio specific settings
