@@ -6,6 +6,7 @@ project(Sandbox)
 
 # ----- Project directories -----
 
+set(SANDBOX_RESOURCE_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/Resources)
 set(SOURCE_DIR src)
 set(INCLUDE_DIR include)
 
@@ -42,25 +43,15 @@ endif()
 
 # ----- Copying resource files -----
 
-project(Resources NONE)
+set(OUTPUT_DIR $<TARGET_FILE_DIR:Sandbox>/Resources)
 
-# Resource directories
-set(ENGINE_RESOURCE_DIR ${CMAKE_SOURCE_DIR}/Resources)
-set(SANDBOX_RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Resources)
-
-# Output directory. For visual studio, we need to append the configuration name
-if (CMAKE_GENERATOR MATCHES "Visual Studio")
-    set(OUTPUT_DIR ${Sandbox_BINARY_DIR}/$<CONFIG>/Resources)
-else()
-    set(OUTPUT_DIR ${Sandbox_BINARY_DIR}/Resources)
-endif()
-
-add_custom_target(SandboxResources ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTPUT_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ENGINE_RESOURCE_DIR} ${OUTPUT_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${SANDBOX_RESOURCE_DIR} ${OUTPUT_DIR}
-    COMMENT "Copying resource files to output directory"
+add_custom_command(TARGET Sandbox POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+  ${OUTPUT_DIR}
 )
 
-# Make sure Resources is built before Sandbox
-add_dependencies(Sandbox SandboxResources)
+add_custom_command(TARGET Sandbox POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${ENGINE_RESOURCE_DIR}
+  ${OUTPUT_DIR}
+)

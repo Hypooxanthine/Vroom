@@ -39,16 +39,24 @@ gtest_discover_tests(VroomTests)
 include(CTest)
 
 # Copy the resources to the build directory
+
+set(OUTPUT_DIR $<TARGET_FILE_DIR:VroomTests>/Resources)
+
+add_custom_command(TARGET VroomTests POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+  ${OUTPUT_DIR}
+)
+
 add_custom_command(TARGET VroomTests POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${CMAKE_SOURCE_DIR}/Resources
-  $<TARGET_FILE_DIR:VroomTests>/Resources
+  ${ENGINE_RESOURCE_DIR}
+  ${OUTPUT_DIR}
 )
 
 add_custom_command(TARGET VroomTests POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy
-    $<TARGET_FILE:DummyLib>
-    $<TARGET_FILE_DIR:VroomTests>
+  $<TARGET_FILE:DummyLib>
+  ${OUTPUT_DIR}
 )
 
 get_target_property(VRM_TEST_DUMMYLIB_FILENAME DummyLib TARGET_FILE_NAME)

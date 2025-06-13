@@ -10,6 +10,8 @@ if (POLICY CMP0072)
     cmake_policy (SET CMP0072 NEW)
 endif(POLICY CMP0072)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 # ----- Dependency lib directories -----
 
 include(FetchContent)

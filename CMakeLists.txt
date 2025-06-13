@@ -40,13 +40,16 @@ add_compile_definitions(GLM_ENABLE_EXPERIMENTAL=1)
 
 # Visual Studio specific settings
 if (CMAKE_GENERATOR MATCHES "Visual Studio")
-    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT VroomEditor)
 endif()
 
 # ----- Project general definitions -----
 
 # Root directory
 get_filename_component(ROOT "${CMAKE_SOURCE_DIR}" ABSOLUTE)
+
+# Resource directories
+set(ENGINE_RESOURCE_DIR   ${Vroom_SOURCE_DIR}/Resources)
 
 # ----- Solution definition -----
 
@@ -62,6 +65,7 @@ add_subdirectory("glfw")
 add_subdirectory ("Vroom")
 add_subdirectory("Sandbox")
 add_subdirectory("VroomEditor")
+add_subdirectory("TestProject")
 
 # ----- Testing -----
 
