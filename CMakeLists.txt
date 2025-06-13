@@ -50,6 +50,7 @@ get_filename_component(ROOT "${CMAKE_SOURCE_DIR}" ABSOLUTE)
 
 # Resource directories
 set(ENGINE_RESOURCE_DIR   ${Vroom_SOURCE_DIR}/Resources)
+set(EDITOR_RESOURCE_DIR   ${VroomEditor_SOURCE_DIR}/Resources)
 
 # ----- Solution definition -----
 
@@ -65,7 +66,6 @@ add_subdirectory("glfw")
 add_subdirectory ("Vroom")
 add_subdirectory("Sandbox")
 add_subdirectory("VroomEditor")
-add_subdirectory("TestProject")
 
 # ----- Testing -----
 

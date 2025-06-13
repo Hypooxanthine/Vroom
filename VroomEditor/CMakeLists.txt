@@ -38,7 +38,6 @@ set(LIBRARIES
 
 # ----- Project directories -----
 
-set(EDITOR_RESOURCE_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/Resources)
 set(SOURCE_DIR src)
 set(INCLUDE_DIR include)
 
@@ -86,4 +85,10 @@ add_custom_command(TARGET VroomEditor POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   ${ENGINE_RESOURCE_DIR} ${EDITOR_RESOURCE_DIR}
   ${OUTPUT_DIR}
+)
+
+add_subdirectory("Scripts")
+
+target_compile_definitions(VroomEditor
+  PUBLIC VRM_RUNTIME_SCRIPTS_PATH="$<TARGET_FILE_NAME:ScriptsLibrary>"
 )
