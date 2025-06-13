@@ -10,8 +10,6 @@ if (POLICY CMP0072)
     cmake_policy (SET CMP0072 NEW)
 endif(POLICY CMP0072)
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
 # ----- Dependency lib directories -----
 
 include(FetchContent)
@@ -37,15 +35,6 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/skypjack/entt.git
 )
 FetchContent_MakeAvailable(EnTT)
-
-# glew
-FetchContent_Declare(
-    glew
-    GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
-    GIT_TAG        origin/master
-)
-FetchContent_MakeAvailable(glew)
-add_compile_definitions(GLEW_STATIC)
 
 FetchContent_Declare(
   json
@@ -88,6 +77,7 @@ set(SOURCES                     ${VENDOR_IMPL} ${PROJECT_IMPL})
 add_library(Vroom                   STATIC  ${SOURCES} ${HEADERS})
 target_include_directories(Vroom    PUBLIC  ${VENDOR_DIR} ${INCLUDE_DIR})
 target_link_libraries(Vroom                 ${LIBRARIES})
+add_compile_definitions(GLEW_STATIC)
 
 # ----- Specific settings -----
 
