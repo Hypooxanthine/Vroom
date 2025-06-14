@@ -24,7 +24,7 @@ set(SOURCES ${PROJECT_IMPL})
 
 add_executable(Sandbox                      ${PROJECT_IMPL} ${PROJECT_HEADERS})
 target_include_directories(Sandbox  PUBLIC  ${INCLUDE_DIR})
-target_link_libraries(Sandbox               Vroom)
+target_link_libraries(Sandbox               Vroom_static)
 
 # Compile options
 if (MSVC)
@@ -43,6 +43,7 @@ endif()
 
 # ----- Copying resource files -----
 
+set(SANDBOX_RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Resources)
 set(OUTPUT_DIR $<TARGET_FILE_DIR:Sandbox>/Resources)
 
 add_custom_command(TARGET Sandbox POST_BUILD
@@ -52,6 +53,6 @@ add_custom_command(TARGET Sandbox POST_BUILD
 
 add_custom_command(TARGET Sandbox POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${ENGINE_RESOURCE_DIR}
+  ${ENGINE_RESOURCE_DIR} ${SANDBOX_RESOURCE_DIR}
   ${OUTPUT_DIR}
 )
