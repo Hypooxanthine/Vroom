@@ -55,7 +55,7 @@ set(SOURCES ${PROJECT_IMPL})
 
 add_executable(VroomEditor                      ${PROJECT_IMPL} ${PROJECT_HEADERS})
 target_include_directories(VroomEditor  PUBLIC  ${INCLUDE_DIR} ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
-target_link_libraries(VroomEditor       PUBLIC  ${LIBRARIES} Vroom)
+target_link_libraries(VroomEditor       PUBLIC  ${LIBRARIES} Vroom_static)
 
 # Compile options
 if (MSVC)
@@ -74,16 +74,23 @@ endif()
 
 # ----- Copying resource files -----
 
-set(OUTPUT_DIR $<TARGET_FILE_DIR:VroomEditor>/Resources)
+set(OUTPUT_DIR $<TARGET_FILE_DIR:VroomEditor>)
+set(OUTPUT_RESOURCES_DIR ${OUTPUT_DIR}/Resources)
 
 add_custom_command(TARGET VroomEditor POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E make_directory
-  ${OUTPUT_DIR}
+  ${OUTPUT_RESOURCES_DIR}
 )
 
 add_custom_command(TARGET VroomEditor POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   ${ENGINE_RESOURCE_DIR} ${EDITOR_RESOURCE_DIR}
+  ${OUTPUT_RESOURCES_DIR}
+)
+
+add_custom_command(TARGET VroomEditor POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy
+  ${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini
   ${OUTPUT_DIR}
 )
 
