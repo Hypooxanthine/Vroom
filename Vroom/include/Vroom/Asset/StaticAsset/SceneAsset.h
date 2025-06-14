@@ -2,13 +2,14 @@
 
 #include <memory>
 
+#include "Vroom/Api.h"
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
 #include "Vroom/Asset/AssetData/SceneData.h"
 
 namespace vrm
 {
 
-  class SceneAsset : public StaticAsset
+  class VRM_API SceneAsset : public StaticAsset
   {
   public:
     using Handle = AssetHandle<SceneAsset>;

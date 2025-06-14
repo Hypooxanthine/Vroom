@@ -2,12 +2,13 @@
 
 #include <vector>
 
+#include "Vroom/Api.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 
 namespace vrm
 {
 
-  class MeshMaterials
+  class VRM_API MeshMaterials
   {
   public:
 

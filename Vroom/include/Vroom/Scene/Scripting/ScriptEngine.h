@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <string>
 #include <memory>
+#include "Vroom/Api.h"
 
 namespace vrm
 {
@@ -12,7 +13,7 @@ namespace vrm
 class ScriptFactory;
 class ScriptComponent;
 
-class ScriptEngine
+class VRM_API ScriptEngine
 {
 public:
   virtual ~ScriptEngine();

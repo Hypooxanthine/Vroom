@@ -4,6 +4,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 
+#include "Vroom/Api.h"
 #include "Vroom/Render/Abstraction/GLCall.h"
 
 #include "Vroom/Render/Abstraction/Texture2D.h"
@@ -13,7 +14,7 @@
 namespace vrm::gl
 {
 
-  class FrameBuffer
+  class VRM_API FrameBuffer
   {
   public:
     enum EDepthAttachmentType : uint8_t

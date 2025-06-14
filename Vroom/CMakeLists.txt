@@ -49,7 +49,7 @@ set(LIBRARIES
     glm::glm
     spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>
     EnTT::EnTT
-    libglew_static
+    libglew_shared
     glfw
     nlohmann_json::nlohmann_json
 )
@@ -77,12 +77,13 @@ set(SOURCES                     ${VENDOR_IMPL} ${PROJECT_IMPL})
 add_library(Vroom_static                   STATIC  ${SOURCES} ${HEADERS})
 target_include_directories(Vroom_static    PUBLIC  ${VENDOR_DIR} ${INCLUDE_DIR})
 target_link_libraries(Vroom_static                 ${LIBRARIES})
-add_compile_definitions(GLEW_STATIC)
+target_compile_definitions(Vroom_static PRIVATE "VRM_TARGET_VROOM" "VRM_STATIC")
 
 add_library(Vroom                   SHARED  ${SOURCES} ${HEADERS})
 target_include_directories(Vroom    PUBLIC  ${VENDOR_DIR} ${INCLUDE_DIR})
 target_link_libraries(Vroom                 ${LIBRARIES})
-add_compile_definitions(GLEW_STATIC)
+target_compile_definitions(Vroom PRIVATE "VRM_TARGET_VROOM")
+target_compile_options(Vroom PRIVATE -fvisibility=hidden)
 
 # ----- Specific settings -----
 

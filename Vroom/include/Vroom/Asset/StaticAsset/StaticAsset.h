@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Vroom/Api.h"
 #include "Vroom/Asset/AssetHandle.h"
 
 #include <memory>
@@ -8,7 +9,7 @@
 namespace vrm
 {
 
-  class StaticAsset
+  class VRM_API StaticAsset
   {
   public:
     StaticAsset() = default;

@@ -1,12 +1,13 @@
 #pragma once
 
+#include "Vroom/Api.h"
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
 #include "Vroom/Render/Abstraction/Texture2D.h"
 
 namespace vrm
 {
 
-  class TextureAsset : public StaticAsset
+  class VRM_API TextureAsset : public StaticAsset
   {
     public:
       using Handle = AssetHandle<TextureAsset>;

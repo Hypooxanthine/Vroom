@@ -1,11 +1,12 @@
 #pragma once
 
+#include "Vroom/Api.h"
 #include "Vroom/Render/Camera/PerspectiveCameraBasic.h"
 
 namespace vrm
 {
 
-class FirstPersonCamera : public PerspectiveCameraBasic
+class VRM_API FirstPersonCamera : public PerspectiveCameraBasic
 {
 public:
     FirstPersonCamera(float viewNear, float viewFar, float viewFov, float viewAspectRatio, const glm::vec3& position, const glm::vec3& rotation);

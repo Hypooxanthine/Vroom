@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "Vroom/Api.h"
 #include "Vroom/Core/Layer.h"
 
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
@@ -17,7 +18,7 @@ class Scene;
  * @brief The game layer of the application.
  *
  */
-class GameLayer : public Layer
+class VRM_API GameLayer : public Layer
 {
 public:
   GameLayer();

@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <entt/entt.hpp>
 
+#include "Vroom/Api.h"
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Render/Camera/FirstPersonCamera.h"
 
@@ -19,7 +20,7 @@ namespace vrm
   struct PointLightComponent;
   class DeltaTime;
 
-  class Scene
+  class VRM_API Scene
   {
   public:
     friend class Renderer;

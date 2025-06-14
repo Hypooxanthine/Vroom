@@ -1,12 +1,13 @@
 #pragma once
 
+#include "Vroom/Api.h"
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
 #include "Vroom/Asset/AssetData/ShaderData.h"
 
 namespace vrm
 {
 
-  class ShadingModelAsset : public StaticAsset
+  class VRM_API ShadingModelAsset : public StaticAsset
   {
   public:
     using Handle = AssetHandle<ShadingModelAsset>;

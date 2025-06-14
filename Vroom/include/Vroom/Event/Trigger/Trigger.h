@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+#include "Vroom/Api.h"
 #include "Vroom/Event/Trigger/TriggerCallbackList.h"
 
 namespace vrm
@@ -25,7 +26,7 @@ class TriggerBinder;
  * 
  * @see @ref triggers
  */
-class Trigger
+class VRM_API Trigger
 {
 public:
     Trigger() = default;

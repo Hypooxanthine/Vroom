@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Vroom/Api.h"
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Render/MeshMaterials.h"
 
@@ -13,7 +14,7 @@ namespace vrm
    *
    * A mesh component is a component that stores the mesh of an entity.
    */
-  class MeshComponent
+  class VRM_API MeshComponent
   {
   public:
     MeshComponent();

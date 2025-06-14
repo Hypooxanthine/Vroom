@@ -5,12 +5,13 @@
 
 #include <glm/glm.hpp>
 
+#include "Vroom/Api.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
 
 namespace vrm::gl
 {
 
-  class OwningFrameBuffer : public FrameBuffer
+  class VRM_API OwningFrameBuffer : public FrameBuffer
   {
   public:
     inline constexpr OwningFrameBuffer()

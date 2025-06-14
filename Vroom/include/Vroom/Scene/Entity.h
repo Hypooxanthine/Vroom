@@ -2,6 +2,7 @@
 
 #include <entt/entt.hpp>
 
+#include "Vroom/Api.h"
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Generic/TypeList.h"
 #include "Vroom/Scene/Components/ScriptHandler.h"
@@ -20,7 +21,7 @@ namespace vrm
    * An entity is a simple container for components.
    * It is a simple wrapper around an entt::entity.
    */
-  class Entity
+  class VRM_API Entity
   {
   public:
     friend class Scene;

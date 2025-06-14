@@ -2,6 +2,7 @@
 
 #include <entt/entt.hpp>
 
+#include "Vroom/Api.h"
 #include "Vroom/Scene/Scripting/ScriptEngine.h"
 #include "Vroom/Scene/Scripting/ScriptFactory.h"
 
@@ -12,7 +13,7 @@ namespace vrm
   class Entity;
   class DeltaTime;
 
-  class ScriptComponent
+  class VRM_API ScriptComponent
   {
   public:
     friend Entity;

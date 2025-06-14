@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <typeindex>
 
+#include "Vroom/Api.h"
 #include "Vroom/Asset/Parsing/Json.h"
 
 #include <glm/glm.hpp>
@@ -16,7 +17,7 @@ namespace vrm
 
   class Entity;
 
-  class SceneData
+  class VRM_API SceneData
   {
   public:
 
@@ -163,10 +164,10 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
   }
 )
 
-void to_json(json& j, const SceneData::Component* component);
+void VRM_API to_json(json& j, const SceneData::Component* component);
 
-void to_json(json& j, const SceneData::SceneNode& node);
+void VRM_API to_json(json& j, const SceneData::SceneNode& node);
 
-void to_json(json& j, const SceneData& scene);
+void VRM_API to_json(json& j, const SceneData& scene);
 
 } // namespace vrm

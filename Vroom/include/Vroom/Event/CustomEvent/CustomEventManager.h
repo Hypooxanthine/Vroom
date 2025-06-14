@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "Vroom/Api.h"
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Event/CustomEvent/CustomEvent.h"
 #include "Vroom/Event/Codes.h"
@@ -20,7 +21,7 @@ namespace vrm
  * This class is used to manage custom events. It allows to create, bind and trigger custom events.
  * 
  */
-class CustomEventManager
+class VRM_API CustomEventManager
 {
 public:
     CustomEventManager() = default;

@@ -1,13 +1,14 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "Vroom/Api.h"
 
 namespace vrm
 {
 
   class MeshData;
 
-  class CameraBasic
+  class VRM_API CameraBasic
   {
   public:
     CameraBasic() = default;

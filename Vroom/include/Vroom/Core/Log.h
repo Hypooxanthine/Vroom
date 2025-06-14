@@ -1,11 +1,12 @@
 #pragma once
 
 #include <spdlog/spdlog.h>
+#include "Vroom/Api.h"
 
 /**
  * @brief Static class for logging. Needs to be initialized before calling logging macros.
  */
-class Log
+class VRM_API Log
 {
 public:
     /**

@@ -2,6 +2,7 @@
 
 #include <list>
 
+#include "Vroom/Api.h"
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Asset/AssetHandle.h"
@@ -11,7 +12,7 @@
 namespace vrm
 {
 
-  class MeshAsset : public StaticAsset
+  class VRM_API MeshAsset : public StaticAsset
   {
   public:
     using Handle = AssetHandle<MeshAsset>;

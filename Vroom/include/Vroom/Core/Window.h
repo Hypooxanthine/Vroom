@@ -6,6 +6,7 @@
 #include <string>
 #include <queue>
 
+#include "Vroom/Api.h"
 #include "Vroom/Event/Event.h"
 
 namespace vrm
@@ -15,7 +16,7 @@ namespace vrm
  * @brief Window class uses glfw and expects glfw to be initialized. Does not terminate glfw neither.
  * 
  */
-class Window
+class VRM_API Window
 {
 public:
     /**

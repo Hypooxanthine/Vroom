@@ -24,8 +24,6 @@ add_executable(VroomTests ${TEST_SOURCES})
 
 add_dependencies(VroomTests DummyLib)
 
-target_compile_definitions(VroomTests PUBLIC -D GLEW_STATIC)
-
 enable_testing()
 
 target_link_libraries(VroomTests

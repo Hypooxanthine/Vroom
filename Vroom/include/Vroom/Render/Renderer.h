@@ -3,6 +3,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 
+#include "Vroom/Api.h"
 #include "Vroom/Render/Helpers/ResourcePool.h"
 
 #include "Vroom/Render/GPURuntimeFeatures.h"
@@ -35,7 +36,7 @@ namespace vrm
    * @brief The renderer is responsible for rendering objects on the scene, taking lights and cameras into consideration.
    *
    */
-  class Renderer
+  class VRM_API Renderer
   {
   public:
     /**

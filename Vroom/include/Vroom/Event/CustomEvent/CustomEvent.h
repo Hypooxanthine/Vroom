@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Vroom/Api.h"
 #include "Vroom/Event/CustomEvent/CustomEventCallbackList.h"
 
 namespace vrm
@@ -24,7 +25,7 @@ class CustomEventBinder;
  * @see @ref custom_events
  * 
  */
-class CustomEvent
+class VRM_API CustomEvent
 {
 public:
     CustomEvent() = default;

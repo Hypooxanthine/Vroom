@@ -3,10 +3,12 @@
 #include <chrono>
 #include <utility>
 
+#include "Vroom/Api.h"
+
 namespace vrm
 {
 
-  class DeltaTime
+  class VRM_API DeltaTime
   {
   public:
 

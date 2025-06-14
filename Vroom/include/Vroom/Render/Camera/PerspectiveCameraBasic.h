@@ -1,11 +1,12 @@
 #pragma once
 
+#include "Vroom/Api.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
 
 namespace vrm
 {
 
-class PerspectiveCameraBasic : public CameraBasic
+class VRM_API PerspectiveCameraBasic : public CameraBasic
 {
 public:
     PerspectiveCameraBasic() = default;

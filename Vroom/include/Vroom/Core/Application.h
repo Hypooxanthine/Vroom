@@ -6,6 +6,7 @@
 
 #include <GL/glew.h>
 
+#include "Vroom/Api.h"
 #include "Vroom/Core/LayerStack.h"
 #include "Vroom/Core/DeltaTime.h"
 
@@ -22,7 +23,7 @@ class GameLayer;
  * AFTER creation of Application instance (it will initialize everything needed).
  * 
  */
-class Application
+class VRM_API Application
 {
 public:
 

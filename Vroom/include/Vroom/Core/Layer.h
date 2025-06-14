@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Vroom/Api.h"
+
 namespace vrm
 {
 
@@ -10,7 +12,7 @@ struct Event;
  * @brief Layer class. Layers are used to separate different parts of the application. Layers are rendered in the order they are added, and updated in the reverse order.
  * 
  */
-class Layer
+class VRM_API Layer
 {
 public:
     Layer() = default;

@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "Vroom/Api.h"
 #include "Vroom/Event/Codes.h"
 #include "Vroom/Event/Trigger/TriggerCallback.h"
 #include "Vroom/Event/Event.h"
@@ -17,7 +18,7 @@ class TriggerManager;
  * This class makes it easier to bind inputs and callbacks to a trigger.
  * 
  */
-class TriggerBinder
+class VRM_API TriggerBinder
 {
 public:
 

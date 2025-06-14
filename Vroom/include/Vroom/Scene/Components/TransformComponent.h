@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/constants.hpp>
+#include "Vroom/Api.h"
 
 namespace vrm
 {
@@ -12,7 +13,7 @@ namespace vrm
  *
  * A transform component is a simple component that stores the position, rotation and scale of an entity.
  */
-  class TransformComponent
+  class VRM_API TransformComponent
   {
   public:
     TransformComponent() = default;

@@ -39,6 +39,7 @@ endif()
 
 # Enable glm experimental features for all projects
 add_compile_definitions(GLM_ENABLE_EXPERIMENTAL=1)
+add_compile_options(-fvisibility=hidden)
 
 # Visual Studio specific settings
 if (CMAKE_GENERATOR MATCHES "Visual Studio")

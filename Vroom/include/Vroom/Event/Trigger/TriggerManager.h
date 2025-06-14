@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <string>
 
+#include "Vroom/Api.h"
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Event/Trigger/Trigger.h"
 #include "Vroom/Event/Event.h"
@@ -21,7 +22,7 @@ namespace vrm
  * This class is used to manage triggers. It allows to create, bind and trigger triggers.
  * 
  */
-class TriggerManager
+class VRM_API TriggerManager
 {
 public:
     TriggerManager() = default;

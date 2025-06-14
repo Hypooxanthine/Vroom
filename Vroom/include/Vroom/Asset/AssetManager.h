@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "Vroom/Api.h"
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
 #include "Vroom/Asset/AssetHandle.h"
@@ -11,7 +12,7 @@
 namespace vrm
 {
 
-  class AssetManager
+  class VRM_API AssetManager
   {
   public:
     AssetManager(const AssetManager&) = delete;

@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "Vroom/Api.h"
 #include "Vroom/Event/Event.h"
 #include "Vroom/Event/Codes.h"
 #include "Vroom/Event/CustomEvent/CustomEventCallback.h"
@@ -17,7 +18,7 @@ class CustomEventManager;
  * This class makes it easier to bind inputs and callbacks to a custom event.
  * 
  */
-class CustomEventBinder
+class VRM_API CustomEventBinder
 {
 public:
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Vroom/Api.h"
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
 #include "Vroom/Asset/StaticAsset/TextureAsset.h"
 #include "Vroom/Asset/AssetData/MaterialData.h"
@@ -9,7 +10,7 @@
 namespace vrm
 {
 
-  class MaterialAsset : public StaticAsset
+  class VRM_API MaterialAsset : public StaticAsset
   {
   public:
     using Handle = AssetHandle<MaterialAsset>;
