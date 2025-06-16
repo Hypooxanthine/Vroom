@@ -15,3 +15,6 @@
 	path = deps/spdlog
 	url = https://github.com/gabime/spdlog.git
 	branch = v1.x
+[submodule "entt"]
+	path = deps/entt
+	url = https://github.com/skypjack/entt.git

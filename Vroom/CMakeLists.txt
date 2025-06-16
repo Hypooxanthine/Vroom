@@ -14,13 +14,6 @@ endif(POLICY CMP0072)
 
 include(FetchContent)
 
-# entt
-FetchContent_Declare(
-    EnTT
-    GIT_REPOSITORY https://github.com/skypjack/entt.git
-)
-FetchContent_MakeAvailable(EnTT)
-
 FetchContent_Declare(
   json
   URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz

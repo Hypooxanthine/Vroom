@@ -36,3 +36,7 @@ add_subdirectory(glm)
 # ----- SPDLOG -----
 
 add_subdirectory(spdlog)
+
+# ----- ENTT -----
+
+add_subdirectory(entt)
