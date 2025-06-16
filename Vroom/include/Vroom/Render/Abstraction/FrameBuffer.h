@@ -316,8 +316,6 @@ namespace vrm::gl
     static std::unique_ptr<FrameBuffer> s_DefaultFrameBuffer;
   };
 
-  inline std::unique_ptr<FrameBuffer> FrameBuffer::s_DefaultFrameBuffer = nullptr;
-
   inline const FrameBuffer& FrameBuffer::GetDefaultFrameBuffer()
   {
     if (s_DefaultFrameBuffer == nullptr)

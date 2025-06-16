@@ -53,8 +53,8 @@ namespace vrm
     class VRM_FACTORY_CLASS_NAME(ScriptClass) : public ScriptFactory\
     {\
     public:\
-      VRM_FACTORY_CLASS_NAME(ScriptClass)() = default;\
-      virtual ~VRM_FACTORY_CLASS_NAME(ScriptClass)() = default;\
+      VRM_FACTORY_CLASS_NAME(ScriptClass)() {}\
+      virtual ~VRM_FACTORY_CLASS_NAME(ScriptClass)() {}\
       virtual ScriptClass* create() const override\
       {\
         return new ScriptClass();\

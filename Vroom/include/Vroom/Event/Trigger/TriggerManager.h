@@ -27,6 +27,8 @@ class VRM_API TriggerManager
 public:
     TriggerManager() = default;
 
+    TriggerManager(const TriggerManager&) = delete;
+
     /**
      * @brief Check if the event triggers any Trigger and trigger them.
      * 
@@ -122,8 +124,6 @@ private:
 
     std::unordered_map<KeyCode, std::unordered_set<std::string>> m_Keys;
     std::unordered_map<MouseCode, std::unordered_set<std::string>> m_MouseButtons;
-
-    std::vector<TriggerBinder> m_PermanentCallbacks;
 };
 
 } // namespace vrm

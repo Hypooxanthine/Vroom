@@ -26,6 +26,8 @@ class VRM_API CustomEventManager
 public:
     CustomEventManager() = default;
 
+    CustomEventManager(const CustomEventManager&) = delete;
+
     /**
      * @brief Check if the event triggers any custom event and trigger them.
      * 
@@ -137,8 +139,6 @@ private:
     std::unordered_map<Event::Type,
         std::unordered_map<CodeType,
             std::unordered_set<std::string>>> m_RawEventsToCustomEvents;
-
-    std::vector<CustomEventBinder> m_PermanentCallbacks;
 };
 
 } // namespace vrm

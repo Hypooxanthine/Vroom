@@ -1,15 +1,17 @@
 #pragma once
 
+#include "Vroom/Api.h"
+
 namespace vrm
 {
 
 class ScriptComponent;
 
-class ScriptFactory
+class VRM_API ScriptFactory
 {
 public:
-  ScriptFactory() = default;
-  virtual ~ScriptFactory() = default;
+  ScriptFactory() {}
+  virtual ~ScriptFactory() {}
 
   virtual ScriptComponent* create() const = 0;
 
