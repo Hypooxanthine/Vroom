@@ -4,6 +4,9 @@ project(VroomTests)
 
 add_library(DummyLib SHARED test_RuntimeLibrary_DummyLib.cpp)
 target_compile_definitions(DummyLib PRIVATE "DUM_TARGET_DUMMYLIB")
+if(UNIX)
+  target_compile_options(DummyLib PRIVATE -fvisibility=hidden)
+endif()
 
 include(FetchContent)
 FetchContent_Declare(
