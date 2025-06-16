@@ -9,7 +9,8 @@ project(VroomEditor)
 # Grouping the libraries
 
 set(LIBRARIES 
-    ImGuiGLFWGlew
+  ImGuiGLFWGlew
+  Vroom
 )
 
 # ----- Project directories -----
@@ -31,7 +32,7 @@ set(SOURCES ${PROJECT_IMPL})
 
 add_executable(VroomEditor                      ${PROJECT_IMPL} ${PROJECT_HEADERS})
 target_include_directories(VroomEditor  PUBLIC  ${INCLUDE_DIR} ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
-target_link_libraries(VroomEditor       PUBLIC  ${LIBRARIES} Vroom)
+target_link_libraries(VroomEditor       PUBLIC  ${LIBRARIES})
 
 # Compile options
 if (MSVC)
