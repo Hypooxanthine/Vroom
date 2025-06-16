@@ -3,6 +3,7 @@ cmake_minimum_required (VERSION 3.31)
 project(VroomTests)
 
 add_library(DummyLib SHARED test_RuntimeLibrary_DummyLib.cpp)
+target_compile_definitions(DummyLib PRIVATE "DUM_TARGET_DUMMYLIB")
 
 include(FetchContent)
 FetchContent_Declare(
@@ -21,6 +22,7 @@ include_directories(Vroom PUBLIC
 file(GLOB_RECURSE TEST_SOURCES  *.cc)
 
 add_executable(VroomTests ${TEST_SOURCES})
+target_compile_definitions(VroomTests PRIVATE "VRM_STATIC")
 
 add_dependencies(VroomTests DummyLib)
 
@@ -30,7 +32,6 @@ target_link_libraries(VroomTests
     Vroom_static
     GTest::gtest_main
 )
-target_compile_definitions(VroomTests PRIVATE VRM_STATIC)
 
 include(GoogleTest)
 gtest_discover_tests(VroomTests)
@@ -39,17 +40,18 @@ include(CTest)
 
 # Copy the resources to the build directory
 
-set(OUTPUT_DIR $<TARGET_FILE_DIR:VroomTests>/Resources)
+set(OUTPUT_DIR $<TARGET_FILE_DIR:VroomTests>)
+set(OUTPUT_RESOURCES_DIR ${OUTPUT_DIR}/Resources)
 
 add_custom_command(TARGET VroomTests POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E make_directory
-  ${OUTPUT_DIR}
+  ${OUTPUT_RESOURCES_DIR}
 )
 
 add_custom_command(TARGET VroomTests POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   ${ENGINE_RESOURCE_DIR}
-  ${OUTPUT_DIR}
+  ${OUTPUT_RESOURCES_DIR}
 )
 
 add_custom_command(TARGET VroomTests POST_BUILD

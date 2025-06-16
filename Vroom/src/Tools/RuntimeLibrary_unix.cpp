@@ -70,7 +70,10 @@ bool RuntimeLibrary::_isLoaded() const
 void* RuntimeLibrary::_getSymbol(const std::string& name)
 {
   if (!isLoaded())
+  {
+    VRM_LOG_ERROR("Runtime library not loaded");
     return nullptr;
+  }
   
   dlerror();
   void* symbol = dlsym(IMPL.handle, name.c_str());
