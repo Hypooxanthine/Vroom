@@ -14,14 +14,6 @@ endif(POLICY CMP0072)
 
 include(FetchContent)
 
-# spdlog
-FetchContent_Declare(
-    spdlog
-    GIT_REPOSITORY https://github.com/gabime/spdlog.git
-    GIT_TAG        v1.x
-)
-FetchContent_MakeAvailable(spdlog)
-
 # entt
 FetchContent_Declare(
     EnTT

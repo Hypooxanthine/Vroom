@@ -32,3 +32,7 @@ target_link_libraries(ImGuiGLFWGlew PUBLIC glfw libglew_shared)
 # ----- GLM -----
 
 add_subdirectory(glm)
+
+# ----- SPDLOG -----
+
+add_subdirectory(spdlog)

@@ -11,3 +11,7 @@
 [submodule "glm"]
 	path = deps/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "spdlog"]
+	path = deps/spdlog
+	url = https://github.com/gabime/spdlog.git
+	branch = v1.x
