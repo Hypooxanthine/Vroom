@@ -30,6 +30,7 @@ target_link_libraries(VroomTests
     Vroom_static
     GTest::gtest_main
 )
+target_compile_definitions(VroomTests PRIVATE VRM_STATIC)
 
 include(GoogleTest)
 gtest_discover_tests(VroomTests)

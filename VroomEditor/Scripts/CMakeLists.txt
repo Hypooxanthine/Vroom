@@ -35,6 +35,7 @@ add_custom_command(TARGET ScriptsLibrary POST_BUILD
 add_library(ScriptsLibrary_static                  STATIC  ${SCRIPT_IMPL} ${SCRIPT_HEADERS})
 target_include_directories(ScriptsLibrary_static   PUBLIC  ${INCLUDE_DIR})
 target_link_libraries(ScriptsLibrary_static        PUBLIC  Vroom_static)
+target_compile_definitions(ScriptsLibrary_static PRIVATE VRM_STATIC)
 
 # Compile options
 if (MSVC)

@@ -83,7 +83,9 @@ add_library(Vroom                   SHARED  ${SOURCES} ${HEADERS})
 target_include_directories(Vroom    PUBLIC  ${VENDOR_DIR} ${INCLUDE_DIR})
 target_link_libraries(Vroom                 ${LIBRARIES})
 target_compile_definitions(Vroom PRIVATE "VRM_TARGET_VROOM")
-target_compile_options(Vroom PRIVATE -fvisibility=hidden)
+if(UNIX)
+  target_compile_options(Vroom PRIVATE -fvisibility=hidden)
+endif()
 
 # ----- Specific settings -----
 

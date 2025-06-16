@@ -25,6 +25,7 @@ set(SOURCES ${PROJECT_IMPL})
 add_executable(Sandbox                      ${PROJECT_IMPL} ${PROJECT_HEADERS})
 target_include_directories(Sandbox  PUBLIC  ${INCLUDE_DIR})
 target_link_libraries(Sandbox               Vroom_static)
+target_compile_definitions(Sandbox PRIVATE VRM_STATIC)
 
 # Compile options
 if (MSVC)
