@@ -4,3 +4,7 @@
 [submodule "deps/glew"]
 	path = deps/glew
 	url = git@github.com:Perlmint/glew-cmake.git
+[submodule "imgui"]
+	path = deps/imgui
+	url = git@github.com:ocornut/imgui.git
+	branch = docking
