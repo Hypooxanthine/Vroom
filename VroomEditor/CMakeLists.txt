@@ -71,6 +71,12 @@ add_custom_command(TARGET VroomEditor POST_BUILD
   ${OUTPUT_DIR}
 )
 
+add_custom_command(TARGET VroomEditor POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy
+  $<TARGET_FILE:Vroom> $<TARGET_FILE:glfw> $<TARGET_FILE:libglew_shared>
+  ${OUTPUT_DIR}
+)
+
 add_subdirectory("Scripts")
 
 target_compile_definitions(VroomEditor

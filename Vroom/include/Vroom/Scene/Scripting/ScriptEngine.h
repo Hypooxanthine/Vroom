@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Vroom/Api.h"
 #include <unordered_map>
 #include <string>
 #include <memory>
+#include "Vroom/Api.h"
 
 namespace vrm
 {
@@ -16,7 +16,7 @@ class ScriptComponent;
 class VRM_API ScriptEngine
 {
 public:
-  virtual ~ScriptEngine();
+  ~ScriptEngine();
 
   static ScriptEngine& Get();
 
@@ -29,6 +29,9 @@ public:
 
 private:
   ScriptEngine();
+
+  ScriptEngine(const ScriptEngine&) = delete;
+  ScriptEngine& operator=(const ScriptEngine&) = delete;
   
   static std::unique_ptr<ScriptEngine> s_Instance;
   std::unordered_map<std::string, std::unique_ptr<ScriptFactory>> m_Factories;
