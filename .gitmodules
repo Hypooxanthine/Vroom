@@ -8,3 +8,6 @@
 	path = deps/imgui
 	url = git@github.com:ocornut/imgui.git
 	branch = docking
+[submodule "glm"]
+	path = deps/glm
+	url = https://github.com/g-truc/glm.git

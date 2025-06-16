@@ -14,13 +14,6 @@ endif(POLICY CMP0072)
 
 include(FetchContent)
 
-# glm
-FetchContent_Declare(
-    glm
-    GIT_REPOSITORY https://github.com/g-truc/glm.git
-)
-FetchContent_MakeAvailable(glm)
-
 # spdlog
 FetchContent_Declare(
     spdlog
