@@ -2,76 +2,182 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/constants.hpp>
+#include <bitset>
 #include "Vroom/Api.h"
 
 namespace vrm
 {
 
-/**
- * @brief Transform component.
- *
- * A transform component is a simple component that stores the position, rotation and scale of an entity.
- */
+  /**
+   * @brief Transform component.
+   *
+   * A transform component is a simple component that stores the position, rotation and scale of an entity.
+   */
   class VRM_API TransformComponent
   {
   public:
     TransformComponent() = default;
 
-    void setPosition(const glm::vec3& pos)
+    TransformComponent(const TransformComponent&) = default;
+    TransformComponent& operator=(const TransformComponent&) = default;
+
+    TransformComponent(TransformComponent&&) = default;
+    TransformComponent& operator=(TransformComponent&&) = default;
+
+    inline void setPosition(const glm::vec3& pos)
     {
-      position = pos;
-      m_Dirty = true;
+      m_position = pos;
+      setTransformDirty();
+      setFrameDirty();
     }
 
-    void setRotation(const glm::vec3& rot)
+    inline void setRotation(const glm::vec3& rot)
     {
-      rotation = glm::mod(rot, glm::vec3(glm::two_pi<float>()));
-      m_Dirty = true;
+      m_rotation = glm::mod(rot, glm::vec3(glm::two_pi<float>()));
+      setTransformDirty();
+      setFrameDirty();
     }
 
-    void setScale(const glm::vec3& s)
+    inline void setScale(const glm::vec3& s)
     {
-      scale = s;
-      m_Dirty = true;
+      m_scale = s;
+      setTransformDirty();
+      setFrameDirty();
     }
 
-    const glm::vec3& getPosition() const { return position; }
+    inline const glm::vec3& getPosition() const { return m_position; }
 
-    const glm::vec3& getRotation() const { return rotation; }
+    inline const glm::vec3& getRotation() const { return m_rotation; }
 
-    const glm::vec3& getScale() const { return scale; }
+    inline const glm::vec3& getScale() const { return m_scale; }
 
-    const glm::mat4& getTransform() const
+    inline const glm::mat4& getTransform() const
     {
-      if (m_Dirty)
+      computeTransformCheck();
+
+      return m_transform;
+    }
+
+    inline const glm::vec3& getGlobalPosition() const
+    {
+      return m_globalPosition;
+    }
+
+    inline glm::vec3 getGlobalRotation() const
+    {
+      return glm::eulerAngles(m_globalRotation);
+    }
+
+    inline const glm::quat& getGlobalRotationQuat() const
+    {
+      return m_globalRotation;
+    }
+
+    inline const glm::vec3& getGlobalScale() const
+    {
+      return m_globalScale;
+    }
+
+    inline const glm::mat4& getGlobalTransform() const
+    {
+      return m_globalTransform;
+    }
+
+    inline bool isTransformDirty() const
+    {
+      return m_dirtyFlags.test(EDirtyFlags::eTransform);
+    }
+
+    inline bool isFrameDirty() const
+    {
+      return m_dirtyFlags.test(EDirtyFlags::eFrame);
+    }
+
+  public:
+
+    friend struct SceneAttorney;
+
+    // Scene needs to reset the changedThisFrame flag
+    struct SceneAttorney
+    {
+      friend class scene;
+
+    private:
+      
+      inline static void resetFrameDirty(TransformComponent& tc)
       {
-        computeTransform();
-        m_Dirty = false;
+        tc.setFrameDirty(false);
       }
 
-      return m_Transform;
-    }
+      // Assumes parent's globals are clear
+      inline static void computeGlobals(TransformComponent& tc, const TransformComponent& parent)
+      {
+        tc.m_globalTransform = tc.getTransform() * parent.getGlobalTransform();
+        tc.m_globalPosition = tc.getPosition() + parent.getGlobalPosition();
+        tc.m_globalScale = tc.getScale() * parent.getGlobalScale();
+        tc.m_globalRotation = glm::quat(tc.getRotation()) * parent.getGlobalRotationQuat();
+      }
+    };
 
   private:
-    void computeTransform() const
+
+    inline void setTransformDirty(bool dirty = true) const
     {
-      m_Transform = glm::mat4(1.0f);
-      m_Transform = glm::translate(m_Transform, position);
-      m_Transform = glm::rotate(m_Transform, rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-      m_Transform = glm::rotate(m_Transform, rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-      m_Transform = glm::rotate(m_Transform, rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
-      m_Transform = glm::scale(m_Transform, scale);
+      m_dirtyFlags.set(EDirtyFlags::eTransform, dirty);
+    }
+
+    inline void setFrameDirty(bool dirty = true) const
+    {
+      m_dirtyFlags.set(EDirtyFlags::eFrame, dirty);
+    }
+
+    inline void computeTransformCheck() const
+    {
+      if (isTransformDirty())
+      {
+        computeTransformUncheck();
+      }
+    }
+
+    inline void computeTransformUncheck() const
+    {
+      m_transform = glm::mat4(1.0f);
+      m_transform = glm::translate(m_transform, m_position);
+      m_transform = glm::rotate(m_transform, m_rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+      m_transform = glm::rotate(m_transform, m_rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+      m_transform = glm::rotate(m_transform, m_rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+      m_transform = glm::scale(m_transform, m_scale);
+      setTransformDirty(false);
+
+      constexpr auto size = sizeof(m_dirtyFlags);
     }
 
 
   private:
-    glm::vec3 position = glm::vec3(0.0f);
-    glm::vec3 rotation = glm::vec3(0.0f);
-    glm::vec3 scale = glm::vec3(1.0f);
+    glm::vec3 m_position = glm::vec3(0.0f);
+    glm::vec3 m_rotation = glm::vec3(0.0f);
+    glm::vec3 m_scale = glm::vec3(1.0f);
+    mutable glm::mat4 m_transform = glm::mat4(1.0f);
 
-    mutable glm::mat4 m_Transform = glm::mat4(1.0f);
-    mutable bool m_Dirty = true;
+    glm::vec3 m_globalPosition = glm::vec3(0.0f);
+    glm::quat m_globalRotation = glm::quat(glm::vec3(0.0f));
+    glm::vec3 m_globalScale = glm::vec3(1.0f);
+    glm::mat4 m_globalTransform = glm::mat4(1.0f);
+    
+    struct EDirtyFlags
+    {
+      enum : size_t
+      {
+        eTransform = 0,
+        eFrame,
+        eCount
+      };
+    };
+
+    mutable std::bitset<EDirtyFlags::eCount> m_dirtyFlags;
   };
 
 } // namespace vrm
