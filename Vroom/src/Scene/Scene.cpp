@@ -66,6 +66,8 @@ void Scene::update(const DeltaTime& dt)
 
 void Scene::render()
 {
+  _updateGlobalTransforms();
+
   Application &app = Application::Get();
   Renderer &renderer = Renderer::Get();
   renderer.beginScene(getCamera());
@@ -73,23 +75,22 @@ void Scene::render()
   auto viewDirLights = m_Registry.view<DirectionalLightComponent, TransformComponent>();
   for (auto&& [e, dl, t] : viewDirLights.each())
   {
-    const glm::vec3& rot = t.getRotation();
-    auto rotMatrix = glm::eulerAngleXYZ(rot.x, rot.y, rot.z);
+    const glm::quat& rot = t.getGlobalRotationQuat();
     glm::vec4 forward = { 1.f, 0.f, 0.f, 0.f };
 
-    renderer.submitDirectionalLight(static_cast<entt::id_type>(e), dl, glm::vec3(rotMatrix * forward));
+    renderer.submitDirectionalLight(static_cast<entt::id_type>(e), dl, glm::vec3(rot * forward));
   }
 
   auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent>();
   for (auto&& [e, pl, t] : viewPointLights.each())
   {
-    renderer.submitPointLight(static_cast<entt::id_type>(e), pl, t.getPosition());
+    renderer.submitPointLight(static_cast<entt::id_type>(e), pl, t.getGlobalPosition());
   }
 
   auto viewMeshes = m_Registry.view<MeshComponent, TransformComponent>();
   for (auto&& [e, m, t] : viewMeshes.each())
   {
-    renderer.submitMesh(static_cast<uint32_t>(e), m, &t.getTransform());
+    renderer.submitMesh(static_cast<uint32_t>(e), m, &t.getGlobalTransform());
   }
 
   onRender();
@@ -189,6 +190,9 @@ void Scene::setEntitiesRelation(Entity& parent, Entity& child)
   hExParent.children.remove(child);
   hChild.parent = parent;
   hParent.children.emplace_back(child.clone());
+
+  auto& tChild = child.getComponentInternal<vrm::TransformComponent>();
+  TransformComponent::SceneAttorney::setFrameDirty(tChild, true);
 }
 
 void Scene::destroyEntity(Entity& entity)
@@ -256,4 +260,36 @@ void Scene::renameRoot(const std::string& rootName)
   m_EntitiesByName.erase(m_Root.getName());
   m_EntitiesByName[rootName] = m_Root.clone();
   m_Root.getComponentInternal<NameComponent>().name = rootName;
+}
+
+void Scene::_updateGlobalTransforms()
+{
+  auto effector = [](Entity& current, Entity& parent) -> bool
+  {
+    auto& currentTC = current.getComponentInternal<vrm::TransformComponent>();
+
+    TransformComponent::SceneAttorney::computeGlobals(
+      currentTC,
+      parent.getComponentInternal<vrm::TransformComponent>()
+    );
+
+    TransformComponent::SceneAttorney::setFrameDirty(currentTC, false);
+
+    return true;
+  };
+
+  auto checker = [this, &effector](Entity& current, Entity& parent) -> bool
+  {
+    auto& currentTC = current.getComponentInternal<vrm::TransformComponent>();
+
+    if (currentTC.isFrameDirty())
+    {
+      DepthFirstTraversal<true>(effector, current);
+      return false; // Checking aborted, everything deeper will be updated
+    }
+
+    return true;
+  };
+
+  DepthFirstTraversal<false>(checker, getRoot());
 }

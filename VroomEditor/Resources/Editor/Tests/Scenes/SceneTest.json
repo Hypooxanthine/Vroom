@@ -90,113 +90,6 @@
         {
           "params": [
             {
-              "name": "ResourceName",
-              "value": "Resources/Editor/Tests/Meshes/Textured_Cube.obj"
-            },
-            {
-              "name": "CastsShadow",
-              "value": true
-            }
-          ],
-          "type": "MeshComponent"
-        },
-        {
-          "params": [
-            {
-              "name": "Position",
-              "value": [
-                0.0,
-                0.0,
-                0.0
-              ]
-            },
-            {
-              "name": "Rotation",
-              "value": [
-                0.0,
-                0.0,
-                0.0
-              ]
-            },
-            {
-              "name": "Scale",
-              "value": [
-                1.0,
-                1.0,
-                1.0
-              ]
-            }
-          ],
-          "type": "TransformComponent"
-        }
-      ],
-      "name": "ColoredCube",
-      "parent": "Plane",
-      "type": "Entity"
-    },
-    {
-      "components": [
-        {
-          "params": [
-            {
-              "name": "ScriptName",
-              "value": "VRM_SuzanneScript_ID"
-            }
-          ],
-          "type": "ScriptComponent"
-        },
-        {
-          "params": [
-            {
-              "name": "ResourceName",
-              "value": "Resources/Editor/Tests/Meshes/Suzanne.obj"
-            },
-            {
-              "name": "CastsShadow",
-              "value": true
-            }
-          ],
-          "type": "MeshComponent"
-        },
-        {
-          "params": [
-            {
-              "name": "Position",
-              "value": [
-                10.0,
-                0.0,
-                0.0
-              ]
-            },
-            {
-              "name": "Rotation",
-              "value": [
-                0.0,
-                0.0,
-                0.0
-              ]
-            },
-            {
-              "name": "Scale",
-              "value": [
-                1.0,
-                1.0,
-                1.0
-              ]
-            }
-          ],
-          "type": "TransformComponent"
-        }
-      ],
-      "name": "Suzanne_0",
-      "parent": "Root",
-      "type": "Entity"
-    },
-    {
-      "components": [
-        {
-          "params": [
-            {
               "name": "ScriptName",
               "value": "VRM_MovingLightScript_ID"
             }
@@ -348,6 +241,113 @@
       ],
       "name": "Dir_light",
       "parent": "Root",
+      "type": "Entity"
+    },
+    {
+      "components": [
+        {
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Editor/Tests/Meshes/Textured_Cube.obj"
+            },
+            {
+              "name": "CastsShadow",
+              "value": true
+            }
+          ],
+          "type": "MeshComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ],
+          "type": "TransformComponent"
+        }
+      ],
+      "name": "ColoredCube",
+      "parent": "Root",
+      "type": "Entity"
+    },
+    {
+      "components": [
+        {
+          "params": [
+            {
+              "name": "ScriptName",
+              "value": "VRM_SuzanneScript_ID"
+            }
+          ],
+          "type": "ScriptComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Editor/Tests/Meshes/Suzanne.obj"
+            },
+            {
+              "name": "CastsShadow",
+              "value": true
+            }
+          ],
+          "type": "MeshComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                10.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ],
+          "type": "TransformComponent"
+        }
+      ],
+      "name": "Suzanne_0",
+      "parent": "ColoredCube",
       "type": "Entity"
     }
   ]

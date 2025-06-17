@@ -180,6 +180,31 @@ namespace vrm
      */
     virtual void onEnd() {}
 
+    /**
+     * @brief 
+     * 
+     * @tparam CallOnFirst If false, every entity should have a valid parent. If false, this function will try to get first's parent, which can be null if first is root.
+     * @tparam Fn signature : bool(Entity& currentEntity, Entity& parentEntity). If it returns false, traversal is aborted on the current subtree.
+     * @param first The first entity to consider.
+     * @param function The function to apply to entities.
+     */
+    template <bool CallOnFirst = true, typename Fn>
+    void DepthFirstTraversal(Fn&& function, Entity& first)
+    {
+      if constexpr (CallOnFirst)
+      {
+        if (!function(first, first.getParent())) return;
+      }
+
+      auto& children = first.getChildren();
+
+      for (auto& child : children)
+      {
+        if (function(child, first))
+          DepthFirstTraversal<false>(std::forward<Fn>(function), child);
+      }
+    }
+
   private:
     /**
      * @brief Creating an registering a raw entity. Unsafe, internal use only.
@@ -193,6 +218,10 @@ namespace vrm
     void renameRoot(const std::string &rootName);
 
     void destroyEntityRecursive(Entity entity);
+
+    void _updateGlobalTransforms();
+
+    // Scene loading
 
     bool loadFromAsset2(const SceneData &data);
 

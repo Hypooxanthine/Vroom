@@ -19,7 +19,10 @@ namespace vrm
   class VRM_API TransformComponent
   {
   public:
-    TransformComponent() = default;
+    TransformComponent()
+    {
+      _setFrameDirty();
+    }
 
     TransformComponent(const TransformComponent&) = default;
     TransformComponent& operator=(const TransformComponent&) = default;
@@ -30,22 +33,22 @@ namespace vrm
     inline void setPosition(const glm::vec3& pos)
     {
       m_position = pos;
-      setTransformDirty();
-      setFrameDirty();
+      _setTransformDirty();
+      _setFrameDirty();
     }
 
     inline void setRotation(const glm::vec3& rot)
     {
       m_rotation = glm::mod(rot, glm::vec3(glm::two_pi<float>()));
-      setTransformDirty();
-      setFrameDirty();
+      _setTransformDirty();
+      _setFrameDirty();
     }
 
     inline void setScale(const glm::vec3& s)
     {
       m_scale = s;
-      setTransformDirty();
-      setFrameDirty();
+      _setTransformDirty();
+      _setFrameDirty();
     }
 
     inline const glm::vec3& getPosition() const { return m_position; }
@@ -56,7 +59,7 @@ namespace vrm
 
     inline const glm::mat4& getTransform() const
     {
-      computeTransformCheck();
+      _computeTransformCheck();
 
       return m_transform;
     }
@@ -103,46 +106,58 @@ namespace vrm
     // Scene needs to reset the changedThisFrame flag
     struct SceneAttorney
     {
-      friend class scene;
+      friend class Scene;
 
     private:
       
-      inline static void resetFrameDirty(TransformComponent& tc)
+      inline static void setFrameDirty(TransformComponent& tc, bool dirty)
       {
-        tc.setFrameDirty(false);
+        tc._setFrameDirty(dirty);
       }
 
       // Assumes parent's globals are clear
       inline static void computeGlobals(TransformComponent& tc, const TransformComponent& parent)
       {
-        tc.m_globalTransform = tc.getTransform() * parent.getGlobalTransform();
-        tc.m_globalPosition = tc.getPosition() + parent.getGlobalPosition();
-        tc.m_globalScale = tc.getScale() * parent.getGlobalScale();
-        tc.m_globalRotation = glm::quat(tc.getRotation()) * parent.getGlobalRotationQuat();
+        tc.m_globalTransform = parent.getGlobalTransform() * tc.getTransform();
+        tc.m_globalPosition = tc.m_globalTransform[3];
+
+        tc.m_globalScale = glm::vec3
+        {
+          glm::length(glm::vec3(tc.m_globalTransform[0])),
+          glm::length(glm::vec3(tc.m_globalTransform[1])),
+          glm::length(glm::vec3(tc.m_globalTransform[2]))
+        };
+
+        glm::mat3 rotation;
+        rotation[0] = glm::vec3(tc.m_globalTransform[0]) / tc.m_globalScale.x;
+        rotation[1] = glm::vec3(tc.m_globalTransform[1]) / tc.m_globalScale.y;
+        rotation[2] = glm::vec3(tc.m_globalTransform[2]) / tc.m_globalScale.z;
+
+        tc.m_globalRotation = glm::quat_cast(rotation);
       }
     };
 
   private:
 
-    inline void setTransformDirty(bool dirty = true) const
+    inline void _setTransformDirty(bool dirty = true) const
     {
       m_dirtyFlags.set(EDirtyFlags::eTransform, dirty);
     }
 
-    inline void setFrameDirty(bool dirty = true) const
+    inline void _setFrameDirty(bool dirty = true) const
     {
       m_dirtyFlags.set(EDirtyFlags::eFrame, dirty);
     }
 
-    inline void computeTransformCheck() const
+    inline void _computeTransformCheck() const
     {
       if (isTransformDirty())
       {
-        computeTransformUncheck();
+        _computeTransformUncheck();
       }
     }
 
-    inline void computeTransformUncheck() const
+    inline void _computeTransformUncheck() const
     {
       m_transform = glm::mat4(1.0f);
       m_transform = glm::translate(m_transform, m_position);
@@ -150,9 +165,7 @@ namespace vrm
       m_transform = glm::rotate(m_transform, m_rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
       m_transform = glm::rotate(m_transform, m_rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
       m_transform = glm::scale(m_transform, m_scale);
-      setTransformDirty(false);
-
-      constexpr auto size = sizeof(m_dirtyFlags);
+      _setTransformDirty(false);
     }
 
 
