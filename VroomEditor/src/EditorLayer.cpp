@@ -8,10 +8,15 @@
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 
 #include "VroomEditor/EditorScene.h"
-#include "VroomEditor/TestScene/TestScene.h"
 
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/SceneAsset.h"
+
+#ifdef VRM_RUNTIME_SCRIPTS_PATH
+static constexpr std::string_view g_scriptLibraryPath = VRM_RUNTIME_SCRIPTS_PATH;
+#else
+static constexpr std::string_view g_scriptLibraryPath = "";
+#endif
 
 using namespace vrm;
 
@@ -132,6 +137,9 @@ void EditorLayer::onInit()
   m_TriggerManager.createTrigger("MoveDown")
     .bindInput(vrm::KeyCode::LeftShift);
   m_TriggerManager.bindPermanentCallback("MoveDown", [this] (bool triggered) { m_EditorCamera.addMoveUp(-(triggered ? 1.f : -1.f)); });
+
+  // Scripts
+  _loadScriptsRuntimeLibrary();
 }
 
 void EditorLayer::onEnd()
@@ -195,4 +203,30 @@ void EditorLayer::onViewportResize(int newWidth, int newHeight)
     static_cast<float>(newWidth),
     static_cast<float>(newHeight)
   );
+}
+
+void EditorLayer::_loadScriptsRuntimeLibrary()
+{
+  VRM_LOG_INFO("Loading scripts");
+
+  bool ok;
+  if (g_scriptLibraryPath.size() > 0)
+  {
+    ok = m_scriptsRuntime.load(g_scriptLibraryPath);
+
+    if (!ok)
+    {
+      VRM_LOG_ERROR("Error while loading scripts runtime library {}", g_scriptLibraryPath);
+    }
+  }
+  else
+  {
+    VRM_LOG_WARN("No scripts runtime library path");
+    ok = false;
+  }
+
+  if (ok)
+  {
+    VRM_LOG_INFO("Scripts runtime library {} loaded", g_scriptLibraryPath.data());
+  }
 }

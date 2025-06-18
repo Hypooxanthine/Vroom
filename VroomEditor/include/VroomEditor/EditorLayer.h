@@ -4,6 +4,7 @@
 #include <Vroom/Event/CustomEvent/CustomEventManager.h>
 #include <Vroom/Event/Trigger/TriggerManager.h>
 #include <Vroom/Render/Camera/FirstPersonCamera.h>
+#include <Vroom/Tools/RuntimeLibrary.h>
 
 #include "VroomEditor/EditorCamera.h"
 
@@ -48,12 +49,16 @@ protected:
 private:
   void onViewportResize(int newWidth, int newHeight);
 
+  void _loadScriptsRuntimeLibrary();
+
 private:
   CustomEventManager m_CustomEventManager;
   TriggerManager m_TriggerManager;
   std::string m_loadedScene = "";
 
   EditorCamera m_EditorCamera;
+  RuntimeLibrary m_scriptsRuntime;
+
 };
 
 } // namespace vrm

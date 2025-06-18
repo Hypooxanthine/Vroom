@@ -6,6 +6,8 @@
 #include "Vroom/Scene/Scripting/ScriptEngine.h"
 #include "Vroom/Scene/Scripting/ScriptFactory.h"
 
+#include "Vroom/Core/Log.h"
+
 namespace vrm
 {
 
@@ -71,6 +73,12 @@ namespace vrm
       inline ScriptClass##_Registerer_t()\
       {\
         ScriptEngine::Get().registerScript(VRM_GEN_SCRIPT_ID(ScriptClass), std::make_unique<VRM_FACTORY_CLASS_NAME(ScriptClass)>());\
+        VRM_LOG_TRACE("Registered {}", VRM_GEN_SCRIPT_ID(ScriptClass));\
+      }\
+      inline ~ ScriptClass##_Registerer_t()\
+      {\
+        ScriptEngine::Get().unregisterScript(VRM_GEN_SCRIPT_ID(ScriptClass));\
+        VRM_LOG_TRACE("Unregistered {}", VRM_GEN_SCRIPT_ID(ScriptClass));\
       }\
     };\
 \

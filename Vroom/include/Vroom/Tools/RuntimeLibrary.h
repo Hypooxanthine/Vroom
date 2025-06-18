@@ -3,10 +3,12 @@
 #include <filesystem>
 #include <unordered_map>
 
+#include "Vroom/Api.h"
+
 namespace vrm
 {
 
-  class RuntimeLibrary
+  class VRM_API RuntimeLibrary
   {
   public:
     RuntimeLibrary();
