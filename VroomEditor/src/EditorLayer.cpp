@@ -96,6 +96,11 @@ void EditorLayer::importFile(const std::filesystem::path& file)
   
 }
 
+void EditorLayer::reloadScripts()
+{
+  VRM_LOG_WARN("Not implemented");
+}
+
 void EditorLayer::onInit()
 {
   // Engine setup

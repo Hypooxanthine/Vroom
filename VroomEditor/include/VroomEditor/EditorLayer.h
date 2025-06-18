@@ -39,6 +39,8 @@ public:
 
   void importFile(const std::filesystem::path& file);
 
+  void reloadScripts();
+
 protected:
   virtual void onInit() override;
   virtual void onEnd() override;

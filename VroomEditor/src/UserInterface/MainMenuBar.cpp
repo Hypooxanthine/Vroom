@@ -104,6 +104,14 @@ bool MainMenuBar::onImgui()
       }
       ImGui::EndMenu();
     }
+    if (ImGui::BeginMenu("Scripts"))
+    {
+      if (ImGui::MenuItem("Reload scripts"))
+      {
+        EditorLayer::Get().reloadScripts();
+      }
+      ImGui::EndMenu();
+    }
     if (ImGui::BeginMenu("Help"))
     {
       if (ImGui::MenuItem("About", "Ctrl+F1"))
