@@ -39,6 +39,7 @@ public:
 
   void importFile(const std::filesystem::path& file);
 
+  void buildScripts();
   void reloadScripts();
 
 protected:

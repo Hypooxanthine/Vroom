@@ -106,7 +106,11 @@ bool MainMenuBar::onImgui()
     }
     if (ImGui::BeginMenu("Scripts"))
     {
-      if (ImGui::MenuItem("Reload scripts"))
+      if (ImGui::MenuItem("Build"))
+      {
+        EditorLayer::Get().buildScripts();
+      }
+      if (ImGui::MenuItem("Reload"))
       {
         EditorLayer::Get().reloadScripts();
       }

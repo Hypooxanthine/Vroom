@@ -51,8 +51,8 @@ endif()
 get_filename_component(ROOT "${CMAKE_SOURCE_DIR}" ABSOLUTE)
 
 # Resource directories
-set(ENGINE_RESOURCE_DIR   ${Vroom_SOURCE_DIR}/Resources)
-set(EDITOR_RESOURCE_DIR   ${VroomEditor_SOURCE_DIR}/Resources)
+set(ENGINE_RESOURCE_DIR   ${ROOT}/Vroom/Resources)
+set(EDITOR_RESOURCE_DIR   ${ROOT}/VroomEditor/Resources)
 
 # ----- Solution definition -----
 

@@ -4,6 +4,7 @@
 #include <Vroom/Core/GameLayer.h>
 #include <Vroom/Core/Window.h>
 #include <fstream>
+#include <future>
 
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 
@@ -11,6 +12,7 @@
 
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/SceneAsset.h"
+#include "Vroom/Tools/Os.h"
 
 #ifdef VRM_RUNTIME_SCRIPTS_PATH
 static constexpr std::string_view g_scriptLibraryPath = VRM_RUNTIME_SCRIPTS_PATH;
@@ -94,6 +96,18 @@ void EditorLayer::saveScene()
 void EditorLayer::importFile(const std::filesystem::path& file)
 {
   
+}
+
+void EditorLayer::buildScripts()
+{
+#ifndef VRM_BUILD_SCRIPTS_CMD
+  VRM_LOG_WARN("Aborted: build command is not set");
+  return;
+#endif
+
+  static constexpr std::string_view cmd = VRM_BUILD_SCRIPTS_CMD;
+
+  OS::RunInShell(std::string(cmd), true);
 }
 
 void EditorLayer::reloadScripts()

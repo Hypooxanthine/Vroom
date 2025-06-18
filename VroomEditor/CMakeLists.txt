@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 3.31)
 
+add_subdirectory("Scripts")
+
 # ----- Project definition -----
 
 project(VroomEditor)
@@ -33,6 +35,8 @@ set(SOURCES ${PROJECT_IMPL})
 add_executable(VroomEditor                      ${PROJECT_IMPL} ${PROJECT_HEADERS})
 target_include_directories(VroomEditor  PUBLIC  ${INCLUDE_DIR} ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
 target_link_libraries(VroomEditor       PUBLIC  ${LIBRARIES})
+
+add_dependencies(VroomEditor ScriptsLibrary)
 
 # Compile options
 if (MSVC)
@@ -73,12 +77,15 @@ add_custom_command(TARGET VroomEditor POST_BUILD
 
 add_custom_command(TARGET VroomEditor POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy
-  $<TARGET_FILE:Vroom> $<TARGET_FILE:glfw> $<TARGET_FILE:libglew_shared>
+  $<TARGET_FILE:Vroom> $<TARGET_FILE:glfw> $<TARGET_FILE:libglew_shared> $<TARGET_FILE:ScriptsLibrary>
   ${OUTPUT_DIR}
 )
 
-add_subdirectory("Scripts")
+target_compile_definitions(VroomEditor
+  PRIVATE VRM_RUNTIME_SCRIPTS_PATH="$<TARGET_FILE_NAME:ScriptsLibrary>"
+)
 
 target_compile_definitions(VroomEditor
-  PUBLIC VRM_RUNTIME_SCRIPTS_PATH="$<TARGET_FILE_NAME:ScriptsLibrary>"
+  PRIVATE VRM_BUILD_SCRIPTS_CMD="${CMAKE_COMMAND} --build $<SHELL_PATH:${CMAKE_BINARY_DIR}> --target ScriptsLibrary"
 )
+
