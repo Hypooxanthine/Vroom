@@ -95,6 +95,7 @@ bool Viewport::onImgui()
   ui.onViewportActive(m_Active);
   ui.onViewportPaused(m_Paused);
   ui.onViewportSimulating(m_Simulating);
+  ui.onViewportPlaying(m_Playing);
 
   return ret;
 }

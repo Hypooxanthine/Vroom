@@ -109,4 +109,20 @@ bool Entity::isValid() const
   &&  m_Scene->getRegistry().valid(m_Handle);
 }
 
+ScriptComponent& Entity::addScriptComponent(std::unique_ptr<ScriptComponent>&& script)
+{
+  VRM_ASSERT_MSG(!hasComponent<ScriptHandler>(), "Entity already has component.");
+  auto& component = getEnttRegistry().emplace<ScriptHandler>(m_Handle, std::move(script));
+  
+  component.getScript().setEntityHandle(m_Handle);
+  component.getScript().setSceneRef(m_Scene);
+
+  if (m_Scene->hasSpawned())
+  {
+    component.getScript().onSpawn();
+  }
+    
+  return component.getScript();
+}
+
 } // namespace vrm

@@ -105,6 +105,24 @@ void Scene::end()
   m_Registry.clear(); // So that entities are destroyed properly
 }
 
+void Scene::spawn()
+{
+  onSpawn();
+
+  auto spawner = [](Entity& current, Entity& parent) -> bool
+  {
+    if (current.hasScriptComponent())
+    {
+      current.getScriptComponent().onSpawn();
+    }
+
+    return true;
+  };
+
+  DepthFirstTraversal<false>(spawner, getRoot());
+  m_spawned = true;
+}
+
 Entity Scene::createEntity(const std::string &nameTag)
 {
   auto e = createRawEntity(nameTag);
@@ -219,9 +237,9 @@ void Scene::destroyEntityRecursive(Entity entity)
     destroyEntityRecursive(child);
   }
 
-  if (entity.hasComponent<ScriptHandler>())
+  if (entity.hasScriptComponent())
   {
-    entity.getComponent<ScriptHandler>().getScript().onDestroy();
+    entity.getScriptComponent().onDestroy();
   }
 
   m_EntitiesByName.erase(entity.getName());

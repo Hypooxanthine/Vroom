@@ -78,23 +78,10 @@ namespace vrm
     template<typename T, typename... Args>
     T& addScriptComponent(Args&&... args)
     {
-      VRM_ASSERT_MSG(!hasComponent<ScriptHandler>(), "Entity already has component.");
-      auto& component = getEnttRegistry().emplace<ScriptHandler>(m_Handle, std::make_unique<T>(std::forward<Args>(args)...));
-      component.getScript().setEntityHandle(m_Handle);
-      component.getScript().setSceneRef(m_Scene);
-      component.getScript().onSpawn();
-      return static_cast<T&>(component.getScript());
+      return static_cast<T&>(addScriptComponent(std::make_unique<T>(std::forward<Args>(args)...)));
     }
 
-    ScriptComponent& addScriptComponent(std::unique_ptr<ScriptComponent>&& script)
-    {
-      VRM_ASSERT_MSG(!hasComponent<ScriptHandler>(), "Entity already has component.");
-      auto& component = getEnttRegistry().emplace<ScriptHandler>(m_Handle, std::move(script));
-      component.getScript().setEntityHandle(m_Handle);
-      component.getScript().setSceneRef(m_Scene);
-      component.getScript().onSpawn();
-      return component.getScript();
-    }
+    ScriptComponent& addScriptComponent(std::unique_ptr<ScriptComponent>&& script);
 
     /**
      * @brief Get a component from the entity.
@@ -133,6 +120,21 @@ namespace vrm
     bool hasComponent() const
     {
       return getEnttRegistry().try_get<T>(m_Handle) != nullptr;
+    }
+
+    bool hasScriptComponent() const
+    {
+      return hasComponent<ScriptHandler>();
+    }
+
+    ScriptComponent& getScriptComponent()
+    {
+      return getComponentInternal<ScriptHandler>().getScript();
+    }
+
+    const ScriptComponent& getScriptComponent() const
+    {
+      return getComponentInternal<ScriptHandler>().getScript();
     }
 
     /**

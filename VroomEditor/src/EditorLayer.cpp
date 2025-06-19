@@ -186,7 +186,7 @@ void EditorLayer::onUpdate(const DeltaTime& dt)
   else
     app.getWindow().setCursorVisible(true);
 
-  if (viewportInfo.simulating && !viewportInfo.paused)
+  if ((viewportInfo.simulating || viewportInfo.playing) && !viewportInfo.paused)
   {
     app.getGameLayer().setShouldUpdate(true);
   }

@@ -154,6 +154,11 @@ void UserInterfaceLayer::onViewportActive(bool active)
   m_ViewportInfo.active = active;
 }
 
+void UserInterfaceLayer::onViewportPlaying(bool playing)
+{
+  m_ViewportInfo.playing = playing;
+}
+
 void UserInterfaceLayer::onViewportSimulating(bool simulating)
 {
   m_ViewportInfo.simulating = simulating;

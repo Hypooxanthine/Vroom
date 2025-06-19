@@ -24,6 +24,7 @@ public:
 
   void onViewportResize(int newWidth, int newHeight);
   void onViewportActive(bool active);
+  void onViewportPlaying(bool playing);
   void onViewportSimulating(bool simulating);
   void onViewportPaused(bool paused);
 
@@ -65,6 +66,7 @@ private:
     int width;
     int height;
     bool active = false;
+    bool playing = false;
     bool simulating = false;
     bool paused = false;
   } m_ViewportInfo;

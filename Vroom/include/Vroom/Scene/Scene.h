@@ -57,6 +57,14 @@ namespace vrm
     void end();
 
     /**
+     * @brief Notify the scene it has spawned. Will notify all entities as well.
+     *
+     */
+    void spawn();
+
+    inline bool hasSpawned() const { return m_spawned; }
+
+    /**
      * @brief Loads the scene from file.
      *
      * @param sceneAsset Scene asset handle
@@ -181,6 +189,12 @@ namespace vrm
     virtual void onEnd() {}
 
     /**
+     * @brief Allows extending scene behaviour by executing procedures at spawn (when the game starts);
+     *
+     */
+    virtual void onSpawn() {}
+
+    /**
      * @brief 
      * 
      * @tparam CallOnFirst If false, every entity should have a valid parent. If false, this function will try to get first's parent, which can be null if first is root.
@@ -233,6 +247,8 @@ namespace vrm
     entt::registry m_Registry;
     size_t m_EntityCounter = 0;
     std::unordered_map<std::string, Entity> m_EntitiesByName;
+
+    bool m_spawned = false;
 
     static FirstPersonCamera s_DefaultCamera;
     CameraBasic *m_Camera;
