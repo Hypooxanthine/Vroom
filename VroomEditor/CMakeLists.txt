@@ -75,9 +75,15 @@ add_custom_command(TARGET VroomEditor POST_BUILD
   ${OUTPUT_DIR}
 )
 
+if (WIN32)
+  set(SCRIPTS_BUILDER ${CMAKE_CURRENT_SOURCE_DIR}/scriptsBuilder.bat)
+elseif (UNIX)
+  set(SCRIPTS_BUILDER ${CMAKE_CURRENT_SOURCE_DIR}/scriptsBuilder.sh)
+endif()
+
 add_custom_command(TARGET VroomEditor POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy
-  $<TARGET_FILE:Vroom> $<TARGET_FILE:glfw> $<TARGET_FILE:libglew_shared> $<TARGET_FILE:ScriptsLibrary>
+  $<TARGET_FILE:Vroom> $<TARGET_FILE:glfw> $<TARGET_FILE:libglew_shared> $<TARGET_FILE:ScriptsLibrary> ${SCRIPTS_BUILDER}
   ${OUTPUT_DIR}
 )
 
@@ -86,6 +92,6 @@ target_compile_definitions(VroomEditor
 )
 
 target_compile_definitions(VroomEditor
-  PRIVATE VRM_BUILD_SCRIPTS_CMD="${CMAKE_COMMAND} --build $<SHELL_PATH:${CMAKE_BINARY_DIR}> --target ScriptsLibrary"
+  PRIVATE VRM_SCRIPT_BUILDER_CMD="./${SCRIPTS_BUILDER} ${CMAKE_COMMAND} ${CMAKE_BINARY_DIR}"
 )
 

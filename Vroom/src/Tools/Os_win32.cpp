@@ -6,11 +6,11 @@
 
 using namespace vrm;
 
-void OS::RunInShell(const std::string& command, bool detach)
+void OS::RunInShell(const std::string& script, bool detach)
 {
   std::string shellCmd;
 
-  shellCmd = "start cmd /k \"" + command + "\"";
+  shellCmd = "start cmd /k \"" + script + "\"";
 
   auto t = std::thread([cmd = std::move(shellCmd)]() {
     system(cmd.c_str());

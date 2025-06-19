@@ -10,7 +10,9 @@ namespace vrm
   {
   public:
 
-    static void RunInShell(const std::string& command, bool detach);
+    static void Run(const std::string& command, bool detach);
+
+    static void RunInShell(const std::string& script, bool detach);
 
   };
 

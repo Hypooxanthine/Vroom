@@ -6,9 +6,9 @@
 
 using namespace vrm;
 
-void OS::RunInShell(const std::string& command, bool detach)
+void OS::RunInShell(const std::string& script, bool detach)
 {
-  std::string shellCmd = "gnome-terminal -- bash -c \"" + command + "; exec bash\"";
+  std::string shellCmd = "gnome-terminal -- bash -c \"" + script + "; exec bash\"";
 
   auto t = std::thread([cmd = std::move(shellCmd)]() {
     system(cmd.c_str());
