@@ -82,20 +82,19 @@ bool Viewport::onImgui()
   ImGui::End();
   ImGui::PopStyleVar();
 
-  auto& ui = UserInterfaceLayer::Get();
+  UserInterfaceLayer::ViewportInfos infos;
 
-  if (m_DidSizeChangeLastFrame)
+  if ((infos.justChangedSize = m_DidSizeChangeLastFrame))
   {
-    ui.onViewportResize(
-      static_cast<int>(m_LastViewportSize.x),
-      static_cast<int>(m_LastViewportSize.y)
-    );
+    infos.width = static_cast<int>(m_LastViewportSize.x);
+    infos.height = static_cast<int>(m_LastViewportSize.y);
   }
+  infos.active = m_Active;
+  infos.paused = m_Paused;
+  infos.simulating = m_Simulating;
+  infos.playing = m_Playing;
 
-  ui.onViewportActive(m_Active);
-  ui.onViewportPaused(m_Paused);
-  ui.onViewportSimulating(m_Simulating);
-  ui.onViewportPlaying(m_Playing);
+  UserInterfaceLayer::Get().setViewportInfos(infos);
 
   return ret;
 }

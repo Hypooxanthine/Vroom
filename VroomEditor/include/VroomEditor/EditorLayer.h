@@ -7,6 +7,7 @@
 #include <Vroom/Tools/RuntimeLibrary.h>
 
 #include "VroomEditor/EditorCamera.h"
+#include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 
 namespace vrm
 {
@@ -61,6 +62,8 @@ private:
 
   EditorCamera m_EditorCamera;
   RuntimeLibrary m_scriptsRuntime;
+
+  UserInterfaceLayer::ViewportInfos m_lastViewportInfos;
 
 };
 

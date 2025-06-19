@@ -142,33 +142,6 @@ void UserInterfaceLayer::renderImgui()
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void UserInterfaceLayer::onViewportResize(int w, int h)
-{
-  m_ViewportInfo.justChangedSize = true;
-  m_ViewportInfo.width = w;
-  m_ViewportInfo.height = h;
-}
-
-void UserInterfaceLayer::onViewportActive(bool active)
-{
-  m_ViewportInfo.active = active;
-}
-
-void UserInterfaceLayer::onViewportPlaying(bool playing)
-{
-  m_ViewportInfo.playing = playing;
-}
-
-void UserInterfaceLayer::onViewportSimulating(bool simulating)
-{
-  m_ViewportInfo.simulating = simulating;
-}
-
-void UserInterfaceLayer::onViewportPaused(bool paused)
-{
-  m_ViewportInfo.paused = paused;
-}
-
 void UserInterfaceLayer::fileDropCallback(const Event& e)
 {
   VRM_ASSERT(e.type == Event::Type::FileDrop);

@@ -178,22 +178,57 @@ void EditorLayer::onUpdate(const DeltaTime& dt)
     onViewportResize(viewportInfo.width, viewportInfo.height);
 
   // If the viewport is active, we update the editor camera
+  if (viewportInfo.active != m_lastViewportInfos.active)
+  {
+    app.getWindow().setCursorVisible(m_lastViewportInfos.active);
+  }
+    
   if (viewportInfo.active)
   {
-    app.getWindow().setCursorVisible(false);
     m_EditorCamera.onUpdate(dt);
   }
-  else
-    app.getWindow().setCursorVisible(true);
 
-  if ((viewportInfo.simulating || viewportInfo.playing) && !viewportInfo.paused)
+  const bool simul = viewportInfo.simulating;
+  const bool lastSimul = m_lastViewportInfos.simulating;
+
+  const bool playing = viewportInfo.playing;
+  const bool lastPlaying = m_lastViewportInfos.playing;
+
+  const bool updt = (simul || playing) && !viewportInfo.paused;
+  const bool lastUpdt = (lastSimul || lastPlaying) && !m_lastViewportInfos.paused;
+
+  if (updt != lastUpdt)
   {
-    app.getGameLayer().setShouldUpdate(true);
+    app.getGameLayer().setShouldUpdate(updt);
   }
-  else
+
+  if (playing != lastPlaying)
   {
-    app.getGameLayer().setShouldUpdate(false);
+    if (playing)
+    {
+      Application::Get().getGameLayer().getScene().spawn();
+    }
+    else
+    {
+      // Reloading scene
+      loadScene(m_loadedScene);
+    }
   }
+
+  if (simul != lastSimul)
+  {
+    if (simul)
+    {
+      // When simulating started
+    }
+    else
+    {
+      // Reloading scene
+      loadScene(m_loadedScene);
+    }
+  }
+
+  m_lastViewportInfos = viewportInfo;
 }
 
 void EditorLayer::onRender()

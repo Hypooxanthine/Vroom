@@ -17,18 +17,26 @@ namespace vrm
 class UserInterfaceLayer : public Layer
 {
 public:
+
+  struct ViewportInfos
+  {
+    bool justChangedSize = false;
+    int width;
+    int height;
+    bool active = false;
+    bool playing = false;
+    bool simulating = false;
+    bool paused = false;
+  };
+
+public:
   UserInterfaceLayer();
   virtual ~UserInterfaceLayer();
 
   static UserInterfaceLayer& Get();
 
-  void onViewportResize(int newWidth, int newHeight);
-  void onViewportActive(bool active);
-  void onViewportPlaying(bool playing);
-  void onViewportSimulating(bool simulating);
-  void onViewportPaused(bool paused);
-
   inline const auto& getViewportInfo() const { return m_ViewportInfo; }
+  inline void setViewportInfos(const ViewportInfos& viewportInfo) { m_ViewportInfo = viewportInfo; }
 
 protected:
   virtual void onInit() override;
@@ -60,16 +68,7 @@ private:
   OSFileDrop m_fileDrop;
   std::string m_fileDropData;
 
-  struct ViewportInfos
-  {
-    bool justChangedSize = false;
-    int width;
-    int height;
-    bool active = false;
-    bool playing = false;
-    bool simulating = false;
-    bool paused = false;
-  } m_ViewportInfo;
+  ViewportInfos m_ViewportInfo;
 };
 
 } // namespace vrm
