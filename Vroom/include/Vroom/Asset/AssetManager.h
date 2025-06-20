@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 #include <unordered_map>
 
 #include "Vroom/Api.h"
@@ -53,7 +54,9 @@ namespace vrm
     {
       loadAsset<T>(assetID);
 
-      T* asT = dynamic_cast<T*>(m_Assets.at(assetID).get());
+      size_t index = m_keys.at(assetID);
+
+      T* asT = dynamic_cast<T*>(m_assets.at(index).get());
       VRM_DEBUG_ASSERT(asT != nullptr);
 
       return AssetHandle<T>{ *asT };
@@ -92,7 +95,21 @@ namespace vrm
         return false;
       }
 
-      m_Assets[assetID] = std::move(asset);
+      decltype(m_assets)::iterator assetIt;
+
+      if (auto keyIt = m_keys.find(assetID); keyIt != m_keys.end())
+      {
+        // Asset is already loaded
+        assetIt = m_assets.begin() + keyIt->second;
+        VRM_CHECK_RET_FALSE_MSG(assetIt->get()->getInstanceCount() == 0, "Trying to reload an used asset");
+      }
+      else
+      {
+        m_keys.insert({ assetID, m_assets.size() });
+        assetIt = m_assets.emplace(m_assets.end());
+      }
+
+      *assetIt = std::move(asset);
 
       return true;
     }
@@ -106,16 +123,19 @@ namespace vrm
      */
     bool isAssetLoaded(const std::string& assetID)
     {
-      return m_Assets.contains(assetID);
+      return m_keys.contains(assetID);
     }
 
   private:
     AssetManager() = default;
 
+    void _clear();
+
   private:
     static std::unique_ptr<AssetManager> s_Instance;
 
-    std::unordered_map<std::string, std::unique_ptr<StaticAsset>> m_Assets;
+    std::vector<std::unique_ptr<StaticAsset>> m_assets;
+    std::unordered_map<std::string, size_t> m_keys;
 
   };
 
