@@ -269,9 +269,7 @@ void EditorLayer::_loadScriptsRuntimeLibrary()
   bool ok;
   if (g_scriptLibraryPath.size() > 0)
   {
-    ok = m_scriptsRuntime.load(g_scriptLibraryPath);
-
-    if (!ok)
+    if (!(ok = m_scriptsRuntime.load(g_scriptLibraryPath)))
     {
       VRM_LOG_ERROR("Error while loading scripts runtime library {}", g_scriptLibraryPath);
     }
