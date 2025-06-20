@@ -16,7 +16,7 @@ EditorPreferences::~EditorPreferences()
 
 bool EditorPreferences::onImgui()
 {
-  if (ImGui::Begin("Editor preferences", m_open, ImGuiWindowFlags_UnsavedDocument))
+  if (ImGui::Begin("Editor preferences", m_open))
   {
 
   }
