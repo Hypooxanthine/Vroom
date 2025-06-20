@@ -5,6 +5,11 @@ namespace vrm
 
 std::unique_ptr<AssetManager> AssetManager::s_Instance = nullptr;
 
+AssetManager::~AssetManager()
+{
+    m_Assets.clear();
+}
+
 void AssetManager::Init()
 {
     VRM_ASSERT_MSG(s_Instance == nullptr, "AssetManager already initialized.");
@@ -15,7 +20,10 @@ void AssetManager::Init()
 
 void AssetManager::Shutdown()
 {
-    s_Instance = nullptr;
+    if (s_Instance)
+    {
+        s_Instance = nullptr;
+    }
 }
 
 AssetManager& AssetManager::Get()

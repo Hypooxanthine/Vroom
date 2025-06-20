@@ -19,7 +19,7 @@ namespace vrm
     AssetManager(AssetManager&&) = delete;
     AssetManager& operator=(const AssetManager&) = delete;
     AssetManager& operator=(AssetManager&&) = delete;
-    ~AssetManager() = default;
+    ~AssetManager();
 
     /**
      * @brief Initialize the asset manager.
