@@ -24,7 +24,7 @@ bool Viewport::onImgui()
   m_DidSizeChangeLastFrame = false;
 
   ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-  if (ImGui::Begin("Viewport"))
+  if (ImGui::Begin("Viewport", m_open))
   {
 
     if (ImGui::BeginChild("ViewportTopButtons", ImVec2(0, 30)))

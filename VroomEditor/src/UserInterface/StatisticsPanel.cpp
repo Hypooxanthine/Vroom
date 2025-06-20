@@ -21,27 +21,28 @@ StatisticsPanel::~StatisticsPanel()
 bool StatisticsPanel::onImgui()
 {
   bool ret = false;
-  const DeltaTime& dt = Application::Get().getDeltaTime();
-  static float meanDt = dt.seconds();
-  static size_t framesCounter = 0;
-  static float meanFps = 1.f / dt.seconds();
-  
-  static float timeAccumulator = 0.f;
-  constexpr float sampleTime = 2.f;
 
-  timeAccumulator += dt.seconds();
-  ++framesCounter;
-
-  if (timeAccumulator > sampleTime)
+  if (ImGui::Begin("Statistics", m_open))
   {
-    meanFps = static_cast<float>(framesCounter) / sampleTime;
-    meanDt = 1.f / meanFps;
-    timeAccumulator -= sampleTime;
-    framesCounter = 0;
-  }
+    const DeltaTime& dt = Application::Get().getDeltaTime();
+    static float meanDt = dt.seconds();
+    static size_t framesCounter = 0;
+    static float meanFps = 1.f / dt.seconds();
+    
+    static float timeAccumulator = 0.f;
+    constexpr float sampleTime = 2.f;
 
-  if (ImGui::Begin("Statistics"))
-  {
+    timeAccumulator += dt.seconds();
+    ++framesCounter;
+
+    if (timeAccumulator > sampleTime)
+    {
+      meanFps = static_cast<float>(framesCounter) / sampleTime;
+      meanDt = 1.f / meanFps;
+      timeAccumulator -= sampleTime;
+      framesCounter = 0;
+    }
+    
     ImGui::Text("Frame time: %.5f s", meanDt);
     ImGui::Text("Frame rate: %.0f FPS", meanFps);
   }

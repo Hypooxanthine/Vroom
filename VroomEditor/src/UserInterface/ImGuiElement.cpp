@@ -19,7 +19,10 @@ ImGuiElement::~ImGuiElement()
 
 bool ImGuiElement::renderImgui()
 {
-  return onImgui();
+  if (m_open == nullptr || *m_open == true)
+    return onImgui();
+  else
+    return false;
 }
 
 void ImGuiElement::notImplemented()

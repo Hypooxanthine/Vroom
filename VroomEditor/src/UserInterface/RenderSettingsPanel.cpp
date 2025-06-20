@@ -30,7 +30,7 @@ bool RenderSettingsPanel::onImgui()
   auto settings = Renderer::Get().getRenderSettings();
   bool settingsChanged = false;
 
-  if (ImGui::Begin("Render settings"))
+  if (ImGui::Begin("Render settings", m_open))
   {
 
     int framerateLimit = static_cast<int>(Application::Get().getFrameRateLimit());

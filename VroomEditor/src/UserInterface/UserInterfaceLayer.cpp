@@ -18,6 +18,7 @@
 #include "VroomEditor/UserInterface/Viewport.h"
 #include "VroomEditor/UserInterface/AssetBrowser/AssetBrowser.h"
 #include "VroomEditor/UserInterface/SceneGraph.h"
+#include "VroomEditor/UserInterface/EditorPreferences.h"
 
 using namespace vrm;
 
@@ -29,6 +30,8 @@ UserInterfaceLayer::UserInterfaceLayer() :
 {
   VRM_ASSERT_MSG(INSTANCE == nullptr, "Only one instance of UserInterfaceLayer is allowed");
   INSTANCE = this;
+
+  m_openFlags.fill(true);
 }
 
 UserInterfaceLayer::~UserInterfaceLayer()
@@ -61,12 +64,13 @@ void UserInterfaceLayer::onInit()
   VRM_ASSERT_MSG(m_Font, "Failed to load font.");
 
   // Interfaces setup
-  auto& mainMenuBar = emplaceImGuiElement<MainMenuBar>();
-  auto& statisticsPanel = emplaceImGuiElement<StatisticsPanel>();
-  auto& renderSettingsPanel = emplaceImGuiElement<RenderSettingsPanel>();
-  auto& viewport = emplaceImGuiElement<Viewport>();
-  auto& assetBrowser = emplaceImGuiElement<AssetBrowser>();
-  auto& sceneGraph = emplaceImGuiElement<SceneGraph>();
+  auto& mainMenuBar = emplaceImGuiElement<MainMenuBar>(EInterfaceElement::eMainMenuBar);
+  auto& statisticsPanel = emplaceImGuiElement<StatisticsPanel>(EInterfaceElement::eStatisticsPanel, false);
+  auto& renderSettingsPanel = emplaceImGuiElement<RenderSettingsPanel>(EInterfaceElement::eRenderSettingsPanel);
+  auto& viewport = emplaceImGuiElement<Viewport>(EInterfaceElement::eViewport);
+  auto& assetBrowser = emplaceImGuiElement<AssetBrowser>(EInterfaceElement::eAssetBrowser);
+  auto& sceneGraph = emplaceImGuiElement<SceneGraph>(EInterfaceElement::eSceneGraph);
+  auto& editorPreferences = emplaceImGuiElement<EditorPreferences>(EInterfaceElement::eEditorPreferences, false);
 
   viewport.setRenderTexture(&Renderer::Get().getMainFrameBuffer().getColorAttachmentTexture(0));
 
@@ -132,9 +136,10 @@ void UserInterfaceLayer::renderImgui()
     }
   }
   
-  for (auto& element : m_Elements)
+  for (auto& element : m_elements)
   {
-    element->renderImgui();
+    if (element)
+      element->renderImgui();
   }
 
   ImGui::PopFont();

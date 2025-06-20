@@ -29,7 +29,7 @@ bool SceneGraph::onImgui()
 
   auto& scene = *m_frameContext.activeScene;
 
-  if (ImGui::Begin("Scene graph"))
+  if (ImGui::Begin("Scene graph", m_open))
   {
     ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, 10.f);
 

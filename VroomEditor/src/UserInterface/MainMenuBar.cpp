@@ -20,30 +20,32 @@ bool MainMenuBar::onImgui()
 {
   bool ret = false;
 
+  auto& ui = UserInterfaceLayer::Get();
+
   if (ImGui::BeginMainMenuBar())
   {
     if (ImGui::BeginMenu("File"))
     {
-      if (ImGui::MenuItem("New project", "Ctrl+N"))
+      if (ImGui::MenuItem("New project"))
       {
         notImplemented();
       }
-      if (ImGui::MenuItem("Open project", "Ctrl+O"))
+      if (ImGui::MenuItem("Open project"))
       {
         notImplemented();
       }
-      if (ImGui::MenuItem("Save project", "Ctrl+S"))
+      if (ImGui::MenuItem("Save project"))
       {
         notImplemented();
       }
-      if (ImGui::MenuItem("Save project as", "Ctrl+Shift+S"))
+      if (ImGui::MenuItem("Save project as"))
       {
         notImplemented();
       }
 
       ImGui::Separator();
 
-      if (ImGui::MenuItem("Exit", "Alt+F4"))
+      if (ImGui::MenuItem("Exit"))
       {
         Application::Get().exit();
       }
@@ -51,26 +53,26 @@ bool MainMenuBar::onImgui()
     }
     if (ImGui::BeginMenu("Edit"))
     {
-      if (ImGui::MenuItem("Undo", "Ctrl+Z"))
+      if (ImGui::MenuItem("Undo"))
       {
         notImplemented();
       }
-      if (ImGui::MenuItem("Redo", "Ctrl+Shift+Z"))
+      if (ImGui::MenuItem("Redo"))
       {
         notImplemented();
       }
 
       ImGui::Separator();
 
-      if (ImGui::MenuItem("Cut", "Ctrl+X"))
+      if (ImGui::MenuItem("Cut"))
       {
         notImplemented();
       }
-      if (ImGui::MenuItem("Copy", "Ctrl+C"))
+      if (ImGui::MenuItem("Copy"))
       {
         notImplemented();
       }
-      if (ImGui::MenuItem("Paste", "Ctrl+V"))
+      if (ImGui::MenuItem("Paste"))
       {
         notImplemented();
       }
@@ -78,17 +80,37 @@ bool MainMenuBar::onImgui()
     }
     if (ImGui::BeginMenu("View"))
     {
-      if (ImGui::MenuItem("Scene", "Ctrl+1"))
+      EInterfaceElement::Element elem;
+      
+      elem = EInterfaceElement::eViewport;
+      if (ImGui::MenuItem("Viewport", nullptr, ui.isElementVisible(elem)))
       {
-        notImplemented();
+        ui.setElementVisible(elem, !ui.isElementVisible(elem));
       }
-      if (ImGui::MenuItem("Properties", "Ctrl+2"))
+      elem = EInterfaceElement::eSceneGraph;
+      if (ImGui::MenuItem("Scene graph", nullptr, ui.isElementVisible(elem)))
       {
-        notImplemented();
+        ui.setElementVisible(elem, !ui.isElementVisible(elem));
       }
-      if (ImGui::MenuItem("Console", "Ctrl+3"))
+      elem = EInterfaceElement::eAssetBrowser;
+      if (ImGui::MenuItem("Asset browser", nullptr, ui.isElementVisible(elem)))
       {
-        notImplemented();
+        ui.setElementVisible(elem, !ui.isElementVisible(elem));
+      }
+      elem = EInterfaceElement::eEditorPreferences;
+      if (ImGui::MenuItem("Editor preferences", nullptr, ui.isElementVisible(elem)))
+      {
+        ui.setElementVisible(elem, !ui.isElementVisible(elem));
+      }
+      elem = EInterfaceElement::eRenderSettingsPanel;
+      if (ImGui::MenuItem("Render settings", nullptr, ui.isElementVisible(elem)))
+      {
+        ui.setElementVisible(elem, !ui.isElementVisible(elem));
+      }
+      elem = EInterfaceElement::eStatisticsPanel;
+      if (ImGui::MenuItem("Stats", nullptr, ui.isElementVisible(elem)))
+      {
+        ui.setElementVisible(elem, !ui.isElementVisible(elem));
       }
       ImGui::EndMenu();
     }
@@ -118,7 +140,7 @@ bool MainMenuBar::onImgui()
     }
     if (ImGui::BeginMenu("Help"))
     {
-      if (ImGui::MenuItem("About", "Ctrl+F1"))
+      if (ImGui::MenuItem("About", nullptr))
       {
         /// @todo Redirect to Github page
         notImplemented();

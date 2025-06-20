@@ -84,13 +84,13 @@ void AssetBrowser::updateDirectoryContent()
 bool AssetBrowser::onImgui()
 {
   bool ret = false;
-  m_Action = AssetElement::EAction::eNone;
-  m_SelectedAsset.clear();
 
-  std::filesystem::path nextPath = m_CurrentPath;
-
-  if (ImGui::Begin("Asset browser"))
+  if (ImGui::Begin("Asset browser", m_open))
   {
+    m_Action = AssetElement::EAction::eNone;
+    m_SelectedAsset.clear();
+    std::filesystem::path nextPath = m_CurrentPath;
+
     static constexpr char sep = std::filesystem::path::preferred_separator;
     std::string displayPath = sep + m_CurrentPath.lexically_relative(m_ResourcesPath.parent_path()).string();
     if (!displayPath.ends_with(sep))
@@ -185,11 +185,11 @@ bool AssetBrowser::onImgui()
 
       ImGui::EndDragDropTarget();
     }
+
+    setCurrentPath(nextPath);
   }
 
   ImGui::End();
-
-  setCurrentPath(nextPath);
   
   return ret;
 }
