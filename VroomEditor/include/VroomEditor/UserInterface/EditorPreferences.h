@@ -14,6 +14,8 @@ public:
 protected:
   bool onImgui() override;
 
+  void _editColors();
+
 };
 
 } // namespace vrm
