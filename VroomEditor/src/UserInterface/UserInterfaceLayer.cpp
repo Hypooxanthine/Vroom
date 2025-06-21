@@ -1,5 +1,7 @@
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 
+#include <fstream>
+
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
@@ -19,6 +21,8 @@
 #include "VroomEditor/UserInterface/AssetBrowser/AssetBrowser.h"
 #include "VroomEditor/UserInterface/SceneGraph.h"
 #include "VroomEditor/UserInterface/EditorPreferences.h"
+
+#include "VroomEditor/Serial/Json.h"
 
 using namespace vrm;
 
@@ -54,13 +58,12 @@ void UserInterfaceLayer::onInit()
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGuiIO &io = ImGui::GetIO();
-  ImGui::StyleColorsDark();
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
   ImGui_ImplGlfw_InitForOpenGL(Application::Get().getWindow().getGLFWHandle(), true);
   ImGui_ImplOpenGL3_Init("#version 450");
 
-  m_Font = io.Fonts->AddFontFromFileTTF("Resources/Editor/Fonts/Roboto/Roboto-Regular.ttf", 24.0f);
+  m_Font = io.Fonts->AddFontFromFileTTF("Resources/Editor/Appearance/Fonts/Roboto/Roboto-Regular.ttf", 24.0f);
   VRM_ASSERT_MSG(m_Font, "Failed to load font.");
 
   // Interfaces setup
@@ -82,10 +85,18 @@ void UserInterfaceLayer::onInit()
 
   m_CustomEventManager.createCustomEvent("OSDragLeave").bindInput(Event::Type::FileDragLeave);
   m_CustomEventManager.bindPermanentCallback("OSDragLeave", [this](const Event& e) { this->m_isDraggingOSFile = false; e.handled = true; });
+
+  ImGui::StyleColorsDark();
+  if (!_loadImguiStyle())
+  {
+    ImGui::StyleColorsDark();
+  }
 }
 
 void UserInterfaceLayer::onEnd()
 {
+  saveImguiStyle(ImGui::GetStyle());
+
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplGlfw_Shutdown();
   ImGui::DestroyContext();
@@ -154,4 +165,70 @@ void UserInterfaceLayer::fileDropCallback(const Event& e)
   m_fileDrop.cursorPos = Application::Get().getWindow().getCursorPos();
   m_fileDropData = e.stringData;
   m_fileDrop.files = m_fileDropData.c_str();
+}
+
+bool UserInterfaceLayer::_loadImguiStyle()
+{
+  std::ifstream ifs;
+  ifs.open(s_imguiStyleFile);
+
+  if (ifs.is_open())
+  {
+    json j;
+    
+    try
+    {
+      ifs >> j;
+    }
+    catch(const std::exception& e)
+    {
+      VRM_LOG_ERROR("Could not parse imgui style {} into json. Error:\n{}", s_imguiStyleFile.string(), e.what());
+      return false;
+    }
+    
+    try
+    {
+      ImGuiStyle& style = ImGui::GetStyle();
+      nlohmann::adl_serializer<ImGuiStyle>().from_json(j, style);
+    }
+    catch(const std::exception& e)
+    {
+      VRM_LOG_ERROR("Could not parse imgui style {} into an ImGuiStyle. Error:\n{}", s_imguiStyleFile.string(), e.what());
+      return false;
+    }
+  }
+  else
+  {
+    VRM_LOG_WARN("Imgui style {} not found", s_imguiStyleFile.string());
+    return false;
+  }
+
+  return true;
+}
+
+void UserInterfaceLayer::saveImguiStyle(const ImGuiStyle& style) const
+{
+  try {
+    if (!std::filesystem::exists(s_imguiStyleFile.parent_path()))
+      std::filesystem::create_directories(s_imguiStyleFile.parent_path());
+  } catch (const std::filesystem::filesystem_error& e) {
+    VRM_LOG_WARN("Could not create directory {}. Error: {}",s_imguiStyleFile.parent_path().string(), e.what());
+    return;
+  }
+
+  std::ofstream ofs;
+  ofs.open(s_imguiStyleFile, std::ofstream::trunc);
+
+  if (ofs.is_open())
+  {
+    json j;
+
+    nlohmann::adl_serializer<ImGuiStyle>().to_json(j, style);
+
+    ofs << j;
+  }
+  else
+  {
+    VRM_LOG_WARN("Could not open or create {} file", s_imguiStyleFile.string());
+  }
 }

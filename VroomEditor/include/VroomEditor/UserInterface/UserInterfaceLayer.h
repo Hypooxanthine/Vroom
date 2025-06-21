@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <array>
+#include <filesystem>
 
 #include <Vroom/Event/CustomEvent/CustomEventManager.h>
 
@@ -10,6 +11,7 @@
 #include "VroomEditor/UserInterface/OSFileDrop.h"
 
 struct ImFont;
+struct ImGuiStyle;
 
 namespace vrm
 {
@@ -35,6 +37,8 @@ namespace vrm
   {
   public:
 
+    inline static const std::filesystem::path s_imguiStyleFile = "Resources/Editor/Appearance/Style/imguiStyle.json";
+
     struct ViewportInfos
     {
       bool justChangedSize = false;
@@ -58,6 +62,8 @@ namespace vrm
     inline void setElementVisible(EInterfaceElement::Element element, bool visible) { m_openFlags.at(element) = visible; }
     inline bool isElementVisible(EInterfaceElement::Element element) const { return m_openFlags.at(element); }
 
+    void saveImguiStyle(const ImGuiStyle& style) const;
+
   protected:
     virtual void onInit() override;
     virtual void onEnd() override;
@@ -79,6 +85,8 @@ namespace vrm
     void renderImgui();
 
     void fileDropCallback(const Event& e);
+
+    bool _loadImguiStyle();
 
   private:
     CustomEventManager m_CustomEventManager;
