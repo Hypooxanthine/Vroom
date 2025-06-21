@@ -17,11 +17,11 @@ EditorPreferences::~EditorPreferences()
 
 bool EditorPreferences::onImgui()
 {
-  if (ImGui::Begin("Editor preferences", m_open))
+  if (ImGui::Begin("Preferences", m_open))
   {
     if (ImGui::BeginTabBar("TabBar"))
     {
-      if (ImGui::BeginTabItem("Imgui appearance"))
+      if (ImGui::BeginTabItem("Appearance"))
       {
         _editImguiStyle();
 
