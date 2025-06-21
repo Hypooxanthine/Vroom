@@ -15,6 +15,7 @@ protected:
   bool onImgui() override;
 
   void _editColors();
+  void _editStyleNoColor();
 
 };
 
