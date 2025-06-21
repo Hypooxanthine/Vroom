@@ -1,5 +1,8 @@
 #include "VroomEditor/UserInterface/EditorPreferences.h"
 
+#include <array>
+#include <map>
+
 #include "imgui.h"
 
 using namespace vrm;
@@ -148,7 +151,36 @@ void EditorPreferences::_editStyleNoColor()
   ImGui::PushID("TabBarOverlineSize"); if (ImGui::Button("Reset")) style.TabBarOverlineSize = defaultStyle.TabBarOverlineSize; ImGui::SameLine(); ImGui::DragScalarN("TabBarOverlineSize", ImGuiDataType_Float, &style.TabBarOverlineSize, sizeof(style.TabBarOverlineSize) / sizeof(float)); ImGui::PopID();
   ImGui::PushID("TableAngledHeadersAngle"); if (ImGui::Button("Reset")) style.TableAngledHeadersAngle = defaultStyle.TableAngledHeadersAngle; ImGui::SameLine(); ImGui::DragScalarN("TableAngledHeadersAngle", ImGuiDataType_Float, &style.TableAngledHeadersAngle, sizeof(style.TableAngledHeadersAngle) / sizeof(float)); ImGui::PopID();
   ImGui::PushID("TableAngledHeadersTextAlign"); if (ImGui::Button("Reset")) style.TableAngledHeadersTextAlign = defaultStyle.TableAngledHeadersTextAlign; ImGui::SameLine(); ImGui::DragScalarN("TableAngledHeadersTextAlign", ImGuiDataType_Float, &style.TableAngledHeadersTextAlign, sizeof(style.TableAngledHeadersTextAlign) / sizeof(float)); ImGui::PopID();
-  // ImGui::DragScalarN("TreeLinesFlags", ImGuiDataType_Float, &style.TreeLinesFlags, sizeof(style.TreeLinesFlags) / sizeof(float));
+  
+  static constexpr std::array<const char*, 3> s_treeLignesTexts =
+  {
+    "None",
+    "Full",
+    "ToNodes",
+  };
+
+  static std::map<ImGuiTreeNodeFlags, size_t> assoc =
+  {
+    { ImGuiTreeNodeFlags_DrawLinesNone, 0},
+    { ImGuiTreeNodeFlags_DrawLinesFull, 1},
+    { ImGuiTreeNodeFlags_DrawLinesToNodes, 2},
+  };
+
+  int currentFlagId = assoc[style.TreeLinesFlags];
+
+  if (ImGui::BeginCombo("TreeLinesFlags", s_treeLignesTexts[currentFlagId]))
+  {
+    for (size_t i = 0; i < s_treeLignesTexts.size(); ++i)
+    {
+      if (ImGui::Selectable(s_treeLignesTexts[i], i == currentFlagId))
+      {
+        style.TreeLinesFlags = ImGuiTreeNodeFlags_DrawLinesNone << i;
+      }
+    }
+
+    ImGui::EndCombo();
+  }
+
   ImGui::PushID("TreeLinesSize"); if (ImGui::Button("Reset")) style.TreeLinesSize = defaultStyle.TreeLinesSize; ImGui::SameLine(); ImGui::DragScalarN("TreeLinesSize", ImGuiDataType_Float, &style.TreeLinesSize, sizeof(style.TreeLinesSize) / sizeof(float)); ImGui::PopID();
   ImGui::PushID("TreeLinesRounding"); if (ImGui::Button("Reset")) style.TreeLinesRounding = defaultStyle.TreeLinesRounding; ImGui::SameLine(); ImGui::DragScalarN("TreeLinesRounding", ImGuiDataType_Float, &style.TreeLinesRounding, sizeof(style.TreeLinesRounding) / sizeof(float)); ImGui::PopID();
   // ImGui::DragScalarN("ColorButtonPosition", ImGuiDataType_Float, &style.ColorButtonPosition, sizeof(style.ColorButtonPosition) / sizeof(float));
