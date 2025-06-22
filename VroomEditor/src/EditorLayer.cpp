@@ -178,15 +178,15 @@ void EditorLayer::onUpdate(const DeltaTime& dt)
     onViewportResize(viewportInfo.width, viewportInfo.height);
 
   // If the viewport is active, we update the editor camera
-  if (viewportInfo.active != m_lastViewportInfos.active)
-  {
-    app.getWindow().setCursorVisible(m_lastViewportInfos.active);
-  }
+  const bool cameraInputs = viewportInfo.active && !viewportInfo.manipulatingGuizmo;
     
-  if (viewportInfo.active)
+  if (cameraInputs)
   {
     m_EditorCamera.onUpdate(dt);
   }
+
+  const bool cursorVisible = !viewportInfo.active || viewportInfo.manipulatingGuizmo;
+  app.getWindow().setCursorVisible(cursorVisible);
 
   const bool simul = viewportInfo.simulating;
   const bool lastSimul = m_lastViewportInfos.simulating;

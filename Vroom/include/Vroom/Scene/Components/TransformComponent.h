@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/constants.hpp>
@@ -49,6 +50,28 @@ namespace vrm
       m_scale = s;
       _setTransformDirty();
       _setFrameDirty();
+    }
+
+    inline void setTransform(const glm::mat4& t)
+    {
+      m_transform = t;
+
+      glm::qua orientation(1.f, 0.f, 0.f, 0.f);
+      glm::vec3 skew;
+      glm::vec4 perspective;
+      glm::decompose(m_transform, m_scale, orientation, m_position, skew, perspective);
+      m_rotation = glm::eulerAngles(orientation);
+
+      _setTransformDirty(false);
+      _setFrameDirty();
+    }
+
+    inline void setGlobalTransform(const glm::mat4& t, const glm::mat4& parent)
+    {
+      // we want world = t with world = parent * local
+      // => parent * local = t
+      // => local = inv(parent) * t
+      setTransform(glm::inverse(parent) * t);
     }
 
     inline const glm::vec3& getPosition() const { return m_position; }

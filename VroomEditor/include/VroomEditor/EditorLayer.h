@@ -43,6 +43,8 @@ public:
   void buildScripts();
   void reloadScripts();
 
+  inline const CameraBasic& getCurrentCamera() const { return m_EditorCamera;}
+
 protected:
   virtual void onInit() override;
   virtual void onEnd() override;

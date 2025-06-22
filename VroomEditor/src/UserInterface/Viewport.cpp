@@ -6,11 +6,12 @@
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 
 #include "imgui.h"
+#include "ImGuizmo.h"
 
 using namespace vrm;
 
 Viewport::Viewport()
-    : renderTexture(nullptr), m_LastViewportSize(ImVec2(0.f, 0.f))
+  : renderTexture(nullptr), m_LastViewportSize(ImVec2(0.f, 0.f))
 {
 }
 
@@ -67,13 +68,19 @@ bool Viewport::onImgui()
       {
         ImTextureID textureID = (ImTextureID)(intptr_t)renderTexture->getRendererID();
         ImVec2 imageSize = ImVec2(
-            static_cast<float>(renderTexture->getWidth()),
-            static_cast<float>(renderTexture->getHeight()));
+          static_cast<float>(renderTexture->getWidth()),
+          static_cast<float>(renderTexture->getHeight()));
         ImGui::Image(textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
 
         m_Active = ImGui::IsWindowFocused() && ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.f);
 
         // VRM_LOG_TRACE("Image size: {} {},", imageSize.x, imageSize.y);
+
+        ImGuizmo::SetOrthographic(false);
+        ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
+        ImVec2 rectMin = ImGui::GetItemRectMin();
+        ImVec2 rectSize = ImGui::GetItemRectSize();
+        ImGuizmo::SetRect(rectMin.x, rectMin.y, rectSize.x, rectSize.y);
       }
     }
     ImGui::EndChild();
@@ -82,7 +89,7 @@ bool Viewport::onImgui()
   ImGui::End();
   ImGui::PopStyleVar();
 
-  UserInterfaceLayer::ViewportInfos infos;
+  UserInterfaceLayer::ViewportInfos infos = UserInterfaceLayer::Get().getViewportInfo();
 
   if ((infos.justChangedSize = m_DidSizeChangeLastFrame))
   {

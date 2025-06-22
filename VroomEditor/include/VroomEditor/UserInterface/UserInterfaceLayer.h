@@ -48,6 +48,7 @@ namespace vrm
       bool playing = false;
       bool simulating = false;
       bool paused = false;
+      bool manipulatingGuizmo = false;
     };
 
   public:

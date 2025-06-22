@@ -12,6 +12,7 @@ project(VroomEditor)
 
 set(LIBRARIES 
   ImGuiGLFWGlew
+  ImGuizmo
   Vroom
 )
 

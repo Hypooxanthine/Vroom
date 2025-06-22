@@ -2,12 +2,16 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <ImGuizmo.h>
 #include <misc/cpp/imgui_stdlib.h>
 #include <string_view>
 
 #include <Vroom/Scene/Scene.h>
 #include <Vroom/Asset/AssetManager.h>
 #include <Vroom/Asset/StaticAsset/MeshAsset.h>
+
+#include "VroomEditor/EditorLayer.h"
+#include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 
 //--------------------------------------------------
 // Include necessary component headers
@@ -181,6 +185,30 @@ bool TransformComponentEditor::editEntityComponent(Entity& e) const
     component.setRotation(rot * glm::pi<float>() / 180.0f);
   if (ImGui::DragFloat3("Scale", &scale.x, 0.1f))
     component.setScale(scale);
+
+  const auto& camera = EditorLayer::Get().getCurrentCamera();
+  glm::mat4 transform = component.getGlobalTransform();
+
+  auto& ui = UserInterfaceLayer::Get();
+  auto viewportInfo = ui.getViewportInfo();
+  
+  if (ImGuizmo::Manipulate(
+    &camera.getView()[0][0],
+    &camera.getProjection()[0][0],
+    ImGuizmo::OPERATION::TRANSLATE | ImGuizmo::OPERATION::ROTATE,
+    ImGuizmo::MODE::WORLD,
+    &transform[0][0]
+  ))
+  {
+    component.setGlobalTransform(transform, get(e.getParent()).getGlobalTransform());
+    viewportInfo.manipulatingGuizmo = true;
+  }
+  else if (!viewportInfo.active) // If viewport is not active any more (mouse released), stop manipulating
+  {
+    viewportInfo.manipulatingGuizmo = false;
+  }
+
+  ui.setViewportInfos(viewportInfo);
 
   return true;
 }

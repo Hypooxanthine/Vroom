@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include "imgui.h"
+#include "ImGuizmo.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 
@@ -130,6 +131,7 @@ void UserInterfaceLayer::renderImgui()
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
+  ImGuizmo::BeginFrame();
 
   ImGui::PushFont(m_Font);
 
