@@ -200,7 +200,11 @@ bool TransformComponentEditor::editEntityComponent(Entity& e) const
     &transform[0][0]
   ))
   {
-    component.setGlobalTransform(transform, get(e.getParent()).getGlobalTransform());
+    if (e.isRoot())
+      component.setTransform(transform);
+    else
+      component.setGlobalTransform(transform, get(e.getParent()).getGlobalTransform());
+      
     viewportInfo.manipulatingGuizmo = true;
   }
   else if (!viewportInfo.active) // If viewport is not active any more (mouse released), stop manipulating
