@@ -1,6 +1,7 @@
 #pragma once
 
 #include "VroomEditor/UserInterface/ImGuiElement.h"
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui.h"
 
 namespace vrm
@@ -46,6 +47,7 @@ namespace vrm
     bool m_Playing = false;
     bool m_Simulating = false;
     bool m_Paused = false;
+    bool m_localSpace = false;
 
   private:
     bool m_DidSizeChangeLastFrame = false;

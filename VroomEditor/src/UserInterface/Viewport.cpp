@@ -5,7 +5,6 @@
 
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 
-#include "imgui.h"
 #include "ImGuizmo.h"
 
 using namespace vrm;
@@ -59,6 +58,7 @@ bool Viewport::onImgui()
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
     if (ImGui::BeginChild("ViewportFrame", ImVec2(0, 0), 0, ImGuiWindowFlags_NoScrollbar))
     {
+      auto cursor = ImGui::GetCursorPos();
       auto size = ImGui::GetContentRegionAvail();
 
       m_DidSizeChangeLastFrame = (size.x != m_LastViewportSize.x || size.y != m_LastViewportSize.y);
@@ -82,14 +82,20 @@ bool Viewport::onImgui()
         ImVec2 rectSize = ImGui::GetItemRectSize();
         ImGuizmo::SetRect(rectMin.x, rectMin.y, rectSize.x, rectSize.y);
       }
+
+      ImGui::PopStyleVar(2);
+      ImGui::SetCursorPos(cursor + ImVec2{5, 5});
+
+      if (ImGui::Button(m_localSpace ? "Local" : "World"))
+      {
+        m_localSpace = !m_localSpace;
+      }
     }
     ImGui::EndChild();
-    ImGui::PopStyleVar();
   }
   ImGui::End();
-  ImGui::PopStyleVar();
 
-  UserInterfaceLayer::ViewportInfos infos = UserInterfaceLayer::Get().getViewportInfo();
+  UserInterfaceLayer::ViewportInfos& infos = UserInterfaceLayer::Get().getViewportInfo();
 
   if ((infos.justChangedSize = m_DidSizeChangeLastFrame))
   {
@@ -100,8 +106,7 @@ bool Viewport::onImgui()
   infos.paused = m_Paused;
   infos.simulating = m_Simulating;
   infos.playing = m_Playing;
-
-  UserInterfaceLayer::Get().setViewportInfos(infos);
+  infos.localSpace = m_localSpace;
 
   return ret;
 }

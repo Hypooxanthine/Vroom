@@ -49,6 +49,7 @@ namespace vrm
       bool simulating = false;
       bool paused = false;
       bool manipulatingGuizmo = false;
+      bool localSpace = false;
     };
 
   public:
@@ -58,12 +59,15 @@ namespace vrm
     static UserInterfaceLayer& Get();
 
     inline const auto& getViewportInfo() const { return m_ViewportInfo; }
+    inline auto& getViewportInfo() { return m_ViewportInfo; }
     inline void setViewportInfos(const ViewportInfos& viewportInfo) { m_ViewportInfo = viewportInfo; }
 
     inline void setElementVisible(EInterfaceElement::Element element, bool visible) { m_openFlags.at(element) = visible; }
     inline bool isElementVisible(EInterfaceElement::Element element) const { return m_openFlags.at(element); }
 
     void saveImguiStyle(const ImGuiStyle& style) const;
+
+    inline ImGuiElement& getElement(EInterfaceElement::Element elem) { return *m_elements.at(elem); }
 
   protected:
     virtual void onInit() override;

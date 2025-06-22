@@ -190,13 +190,13 @@ bool TransformComponentEditor::editEntityComponent(Entity& e) const
   glm::mat4 transform = component.getGlobalTransform();
 
   auto& ui = UserInterfaceLayer::Get();
-  auto viewportInfo = ui.getViewportInfo();
+  auto& viewportInfo = ui.getViewportInfo();
   
   if (ImGuizmo::Manipulate(
     &camera.getView()[0][0],
     &camera.getProjection()[0][0],
     ImGuizmo::OPERATION::TRANSLATE | ImGuizmo::OPERATION::ROTATE,
-    ImGuizmo::MODE::WORLD,
+    viewportInfo.localSpace ? ImGuizmo::MODE::LOCAL : ImGuizmo::MODE::WORLD,
     &transform[0][0]
   ))
   {
@@ -207,8 +207,6 @@ bool TransformComponentEditor::editEntityComponent(Entity& e) const
   {
     viewportInfo.manipulatingGuizmo = false;
   }
-
-  ui.setViewportInfos(viewportInfo);
 
   return true;
 }
