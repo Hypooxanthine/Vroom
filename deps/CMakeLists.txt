@@ -29,6 +29,21 @@ add_library(ImGuiGLFWGlew
 target_include_directories(ImGuiGLFWGlew PUBLIC ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
 target_link_libraries(ImGuiGLFWGlew PUBLIC glfw libglew_shared)
 
+# ----- IMGUIZMO -----
+
+set(imguizmo_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imguizmo/)
+
+add_library(ImGuizmo
+  ${imguizmo_SOURCE_DIR}/GraphEditor.cpp
+  ${imguizmo_SOURCE_DIR}/ImCurveEdit.cpp
+  ${imguizmo_SOURCE_DIR}/ImGradient.cpp
+  ${imguizmo_SOURCE_DIR}/ImGuizmo.cpp
+  ${imguizmo_SOURCE_DIR}/ImSequencer.cpp
+)
+
+target_include_directories(ImGuizmo PUBLIC ${imguizmo_SOURCE_DIR})
+target_link_libraries(ImGuizmo PUBLIC ImGuiGLFWGlew)
+
 # ----- GLM -----
 
 add_subdirectory(glm)
