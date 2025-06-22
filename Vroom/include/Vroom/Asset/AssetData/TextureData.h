@@ -16,7 +16,8 @@ enum class TextureFormat : int
     Grayscale = 1,
     RG = 2,
     RGB = 3,
-    RGBA = 4
+    RGBA = 4,
+    Depth
 };
 
 inline constexpr TextureFormat ChannelsToTextureFormat(int channels)

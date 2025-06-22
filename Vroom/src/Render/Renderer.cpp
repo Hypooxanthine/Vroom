@@ -43,11 +43,6 @@ std::unique_ptr<Renderer> Renderer::s_Instance = nullptr;
 Renderer::Renderer()
 {
   m_gpuFeatures.query();
-
-  m_mainFrameBuffer.create(1, 1, 1);
-  m_mainFrameBuffer.setColorAttachment(0, 4, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
-  m_mainFrameBuffer.setRenderBufferDepthAttachment();
-  VRM_ASSERT_MSG(m_mainFrameBuffer.validate(), "Could not build main framebuffer");
 }
 
 Renderer::~Renderer()
@@ -88,6 +83,17 @@ void Renderer::createRenderPasses()
   m_storageBufferPool.clear();
   m_autoresizeStorageBufferPool.clear();
 
+  m_mainFrameBuffer.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
+  m_mainFrameBuffer.setColorAttachment(0, 4, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
+  m_mainFrameBuffer.setRenderBufferDepthAttachment();
+  VRM_ASSERT_MSG(m_mainFrameBuffer.validate(), "Could not build main framebuffer");
+
+  // Entity picking
+  {
+    m_pickingTexture.createColors(m_viewport.getSize().x, m_viewport.getSize().y, 1);
+    VRM_ASSERT_MSG(m_pickingTexture.isCreated(), "Could not create entiy picking texture");
+  }
+
   auto aa = m_renderSettings.antiAliasingLevel;
   bool aaOK = (aa != 0 && ((aa & (aa - 1)) == 0));
   VRM_ASSERT_MSG(aaOK, "Invalid antialiasing value: {}", aa);
@@ -115,8 +121,6 @@ void Renderer::createRenderPasses()
 
     pass.framebuffer = m_renderFrameBuffer;
   }
-
-  m_mainFrameBuffer.resize(m_viewport.getSize().x, m_viewport.getSize().y);
 
   // Shadow mapping
   if (m_renderSettings.shadowsEnable)
@@ -159,6 +163,7 @@ void Renderer::createRenderPasses()
       pass.storageBufferParameters["LightMatricesBlock"] = m_autoresizeStorageBufferPool.get("lightMatricesStorageBuffer");
       pass.softShadowKernelRadius = m_renderSettings.softShadowKernelRadius;
     }
+    pass.entityPickingTex = &m_pickingTexture;
   }
 
   // MSAA
@@ -194,7 +199,7 @@ void Renderer::endScene()
 
   RenderPassContext renderContext;
   renderContext.mainCamera = m_Camera;
-  renderContext.mainFrameBuffer = m_renderFrameBuffer;
+  renderContext.frameBufferTarget = m_renderFrameBuffer;
   renderContext.viewport = m_viewport;
 
   // RenderPass setup stage
@@ -219,6 +224,7 @@ void Renderer::submitMesh(uint32_t id, const MeshComponent& meshComponent, const
     info.model = model;
     info.visible = meshComponent.isVisible();
     info.castsShadow = meshComponent.doesCastShadow();
+    info.entityId = id;
     size_t subMeshId = id;
     subMeshId <<= 32;
     subMeshId |= i;

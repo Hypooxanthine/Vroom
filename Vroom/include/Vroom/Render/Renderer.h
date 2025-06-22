@@ -154,6 +154,8 @@ namespace vrm
     ResourcePool<gl::ArrayTexture2D> m_arrayTexture2DPool;
     ResourcePool<gl::StorageBuffer> m_storageBufferPool;
     ResourcePool<gl::AutoResizeStorageBuffer> m_autoresizeStorageBufferPool;
+
+    gl::Texture2D m_pickingTexture;
   };
 
 } // namespace vrm

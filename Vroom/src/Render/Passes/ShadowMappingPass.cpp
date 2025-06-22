@@ -87,8 +87,8 @@ void ShadowMappingPass::onRender(const RenderPassContext& ctx) const
 
   if (debugDirLights)
   {
-    VRM_ASSERT(ctx.mainFrameBuffer != nullptr);
-    ctx.mainFrameBuffer->bind();
+    VRM_ASSERT(ctx.frameBufferTarget != nullptr);
+    ctx.frameBufferTarget->bind();
     glDisable(GL_CULL_FACE);
 
     renderDirLightsFrustums(ctx);

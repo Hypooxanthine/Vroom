@@ -153,9 +153,10 @@ namespace vrm::gl
      */
     inline unsigned int getID() const { return m_RendererID; }
 
+    int getUniformLocation(const GLString &name) const;
+
   private:
     GLuint CompileShader(GLenum type, const GLString &source, bool recordErrors);
-    int getUniformLocation(const GLString &name) const;
     GLuint getStorageBufferIndex(const GLString &name) const;
 
   private:

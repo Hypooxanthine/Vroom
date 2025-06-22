@@ -105,17 +105,17 @@ namespace vrm::gl
 
       GLenum target = getBindingTarget();
 
-      const auto textureFormat = ChannelsToTextureFormat(channels);
+      m_textureFormat = ChannelsToTextureFormat(channels);
 
       if (sampleCount > 1)
       {
-        glTexStorage3DMultisample(target, sampleCount, Texture::ToGlInternalFormat(textureFormat), width, height, layerCount, GL_TRUE);
+        glTexStorage3DMultisample(target, sampleCount, Texture::ToGlInternalFormat(m_textureFormat), width, height, layerCount, GL_TRUE);
       }
       else
       {
-        glTexImage3D(target, 0, Texture::ToGlInternalFormat(textureFormat),
+        glTexImage3D(target, 0, Texture::ToGlInternalFormat(m_textureFormat),
           width, height, layerCount, 0,
-          Texture::ToGlFormat(textureFormat), GL_UNSIGNED_BYTE, nullptr);
+          Texture::ToGlFormat(m_textureFormat), GL_UNSIGNED_BYTE, nullptr);
       }
 
       glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -135,6 +135,8 @@ namespace vrm::gl
       m_height = height;
       m_channels = 1;
       m_sampleCount = 1;
+
+      m_textureFormat = ChannelsToTextureFormat(1);
 
       GLenum target = getBindingTarget();
 
@@ -159,6 +161,7 @@ namespace vrm::gl
     GLuint m_channels = 0;
     GLuint m_layerCount = 0;
     GLuint m_sampleCount = 0;
+    TextureFormat m_textureFormat = TextureFormat::Unsupported;
   };
 
 } // namespace vrm::gl

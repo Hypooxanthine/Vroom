@@ -66,7 +66,7 @@ namespace vrm
   struct RenderPassContext
   {
     const CameraBasic* mainCamera = nullptr;
-    const gl::FrameBuffer* mainFrameBuffer = nullptr;
+    const gl::FrameBuffer* frameBufferTarget = nullptr;
     RenderViewport viewport;
   };
 

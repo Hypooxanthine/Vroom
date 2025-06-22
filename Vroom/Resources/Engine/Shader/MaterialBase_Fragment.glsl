@@ -32,6 +32,7 @@ float ComputeDirectionalShadowFactor(in uint shadowCasterId, in float lightDotNo
 
 vec3 g_viewDir;
 vec3 g_normal;
+ivec2 g_texCoords;
 
 void main()
 {
@@ -49,12 +50,16 @@ void main()
 #endif
 
   finalColor = shadeColor;
+  
+  imageStore(u_entityPickingImage, g_texCoords, uvec4(u_EntityId, 0, 0, 0));
 }
 
 void SetupGlobalVars()
 {
   g_viewDir = normalize(u_ViewPosition.xyz - v_Position.xyz);
   g_normal = normalize(v_Normal);
+
+  g_texCoords = ivec2((gl_FragCoord.xy - vec2(0.5f, 0.5f)) / vec2(u_ViewportSize));
 
 #ifdef VRM_CLUSTERED_RENDERING
   SetupGlobalVars_ClusteredRendering();

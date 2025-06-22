@@ -23,12 +23,14 @@ Texture2D &Texture2D::operator=(Texture2D &&other) noexcept
     m_height = other.m_height;
     m_channels = other.m_channels;
     m_samples = other.m_samples;
+    m_textureFormat = other.m_textureFormat;
 
     other.m_RendererID = 0;
     other.m_width = 0;
     other.m_height = 0;
     other.m_channels = 0;
     other.m_samples = 0;
+    other.m_textureFormat = TextureFormat::Unsupported;
   }
 
   return *this;
@@ -68,6 +70,7 @@ void Texture2D::createColors(int width, int height, int channels, int samples, c
   m_height = height;
   m_channels = channels;
   m_samples = samples;
+  m_textureFormat = ChannelsToTextureFormat(channels);
 
   bind();
 
@@ -78,7 +81,7 @@ void Texture2D::createColors(int width, int height, int channels, int samples, c
      glTexImage2DMultisample(
       target,
       samples,
-      Texture::ToGlInternalFormat(ChannelsToTextureFormat(channels)),
+      Texture::ToGlInternalFormat(m_textureFormat),
       width,
       height,
       GL_TRUE
@@ -89,10 +92,10 @@ void Texture2D::createColors(int width, int height, int channels, int samples, c
     glTexImage2D(
       target,
       0,
-      Texture::ToGlInternalFormat(ChannelsToTextureFormat(channels)),
+      Texture::ToGlInternalFormat(m_textureFormat),
       width, height,
       0,
-      Texture::ToGlFormat(ChannelsToTextureFormat(channels)),
+      Texture::ToGlFormat(m_textureFormat),
       GL_UNSIGNED_BYTE,
       data
     );
@@ -119,6 +122,7 @@ void Texture2D::createFloats(int width, int height, int channels, const void *da
     glGenTextures(1, &m_RendererID);
 
   m_samples = 1;
+  m_textureFormat = ChannelsToTextureFormat(channels);
 
   bind();
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -128,11 +132,11 @@ void Texture2D::createFloats(int width, int height, int channels, const void *da
   GLCall(glTexImage2D(
       GL_TEXTURE_2D,
       0,
-      Texture::ToGlInternalFormat(ChannelsToTextureFormat(channels)),
+      Texture::ToGlInternalFormat(m_textureFormat),
       width,
       height,
       0,
-      Texture::ToGlFormat(ChannelsToTextureFormat(channels)),
+      Texture::ToGlFormat(m_textureFormat),
       GL_FLOAT,
       data));
 
@@ -147,6 +151,7 @@ void Texture2D::createDepth(int width, int height)
     glGenTextures(1, &m_RendererID);
 
   m_samples = 1;
+  m_textureFormat = TextureFormat::Depth;
 
   bind();
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));

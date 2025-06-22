@@ -4,7 +4,7 @@
 #include <string>
 
 #include "Vroom/Asset/AssetData/TextureData.h"
-#include "Vroom/Render/Abstraction/GLCall.h"
+#include "Vroom/Render/Abstraction/Texture.h"
 
 namespace vrm::gl
 {
@@ -31,6 +31,10 @@ namespace vrm::gl
     {
       return GetBindingTarget(m_samples);
     }
+
+    inline GLuint getRenderID() const { return m_RendererID; }
+
+    inline TextureFormat getFormat() const { return m_textureFormat; }
 
     void bind() const;
     void bind(unsigned int slot) const;
@@ -65,6 +69,7 @@ namespace vrm::gl
     unsigned int m_width = 0, m_height = 0;
     unsigned int m_channels = 0;
     unsigned int m_samples = 0;
+    TextureFormat m_textureFormat = TextureFormat::Unsupported;
   };
 
 } // namespace vrm::gl

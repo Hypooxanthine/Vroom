@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <entt/fwd.hpp>
 
 #include "Vroom/Render/Helpers/Registry.h"
 
@@ -18,6 +19,7 @@ namespace vrm
 		const glm::mat4* model;
     bool visible;
     bool castsShadow;
+    entt::id_type entityId;
   };
   
   class MeshRegistry : public Registry<MeshRenderInfo, size_t> {};
