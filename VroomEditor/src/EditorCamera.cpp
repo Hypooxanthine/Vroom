@@ -16,8 +16,8 @@ void EditorCamera::onUpdate(const DeltaTime& dt)
     move(m_MoveForwardValue * m_Speed * dt.seconds() * getForwardVector());
     move(m_MoveRightValue * m_Speed * dt.seconds() * getRightVector());
     move(m_MoveUpValue * m_Speed * dt.seconds() * glm::vec3{0.f, 1.f, 0.f});
-    addYaw(m_LookRightValue * m_AngularSpeed);
-    addPitch(m_LookUpValue * m_AngularSpeed);
+    addYaw(m_LookRightValue * m_AngularSpeed * dt.seconds());
+    addPitch(m_LookUpValue * m_AngularSpeed * dt.seconds());
 
     m_LookUpValue = 0.f;
     m_LookRightValue = 0.f;
@@ -46,6 +46,11 @@ void EditorCamera::addMoveRight(float value)
 void EditorCamera::addMoveUp(float value)
 {
     m_MoveUpValue += value;
+}
+
+void EditorCamera::clearInputs()
+{
+  m_LookUpValue = m_LookRightValue = m_MoveForwardValue = m_MoveRightValue = m_MoveUpValue = 0.f;
 }
 
 } // namespace vrm

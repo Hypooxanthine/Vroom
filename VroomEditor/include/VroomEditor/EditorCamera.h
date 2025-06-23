@@ -22,6 +22,8 @@ public:
     void addMoveRight(float value);
     void addMoveUp(float value);
 
+    void clearInputs();
+
     inline void setSpeed(float speed) { m_Speed = speed; }
     inline void setAngularSpeed(float angularSpeed) { m_AngularSpeed = angularSpeed; }
 
@@ -31,7 +33,7 @@ public:
 private:
     float m_LookUpValue = 0.f, m_LookRightValue = 0.f;
     float m_MoveForwardValue = 0.f, m_MoveRightValue = 0.f, m_MoveUpValue = 0.f;
-    float m_Speed = 10.f, m_AngularSpeed = 0.2f * glm::two_pi<float>() / 360.f;
+    float m_Speed = 10.f, m_AngularSpeed = 3.f;
 };
 
 } // namespace vrm
