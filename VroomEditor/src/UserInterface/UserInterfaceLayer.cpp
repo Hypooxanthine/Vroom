@@ -69,7 +69,7 @@ void UserInterfaceLayer::onInit()
 
   // Interfaces setup
   auto& mainMenuBar = emplaceImGuiElement<MainMenuBar>(EInterfaceElement::eMainMenuBar);
-  auto& statisticsPanel = emplaceImGuiElement<StatisticsPanel>(EInterfaceElement::eStatisticsPanel, false);
+  auto& statisticsPanel = emplaceImGuiElement<StatisticsPanel>(EInterfaceElement::eStatisticsPanel);
   auto& renderSettingsPanel = emplaceImGuiElement<RenderSettingsPanel>(EInterfaceElement::eRenderSettingsPanel);
   auto& viewport = emplaceImGuiElement<Viewport>(EInterfaceElement::eViewport);
   auto& assetBrowser = emplaceImGuiElement<AssetBrowser>(EInterfaceElement::eAssetBrowser);

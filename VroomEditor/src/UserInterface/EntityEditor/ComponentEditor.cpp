@@ -207,6 +207,10 @@ bool TransformComponentEditor::editEntityComponent(Entity& e) const
       
     viewportInfo.manipulatingGuizmo = true;
   }
+  else if (ImGuizmo::IsUsing())
+  {
+    viewportInfo.manipulatingGuizmo = true;
+  }
   else if (!viewportInfo.active) // If viewport is not active any more (mouse released), stop manipulating
   {
     viewportInfo.manipulatingGuizmo = false;

@@ -81,11 +81,11 @@ bool Viewport::onImgui()
         ImVec2 rectSize = ImGui::GetItemRectSize();
           infos.clickPos = { -1, -1 };
 
-        if (ImGui::IsMouseHoveringRect(rectMin, ImGui::GetItemRectMax()) && ImGui::IsItemClicked(ImGuiMouseButton_Left))
+        if (ImGui::IsMouseHoveringRect(rectMin, ImGui::GetItemRectMax()) && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
         {
           m_clicking = true;
         }
-        else if (ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.01f) || !ImGui::IsWindowFocused())
+        else if (ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.01f) || !ImGui::IsWindowFocused() || infos.manipulatingGuizmo)
         {
           m_clicking = false; // Cancels click
         }
