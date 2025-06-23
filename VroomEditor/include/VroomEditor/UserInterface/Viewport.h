@@ -49,6 +49,8 @@ namespace vrm
     bool m_Paused = false;
     bool m_localSpace = false;
 
+    bool m_clicking = false;
+
   private:
     bool m_DidSizeChangeLastFrame = false;
     ImVec2 m_LastViewportSize;

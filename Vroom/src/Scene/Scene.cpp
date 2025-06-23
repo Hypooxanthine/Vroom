@@ -154,9 +154,14 @@ void Scene::renameEntity(Entity& e, const std::string& name)
   // @todo Keep entities sorted by name in HierarchyComponent
 }
 
-bool Scene::entityExists(const std::string &name)
+bool Scene::entityExists(const std::string &name) const
 {
   return m_EntitiesByName.contains(name);
+}
+
+bool Scene::entityExists(entt::entity e) const
+{
+  return m_Registry.valid(e);
 }
 
 Entity Scene::getEntity(entt::entity handle)

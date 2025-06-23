@@ -3,10 +3,12 @@
 #include <Vroom/Core/Application.h>
 #include <Vroom/Core/GameLayer.h>
 #include <Vroom/Core/Window.h>
+#include <Vroom/Render/Renderer.h>
 #include <fstream>
 #include <future>
 
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
+#include "VroomEditor/UserInterface/SceneGraph.h"
 
 #include "VroomEditor/EditorScene.h"
 
@@ -139,7 +141,8 @@ void EditorLayer::onInit()
   m_CustomEventManager.bindPermanentCallback("EditorCameraRotation", [this] (const Event& e) {
     m_EditorCamera.submitLookRight(static_cast<float>(e.mouseDeltaX));
     m_EditorCamera.submitLookUp(static_cast<float>(-e.mouseDeltaY));
-    e.handled = true; });
+    e.handled = true;
+  });
 
   m_TriggerManager.createTrigger("MoveForward")
     .bindInput(vrm::KeyCode::W);
@@ -178,11 +181,15 @@ void EditorLayer::onUpdate(const DeltaTime& dt)
     onViewportResize(viewportInfo.width, viewportInfo.height);
 
   // If the viewport is active, we update the editor camera
-  const bool cameraInputs = viewportInfo.active && !viewportInfo.manipulatingGuizmo;
+  const bool cameraInputs = viewportInfo.active && !viewportInfo.manipulatingGuizmo && !m_lastViewportInfos.manipulatingGuizmo;
     
   if (cameraInputs)
   {
     m_EditorCamera.onUpdate(dt);
+  }
+  else
+  {
+    // m_EditorCamera.clearInputs();
   }
 
   const bool cursorVisible = !viewportInfo.active || viewportInfo.manipulatingGuizmo;
@@ -226,6 +233,23 @@ void EditorLayer::onUpdate(const DeltaTime& dt)
     {
       // Reloading scene
       loadScene(m_loadedScene);
+    }
+  }
+
+  // Entity picking
+  {
+    const auto& pos = viewportInfo.clickPos;
+    if (pos.x > -1 && pos.y > -1)
+    {
+      uint32_t rawId = Renderer::Get().getEntityIndexOnPixel(pos);
+      auto& scene = Application::Get().getGameLayer().getScene();
+      if (scene.entityExists(entt::entity(rawId)))
+      {
+        auto& sceneGraph = static_cast<SceneGraph&>(UserInterfaceLayer::Get().getElement(EInterfaceElement::eSceneGraph));
+        Entity e = scene.getEntity(entt::entity(rawId));
+        sceneGraph.selectEntity(e);
+      }
+      
     }
   }
 

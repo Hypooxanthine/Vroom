@@ -50,6 +50,7 @@ namespace vrm
       bool paused = false;
       bool manipulatingGuizmo = false;
       bool localSpace = false;
+      glm::ivec2 clickPos = { -1, -1 };
     };
 
   public:
@@ -86,7 +87,6 @@ namespace vrm
       return static_cast<T&>(*uniquePtr.get());
     }
 
-    void resetUIInfos();
     void renderImgui();
 
     void fileDropCallback(const Event& e);

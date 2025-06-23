@@ -110,7 +110,9 @@ namespace vrm
      * @return true If the entity exists.
      * @return false If the entity does not exist.
      */
-    bool entityExists(const std::string &name);
+    bool entityExists(const std::string &name) const;
+
+    bool entityExists(entt::entity e) const;
 
     /**
      * @brief Gets an entity by its handle.

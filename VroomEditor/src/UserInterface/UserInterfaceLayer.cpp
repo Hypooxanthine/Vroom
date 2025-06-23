@@ -111,18 +111,12 @@ void UserInterfaceLayer::onUpdate(const DeltaTime& dt)
 void UserInterfaceLayer::onRender()
 {
   gl::FrameBuffer::GetDefaultFrameBuffer().bind();
-  resetUIInfos();
   renderImgui();
 }
 
 void UserInterfaceLayer::onEvent(vrm::Event &e)
 {
   m_CustomEventManager.check(e);
-}
-
-void UserInterfaceLayer::resetUIInfos()
-{
-  m_ViewportInfo.justChangedSize = false;
 }
 
 void UserInterfaceLayer::renderImgui()

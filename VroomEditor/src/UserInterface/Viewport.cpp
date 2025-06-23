@@ -27,6 +27,7 @@ bool Viewport::onImgui()
 {
   bool ret = false;
   m_DidSizeChangeLastFrame = false;
+  UserInterfaceLayer::ViewportInfos& infos = UserInterfaceLayer::Get().getViewportInfo();
 
   ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
   if (ImGui::Begin("Viewport", m_open))
@@ -76,25 +77,26 @@ bool Viewport::onImgui()
           static_cast<float>(renderTexture->getWidth()),
           static_cast<float>(renderTexture->getHeight()));
         ImGui::Image(textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
-
-        m_Active = ImGui::IsWindowFocused() && ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.f);
         ImVec2 rectMin = ImGui::GetItemRectMin();
         ImVec2 rectSize = ImGui::GetItemRectSize();
+          infos.clickPos = { -1, -1 };
 
-        if (ImGui::IsWindowFocused() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        if (ImGui::IsMouseHoveringRect(rectMin, ImGui::GetItemRectMax()) && ImGui::IsItemClicked(ImGuiMouseButton_Left))
         {
-          auto px = glm::ivec2{ (ImGui::GetMousePos() - rectMin).x, rectSize.y - (ImGui::GetMousePos() - rectMin).y };
-          uint32_t entityId = Renderer::Get().getEntityIndexOnPixel(px);
-          VRM_LOG_TRACE("Entity id at pixel ({}, {}): {}", px.x, px.y, entityId);
-          auto& sceneGraph = static_cast<SceneGraph&>(UserInterfaceLayer::Get().getElement(EInterfaceElement::eSceneGraph));
-          auto entt_e = entt::entity(entityId);
-
-          if (Application::Get().getGameLayer().getScene().getRegistry().valid(entt_e))
-          {
-            Entity e = Application::Get().getGameLayer().getScene().getEntity(entt_e);
-            sceneGraph.selectEntity(e);
-          }
+          m_clicking = true;
         }
+        else if (ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.01f) || !ImGui::IsWindowFocused())
+        {
+          m_clicking = false; // Cancels click
+        }
+        else if (m_clicking && ImGui::IsMouseReleased(ImGuiMouseButton_Left))// && ImGui::GetMouseDragDelta().x == 0.f && ImGui::GetMouseDragDelta().y == 0.f)
+        {
+          infos.clickPos = glm::ivec2{ (ImGui::GetMousePos() - rectMin).x, rectSize.y - (ImGui::GetMousePos() - rectMin).y };
+          m_clicking = false;
+          VRM_LOG_TRACE("Click");
+        }
+
+        m_Active = ImGui::IsWindowFocused() && ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.f) && !m_clicking;
 
         // VRM_LOG_TRACE("Image size: {} {},", imageSize.x, imageSize.y);
 
@@ -114,8 +116,6 @@ bool Viewport::onImgui()
     ImGui::EndChild();
   }
   ImGui::End();
-
-  UserInterfaceLayer::ViewportInfos& infos = UserInterfaceLayer::Get().getViewportInfo();
 
   if ((infos.justChangedSize = m_DidSizeChangeLastFrame))
   {
