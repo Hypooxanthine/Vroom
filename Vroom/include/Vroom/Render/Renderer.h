@@ -122,6 +122,8 @@ namespace vrm
 
     const gl::OwningFrameBuffer& getMainFrameBuffer() const { return m_mainFrameBuffer; }
 
+    uint32_t getEntityIndexOnPixel(const glm::ivec2& px) const;
+
   private:
 
     Renderer();
@@ -155,7 +157,7 @@ namespace vrm
     ResourcePool<gl::StorageBuffer> m_storageBufferPool;
     ResourcePool<gl::AutoResizeStorageBuffer> m_autoresizeStorageBufferPool;
 
-    gl::Texture2D m_pickingTexture;
+    GLuint m_pickingTexture;
   };
 
 } // namespace vrm

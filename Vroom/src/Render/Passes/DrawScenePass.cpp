@@ -84,7 +84,7 @@ void DrawSceneRenderPass::setupFaceCulling() const
 
 void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
 {
-  VRM_ASSERT(entityPickingTex != nullptr);
+  VRM_ASSERT(entityPickingTex != 0);
   glViewport(ctx.viewport.getOrigin().x, ctx.viewport.getOrigin().y, ctx.viewport.getSize().x, ctx.viewport.getSize().y);
 
   for (const auto &[id, queuedMesh] : *meshRegistry)
@@ -94,14 +94,12 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
       continue;
     }
 
-    size_t textOffset = queuedMesh.material->getTextures().size();
+    size_t textOffset = queuedMesh.material->getTextures().size(); 
 
-    const auto& shader = queuedMesh.material->getShader();
+    const auto& shader = queuedMesh.material->getShader(); 
       shader.bind();
-      shader.setUniformMat4f("u_Model", *queuedMesh.model); 
+      shader.setUniformMat4f("u_Model", *queuedMesh.model);
       shader.setUniform1ui("u_EntityId", queuedMesh.entityId);
-      auto imageTextureUnit = shader.getUniformLocation("u_entityPickingImage");
-      glBindImageTexture(imageTextureUnit, entityPickingTex->getRendererID(), 0, 0, 0, GL_WRITE_ONLY, GL_RG32UI);
       
       if (shadowsEnable)
       {
@@ -109,6 +107,10 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
         shader.setTexture("u_DirectionalShadowMaps", *dirLightShadowMaps, textOffset++);
         shader.setUniform1ui("u_SoftShadowKernelRadius", softShadowKernelRadius);
       }
+      
+      int imageTextureUnit = textOffset++; 
+      GLCall(glBindImageTexture(imageTextureUnit, entityPickingTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_R32UI));
+      shader.setUniform1i("u_entityPickingImage", imageTextureUnit);
 
       applyCameraUniforms(shader, *ctx.mainCamera);
       applyViewportUniforms(shader, ctx.viewport);

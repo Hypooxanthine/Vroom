@@ -50,7 +50,7 @@ namespace vrm
     EFrontFace frontFace = EFrontFace::eCCW;
     bool shadowsEnable = true;
     uint8_t softShadowKernelRadius = 2;
-    gl::Texture2D* entityPickingTex = nullptr;
+    GLuint entityPickingTex = 0;
 
     std::unordered_map<std::string, const gl::StorageBufferBase*> storageBufferParameters;
 

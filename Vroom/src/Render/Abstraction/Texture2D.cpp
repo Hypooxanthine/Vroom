@@ -132,7 +132,7 @@ void Texture2D::createFloats(int width, int height, int channels, const void *da
   GLCall(glTexImage2D(
       GL_TEXTURE_2D,
       0,
-      Texture::ToGlInternalFormat(m_textureFormat),
+      GL_R32F,
       width,
       height,
       0,

@@ -3,6 +3,8 @@
 
 layout(location = 0) out vec4 finalColor;
 
+layout(r32ui) writeonly coherent uniform uimage2D u_entityPickingImage;
+
 //--------------------------------------------------
 // Function declarations
 
@@ -32,7 +34,7 @@ float ComputeDirectionalShadowFactor(in uint shadowCasterId, in float lightDotNo
 
 vec3 g_viewDir;
 vec3 g_normal;
-ivec2 g_texCoords;
+ivec2 g_fragCoords;
 
 void main()
 {
@@ -51,7 +53,7 @@ void main()
 
   finalColor = shadeColor;
   
-  imageStore(u_entityPickingImage, g_texCoords, uvec4(u_EntityId, 0, 0, 0));
+  imageStore(u_entityPickingImage, g_fragCoords, uvec4(u_EntityId, 0, 0, 0));
 }
 
 void SetupGlobalVars()
@@ -59,7 +61,7 @@ void SetupGlobalVars()
   g_viewDir = normalize(u_ViewPosition.xyz - v_Position.xyz);
   g_normal = normalize(v_Normal);
 
-  g_texCoords = ivec2((gl_FragCoord.xy - vec2(0.5f, 0.5f)) / vec2(u_ViewportSize));
+  g_fragCoords = ivec2(floor(gl_FragCoord.xy));
 
 #ifdef VRM_CLUSTERED_RENDERING
   SetupGlobalVars_ClusteredRendering();

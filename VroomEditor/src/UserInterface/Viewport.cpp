@@ -1,9 +1,14 @@
 #include "VroomEditor/UserInterface/Viewport.h"
 
 #include <Vroom/Core/Log.h>
+#include <Vroom/Core/Application.h>
+#include <Vroom/Core/GameLayer.h>
+#include <Vroom/Scene/Scene.h>
 #include <Vroom/Render/Abstraction/Texture2D.h>
+#include <Vroom/Render/Renderer.h>
 
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
+#include "VroomEditor/UserInterface/SceneGraph.h"
 
 #include "ImGuizmo.h"
 
@@ -73,13 +78,28 @@ bool Viewport::onImgui()
         ImGui::Image(textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
 
         m_Active = ImGui::IsWindowFocused() && ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.f);
+        ImVec2 rectMin = ImGui::GetItemRectMin();
+        ImVec2 rectSize = ImGui::GetItemRectSize();
+
+        if (ImGui::IsWindowFocused() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        {
+          auto px = glm::ivec2{ (ImGui::GetMousePos() - rectMin).x, rectSize.y - (ImGui::GetMousePos() - rectMin).y };
+          uint32_t entityId = Renderer::Get().getEntityIndexOnPixel(px);
+          VRM_LOG_TRACE("Entity id at pixel ({}, {}): {}", px.x, px.y, entityId);
+          auto& sceneGraph = static_cast<SceneGraph&>(UserInterfaceLayer::Get().getElement(EInterfaceElement::eSceneGraph));
+          auto entt_e = entt::entity(entityId);
+
+          if (Application::Get().getGameLayer().getScene().getRegistry().valid(entt_e))
+          {
+            Entity e = Application::Get().getGameLayer().getScene().getEntity(entt_e);
+            sceneGraph.selectEntity(e);
+          }
+        }
 
         // VRM_LOG_TRACE("Image size: {} {},", imageSize.x, imageSize.y);
 
         ImGuizmo::SetOrthographic(false);
         ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
-        ImVec2 rectMin = ImGui::GetItemRectMin();
-        ImVec2 rectSize = ImGui::GetItemRectSize();
         ImGuizmo::SetRect(rectMin.x, rectMin.y, rectSize.x, rectSize.y);
       }
 

@@ -11,6 +11,7 @@
 #include "Vroom/Render/Passes/ClearFrameBufferPass.h"
 #include "Vroom/Render/Passes/LightClusteringPass.h"
 #include "Vroom/Render/Passes/ShadowMappingPass.h"
+#include "Vroom/Render/Passes/ClearTexturePass.h"
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Render/Abstraction/VertexArray.h"
@@ -89,9 +90,35 @@ void Renderer::createRenderPasses()
   VRM_ASSERT_MSG(m_mainFrameBuffer.validate(), "Could not build main framebuffer");
 
   // Entity picking
-  {
-    m_pickingTexture.createColors(m_viewport.getSize().x, m_viewport.getSize().y, 1);
-    VRM_ASSERT_MSG(m_pickingTexture.isCreated(), "Could not create entiy picking texture");
+  { 
+    if (m_pickingTexture)
+    {
+      glDeleteTextures(1, &m_pickingTexture);
+      m_pickingTexture = 0;
+    }
+
+    glGenTextures(1, &m_pickingTexture);
+    VRM_ASSERT_MSG(m_pickingTexture, "Could not create picking texture");
+    glBindTexture(GL_TEXTURE_2D, m_pickingTexture);
+
+    GLenum internalFormat = GL_R32UI;
+    GLenum format = GL_RED_INTEGER;
+    GLenum type = GL_UNSIGNED_INT;
+    static const GLuint clearValue = 0;
+
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_viewport.getSize().x, m_viewport.getSize().y, 0, format, type, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    auto& pass = m_passManager.pushPass<ClearTexturePass>();
+    pass.texture = m_pickingTexture;
+    pass.format = format;
+    pass.type = type;
+    pass.clearValue = &clearValue;
+    pass.width = m_viewport.getSize().x;
+    pass.height = m_viewport.getSize().y;
   }
 
   auto aa = m_renderSettings.antiAliasingLevel;
@@ -163,7 +190,7 @@ void Renderer::createRenderPasses()
       pass.storageBufferParameters["LightMatricesBlock"] = m_autoresizeStorageBufferPool.get("lightMatricesStorageBuffer");
       pass.softShadowKernelRadius = m_renderSettings.softShadowKernelRadius;
     }
-    pass.entityPickingTex = &m_pickingTexture;
+    pass.entityPickingTex = m_pickingTexture;
   }
 
   // MSAA
@@ -270,4 +297,11 @@ void Renderer::setViewportSize(const glm::uvec2& s)
 {
   m_viewport.setSize(s);
   m_passManagerDirty = true;
+}
+
+uint32_t Renderer::getEntityIndexOnPixel(const glm::ivec2& px) const
+{
+  GLuint pixel;
+  glGetTextureSubImage(m_pickingTexture, 0, px.x, px.y, 0, 1, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, sizeof(pixel), &pixel);
+  return pixel;
 }

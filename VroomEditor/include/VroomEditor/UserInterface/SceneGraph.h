@@ -16,6 +16,8 @@ public:
   SceneGraph();
   virtual ~SceneGraph();
 
+  void selectEntity(Entity& e);
+
 protected:
 
   virtual bool onImgui() override;

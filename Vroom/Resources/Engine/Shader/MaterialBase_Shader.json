@@ -89,10 +89,6 @@
         "Type": "uint"
       },
       {
-        "Name": "u_entityPickingImage",
-        "Type": "writeonly uimage2D"
-      },
-      {
         "Name": "u_EntityId",
         "Type": "uint"
       }
