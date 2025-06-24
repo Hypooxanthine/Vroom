@@ -228,3 +228,7 @@ void UserInterfaceLayer::saveImguiStyle(const ImGuiStyle& style) const
     VRM_LOG_WARN("Could not open or create {} file", s_imguiStyleFile.string());
   }
 }
+
+#define IMPL_INTERFACE_ELEMENT_GETTER(Element) Element& UserInterfaceLayer::get##Element() { return static_cast<Element&>(getElement(EInterfaceElement::e##Element)); }
+
+IMPL_INTERFACE_ELEMENT_GETTER(Viewport)

@@ -9,6 +9,7 @@
 
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 #include "VroomEditor/UserInterface/SceneGraph.h"
+#include "VroomEditor/UserInterface/Viewport.h"
 
 #include "VroomEditor/EditorScene.h"
 
@@ -146,22 +147,45 @@ void EditorLayer::onInit()
 
   m_TriggerManager.createTrigger("MoveForward")
     .bindInput(vrm::KeyCode::W);
-  m_TriggerManager.bindPermanentCallback("MoveForward", [this] (bool triggered) { m_EditorCamera.addMoveForward(triggered ? 1.f : -1.f); });
+  m_TriggerManager.bindPermanentCallback("MoveForward", [this] (bool triggered) {
+    if (triggered) UserInterfaceLayer::Get().getViewport().allowActivation();
+    m_EditorCamera.addMoveForward(triggered ? 1.f : -1.f);
+  });
+
   m_TriggerManager.createTrigger("MoveBackward")
     .bindInput(vrm::KeyCode::S);
-  m_TriggerManager.bindPermanentCallback("MoveBackward", [this] (bool triggered) { m_EditorCamera.addMoveForward(-(triggered ? 1.f : -1.f)); });
+  m_TriggerManager.bindPermanentCallback("MoveBackward", [this] (bool triggered) {
+    if (triggered) UserInterfaceLayer::Get().getViewport().allowActivation();
+    m_EditorCamera.addMoveForward(-(triggered ? 1.f : -1.f));
+  });
+
   m_TriggerManager.createTrigger("MoveRight")
     .bindInput(vrm::KeyCode::D);
-  m_TriggerManager.bindPermanentCallback("MoveRight", [this] (bool triggered) { m_EditorCamera.addMoveRight(triggered ? 1.f : -1.f); });
+  m_TriggerManager.bindPermanentCallback("MoveRight", [this] (bool triggered) {
+    if (triggered) UserInterfaceLayer::Get().getViewport().allowActivation();
+    m_EditorCamera.addMoveRight(triggered ? 1.f : -1.f);
+  });
+
   m_TriggerManager.createTrigger("MoveLeft")
     .bindInput(vrm::KeyCode::A);
-  m_TriggerManager.bindPermanentCallback("MoveLeft", [this] (bool triggered) { m_EditorCamera.addMoveRight(-(triggered ? 1.f : -1.f)); });
+  m_TriggerManager.bindPermanentCallback("MoveLeft", [this] (bool triggered) {
+    if (triggered) UserInterfaceLayer::Get().getViewport().allowActivation();
+    m_EditorCamera.addMoveRight(-(triggered ? 1.f : -1.f));
+  });
+
   m_TriggerManager.createTrigger("MoveUp")
     .bindInput(vrm::KeyCode::Space);
-  m_TriggerManager.bindPermanentCallback("MoveUp", [this] (bool triggered) { m_EditorCamera.addMoveUp(triggered ? 1.f : -1.f); });
+  m_TriggerManager.bindPermanentCallback("MoveUp", [this] (bool triggered) {
+    if (triggered) UserInterfaceLayer::Get().getViewport().allowActivation();
+    m_EditorCamera.addMoveUp(triggered ? 1.f : -1.f);
+  });
+
   m_TriggerManager.createTrigger("MoveDown")
     .bindInput(vrm::KeyCode::LeftShift);
-  m_TriggerManager.bindPermanentCallback("MoveDown", [this] (bool triggered) { m_EditorCamera.addMoveUp(-(triggered ? 1.f : -1.f)); });
+  m_TriggerManager.bindPermanentCallback("MoveDown", [this] (bool triggered) {
+    if (triggered) UserInterfaceLayer::Get().getViewport().allowActivation();
+    m_EditorCamera.addMoveUp(-(triggered ? 1.f : -1.f));
+  });
 
   // Scripts
   _loadScriptsRuntimeLibrary();
@@ -181,7 +205,7 @@ void EditorLayer::onUpdate(const DeltaTime& dt)
     onViewportResize(viewportInfo.width, viewportInfo.height);
 
   // If the viewport is active, we update the editor camera
-  const bool cameraInputs = viewportInfo.active && !viewportInfo.manipulatingGuizmo && !m_lastViewportInfos.manipulatingGuizmo;
+  const bool cameraInputs = viewportInfo.active;
     
   if (cameraInputs)
   {
@@ -192,7 +216,7 @@ void EditorLayer::onUpdate(const DeltaTime& dt)
     // m_EditorCamera.clearInputs();
   }
 
-  const bool cursorVisible = !viewportInfo.active || viewportInfo.manipulatingGuizmo;
+  const bool cursorVisible = !viewportInfo.active;
   app.getWindow().setCursorVisible(cursorVisible);
 
   const bool simul = viewportInfo.simulating;

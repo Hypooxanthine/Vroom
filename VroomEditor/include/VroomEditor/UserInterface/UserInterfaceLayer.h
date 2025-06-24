@@ -16,6 +16,14 @@ struct ImGuiStyle;
 namespace vrm
 {
 
+  class MainMenuBar;
+  class StatisticsPanel;
+  class RenderSettingsPanel;
+  class Viewport;
+  class AssetBrowser;
+  class SceneGraph;
+  class EditorPreferences;
+
   struct EInterfaceElement
   {
     enum Element : size_t
@@ -69,6 +77,7 @@ namespace vrm
     void saveImguiStyle(const ImGuiStyle& style) const;
 
     inline ImGuiElement& getElement(EInterfaceElement::Element elem) { return *m_elements.at(elem); }
+    Viewport& getViewport();
 
   protected:
     virtual void onInit() override;

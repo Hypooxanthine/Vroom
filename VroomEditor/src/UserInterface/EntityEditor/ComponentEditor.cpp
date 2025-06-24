@@ -206,10 +206,13 @@ bool TransformComponentEditor::editEntityComponent(Entity& e) const
       component.setGlobalTransform(transform, get(e.getParent()).getGlobalTransform());
       
     viewportInfo.manipulatingGuizmo = true;
+    // Cancelling viewport active
+    viewportInfo.active = false;
   }
   else if (ImGuizmo::IsUsing())
   {
     viewportInfo.manipulatingGuizmo = true;
+    viewportInfo.active = false;
   }
   else if (!viewportInfo.active) // If viewport is not active any more (mouse released), stop manipulating
   {

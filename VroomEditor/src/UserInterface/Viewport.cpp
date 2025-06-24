@@ -93,7 +93,6 @@ bool Viewport::onImgui()
         {
           infos.clickPos = glm::ivec2{ (ImGui::GetMousePos() - rectMin).x, rectSize.y - (ImGui::GetMousePos() - rectMin).y };
           m_clicking = false;
-          VRM_LOG_TRACE("Click");
         }
 
         m_Active = ImGui::IsWindowFocused() && ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.f) && !m_clicking;

@@ -37,6 +37,8 @@ namespace vrm
 
     inline void setRenderTexture(const gl::Texture2D *tex) { renderTexture = tex; }
 
+    inline void allowActivation() { m_clicking = false; } // Clicking state blocks viewport activation
+
   protected:
     bool onImgui() override;
 
