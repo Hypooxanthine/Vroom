@@ -256,7 +256,8 @@ void EditorLayer::onUpdate(const DeltaTime& dt)
     else
     {
       // Reloading scene
-      loadScene(m_loadedScene);
+      if (isSceneLoaded())
+        loadScene(m_loadedScene);
     }
   }
 
