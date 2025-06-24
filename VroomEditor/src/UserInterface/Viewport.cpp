@@ -104,7 +104,7 @@ bool Viewport::onImgui()
         ImGuizmo::SetRect(rectMin.x, rectMin.y, rectSize.x, rectSize.y);
       }
 
-      ImGui::PopStyleVar(2);
+      ImGui::PopStyleVar();
       ImGui::SetCursorPos(cursor + ImVec2{5, 5});
 
       if (ImGui::Button(m_localSpace ? "Local" : "World"))
@@ -115,6 +115,7 @@ bool Viewport::onImgui()
     ImGui::EndChild();
   }
   ImGui::End();
+  ImGui::PopStyleVar();
 
   if ((infos.justChangedSize = m_DidSizeChangeLastFrame))
   {
