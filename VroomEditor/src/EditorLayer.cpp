@@ -267,11 +267,16 @@ void EditorLayer::onUpdate(const DeltaTime& dt)
     {
       uint32_t rawId = Renderer::Get().getEntityIndexOnPixel(pos);
       auto& scene = Application::Get().getGameLayer().getScene();
+      auto& sceneGraph = static_cast<SceneGraph&>(UserInterfaceLayer::Get().getElement(EInterfaceElement::eSceneGraph));
+      
       if (scene.entityExists(entt::entity(rawId)))
       {
-        auto& sceneGraph = static_cast<SceneGraph&>(UserInterfaceLayer::Get().getElement(EInterfaceElement::eSceneGraph));
         Entity e = scene.getEntity(entt::entity(rawId));
         sceneGraph.selectEntity(e);
+      }
+      else
+      {
+        sceneGraph.unselectEntity();
       }
       
     }

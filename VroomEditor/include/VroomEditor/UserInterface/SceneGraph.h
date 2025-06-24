@@ -17,6 +17,7 @@ public:
   virtual ~SceneGraph();
 
   void selectEntity(Entity& e);
+  void unselectEntity();
 
 protected:
 

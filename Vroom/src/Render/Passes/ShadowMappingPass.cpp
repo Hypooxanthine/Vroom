@@ -172,7 +172,7 @@ void ShadowMappingPass::renderMeshes(const CameraBasic& camera, const RenderView
       continue;
     }
     
-    const auto& shader = queuedMesh.material->getShader();
+    const auto& shader = queuedMesh.material->getShadowCastingShader();
     shader.bind();
     shader.setUniformMat4f("u_Model", *queuedMesh.model);
     applyCameraUniforms(shader, camera);

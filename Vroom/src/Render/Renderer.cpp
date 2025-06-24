@@ -104,7 +104,6 @@ void Renderer::createRenderPasses()
     GLenum internalFormat = GL_R32UI;
     GLenum format = GL_RED_INTEGER;
     GLenum type = GL_UNSIGNED_INT;
-    static const GLuint clearValue = 0;
 
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_viewport.getSize().x, m_viewport.getSize().y, 0, format, type, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
@@ -114,11 +113,11 @@ void Renderer::createRenderPasses()
 
     auto& pass = m_passManager.pushPass<ClearTexturePass>();
     pass.texture = m_pickingTexture;
+    pass.level = 0;
     pass.format = format;
     pass.type = type;
+    static GLuint clearValue = 0;
     pass.clearValue = &clearValue;
-    pass.width = m_viewport.getSize().x;
-    pass.height = m_viewport.getSize().y;
   }
 
   auto aa = m_renderSettings.antiAliasingLevel;

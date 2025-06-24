@@ -20,10 +20,9 @@ namespace vrm
   public:
 
     GLuint texture = 0;
+    GLint level = 0;
     GLenum format = 0;
     GLenum type = 0;
-    GLuint width = 0;
-    GLuint height = 0;
     const void * clearValue = nullptr;
 
   protected:

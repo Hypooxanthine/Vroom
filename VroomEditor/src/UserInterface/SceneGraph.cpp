@@ -173,6 +173,11 @@ void SceneGraph::selectEntity(Entity& e)
   m_entityEditor.openOrCloseIfSame(e);
 }
 
+void SceneGraph::unselectEntity()
+{
+  m_entityEditor.close();
+}
+
 void SceneGraph::setupFrameContext()
 {
   m_frameContext = {};

@@ -48,7 +48,7 @@ namespace vrm
     const gl::ArrayTexture2D* dirLightShadowMaps = nullptr;
     EFaceCulling faceCulling = EFaceCulling::eNone;
     EFrontFace frontFace = EFrontFace::eCCW;
-    bool shadowsEnable = true;
+    bool shadowsEnable = false;
     uint8_t softShadowKernelRadius = 2;
     GLuint entityPickingTex = 0;
 
