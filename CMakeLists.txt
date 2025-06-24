@@ -21,21 +21,18 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # endif(UNIX)
 
 # Preprocessor defines
-if (VRM_PLATFORM_WINDOWS)
+if (WIN32)
     add_compile_definitions(VRM_PLATFORM_WINDOWS=1)
 endif()
 
-if (VRM_PLATFORM_LINUX)
+if (UNIX)
     add_compile_definitions(VRM_PLATFORM_LINUX=1)
 endif()
 
-if (VRM_DEBUG)
-    add_compile_definitions(VRM_DEBUG=1)
-endif()
-
-if (VRM_RELEASE)
-    add_compile_definitions(VRM_RELEASE=1)
-endif()
+add_compile_definitions(
+  $<$<CONFIG:Debug>:VRM_DEBUG>
+  $<$<CONFIG:Release>:VRM_RELEASE>
+)
 
 # Enable glm experimental features for all projects
 add_compile_definitions(GLM_ENABLE_EXPERIMENTAL=1)
