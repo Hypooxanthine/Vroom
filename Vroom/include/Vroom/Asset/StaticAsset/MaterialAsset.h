@@ -23,6 +23,8 @@ namespace vrm
 
     [[nodiscard]] inline const gl::Shader &getShader() const { return m_materialShader.gpuShader; }
 
+    [[nodiscard]] inline const ShaderData& getShaderData() const { return m_materialShader.data; }
+
     [[nodiscard]] inline const gl::Shader &getShadowCastingShader() const { return m_shadowCastingShader.gpuShader; }
 
     [[nodiscard]] inline const std::vector<TextureAsset::Handle>& getTextures() const { return m_textures; }

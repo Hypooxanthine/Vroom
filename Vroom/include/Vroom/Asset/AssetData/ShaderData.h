@@ -15,8 +15,7 @@ namespace vrm
     enum class EShaderType : uint8_t
     {
       eNone = 0,
-      eCompute, eVertex, eGeometry, eFragment, eAll,
-      eCount = eAll - eCompute
+      eCompute, eVertex, eGeometry, eFragment, eCount, eAll
     };
 
     struct Extension

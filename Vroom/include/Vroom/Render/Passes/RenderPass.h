@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vroom/Render/RenderViewport.h"
+#include "Vroom/Render/MaterialDefines.h"
 
 namespace vrm::gl
 {
