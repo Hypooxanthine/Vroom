@@ -167,7 +167,7 @@ void ShadowMappingPass::renderMeshes(const CameraBasic& camera, const RenderView
 
   for (const auto& [id, queuedMesh] : *meshRegistry)
   {
-    if (!queuedMesh.castsShadow)
+    if (!queuedMesh.castsShadow  || !queuedMesh.material.isValid())
     {
       continue;
     }

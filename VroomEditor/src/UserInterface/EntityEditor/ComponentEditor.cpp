@@ -307,10 +307,12 @@ bool MeshComponentEditor::editEntityComponent(Entity& e) const
     requestNewMesh = AssetManager::Get().getAsset<MeshAsset>(resourceName);
   }
 
-  const auto matSlotMax = component.getMaterials().getSlotCount();
-  for (uint8_t matSlot = 0; matSlot < matSlotMax; ++matSlot)
+  const size_t matSlotMax = component.getMaterials().getSlotCount();
+  for (size_t matSlot = 0; matSlot < matSlotMax; ++matSlot)
   {
+    // return false;
     const auto& mat = component.getMaterials().getMaterial(matSlot);
+    if (!mat.isValid()) continue;
     std::string inputName = "Material " + std::to_string(matSlot);
     std::string resourceName = mat->getFilePath();
     bool resourceChanged = false;

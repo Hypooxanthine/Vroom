@@ -89,7 +89,7 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
 
   for (const auto &[id, queuedMesh] : *meshRegistry)
   {
-    if (!queuedMesh.visible)
+    if (!queuedMesh.visible || !queuedMesh.material.isValid())
     {
       continue;
     }
