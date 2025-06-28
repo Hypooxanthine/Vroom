@@ -181,6 +181,8 @@ void Renderer::createRenderPasses()
     pass.frontFace = DrawSceneRenderPass::EFrontFace::eCCW;
     pass.storageBufferParameters["LightBlock"] = &m_LightRegistry.getPointLightsStorageBuffer();
     pass.storageBufferParameters["ClusterInfoBlock"] = &m_ClusteredLights.getClustersShaderStorage();
+    if (m_renderSettings.showLightComplexity)
+      pass.addDefine("VRM_LIGHT_COMPLEXITY", 1);
     
     pass.shadowsEnable = m_renderSettings.shadowsEnable;
     if (m_renderSettings.shadowsEnable)

@@ -31,9 +31,15 @@ namespace vrm
 
     inline size_t getPassIndex() const { return m_passIndex; }
 
-    inline void addDefine(const std::string& define, const std::string& value = "")
+    template <typename T>
+    inline void addDefine(const std::string& define, T&& value)
     {
-      m_defines.add(define, value);
+      m_defines.add(define, std::forward<T>(value));
+    }
+
+    inline void addDefine(const std::string& define)
+    {
+      addDefine(define, 1);
     }
   
   public:

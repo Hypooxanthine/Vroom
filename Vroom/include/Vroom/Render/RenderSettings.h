@@ -12,6 +12,9 @@ namespace vrm
     bool shadowsEnable = true;
     uint8_t softShadowKernelRadius = 2;
 
+    // Render debug
+    bool showLightComplexity = false;
+
     inline constexpr bool operator==(const RenderSettings& s) const
     {
       return true
@@ -19,6 +22,7 @@ namespace vrm
         && antiAliasingLevel == s.antiAliasingLevel
         && shadowsEnable == s.shadowsEnable
         && softShadowKernelRadius == s.softShadowKernelRadius
+        && showLightComplexity == s.showLightComplexity
       ;
     }
   };

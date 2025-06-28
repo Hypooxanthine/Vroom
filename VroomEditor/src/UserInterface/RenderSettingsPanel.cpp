@@ -75,6 +75,12 @@ bool RenderSettingsPanel::onImgui()
       settingsChanged = true;
     }
 
+    ImGui::SeparatorText("Render tools");
+
+    if (ImGui::Checkbox("Show light complexity", &settings.showLightComplexity))
+    {
+      settingsChanged = true;
+    }
   }
   ImGui::End();
 
