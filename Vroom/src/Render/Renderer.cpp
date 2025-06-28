@@ -19,7 +19,6 @@
 #include "Vroom/Render/Abstraction/IndexBuffer.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
-#include "Vroom/Render/Abstraction/ArrayTexture2D.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
 
 #include "Vroom/Render/RawShaderData/SSBOPointLightData.h"
@@ -80,45 +79,13 @@ void Renderer::createRenderPasses()
 {
   m_passManager.reset();
   m_frameBufferPool.clear();
-  m_arrayTexture2DPool.clear();
-  m_storageBufferPool.clear();
+  m_texturePool.clear();
   m_autoresizeStorageBufferPool.clear();
 
   m_mainFrameBuffer.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
   m_mainFrameBuffer.setColorAttachment(0, 4, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
   m_mainFrameBuffer.setRenderBufferDepthAttachment();
   VRM_ASSERT_MSG(m_mainFrameBuffer.validate(), "Could not build main framebuffer");
-
-  // Entity picking
-  { 
-    if (m_pickingTexture)
-    {
-      glDeleteTextures(1, &m_pickingTexture);
-      m_pickingTexture = 0;
-    }
-
-    glGenTextures(1, &m_pickingTexture);
-    VRM_ASSERT_MSG(m_pickingTexture, "Could not create picking texture");
-    glBindTexture(GL_TEXTURE_2D, m_pickingTexture);
-
-    GLenum internalFormat = GL_R32UI;
-    GLenum format = GL_RED_INTEGER;
-    GLenum type = GL_UNSIGNED_INT;
-
-    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_viewport.getSize().x, m_viewport.getSize().y, 0, format, type, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    auto& pass = m_passManager.pushPass<ClearTexturePass>();
-    pass.texture = m_pickingTexture;
-    pass.level = 0;
-    pass.format = format;
-    pass.type = type;
-    static GLuint clearValue = 0;
-    pass.clearValue = &clearValue;
-  }
 
   auto aa = m_renderSettings.antiAliasingLevel;
   bool aaOK = (aa != 0 && ((aa & (aa - 1)) == 0));
@@ -151,14 +118,14 @@ void Renderer::createRenderPasses()
   // Shadow mapping
   if (m_renderSettings.shadowsEnable)
   {
-    auto& maps = *m_arrayTexture2DPool.emplace("DirLightsShadowMaps");
+    auto& maps = *m_texturePool.emplace("DirLightsShadowMaps");
 
     auto& pass = m_passManager.pushPass<ShadowMappingPass>();
 
     pass.lights = &m_LightRegistry;
     pass.meshRegistry = &m_meshRegistry;
     pass.resolution = 4096;
-    pass.depthTextures = &maps;
+    pass.depthTextureArray = &maps;
     pass.lightMatricesStorageBuffer = m_autoresizeStorageBufferPool.emplace("lightMatricesStorageBuffer");
   }
 
@@ -183,16 +150,41 @@ void Renderer::createRenderPasses()
     pass.storageBufferParameters["LightBlock"] = &m_LightRegistry.getPointLightsStorageBuffer();
     pass.storageBufferParameters["ClusterInfoBlock"] = &m_ClusteredLights.getClustersShaderStorage();
     if (m_renderSettings.showLightComplexity)
-      pass.addDefine("VRM_LIGHT_COMPLEXITY", 1);
+      pass.addDefine("VRM_LIGHT_COMPLEXITY");
     
     pass.shadowsEnable = m_renderSettings.shadowsEnable;
     if (m_renderSettings.shadowsEnable)
     {
-      pass.dirLightShadowMaps = m_arrayTexture2DPool.get("DirLightsShadowMaps");
+      pass.dirLightShadowMaps = m_texturePool.get("DirLightsShadowMaps");
       pass.storageBufferParameters["LightMatricesBlock"] = m_autoresizeStorageBufferPool.get("lightMatricesStorageBuffer");
       pass.softShadowKernelRadius = m_renderSettings.softShadowKernelRadius;
     }
-    pass.entityPickingTex = m_pickingTexture;
+  }
+
+  // Entity picking
+  {
+    auto& fb = *m_frameBufferPool.emplace<gl::OwningFrameBuffer>("PickingFrameBuffer");
+    fb.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
+    fb.setColorAttachment(0, 1, glm::vec4 { 0.f, 0.f, 0.f, 0.f }, GL_UNSIGNED_INT);
+    fb.setRenderBufferDepthAttachment(1.f);
+    VRM_ASSERT_MSG(fb.validate(), "Could not build picking framebuffer");
+
+    {
+      auto& pass = m_passManager.pushPass<ClearFrameBufferPass>();
+      pass.framebuffer = &fb;
+    }
+
+    {
+      auto& pass = m_passManager.pushPass<DrawSceneRenderPass>();
+      pass.addDefine("VRM_ENTITY_PICKING");
+      pass.meshTags.set(EMeshTag::eVisible);
+      pass.meshRegistry = &m_meshRegistry;
+      pass.framebufferTarget = &fb;
+      pass.viewport = &m_viewport;
+      pass.faceCulling = DrawSceneRenderPass::EFaceCulling::eCullBack;
+      pass.frontFace = DrawSceneRenderPass::EFrontFace::eCCW;
+      pass.shadowsEnable = false;
+    }
   }
 
   // MSAA
@@ -301,7 +293,16 @@ void Renderer::setViewportSize(const glm::uvec2& s)
 
 uint32_t Renderer::getEntityIndexOnPixel(const glm::ivec2& px) const
 {
-  GLuint pixel;
-  glGetTextureSubImage(m_pickingTexture, 0, px.x, px.y, 0, 1, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, sizeof(pixel), &pixel);
-  return pixel;
+  if (!m_frameBufferPool.contains("PickingFrameBuffer"))
+  {
+    return 0;
+  }
+  
+  m_frameBufferPool.get("PickingFrameBuffer")->bind();
+  std::array<uint32_t, 1> pixels;
+  GLCall(glReadPixels(px.x, px.y, 1, 1, GL_RED, GL_UNSIGNED_INT, pixels.data()));
+  return pixels[0];
+  // GLuint pixel;
+  // glGetTextureSubImage(m_pickingTexture, 0, px.x, px.y, 0, 1, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, sizeof(pixel), &pixel);
+  // return pixel;
 }

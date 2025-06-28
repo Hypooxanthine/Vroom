@@ -2,7 +2,7 @@
 
 #include "Vroom/Api.h"
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
-#include "Vroom/Render/Abstraction/Texture2D.h"
+#include "Vroom/Render/Abstraction/Texture.h"
 
 namespace vrm
 {
@@ -15,7 +15,7 @@ namespace vrm
     TextureAsset();
     ~TextureAsset();
 
-    [[nodiscard]] inline const gl::Texture2D &getGPUTexture() const { return m_GPUTexture; }
+    [[nodiscard]] inline const gl::Texture &getGPUTexture() const { return m_GPUTexture; }
 
     [[nodiscard]] inline const ByteTextureData &getTextureData() const { return m_TextureData; }
 
@@ -24,7 +24,7 @@ namespace vrm
 
   private:
     ByteTextureData m_TextureData;
-    gl::Texture2D m_GPUTexture;
+    gl::Texture m_GPUTexture;
   };
 
 } // namespace vrm

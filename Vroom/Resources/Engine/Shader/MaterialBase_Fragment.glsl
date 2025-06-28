@@ -1,9 +1,11 @@
 #ifndef _MATERIALBASE_FRAGMENT_GLSL_
 #define _MATERIALBASE_FRAGMENT_GLSL_
 
-layout(location = 0) out vec4 finalColor;
-
-layout(r32ui) writeonly coherent uniform uimage2D u_entityPickingImage;
+#if defined(VRM_ENTITY_PICKING)
+  layout(location = 0) out uint finalColor;
+#else
+  layout(location = 0) out vec4 finalColor;
+#endif
 
 //--------------------------------------------------
 // Function declarations
@@ -42,6 +44,11 @@ void main()
   return;
 #endif
 
+#if defined(VRM_ENTITY_PICKING)
+  finalColor = u_EntityId;
+  return;
+#else
+
   SetupGlobalVars();
 
 #ifdef VRM_LIGHT_COMPLEXITY
@@ -52,8 +59,7 @@ void main()
 #endif
 
   finalColor = shadeColor;
-  
-  imageStore(u_entityPickingImage, g_fragCoords, uvec4(u_EntityId, 0, 0, 0));
+#endif
 }
 
 void SetupGlobalVars()

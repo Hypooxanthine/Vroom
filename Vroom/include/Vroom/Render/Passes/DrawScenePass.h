@@ -15,7 +15,7 @@ namespace vrm::gl
   class Shader;
   class FrameBuffer;
   class StorageBufferBase;
-  class ArrayTexture2D;
+  class Texture;
 }
 
 namespace vrm
@@ -45,12 +45,11 @@ namespace vrm
     const MeshRegistry* meshRegistry = nullptr;
     gl::FrameBuffer* framebufferTarget = nullptr;
     const RenderViewport* viewport = nullptr;
-    const gl::ArrayTexture2D* dirLightShadowMaps = nullptr;
+    const gl::Texture* dirLightShadowMaps = nullptr;
     EFaceCulling faceCulling = EFaceCulling::eNone;
     EFrontFace frontFace = EFrontFace::eCCW;
     bool shadowsEnable = false;
     uint8_t softShadowKernelRadius = 2;
-    GLuint entityPickingTex = 0;
     MeshTags meshTags;
 
     std::unordered_map<std::string, const gl::StorageBufferBase*> storageBufferParameters;
@@ -91,8 +90,6 @@ namespace vrm
         }
       };
     };
-
-    std::unordered_map<MaterialIdentifier, PassMaterial, MaterialIdentifier::Hasher, MaterialIdentifier::Equal> m_materials;
   };
 
 } // namespace vrm 

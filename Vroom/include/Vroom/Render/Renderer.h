@@ -29,7 +29,6 @@ namespace vrm
   namespace gl
   {
     class FrameBuffer;
-    class ArrayTexture2D;
   }
 
   /**
@@ -154,11 +153,9 @@ namespace vrm
     ClusteredLights m_ClusteredLights;
 
     ResourcePool<gl::FrameBuffer> m_frameBufferPool;
-    ResourcePool<gl::ArrayTexture2D> m_arrayTexture2DPool;
+    ResourcePool<gl::Texture> m_texturePool;
     ResourcePool<gl::StorageBuffer> m_storageBufferPool;
     ResourcePool<gl::AutoResizeStorageBuffer> m_autoresizeStorageBufferPool;
-
-    GLuint m_pickingTexture;
   };
 
 } // namespace vrm

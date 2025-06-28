@@ -3,7 +3,6 @@
 #include "Vroom/Render/Passes/RenderPass.h"
 
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
-#include "Vroom/Render/Abstraction/ArrayTexture2D.h"
 #include "Vroom/Render/Helpers/StorageBufferRegistry.h"
 #include "Vroom/Render/Clustering/LightRegistry.h"
 #include "Vroom/Render/Camera/OrthographicCamera.h"
@@ -31,7 +30,7 @@ namespace vrm
     uint32_t resolution;
     LightRegistry* lights = nullptr;
     const MeshRegistry* meshRegistry = nullptr;
-    gl::ArrayTexture2D* depthTextures = nullptr;
+    gl::Texture* depthTextureArray = nullptr;
     gl::AutoResizeStorageBuffer* lightMatricesStorageBuffer = nullptr;
 
   protected:

@@ -11,8 +11,7 @@
 namespace vrm::gl
 {
 
-  class Texture2D;
-  class ArrayTexture2D;
+  class Texture;
   class StorageBufferBase;
 
   class Shader
@@ -141,9 +140,7 @@ namespace vrm::gl
      */
     void setUniformMat4f(const GLString &name, const glm::mat4 &mat) const;
 
-    void setTexture(const GLString &name, const Texture2D &texture, GLuint slot) const;
-
-    void setTexture(const GLString &name, const ArrayTexture2D &texture, GLuint slot) const;
+    void setTexture(const GLString &name, const Texture& texture, GLuint slot) const;
 
     void setStorageBuffer(const GLString &name, const StorageBufferBase &ssbo) const;
 

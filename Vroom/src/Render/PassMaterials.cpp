@@ -40,7 +40,7 @@ bool PassMaterial::prepare(const MaterialDefines &defines)
       m_gpuShader.addShaderStage(gl::Shader::EShaderType::eFragment, rawShaderData.fragment.sourceCode, true),
       "With shader:\n{}\n\nCould not compile material fragment shader. Error log:\n{}", rawShaderData.fragment.sourceCode, m_gpuShader.getError());
 
-  VRM_CHECK_RET_FALSE_MSG(
+  VRM_ASSERT_MSG(
       m_gpuShader.validate(true),
       "Could not validate material shader. Error log:\n{}", m_gpuShader.getError());
 

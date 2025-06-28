@@ -7,8 +7,7 @@
 #include "Vroom/Api.h"
 #include "Vroom/Render/Abstraction/GLCall.h"
 
-#include "Vroom/Render/Abstraction/Texture2D.h"
-#include "Vroom/Render/Abstraction/ArrayTexture2D.h"
+#include "Vroom/Render/Abstraction/Texture.h"
 #include "Vroom/Render/Abstraction/RenderBuffer.h"
 
 namespace vrm::gl
@@ -140,67 +139,70 @@ namespace vrm::gl
 
     // Attachment setters
 
-    inline void setColorAttachment(GLuint slot, const Texture2D& colorTexture, GLuint mipLevel = 0, const glm::vec4& clearColor = glm::vec4{ 0.f, 0.f, 0.f, 1.f })
+    inline void setColorAttachment(GLuint slot, const Texture& colorTexture, GLuint mipLevel = 0, const glm::vec4& clearColor = glm::vec4{ 0.f, 0.f, 0.f, 1.f })
     {
       VRM_ASSERT_MSG(slot < s_MaxColorAttachments, "Slot is too high: {}, max is {}", slot, s_MaxColorAttachments - 1);
       VRM_ASSERT_MSG(!isColorAttachmentUsed(slot), "Color attachment on slot {} is already used", slot);
-      VRM_ASSERT_MSG(colorTexture.getSamples() == m_samples, "Samples must match: framebuffer is set with {} samples, but texture has {}", m_samples, colorTexture.getSamples());
+      VRM_ASSERT_MSG(colorTexture.getDescription().sampleCount == m_samples, "Samples must match: framebuffer is set with {} samples, but texture has {}",
+        m_samples, colorTexture.getDescription().sampleCount);
 
       bind();
       colorTexture.bind();
 
       GLenum attachment = GL_COLOR_ATTACHMENT0 + slot;
 
-      glFramebufferTexture(GL_FRAMEBUFFER, attachment, colorTexture.getRendererID(), mipLevel);
+      glFramebufferTexture(GL_FRAMEBUFFER, attachment, colorTexture.getRenderId(), mipLevel);
       m_drawBuffers.at(slot) = attachment;
       m_clearColors.at(slot) = clearColor;
 
       m_anyColorAttachment = true;
     }
 
-    inline void setColorAttachment(GLuint slot, const ArrayTexture2D& arrayColorTexture, GLuint layer, GLint mipLevel = 0, const glm::vec4& clearColor = glm::vec4{ 0.f, 0.f, 0.f, 1.f })
+    inline void setColorAttachment(GLuint slot, const Texture& arrayColorTexture, GLuint layer, GLint mipLevel = 0, const glm::vec4& clearColor = glm::vec4{ 0.f, 0.f, 0.f, 1.f })
     {
       VRM_ASSERT_MSG(slot < s_MaxColorAttachments, "Slot is too high: {}, max is {}", slot, s_MaxColorAttachments - 1);
       VRM_ASSERT_MSG(!isColorAttachmentUsed(slot), "Color attachment on slot {} is already used", slot);
-      VRM_ASSERT_MSG(arrayColorTexture.getSamples() == m_samples, "Samples must match: framebuffer is set with {} samples, but texture has {}", m_samples, arrayColorTexture.getSamples());
-      VRM_ASSERT_MSG(arrayColorTexture.getLayerCount() > layer, "ArrayTexture2D size is too small");
+      const Texture::Desc& desc = arrayColorTexture.getDescription();
+      VRM_ASSERT_MSG(desc.sampleCount == m_samples, "Samples must match: framebuffer is set with {} samples, but texture has {}", m_samples, desc.sampleCount);
+      VRM_ASSERT_MSG(desc.depth > layer, "Texture has not enough layers");
 
       bind();
       arrayColorTexture.bind();
 
       GLenum attachment = GL_COLOR_ATTACHMENT0 + slot;
 
-      glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, arrayColorTexture.getRenderID(), mipLevel, layer);
+      glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, arrayColorTexture.getRenderId(), mipLevel, layer);
       m_drawBuffers.at(slot) = attachment;
       m_clearColors.at(slot) = clearColor;
 
       m_anyColorAttachment = true;
     }
 
-    inline void setDepthAttachment(const Texture2D& depthTexture, GLuint mipLevel = 0, float depthClearValue = 1.f)
+    inline void setDepthAttachment(const Texture& depthTexture, GLuint mipLevel = 0, float depthClearValue = 1.f)
     {
       VRM_ASSERT_MSG(!isDepthAttachmentUsed(), "Depth attachment is already used");
-      VRM_ASSERT_MSG(depthTexture.getSamples() == 1, "Only 1 sample for depth");
+      VRM_ASSERT_MSG(depthTexture.getDescription().sampleCount == 1, "Only 1 sample for depth");
 
       bind();
       depthTexture.bind();
 
-      glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture.getRendererID(), mipLevel);
+      glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture.getRenderId(), mipLevel);
 
       m_depthAttachment = EDepthAttachmentType::eDepthTexture;
       m_depthClearValue = depthClearValue;
     }
 
-    inline void setDepthAttachment(const ArrayTexture2D& arrayDepthTexture, GLuint layer, GLint mipLevel = 0, float depthClearValue = 1.f)
+    inline void setDepthAttachment(const Texture& arrayDepthTexture, GLuint layer, GLint mipLevel = 0, float depthClearValue = 1.f)
     {
       VRM_ASSERT_MSG(!isDepthAttachmentUsed(), "Depth attachment is already used");
-      VRM_ASSERT_MSG(arrayDepthTexture.getSamples() == 1, "Only 1 sample for depth");
-      VRM_ASSERT_MSG(arrayDepthTexture.getLayerCount() > layer, "ArrayTexture2D size is too small");
+      const Texture::Desc& desc = arrayDepthTexture.getDescription();
+      VRM_ASSERT_MSG(desc.sampleCount == 1, "Only 1 sample for depth");
+      VRM_ASSERT_MSG(desc.depth > layer, "Texture has not enough layers");
 
       bind();
       arrayDepthTexture.bind();
 
-      glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, arrayDepthTexture.getRenderID(), mipLevel, layer);
+      glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, arrayDepthTexture.getRenderId(), mipLevel, layer);
 
       m_depthAttachment = EDepthAttachmentType::eDepthTexture;
       m_depthClearValue = depthClearValue;

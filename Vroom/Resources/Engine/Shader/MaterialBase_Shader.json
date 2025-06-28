@@ -90,7 +90,8 @@
       },
       {
         "Name": "u_EntityId",
-        "Type": "uint"
+        "Type": "uint",
+        "EnableIf": "VRM_ENTITY_PICKING"
       }
     ],
     "StorageBuffers": [

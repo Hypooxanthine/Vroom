@@ -4,7 +4,7 @@
 #include <Vroom/Core/Application.h>
 #include <Vroom/Core/GameLayer.h>
 #include <Vroom/Scene/Scene.h>
-#include <Vroom/Render/Abstraction/Texture2D.h>
+#include <Vroom/Render/Abstraction/Texture.h>
 #include <Vroom/Render/Renderer.h>
 
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
@@ -15,7 +15,7 @@
 using namespace vrm;
 
 Viewport::Viewport()
-  : renderTexture(nullptr), m_LastViewportSize(ImVec2(0.f, 0.f))
+  : m_renderTexture(nullptr), m_LastViewportSize(ImVec2(0.f, 0.f))
 {
 }
 
@@ -70,12 +70,12 @@ bool Viewport::onImgui()
       m_DidSizeChangeLastFrame = (size.x != m_LastViewportSize.x || size.y != m_LastViewportSize.y);
       m_LastViewportSize = size;
 
-      if (renderTexture)
+      if (m_renderTexture)
       {
-        ImTextureID textureID = (ImTextureID)(intptr_t)renderTexture->getRendererID();
+        ImTextureID textureID = (ImTextureID)(intptr_t)m_renderTexture->getRenderId();
         ImVec2 imageSize = ImVec2(
-          static_cast<float>(renderTexture->getWidth()),
-          static_cast<float>(renderTexture->getHeight()));
+          static_cast<float>(m_renderTexture->getDescription().width),
+          static_cast<float>(m_renderTexture->getDescription().height));
         ImGui::Image(textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
         ImVec2 rectMin = ImGui::GetItemRectMin();
         ImVec2 rectSize = ImGui::GetItemRectSize();

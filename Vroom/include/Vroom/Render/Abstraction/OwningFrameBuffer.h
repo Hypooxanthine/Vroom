@@ -14,7 +14,7 @@ namespace vrm::gl
   class VRM_API OwningFrameBuffer : public FrameBuffer
   {
   public:
-    inline constexpr OwningFrameBuffer()
+    inline OwningFrameBuffer()
         : FrameBuffer()
     {
     }
@@ -30,7 +30,7 @@ namespace vrm::gl
       {
         FrameBuffer::release();
 
-        for (auto &tex : m_colorTextures)
+        for (auto& tex : m_colorTextures)
           tex.release();
         m_depthTexture.release();
         m_renderBuffer.release();
@@ -39,26 +39,26 @@ namespace vrm::gl
 
     // Attachment getters
 
-    inline const Texture2D &getColorAttachmentTexture(GLuint slot) const
+    inline const Texture &getColorAttachmentTexture(GLuint slot) const
     {
       return m_colorTextures.at(slot);
     }
 
-    inline const Texture2D &getDepthAttachmentTexture() const
+    inline const Texture &getDepthAttachmentTexture() const
     {
       return m_depthTexture;
     }
 
     // Attachment setters
 
-    inline void setColorAttachment(GLuint slot, GLuint channels, const glm::vec4 &clearColor = glm::vec4{0.f, 0.f, 0.f, 1.f})
+    inline void setColorAttachment(GLuint slot, GLuint channels, const glm::vec4 &clearColor = glm::vec4{0.f, 0.f, 0.f, 1.f}, GLenum type = GL_UNSIGNED_BYTE)
     {
       VRM_ASSERT_MSG(isCreated(), "Framebuffer is not created");
       VRM_ASSERT_MSG(slot < s_MaxColorAttachments, "Slot is too high: {}, max is {}", slot, s_MaxColorAttachments - 1);
       VRM_ASSERT_MSG(!isColorAttachmentUsed(slot), "Color attachment on slot {} is already used", slot);
+      
+      _setupColorAttachment(slot, channels);
 
-      bool genMipMaps = (m_samples == 1);
-      m_colorTextures.at(slot).createColors(m_width, m_height, channels, m_samples, nullptr, genMipMaps);
       FrameBuffer::setColorAttachment(slot, m_colorTextures.at(slot), 0, clearColor);
     }
 
@@ -67,7 +67,8 @@ namespace vrm::gl
       VRM_ASSERT_MSG(isCreated(), "Framebuffer is not created");
       VRM_ASSERT_MSG(!isDepthAttachmentUsed(), "Depth attachment is already used");
 
-      m_depthTexture.createDepth(m_width, m_height);
+      _setupDepthAttachment();
+
       FrameBuffer::setDepthAttachment(m_depthTexture, 0, depthClearValue);
     }
 
@@ -100,10 +101,9 @@ namespace vrm::gl
         if (isColorAttachmentUsed(slot))
         {
           auto &colTex = m_colorTextures.at(slot);
-          auto channels = colTex.getChannels();
-          bool genMipMaps = (m_samples == 1);
+          auto channels = Texture::GetChannelCountFromFormat(colTex.getDescription().format);
 
-          m_colorTextures.at(slot).createColors(m_width, m_height, channels, m_samples, nullptr, genMipMaps);
+          _setupColorAttachment(slot, channels);
         }
       }
 
@@ -113,7 +113,7 @@ namespace vrm::gl
         {
           case EDepthAttachmentType::eDepthTexture:
           {
-            m_depthTexture.createDepth(m_width, m_height);
+            _setupDepthAttachment();
             // glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthTexture.getRendererID(), 0);
             break;
           }
@@ -132,8 +132,51 @@ namespace vrm::gl
     }
 
   private:
-    std::array<Texture2D, s_MaxColorAttachments> m_colorTextures;
-    Texture2D m_depthTexture;
+
+    inline void _setupColorAttachment(GLuint slot, GLuint channels)
+    {
+      Texture::Desc desc;
+      {
+        desc.dimension = 2;
+        desc.width = m_width;
+        desc.height = m_height;
+        desc.internalFormat = Texture::GetBasicColorInternalFormat(channels, 8);
+        desc.format = Texture::GetBasicColorFormat(channels);
+        desc.sampleCount = m_samples;
+        desc.mipmapCount = 1;
+      }
+      
+      m_colorTextures.at(slot).create(desc);
+
+      glTexParameteri(m_colorTextures.at(slot).getDefaultTarget(), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(m_colorTextures.at(slot).getDefaultTarget(), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameteri(m_colorTextures.at(slot).getDefaultTarget(), GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(m_colorTextures.at(slot).getDefaultTarget(), GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
+
+    inline void _setupDepthAttachment()
+    {
+      Texture::Desc desc;
+      {
+        desc.dimension = 2;
+        desc.width = m_width;
+        desc.height = m_height;
+        desc.internalFormat = GL_DEPTH_COMPONENT24;
+        desc.format = GL_DEPTH_COMPONENT;
+        desc.sampleCount = m_samples;
+        desc.mipmapCount = 1;
+      }
+
+      m_depthTexture.create(desc);
+      GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+      GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+      GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+      GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+    }
+
+  private:
+    std::array<Texture, s_MaxColorAttachments> m_colorTextures;
+    Texture m_depthTexture;
     RenderBuffer m_renderBuffer;
   };
 

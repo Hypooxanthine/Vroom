@@ -142,11 +142,23 @@ bool ShadowMappingPass::updateShadowCasters()
 
 void ShadowMappingPass::resetDepthMapsAndFramebuffers()
 {
-  VRM_ASSERT(depthTextures != nullptr);
+  VRM_ASSERT(depthTextureArray != nullptr);
   size_t shadowCasters = m_dirLightShadowCasters.size();
 
   auto res = static_cast<GLsizei>(resolution);
-  depthTextures->createDepth(res, res, static_cast<GLsizei>(shadowCasters));
+  
+  gl::Texture::Desc desc;
+  {
+    desc.dimension = 2;
+    desc.width = res;
+    desc.height = res;
+    desc.depth = shadowCasters;
+    desc.internalFormat = GL_DEPTH_COMPONENT24;
+    desc.format = GL_DEPTH_COMPONENT;
+    desc.layered = true;
+  }
+  depthTextureArray->create(desc);
+
   m_frameBuffers.resize(shadowCasters);
 
   // static gl::ArrayTexture2D debugColors;
@@ -156,7 +168,7 @@ void ShadowMappingPass::resetDepthMapsAndFramebuffers()
   {
     auto& fb = m_frameBuffers.at(i);
     fb.create(res, res, 1);
-    fb.setDepthAttachment(*depthTextures, static_cast<GLuint>(i), 0, 1.f);
+    fb.setDepthAttachment(*depthTextureArray, static_cast<GLuint>(i), 0, 1.f);
     // fb.setColorAttachment(0, debugColors, static_cast<GLuint>(i));
     fb.validate();
   }

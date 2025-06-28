@@ -26,7 +26,7 @@ void AssetParentDir::onDrawPicto()
   ImGui::SetCursorPosX((100.f - imgSize.x) / 2.f);
   ImGui::SetCursorPosY((100.f - imgSize.y) / 2.f);
   ImGui::Image(
-      (ImTextureID)(intptr_t)m_Picto->getGPUTexture().getRendererID(),
+      (ImTextureID)(intptr_t)m_Picto->getGPUTexture().getRenderId(),
       imgSize,
       ImVec2(0, 1), ImVec2(1, 0));
 }

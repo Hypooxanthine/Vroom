@@ -23,34 +23,10 @@ DrawSceneRenderPass::~DrawSceneRenderPass()
 
 void DrawSceneRenderPass::onInit()
 {
-  for (const auto& [_, mesh] : *meshRegistry)
-  {
-    MaterialIdentifier matId { mesh.material };
-    PassMaterial& material = m_materials[matId];
-    material.setMaterialAsset(mesh.material);
-    material.prepare(m_defines);
-  }
 }
 
 void DrawSceneRenderPass::onSetup(const RenderPassContext& ctx)
 {
-  for (size_t id : meshRegistry->getLastFrameRemovedIds())
-  {
-    const auto& mesh = meshRegistry->get(id);
-    MaterialIdentifier matId { mesh.material };
-    m_materials.erase(matId);
-  }
-
-  for (const auto& [_, mesh] : *meshRegistry)
-  {
-    MaterialIdentifier matId { mesh.material };
-    PassMaterial& material = m_materials[matId];
-    if (material.needsPrepare())
-    {
-      material.setMaterialAsset(mesh.material);
-      material.prepare(m_defines);
-    }
-  }
 }
 
 void DrawSceneRenderPass::onRender(const RenderPassContext& ctx) const
@@ -116,7 +92,6 @@ void DrawSceneRenderPass::setupFaceCulling() const
 
 void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
 {
-  VRM_ASSERT(entityPickingTex != 0);
   glViewport(ctx.viewport.getOrigin().x, ctx.viewport.getOrigin().y, ctx.viewport.getSize().x, ctx.viewport.getSize().y);
 
   for (const auto &[id, queuedMesh] : *meshRegistry)
@@ -140,10 +115,6 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
         shader.setTexture("u_DirectionalShadowMaps", *dirLightShadowMaps, textOffset++);
         shader.setUniform1ui("u_SoftShadowKernelRadius", softShadowKernelRadius);
       }
-      
-      int imageTextureUnit = textOffset++; 
-      GLCall(glBindImageTexture(imageTextureUnit, entityPickingTex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_R32UI));
-      shader.setUniform1i("u_entityPickingImage", imageTextureUnit);
 
       applyCameraUniforms(shader, *ctx.mainCamera);
       applyViewportUniforms(shader, ctx.viewport);
