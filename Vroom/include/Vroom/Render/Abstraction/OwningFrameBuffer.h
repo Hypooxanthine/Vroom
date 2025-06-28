@@ -51,7 +51,7 @@ namespace vrm::gl
 
     // Attachment setters
 
-    inline void setColorAttachment(GLuint slot, GLuint channels, const glm::vec4 &clearColor = glm::vec4{0.f, 0.f, 0.f, 1.f}, GLenum type = GL_UNSIGNED_BYTE)
+    inline void setColorAttachment(GLuint slot, GLuint channels, const glm::vec4 &clearColor = glm::vec4{0.f, 0.f, 0.f, 1.f})
     {
       VRM_ASSERT_MSG(isCreated(), "Framebuffer is not created");
       VRM_ASSERT_MSG(slot < s_MaxColorAttachments, "Slot is too high: {}, max is {}", slot, s_MaxColorAttachments - 1);

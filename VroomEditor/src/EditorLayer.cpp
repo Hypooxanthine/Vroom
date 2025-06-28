@@ -267,7 +267,6 @@ void EditorLayer::onUpdate(const DeltaTime& dt)
     if (pos.x > -1 && pos.y > -1)
     {
       uint32_t rawId = Renderer::Get().getEntityIndexOnPixel(pos);
-      VRM_LOG_TRACE("Entity id: {}", rawId);
       auto& scene = Application::Get().getGameLayer().getScene();
       auto& sceneGraph = static_cast<SceneGraph&>(UserInterfaceLayer::Get().getElement(EInterfaceElement::eSceneGraph));
       

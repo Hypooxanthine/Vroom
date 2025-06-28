@@ -64,6 +64,19 @@ namespace vrm
       return it->second.get();
     }
 
+    inline const T* tryGet(const NameType& name) const
+    {
+      auto it = m_data.find(name);
+      if (it != m_data.end())
+      {
+        return it->second.get();
+      }
+      else
+      {
+        return nullptr;
+      }
+    }
+
     inline void release(const NameType& name)
     {
       auto it = m_data.find(name);

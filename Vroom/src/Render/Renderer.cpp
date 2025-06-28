@@ -163,10 +163,29 @@ void Renderer::createRenderPasses()
 
   // Entity picking
   {
-    auto& fb = *m_frameBufferPool.emplace<gl::OwningFrameBuffer>("PickingFrameBuffer");
+    auto& tex = *m_texturePool.emplace("PickingColorTexture");
+    gl::Texture::Desc desc;
+    {
+      desc.dimension = 2;
+      desc.width = m_viewport.getSize().x;
+      desc.height = m_viewport.getSize().y;
+      desc.internalFormat = GL_R32UI;
+      desc.format = GL_UNSIGNED_INT;
+    }
+    tex.create(desc);
+    
+    auto& depth = *m_texturePool.emplace("PickingDepthTexture");
+    {
+      desc.internalFormat = GL_DEPTH_COMPONENT24;
+      desc.format = GL_DEPTH_COMPONENT;
+    }
+    depth.create(desc);
+    
+    auto& fb = *m_frameBufferPool.emplace("PickingFrameBuffer");
     fb.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
-    fb.setColorAttachment(0, 1, glm::vec4 { 0.f, 0.f, 0.f, 0.f }, GL_UNSIGNED_INT);
-    fb.setRenderBufferDepthAttachment(1.f);
+    fb.setColorAttachment(0, tex);
+    fb.setDepthAttachment(depth);
+
     VRM_ASSERT_MSG(fb.validate(), "Could not build picking framebuffer");
 
     {
@@ -298,11 +317,11 @@ uint32_t Renderer::getEntityIndexOnPixel(const glm::ivec2& px) const
     return 0;
   }
   
-  m_frameBufferPool.get("PickingFrameBuffer")->bind();
-  std::array<uint32_t, 1> pixels;
-  GLCall(glReadPixels(px.x, px.y, 1, 1, GL_RED, GL_UNSIGNED_INT, pixels.data()));
-  return pixels[0];
-  // GLuint pixel;
-  // glGetTextureSubImage(m_pickingTexture, 0, px.x, px.y, 0, 1, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, sizeof(pixel), &pixel);
-  // return pixel;
+  const auto& fb = *m_frameBufferPool.get("PickingFrameBuffer");
+  fb.bind();
+  glReadBuffer(GL_COLOR_ATTACHMENT0);
+  uint32_t pixel;
+  glReadPixels(px.x, px.y, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &pixel);
+  glReadBuffer(GL_NONE);
+  return pixel;
 }
