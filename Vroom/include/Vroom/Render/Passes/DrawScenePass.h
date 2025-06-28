@@ -8,6 +8,7 @@
 #include "Vroom/Render/RenderViewport.h"
 #include "Vroom/Render/MeshRegistry.h"
 #include "Vroom/Render/PassMaterials.h"
+#include "Vroom/Render/MeshTag.h"
 
 namespace vrm::gl
 {
@@ -50,6 +51,7 @@ namespace vrm
     bool shadowsEnable = false;
     uint8_t softShadowKernelRadius = 2;
     GLuint entityPickingTex = 0;
+    MeshTags meshTags;
 
     std::unordered_map<std::string, const gl::StorageBufferBase*> storageBufferParameters;
 

@@ -174,6 +174,7 @@ void Renderer::createRenderPasses()
   // Main scene rendering
   {
     auto& pass = m_passManager.pushPass<DrawSceneRenderPass>();
+    pass.meshTags.set(EMeshTag::eVisible);
     pass.meshRegistry = &m_meshRegistry;
     pass.framebufferTarget = m_renderFrameBuffer;
     pass.viewport = &m_viewport;
@@ -251,8 +252,8 @@ void Renderer::submitMesh(uint32_t id, const MeshComponent& meshComponent, const
     info.mesh = &submesh.renderMesh;
     info.material = meshComponent.getMaterials().getMaterial(i);
     info.model = model;
-    info.visible = meshComponent.isVisible();
-    info.castsShadow = meshComponent.doesCastShadow();
+    info.tags.set(EMeshTag::eVisible, meshComponent.isVisible());
+    info.tags.set(EMeshTag::eShadowCaster, meshComponent.doesCastShadow());
     info.entityId = id;
 
     m_meshRegistry.submit(info.renderMeshId, std::move(info));

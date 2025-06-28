@@ -4,6 +4,7 @@
 #include <entt/fwd.hpp>
 
 #include "Vroom/Render/Helpers/Registry.h"
+#include "Vroom/Render/MeshTag.h"
 
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 
@@ -18,9 +19,8 @@ namespace vrm
 		const RenderMesh* mesh;
     MaterialAsset::Handle material;
 		const glm::mat4* model;
-    bool visible;
-    bool castsShadow;
     entt::id_type entityId;
+    MeshTags tags;
   };
   
   class MeshRegistry : public Registry<MeshRenderInfo, size_t> {};
