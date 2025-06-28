@@ -14,6 +14,7 @@ namespace vrm
 
   struct MeshRenderInfo
   {
+    size_t renderMeshId;
 		const RenderMesh* mesh;
     MaterialAsset::Handle material;
 		const glm::mat4* model;

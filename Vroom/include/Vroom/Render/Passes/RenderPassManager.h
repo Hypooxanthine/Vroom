@@ -5,6 +5,7 @@
 
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Render/Passes/RenderPass.h"
+#include "Vroom/Render/PassMaterials.h"
 
 namespace vrm
 {
@@ -22,6 +23,7 @@ namespace vrm
       VRM_ASSERT_MSG(m_initialized == false, "RenderPassManager has been initialized. You must reset it before pushing passes again");
       auto& pass = m_passes.emplace_back(std::make_unique<PassType>(std::forward<Args>(args)...));
       pass->managerInterface().setPassIndex(m_passes.size() - 1);
+      pass->managerInterface().setPassMaterials(&m_materials);
 
       return static_cast<PassType&>(*m_passes.back());
     }
@@ -40,6 +42,7 @@ namespace vrm
 
     bool m_initialized = false;
     std::vector<std::unique_ptr<RenderPass>> m_passes;
+    PassMaterials m_materials;
 
   };
 

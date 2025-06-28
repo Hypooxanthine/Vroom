@@ -1,9 +1,11 @@
-#include "Vroom/Render/PassMaterial.h"
+#include "Vroom/Render/PassMaterials.h"
 
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Render/MaterialDefines.h"
 
 using namespace vrm;
+
+// PassMaterial
 
 PassMaterial::PassMaterial()
 {
@@ -48,4 +50,43 @@ bool PassMaterial::prepare(const MaterialDefines &defines)
 
   m_needsPrepare = false;
   return true;
+}
+
+// PassMaterials
+
+PassMaterials::PassMaterials()
+{
+
+}
+
+PassMaterials::~PassMaterials()
+{
+
+}
+
+const PassMaterial& PassMaterials::getMaterial(const Key& key)
+{
+  auto [it, inserted] = m_materials.try_emplace(key);
+  PassMaterial& material = it->second;
+
+  if (inserted)
+  {
+    material.setMaterialAsset(key.asset);
+    if (key.defines)
+      material.prepare(*key.defines);
+    else
+      material.prepare({});
+  }
+  
+  return material;
+}
+
+void PassMaterials::releaseMaterial(const Key& key)
+{
+  m_materials.erase(key);
+}
+
+void PassMaterials::clear()
+{
+  m_materials.clear();
 }

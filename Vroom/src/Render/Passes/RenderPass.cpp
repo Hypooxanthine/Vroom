@@ -51,3 +51,13 @@ void RenderPass::applyViewportUniforms(const gl::Shader& shader, const RenderVie
   shader.setUniform2ui("u_ViewportOrigin", viewport.getOrigin().x, viewport.getOrigin().y);
   shader.setUniform2ui("u_ViewportSize", viewport.getSize().x, viewport.getSize().y);
 }
+
+const PassMaterial& RenderPass::getPassMaterial(MaterialAsset::Handle asset) const
+{
+  PassMaterials::Key key;
+  {
+    key.asset = asset;
+    key.defines = &m_defines;
+  }
+  return m_materialsRef->getMaterial(key);
+}

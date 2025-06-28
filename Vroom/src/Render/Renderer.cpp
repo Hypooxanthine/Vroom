@@ -247,17 +247,15 @@ void Renderer::submitMesh(uint32_t id, const MeshComponent& meshComponent, const
   for (const auto& submesh : meshComponent.getMesh()->getSubMeshes())
   {
     MeshRenderInfo info;
+    info.renderMeshId = (((size_t)id) << 32) | i; // Id is tracking the mesh component + its submesh
     info.mesh = &submesh.renderMesh;
     info.material = meshComponent.getMaterials().getMaterial(i);
     info.model = model;
     info.visible = meshComponent.isVisible();
     info.castsShadow = meshComponent.doesCastShadow();
     info.entityId = id;
-    size_t subMeshId = id;
-    subMeshId <<= 32;
-    subMeshId |= i;
 
-    m_meshRegistry.submit(subMeshId, std::move(info));
+    m_meshRegistry.submit(info.renderMeshId, std::move(info));
 
     ++i;
   }

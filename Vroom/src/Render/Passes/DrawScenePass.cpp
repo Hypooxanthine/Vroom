@@ -128,8 +128,7 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
 
     size_t textOffset = queuedMesh.material->getTextures().size(); 
 
-    MaterialIdentifier matId { queuedMesh.material };
-    const PassMaterial& passMat = m_materials.at(matId);
+    const PassMaterial& passMat = getPassMaterial(queuedMesh.material);
     const auto& shader = passMat.getShader();
       shader.bind();
       shader.setUniformMat4f("u_Model", *queuedMesh.model);

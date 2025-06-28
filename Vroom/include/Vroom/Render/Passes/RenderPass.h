@@ -2,6 +2,7 @@
 
 #include "Vroom/Render/RenderViewport.h"
 #include "Vroom/Render/MaterialDefines.h"
+#include "Vroom/Render/PassMaterials.h"
 
 namespace vrm::gl
 {
@@ -53,9 +54,13 @@ namespace vrm
 
       inline void setPassIndex(size_t id) { ref->m_passIndex = id; }
 
+      inline void setPassMaterials(PassMaterials* materials) { ref->m_materialsRef = materials; }
+
     };
     
     inline ManagerAttorney managerInterface() { return ManagerAttorney{ this }; }
+
+    inline const MaterialDefines& getDefines() const { return m_defines; }
 
   protected:
     /**
@@ -89,6 +94,8 @@ namespace vrm
 
     static void applyViewportUniforms(const gl::Shader& shader, const RenderViewport& viewport);
 
+    const PassMaterial& getPassMaterial(MaterialAsset::Handle asset) const;
+
   protected:
 
     MaterialDefines m_defines;
@@ -96,6 +103,8 @@ namespace vrm
   private:
 
     size_t m_passIndex = 0;
+    PassMaterials* m_materialsRef = nullptr;
+
   };
 
   struct RenderPassContext

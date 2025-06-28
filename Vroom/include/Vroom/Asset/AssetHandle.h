@@ -86,6 +86,11 @@ namespace vrm
       return m_assetRef;
     }
 
+    inline bool operator==(const AssetHandle& other) const
+    {
+      return m_assetRef == other.m_assetRef;
+    }
+
   private:
 
     inline void notifyNew()

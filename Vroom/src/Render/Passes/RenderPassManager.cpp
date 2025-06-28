@@ -15,6 +15,7 @@ RenderPassManager::~RenderPassManager()
 void RenderPassManager::reset()
 {
   m_passes.clear();
+  m_materials.clear();
   m_initialized = false;
 }
 

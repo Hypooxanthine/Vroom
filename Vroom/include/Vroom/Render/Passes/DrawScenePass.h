@@ -7,7 +7,7 @@
 #include "Vroom/Render/Passes/RenderPass.h"
 #include "Vroom/Render/RenderViewport.h"
 #include "Vroom/Render/MeshRegistry.h"
-#include "Vroom/Render/PassMaterial.h"
+#include "Vroom/Render/PassMaterials.h"
 
 namespace vrm::gl
 {
@@ -19,8 +19,6 @@ namespace vrm::gl
 
 namespace vrm
 {
-
-  class CameraBasic;
   
   class DrawSceneRenderPass : public RenderPass
   {
