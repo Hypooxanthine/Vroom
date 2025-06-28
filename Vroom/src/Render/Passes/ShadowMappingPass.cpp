@@ -42,6 +42,11 @@ void ShadowMappingPass::onSetup(const RenderPassContext& ctx)
     resetDepthMapsAndFramebuffers();
   }
 
+  if (m_dirLightShadowCasters.size() == 0)
+  {
+    return;
+  }
+
   m_lightMatricesSBR->startRegistering();
   m_dirLightCameras.clear();
   m_debugDirLights.clear();
@@ -65,6 +70,11 @@ void ShadowMappingPass::onSetup(const RenderPassContext& ctx)
 
 void ShadowMappingPass::onRender(const RenderPassContext& ctx) const
 {
+  if (m_dirLightShadowCasters.size() == 0)
+  {
+    return;
+  }
+  
   VRM_ASSERT(ctx.mainCamera != nullptr);
 
   bool debugDirLights = false;
@@ -144,6 +154,13 @@ void ShadowMappingPass::resetDepthMapsAndFramebuffers()
 {
   VRM_ASSERT(depthTextureArray != nullptr);
   size_t shadowCasters = m_dirLightShadowCasters.size();
+  
+  if (shadowCasters == 0)
+  {
+    depthTextureArray->release();
+    m_frameBuffers.clear();
+    return;
+  }
 
   auto res = static_cast<GLsizei>(resolution);
   
@@ -158,6 +175,12 @@ void ShadowMappingPass::resetDepthMapsAndFramebuffers()
     desc.layered = true;
   }
   depthTextureArray->create(desc);
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+  glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+  static constexpr float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+  glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
 
   m_frameBuffers.resize(shadowCasters);
 
