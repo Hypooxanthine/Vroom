@@ -21,36 +21,22 @@ namespace vrm
 
     [[nodiscard]] inline const MaterialData &getData() const { return m_data; }
 
-    [[nodiscard]] inline const gl::Shader &getShader() const { return m_materialShader.gpuShader; }
-
-    [[nodiscard]] inline const ShaderData& getShaderData() const { return m_materialShader.data; }
-
-    [[nodiscard]] inline const gl::Shader &getShadowCastingShader() const { return m_shadowCastingShader.gpuShader; }
+    [[nodiscard]] inline const ShaderData& getShaderData() const { return m_materialShaderData; }
 
     [[nodiscard]] inline const std::vector<TextureAsset::Handle>& getTextures() const { return m_textures; }
-
-    void applyUniforms() const;
 
     void applyUniforms(const gl::Shader& shader) const;
 
   protected:
     bool loadImpl(const std::string &filePath) override;
 
-    bool buildShader();
-
-  private:
-    struct Shader
-    {
-      ShaderData data;
-      gl::Shader gpuShader;
-    };
+    bool buildShaderData();
 
   private:
     MaterialData m_data;
     std::vector<TextureAsset::Handle> m_textures;
 
-    Shader m_materialShader;
-    Shader m_shadowCastingShader;
+    ShaderData m_materialShaderData;
   };
 
 } // namespace vrm

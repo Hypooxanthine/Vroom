@@ -18,6 +18,7 @@ using namespace vrm;
 
 ShadowMappingPass::ShadowMappingPass()
 {
+  addDefine("VRM_SHADOW_PASS");
 }
 
 ShadowMappingPass::~ShadowMappingPass()
@@ -172,7 +173,7 @@ void ShadowMappingPass::renderMeshes(const CameraBasic& camera, const RenderView
       continue;
     }
     
-    const auto& shader = queuedMesh.material->getShadowCastingShader();
+    const auto& shader = getPassMaterial(queuedMesh.material).getShader();
     shader.bind();
     shader.setUniformMat4f("u_Model", *queuedMesh.model);
     applyCameraUniforms(shader, camera);
@@ -273,12 +274,12 @@ void ShadowMappingPass::renderDirLightsFrustums(const RenderPassContext& ctx) co
   for (const auto& mesh : m_debugDirLights)
   {
     auto material = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/FrustumViewerMaterial.json");
-    const auto& shader = material->getShader();
+    const auto& shader = getPassMaterial(material).getShader();
     shader.bind();
     shader.setUniformMat4f("u_Model", glm::mat4(1.f));
     applyCameraUniforms(shader, *ctx.mainCamera);
     applyViewportUniforms(shader, ctx.viewport);
-    material->applyUniforms();
+    material->applyUniforms(shader);
 
 
     mesh.getVertexArray().bind();
