@@ -12,8 +12,9 @@
 using namespace vrm;
 
 static const std::unordered_map<MaterialData::EShadingModel, std::string> S_SHADING_MODEL_SPECIFIC_SHADERS =
-    {
-        {MaterialData::EShadingModel::ePhong, "Resources/Engine/Shader/ShadingModel/ShadingModel_Phong.json"}};
+{
+  { MaterialData::EShadingModel::ePhong, "Resources/Engine/Shader/ShadingModel/ShadingModel_Phong.json" }
+};
 
 MaterialAsset::MaterialAsset()
     : StaticAsset()
