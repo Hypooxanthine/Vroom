@@ -36,18 +36,23 @@ overloaded(Ts...) -> overloaded<Ts...>;
 
 void MaterialAsset::applyUniforms() const
 {
-  m_materialShader.gpuShader.bind();
+  applyUniforms(m_materialShader.gpuShader);
+}
+
+void MaterialAsset::applyUniforms(const gl::Shader& shader) const
+{
+  shader.bind();
 
   std::string prefix = "u_" + m_data.getShadingModelName();
   uint8_t textureCount = 0;
   for (const auto &[name, param] : m_data.getParameters())
   {
     auto visitor = overloaded{
-      [&, this](float value) { m_materialShader.gpuShader.setUniform1f(prefix + name, value); },
-      [&, this](const glm::vec2& value) { m_materialShader.gpuShader.setUniform2f(prefix + name, value); },
-      [&, this](const glm::vec3& value) { m_materialShader.gpuShader.setUniform3f(prefix + name, value); },
-      [&, this](const glm::vec4& value) { m_materialShader.gpuShader.setUniform4f(prefix + name, value); },
-      [&, this](const std::string& textureName) { m_materialShader.gpuShader.setTexture(prefix + "Textures", m_textures.at(textureCount)->getGPUTexture(), textureCount); ++textureCount; }
+      [&, this](float value) { shader.setUniform1f(prefix + name, value); },
+      [&, this](const glm::vec2& value) { shader.setUniform2f(prefix + name, value); },
+      [&, this](const glm::vec3& value) { shader.setUniform3f(prefix + name, value); },
+      [&, this](const glm::vec4& value) { shader.setUniform4f(prefix + name, value); },
+      [&, this](const std::string& textureName) { shader.setTexture(prefix + "Textures", m_textures.at(textureCount)->getGPUTexture(), textureCount); ++textureCount; }
     };
 
     std::visit(visitor, param.value);
@@ -57,7 +62,7 @@ void MaterialAsset::applyUniforms() const
   {
     std::vector<int> slots(m_data.getTextureCount());
     std::iota(slots.begin(), slots.end(), 0);
-    m_materialShader.gpuShader.setUniform1iv(prefix + "Textures", m_data.getTextureCount(), slots.data());
+    shader.setUniform1iv(prefix + "Textures", m_data.getTextureCount(), slots.data());
   }
 }
 

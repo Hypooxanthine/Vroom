@@ -7,6 +7,7 @@
 #include "Vroom/Render/Passes/RenderPass.h"
 #include "Vroom/Render/RenderViewport.h"
 #include "Vroom/Render/MeshRegistry.h"
+#include "Vroom/Render/PassMaterial.h"
 
 namespace vrm::gl
 {
@@ -56,6 +57,10 @@ namespace vrm
 
   protected:
 
+    virtual void onInit() override;
+
+    virtual void onSetup(const RenderPassContext& ctx) override;
+
     virtual void onRender(const RenderPassContext& ctx) const override;
 
     void setupFaceCulling() const;
@@ -63,6 +68,31 @@ namespace vrm
     void renderMeshes(const RenderPassContext& ctx) const;
 
     void applyStorageBufferParameters(const gl::Shader& shader) const;
+
+  private:
+
+    struct MaterialIdentifier
+    {
+      MaterialAsset::Handle matAsset;
+
+      struct Hasher
+      {
+        inline size_t operator()(const MaterialIdentifier& id) const
+        {
+          return std::hash<uintptr_t>()(id.matAsset.getPtr());
+        }
+      };
+
+      struct Equal
+      {
+        inline bool operator()(const MaterialIdentifier& lhs, const MaterialIdentifier& rhs) const
+        {
+          return lhs.matAsset.getPtr() == rhs.matAsset.getPtr();
+        }
+      };
+    };
+
+    std::unordered_map<MaterialIdentifier, PassMaterial, MaterialIdentifier::Hasher, MaterialIdentifier::Equal> m_materials;
   };
 
 } // namespace vrm 

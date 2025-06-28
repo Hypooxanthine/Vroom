@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <cstdint>
 
 namespace vrm
 {
@@ -73,6 +74,11 @@ namespace vrm
     inline const T& get() const
     {
       return *m_assetRef;
+    }
+
+    inline uintptr_t getPtr() const
+    {
+      return reinterpret_cast<uintptr_t>(m_assetRef);
     }
 
     inline const T* operator->() const

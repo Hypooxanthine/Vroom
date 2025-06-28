@@ -31,6 +31,8 @@ namespace vrm
 
     void applyUniforms() const;
 
+    void applyUniforms(const gl::Shader& shader) const;
+
   protected:
     bool loadImpl(const std::string &filePath) override;
 

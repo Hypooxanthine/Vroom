@@ -20,16 +20,22 @@ namespace vrm
     PassMaterial& operator=(PassMaterial&& other) = delete;
     PassMaterial(PassMaterial&& other) = delete;
 
-    void setMaterial(MaterialAsset::Handle material);
+    void setMaterialAsset(MaterialAsset::Handle material);
     
     bool prepare(const MaterialDefines& defines);
 
     inline bool needsPrepare() const { return m_needsPrepare; }
 
+    inline const gl::Shader& getShader() const
+    {
+      VRM_ASSERT(m_needsPrepare == false);
+      return m_gpuShader;
+    }
+
   private:
     MaterialAsset::Handle m_materialAsset;
     gl::Shader m_gpuShader;
-    bool m_needsPrepare = false;
+    bool m_needsPrepare = true;
   };
 
 } // namespace vrm

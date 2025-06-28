@@ -21,14 +21,3 @@ void MaterialDefines::add(const std::string& define, std::string&& value)
 
   m_defines.insert(std::make_pair(define, std::move(value)));
 }
-
-void MaterialDefines::_computeHashUncheck() const
-{
-  m_hash = 0;
-  auto hasher = std::hash<std::string>();
-  for (const auto& [define, value] : m_defines)
-  {
-    glm::detail::hash_combine(m_hash, hasher(define));
-    glm::detail::hash_combine(m_hash, hasher(value));
-  }
-}

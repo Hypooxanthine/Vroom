@@ -13,7 +13,7 @@ PassMaterial::~PassMaterial()
 {
 }
 
-void PassMaterial::setMaterial(MaterialAsset::Handle material)
+void PassMaterial::setMaterialAsset(MaterialAsset::Handle material)
 {
   m_materialAsset = material;
   m_needsPrepare = true;

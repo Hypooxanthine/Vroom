@@ -20,7 +20,8 @@ namespace vrm
     inline PassType& pushPass(Args&&... args)
     {
       VRM_ASSERT_MSG(m_initialized == false, "RenderPassManager has been initialized. You must reset it before pushing passes again");
-      m_passes.emplace_back(std::make_unique<PassType>(std::forward<Args>(args)...));
+      auto& pass = m_passes.emplace_back(std::make_unique<PassType>(std::forward<Args>(args)...));
+      pass->managerInterface().setPassIndex(m_passes.size() - 1);
 
       return static_cast<PassType&>(*m_passes.back());
     }

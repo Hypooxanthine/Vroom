@@ -11,7 +11,6 @@
 #include "Vroom/Render/RenderViewport.h"
 #include "Vroom/Render/Passes/RenderPassManager.h"
 #include "Vroom/Render/MeshRegistry.h"
-#include "Vroom/Render/RenderScene.h"
 #include "Vroom/Render/Abstraction/OwningFrameBuffer.h"
 #include "Vroom/Render/Abstraction/StorageBuffer.h"
 #include "Vroom/Render/Clustering/LightRegistry.h"
@@ -150,7 +149,6 @@ namespace vrm
     gl::FrameBuffer* m_renderFrameBuffer = nullptr;
 
     MeshRegistry m_meshRegistry;
-    RenderScene m_renderScene;
 
     LightRegistry m_LightRegistry;
     ClusteredLights m_ClusteredLights;

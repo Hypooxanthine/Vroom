@@ -34,11 +34,19 @@ namespace vrm
       m_data.clear();
       m_waitingKeys.clear();
       m_confirmedKeys.clear();
+      m_newKeys.clear();
     }
 
     inline bool contains(const IdType& id) const
     {
       return m_data.contains(id);
+    }
+
+    inline const T& get(const IdType& id) const
+    {
+      auto it = m_data.find(id);
+      VRM_ASSERT(it != m_data.end());
+      return it->second;
     }
 
     inline void startRegistering()
@@ -49,6 +57,7 @@ namespace vrm
       std::swap(m_waitingKeys, m_confirmedKeys);
 
       m_confirmedKeys.clear();
+      m_newKeys.clear();
     }
 
     inline void endRegistering()
@@ -62,6 +71,10 @@ namespace vrm
       }
     }
 
+    const auto& getLastFrameRemovedIds() const { return m_waitingKeys; }
+
+    const auto& getLastFrameNewIds() const { return m_newKeys; }
+
     template <typename uT>
       requires std::is_same_v<std::decay_t<uT>, T>
     inline void submit(const IdType& id, uT&& element)
@@ -73,7 +86,17 @@ namespace vrm
     inline void notifyUsed(const IdType& id)
     {
       VRM_ASSERT_MSG(m_isRegistering == true, "Wasn't registering");
-      m_waitingKeys.erase(id);
+      
+      auto it = m_waitingKeys.find(id);
+      if (it == m_waitingKeys.end())
+      {
+        m_newKeys.emplace(id);
+      }
+      else
+      {
+        m_waitingKeys.erase(it);
+      }
+
       m_confirmedKeys.insert(id);
     }
 
@@ -88,7 +111,7 @@ namespace vrm
   private:
     ContainerType m_data;
 
-    std::unordered_set<IdType> m_waitingKeys, m_confirmedKeys;
+    std::unordered_set<IdType> m_waitingKeys, m_confirmedKeys, m_newKeys;
 
     bool m_isRegistering = false;
   };

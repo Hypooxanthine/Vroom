@@ -21,6 +21,38 @@ DrawSceneRenderPass::~DrawSceneRenderPass()
 
 }
 
+void DrawSceneRenderPass::onInit()
+{
+  for (const auto& [_, mesh] : *meshRegistry)
+  {
+    MaterialIdentifier matId { mesh.material };
+    PassMaterial& material = m_materials[matId];
+    material.setMaterialAsset(mesh.material);
+    material.prepare(m_defines);
+  }
+}
+
+void DrawSceneRenderPass::onSetup(const RenderPassContext& ctx)
+{
+  for (size_t id : meshRegistry->getLastFrameRemovedIds())
+  {
+    const auto& mesh = meshRegistry->get(id);
+    MaterialIdentifier matId { mesh.material };
+    m_materials.erase(matId);
+  }
+
+  for (const auto& [_, mesh] : *meshRegistry)
+  {
+    MaterialIdentifier matId { mesh.material };
+    PassMaterial& material = m_materials[matId];
+    if (material.needsPrepare())
+    {
+      material.setMaterialAsset(mesh.material);
+      material.prepare(m_defines);
+    }
+  }
+}
+
 void DrawSceneRenderPass::onRender(const RenderPassContext& ctx) const
 {
   VRM_ASSERT_MSG(framebufferTarget != nullptr, "Invalid framebuffer");
@@ -96,7 +128,9 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
 
     size_t textOffset = queuedMesh.material->getTextures().size(); 
 
-    const auto& shader = queuedMesh.material->getShader(); 
+    MaterialIdentifier matId { queuedMesh.material };
+    const PassMaterial& passMat = m_materials.at(matId);
+    const auto& shader = passMat.getShader();
       shader.bind();
       shader.setUniformMat4f("u_Model", *queuedMesh.model);
       shader.setUniform1ui("u_EntityId", queuedMesh.entityId);
@@ -116,7 +150,7 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
       applyViewportUniforms(shader, ctx.viewport);
       applyStorageBufferParameters(shader);
     
-    queuedMesh.material->applyUniforms();
+    queuedMesh.material->applyUniforms(shader);
 
     const auto& mesh = *queuedMesh.mesh;
 

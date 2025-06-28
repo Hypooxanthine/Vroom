@@ -29,6 +29,28 @@ namespace vrm
 
     void cleanup(const RenderPassContext& ctx);
 
+    inline size_t getPassIndex() const { return m_passIndex; }
+
+    inline void addDefine(const std::string& define, const std::string& value = "")
+    {
+      m_defines.add(define, value);
+    }
+  
+  public:
+
+    friend struct ManagerAttorney;
+    struct ManagerAttorney
+    {
+      friend class RenderPassManager;
+      RenderPass* const ref;
+    private:
+
+      inline void setPassIndex(size_t id) { ref->m_passIndex = id; }
+
+    };
+    
+    inline ManagerAttorney managerInterface() { return ManagerAttorney{ this }; }
+
   protected:
     /**
      * @brief Called once at the creation of the render pass
@@ -61,7 +83,13 @@ namespace vrm
 
     static void applyViewportUniforms(const gl::Shader& shader, const RenderViewport& viewport);
 
+  protected:
+
+    MaterialDefines m_defines;
+
   private:
+
+    size_t m_passIndex = 0;
   };
 
   struct RenderPassContext
