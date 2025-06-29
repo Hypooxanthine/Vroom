@@ -1,6 +1,8 @@
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 
-#include <OBJ_Loader/OBJ_Loader.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include "Vroom/Core/Assert.h"
 
@@ -42,102 +44,87 @@ void MeshAsset::clear()
 bool MeshAsset::loadImpl(const std::string& filePath)
 {
   VRM_LOG_TRACE("Loading mesh: {}", filePath);
-  
-  std::string extension = StaticAsset::getExtension(filePath);
-  if (extension == "obj")
+
+  Assimp::Importer importer;
+  const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs);
+
+  if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
   {
-    return loadObj(filePath);
-  }
-
-  if (extension == "")
-    VRM_LOG_ERROR("Failed to get extension from file path: {}", filePath);
-  else
-    VRM_LOG_ERROR("Unsupported file extension: {}", extension);
-
-  return false;
-}
-
-bool MeshAsset::loadObj(const std::string& filePath)
-{
-  objl::Loader loader;
-  if (!loader.LoadFile(filePath))
-  {
-    VRM_LOG_ERROR("Failed to load obj file: {}", filePath);
+    VRM_LOG_ERROR("Failed to load mesh: {}. Error: {}", filePath, importer.GetErrorString());
     return false;
   }
 
-  std::string fileDirectoryPath;
-  size_t lastSlashIndex = filePath.find_last_of('/');
-  if (lastSlashIndex != std::string::npos)
-  {
-    fileDirectoryPath = filePath.substr(0, lastSlashIndex + 1);
-  }
-  else
-  {
-    lastSlashIndex = filePath.find_last_of('\\');
-    if (lastSlashIndex != std::string::npos)
-    {
-      fileDirectoryPath = filePath.substr(0, lastSlashIndex + 1);
-    }
-  }
+  _processNode(scene->mRootNode, scene);
 
-  // VRM_LOG_TRACE("| Loading {} submeshes.", loader.LoadedMeshes.size());
-
-  for (const auto& mesh : loader.LoadedMeshes)
-  {
-    // VRM_LOG_TRACE("| | SubMesh: {}", mesh.MeshName);
-    // VRM_LOG_TRACE("| | | Vertices count: {}", mesh.Vertices.size());
-    // VRM_LOG_TRACE("| | | Indices count: {}", mesh.Indices.size());
-    // VRM_LOG_TRACE("| | | Material: {}", mesh.MaterialName);
-
-    std::vector<Vertex> vertices;
-    std::vector<uint32_t> indices;
-
-    vertices.reserve(mesh.Vertices.size());
-    indices.reserve(mesh.Indices.size());
-
-    for (const auto& vertex : mesh.Vertices)
-    {
-      vertices.emplace_back(
-        Vertex{
-            { vertex.Position.X         , vertex.Position.Y         , vertex.Position.Z },
-            { vertex.Normal.X           , vertex.Normal.Y           , vertex.Normal.Z },
-            { vertex.TextureCoordinate.X, vertex.TextureCoordinate.Y }
-        }
-      );
-    }
-
-    for (const auto& index : mesh.Indices)
-    {
-      indices.emplace_back(index);
-    }
-
-    MaterialAsset::Handle materialInstance;
-
-    if (!mesh.MaterialName.empty())
-    {
-      if (AssetManager::Get().tryLoadAsset<MaterialAsset>(mesh.MaterialName))
-        materialInstance = AssetManager::Get().getAsset<MaterialAsset>(mesh.MaterialName);
-      else
-        VRM_LOG_WARN("Couldn't load material \"{}\", falling back to default material.", mesh.MaterialName);
-    }
-
-    if (!materialInstance.isValid()) // Fall back to default material
-    {
-      materialInstance = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/DefaultMaterial.json");
-    }
-
-    MeshData meshData(std::move(vertices), std::move(indices));
-    RenderMesh renderMesh(meshData);
-
-    m_SubMeshes.emplace_back(std::move(renderMesh), std::move(meshData), materialInstance);
-
-    // VRM_LOG_TRACE("| | Loaded sub mesh: {}", mesh.MeshName);
-  }
-
-  // VRM_LOG_TRACE("| Submeshes loaded.");
-
-  // VRM_LOG_INFO("Mesh loaded.");
+  // m_SubMeshes.clear();
+  // return loadObj(filePath);
 
   return true;
+}
+
+void MeshAsset::_processNode(aiNode* node, const aiScene* scene)
+{
+  for (unsigned int i = 0; i < node->mNumMeshes; i++)
+  {
+    aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+    _processMesh(mesh, scene);
+  }
+
+  for (unsigned int i = 0; i < node->mNumChildren; i++)
+  {
+    _processNode(node->mChildren[i], scene);
+  }
+}
+
+void MeshAsset::_processMesh(aiMesh* mesh, const aiScene* scene)
+{
+  std::vector<Vertex> vertices;
+  vertices.reserve(mesh->mNumVertices);
+
+  for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+  {
+    Vertex& v = vertices.emplace_back();
+
+    const aiVector3D& aPosition = mesh->mVertices[i];
+    v.position = glm::vec3{ aPosition.x, aPosition.y, aPosition.z };
+
+    const aiVector3D& aNormal = mesh->mNormals[i];
+    v.normal = glm::vec3{ aNormal.x, aNormal.y, aNormal.z };
+    
+    if (mesh->mTextureCoords[0])
+    {
+      const aiVector3D& aTexCoords = mesh->mTextureCoords[0][i];
+      v.texCoords = glm::vec2{ aTexCoords.x, aTexCoords.y };
+    }
+  }
+
+  std::vector<unsigned int> indices;
+  indices.reserve(mesh->mNumFaces * 3);
+
+  for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
+  {
+    const aiFace& f = mesh->mFaces[i];
+    for (unsigned int j = 0; j < f.mNumIndices; ++j)
+    {
+      indices.emplace_back(f.mIndices[j]);
+    }
+  }
+  
+  MeshData meshData(std::move(vertices), std::move(indices));
+  RenderMesh renderMesh(meshData);
+  std::string matName = scene->mMaterials[mesh->mMaterialIndex]->GetName().C_Str();
+  if (matName == AI_DEFAULT_MATERIAL_NAME)
+  {
+    matName = "Resources/Engine/Material/DefaultMaterial.json";
+  }
+
+  MaterialAsset::Handle mat;
+  if (AssetManager::Get().tryLoadAsset<MaterialAsset>(matName))
+    mat = AssetManager::Get().getAsset<MaterialAsset>(matName);
+  else
+  {
+    VRM_LOG_WARN("Couldn't load material \"{}\", falling back to default material.", matName);
+    mat = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/DefaultMaterial.json");
+  }
+  m_SubMeshes.emplace_back(std::move(renderMesh), std::move(meshData), mat);
 }

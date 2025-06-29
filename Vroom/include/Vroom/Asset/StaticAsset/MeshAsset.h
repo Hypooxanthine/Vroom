@@ -9,6 +9,10 @@
 #include "Vroom/Asset/AssetData/MeshData.h"
 #include "Vroom/Render/RenderObject/RenderMesh.h"
 
+struct aiNode;
+struct aiMesh;
+struct aiScene;
+
 namespace vrm
 {
 
@@ -42,7 +46,9 @@ namespace vrm
     bool loadImpl(const std::string& filePath) override;
 
   private:
-    bool loadObj(const std::string& filePath);
+  
+    void _processNode(aiNode* node, const aiScene* scene);
+    void _processMesh(aiMesh* mesh, const aiScene* scene);
 
   private:
     std::list<SubMesh> m_SubMeshes;
