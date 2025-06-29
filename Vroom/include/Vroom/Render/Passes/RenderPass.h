@@ -94,6 +94,8 @@ namespace vrm
 
     static void applyViewportUniforms(const gl::Shader& shader, const RenderViewport& viewport);
 
+    const PassMaterial& getPassMaterial(MaterialAsset::Handle asset, const MaterialDefines* customDefines) const;
+    
     const PassMaterial& getPassMaterial(MaterialAsset::Handle asset) const;
 
   protected:

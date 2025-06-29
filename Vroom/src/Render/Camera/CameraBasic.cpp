@@ -3,7 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Vroom/Asset/AssetData/MeshData.h"
-#include "Vroom/Math/Aabb.h"
+#include "Vroom/Render/Aabb.h"
 
 using namespace vrm;
 

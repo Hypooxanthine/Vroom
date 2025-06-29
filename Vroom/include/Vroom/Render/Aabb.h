@@ -80,7 +80,7 @@ namespace vrm
 
 }
 
-#include "Vroom/Math/Frustum.h"
+#include "Vroom/Render/Frustum.h"
 
 inline constexpr vrm::Aabb vrm::Aabb::CreateFromFrustum(const vrm::Frustum& frustum)
 {

@@ -68,7 +68,7 @@ namespace vrm
 
 } // namespace vrm
 
-#include "Vroom/Math/Aabb.h"
+#include "Vroom/Render/Aabb.h"
 
 inline constexpr vrm::Frustum vrm::Frustum::CreateFromAabb(const vrm::Aabb& aabb, bool fromNDC)
 {

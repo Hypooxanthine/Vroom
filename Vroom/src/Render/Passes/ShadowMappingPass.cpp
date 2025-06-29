@@ -5,8 +5,8 @@
 
 #include "Vroom/Asset/AssetManager.h"
 
-#include "Vroom/Math/Aabb.h"
-#include "Vroom/Math/Frustum.h"
+#include "Vroom/Render/Aabb.h"
+#include "Vroom/Render/Frustum.h"
 
 #include "Vroom/Render/RenderViewport.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
@@ -240,6 +240,7 @@ OrthographicCamera ShadowMappingPass::constructViewProjFromDirLight(const Camera
 
   /* Simple algo : light frustum looking towards view position */
 
+  if (false)
   {
     glm::vec3 viewPos = renderCamera.getPosition();
 
@@ -309,7 +310,7 @@ void ShadowMappingPass::renderDirLightsFrustums(const RenderPassContext& ctx) co
   for (const auto& mesh : m_debugDirLights)
   {
     auto material = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/FrustumViewerMaterial.json");
-    const auto& shader = getPassMaterial(material).getShader();
+    const auto& shader = getPassMaterial(material, nullptr).getShader();
     shader.bind();
     shader.setUniformMat4f("u_Model", glm::mat4(1.f));
     applyCameraUniforms(shader, *ctx.mainCamera);
