@@ -1,5 +1,6 @@
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
 
+#include <filesystem>
 #include <algorithm>
 
 using namespace vrm;
@@ -52,4 +53,21 @@ std::string StaticAsset::getExtension(const std::string& filePath)
   std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
 
   return extension;
+}
+
+std::string StaticAsset::applyPathOrder(const std::string& path) const
+{
+  std::filesystem::path assetDirAbs = getFilePath();
+  assetDirAbs.remove_filename();
+  std::filesystem::path assetDirRel = assetDirAbs.lexically_relative(std::filesystem::current_path());
+  std::filesystem::path relativePath = assetDirRel / path;
+
+  if (std::filesystem::exists(relativePath)) // Relative to current asset first
+  {
+    return relativePath;
+  }
+  else // Relative to working directory then
+  {
+    return path;
+  }
 }

@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <filesystem>
 #include <vector>
 #include <unordered_map>
 
@@ -50,11 +51,11 @@ namespace vrm
      * @return T::InstanceType  An instance of the asset.
      */
     template <typename T>
-    AssetHandle<T> getAsset(const std::string& assetID)
+    AssetHandle<T> getAsset(const std::filesystem::path& assetID)
     {
       loadAsset<T>(assetID);
 
-      size_t index = m_keys.at(assetID);
+      size_t index = m_keys.at(_formatAssetId(assetID));
 
       T* asT = dynamic_cast<T*>(m_assets.at(index).get());
       VRM_DEBUG_ASSERT(asT != nullptr);
@@ -69,35 +70,35 @@ namespace vrm
      * @param assetID  The ID of the asset to load.
      */
     template <typename T>
-    void loadAsset(const std::string& assetID)
+    void loadAsset(const std::filesystem::path& assetID)
     {
-      VRM_ASSERT_MSG(tryLoadAsset<T>(assetID), "Failed to load asset: {}", assetID);
+      VRM_ASSERT_MSG(tryLoadAsset<T>(assetID), "Failed to load asset: {}", assetID.string());
     }
 
     template <typename T>
-    void reloadAsset(const std::string& assetID)
+    void reloadAsset(const std::filesystem::path& assetID)
     {
-      VRM_ASSERT_MSG(tryReloadAsset<T>(assetID), "Failed to load asset: {}", assetID);
+      VRM_ASSERT_MSG(tryReloadAsset<T>(assetID), "Failed to load asset: {}", assetID.string());
     }
 
     template <typename T>
-    bool tryLoadAsset(const std::string& assetID)
+    bool tryLoadAsset(const std::filesystem::path& assetID)
     {
-      return isAssetLoaded(assetID) || tryReloadAsset<T>(assetID);
+      return isAssetLoaded(assetID) || tryReloadAsset<T>(assetID.string());
     }
 
     template <typename T>
-    inline bool tryReloadAsset(const std::string& assetID)
+    inline bool tryReloadAsset(const std::filesystem::path& assetID)
     {
       auto asset = std::make_unique<T>();
-      if (!asset->load(assetID))
+      if (!asset->load(_formatAssetId(assetID)))
       {
         return false;
       }
 
       decltype(m_assets)::iterator assetIt;
 
-      if (auto keyIt = m_keys.find(assetID); keyIt != m_keys.end())
+      if (auto keyIt = m_keys.find(_formatAssetId(assetID)); keyIt != m_keys.end())
       {
         // Asset is already loaded
         assetIt = m_assets.begin() + keyIt->second;
@@ -105,7 +106,7 @@ namespace vrm
       }
       else
       {
-        m_keys.insert({ assetID, m_assets.size() });
+        m_keys.insert({ _formatAssetId(assetID), m_assets.size() });
         assetIt = m_assets.emplace(m_assets.end());
       }
 
@@ -121,9 +122,9 @@ namespace vrm
      * @return true If the asset is loaded.
      * @return false If the asset is not loaded.
      */
-    bool isAssetLoaded(const std::string& assetID)
+    bool isAssetLoaded(const std::filesystem::path& assetID)
     {
-      return m_keys.contains(assetID);
+      return m_keys.contains(_formatAssetId(assetID));
     }
 
   private:
@@ -131,11 +132,16 @@ namespace vrm
 
     void _clear();
 
+    std::filesystem::path _formatAssetId(const std::filesystem::path& assetID) const
+    {
+      return std::filesystem::absolute(assetID);
+    }
+
   private:
     static std::unique_ptr<AssetManager> s_Instance;
 
     std::vector<std::unique_ptr<StaticAsset>> m_assets;
-    std::unordered_map<std::string, size_t> m_keys;
+    std::unordered_map<std::filesystem::path, size_t> m_keys;
 
   };
 

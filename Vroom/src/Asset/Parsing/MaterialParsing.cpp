@@ -99,7 +99,14 @@ namespace nlohmann
   {
     e = {};
     e.setShadingModel(j["ShadingModel"]);
-    for (const auto& [name, param] : j["Parameters"].get<json::object_t>())
+    const json& params = j["Parameters"];
+
+    if (params.is_null())
+    {
+      return;
+    }
+
+    for (const auto& [name, param] : params.get<json::object_t>())
     {
       vrm::MaterialData::Parameter p;
       p = param;

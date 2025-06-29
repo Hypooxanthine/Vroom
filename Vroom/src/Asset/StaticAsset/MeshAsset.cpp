@@ -117,6 +117,10 @@ void MeshAsset::_processMesh(aiMesh* mesh, const aiScene* scene)
   {
     matName = "Resources/Engine/Material/DefaultMaterial.json";
   }
+  else
+  {
+    matName = applyPathOrder(matName);
+  }
 
   MaterialAsset::Handle mat;
   if (AssetManager::Get().tryLoadAsset<MaterialAsset>(matName))
