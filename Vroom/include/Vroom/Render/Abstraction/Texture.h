@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <array>
 
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Render/Abstraction/GLCall.h"
@@ -41,7 +42,7 @@ namespace vrm::gl
     inline static constexpr GLenum GetBindingTarget(GLuint layers, GLuint samples);
 
 
-    inline static constexpr GLint GetMaxMipMapCount(GLsizei width, GLsizei height);
+    inline static GLint GetMaxMipMapCount(GLsizei width, GLsizei height);
     inline static constexpr GLint GetBasicColorInternalFormat(GLuint channelCount, GLuint bitsPerChannel);
     inline static constexpr GLenum GetBasicColorFormat(GLuint channelCount);
 
@@ -113,7 +114,7 @@ namespace vrm::gl
     }
   }
 
-  inline constexpr GLint Texture::GetMaxMipMapCount(GLsizei width, GLsizei height)
+  inline GLint Texture::GetMaxMipMapCount(GLsizei width, GLsizei height)
   {
     return 1 + static_cast<GLint>(std::floor(std::log2(std::max(width, height))));
   }
@@ -149,7 +150,7 @@ namespace vrm::gl
 
   inline constexpr GLenum Texture::GetBasicColorFormat(GLuint channelCount)
   {
-    static constexpr std::array<GLenum, 4> s_assoc = { GL_RED, GL_RG, GL_RGB, GL_RGBA };
+    static std::array<GLenum, 4> s_assoc = { GL_RED, GL_RG, GL_RGB, GL_RGBA };
 
     if (channelCount < 1 || channelCount > 4)
       throw std::out_of_range("channelCount must be in [1, 4]");

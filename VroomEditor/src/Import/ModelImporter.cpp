@@ -174,30 +174,56 @@ void ModelImporter::_processMaterial(aiMaterial* material)
   std::string diffuseMap = _getTexture(material, aiTextureType_DIFFUSE);
   std::string specularMap = _getTexture(material, aiTextureType_SPECULAR);
   std::string shininessMap = _getTexture(material, aiTextureType_SHININESS);
+
+  for (unsigned int i = 0; i < material->mNumProperties; ++i)
+  {
+    VRM_LOG_INFO("Property: {}", material->mProperties[i]->mKey.C_Str());
+  }
   
   MaterialData::Parameter p;
-
+  
+  p.name = "Diffuse";
   if (diffuseMap.size() > 0)
   {
     _registerTexture(diffuseMap);
-    p.name = "Diffuse";
     p.setValue(diffuseMap);
     data.addParameter(p);
   }
-  
-  if (specularMap.size() > 0)
+  else
   {
-    _registerTexture(specularMap);
-    p.name = "Specular";
-    p.setValue(specularMap);
+    aiColor4D col;
+    material->Get(AI_MATKEY_COLOR_DIFFUSE, col);
+    p.setValue(glm::vec3(col.r, col.g, col.b));
     data.addParameter(p);
   }
   
+  p.name = "Specular";
+  if (specularMap.size() > 0)
+  {
+    _registerTexture(specularMap);
+    p.setValue(specularMap);
+    data.addParameter(p);
+  }
+  else
+  {
+    aiColor4D col;
+    material->Get(AI_MATKEY_COLOR_SPECULAR, col);
+    p.setValue(glm::vec3(col.r, col.g, col.b));
+    data.addParameter(p);
+  }
+   
+  p.name = "Shininess";
   if (shininessMap.size() > 0)
   {
     _registerTexture(shininessMap);
-    p.name = "Specular";
     p.setValue(shininessMap);
+    data.addParameter(p);
+  }
+  else
+  {
+    float col;
+    material->Get(AI_MATKEY_SHININESS, col);
+    p.setValue(col);
     data.addParameter(p);
   }
 

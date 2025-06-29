@@ -91,7 +91,7 @@ namespace vrm
     inline bool tryReloadAsset(const std::filesystem::path& assetID)
     {
       auto asset = std::make_unique<T>();
-      if (!asset->load(_formatAssetId(assetID)))
+      if (!asset->load(_formatAssetId(assetID).string()))
       {
         return false;
       }

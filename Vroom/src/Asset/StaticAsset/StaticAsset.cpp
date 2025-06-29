@@ -64,7 +64,7 @@ std::string StaticAsset::applyPathOrder(const std::string& path) const
 
   if (std::filesystem::exists(relativePath)) // Relative to current asset first
   {
-    return relativePath;
+    return relativePath.string();
   }
   else // Relative to working directory then
   {
