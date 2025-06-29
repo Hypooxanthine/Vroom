@@ -11,6 +11,7 @@ namespace vrm
 
   class AssetElement;
   class AssetFile;
+  struct OSFileDrop;
 
   class AssetBrowser : public ImGuiElement
   {
@@ -26,6 +27,10 @@ namespace vrm
 
   protected:
     bool onImgui() override;
+
+  private:
+    
+    void _handleFileDrop(const OSFileDrop& dropData);
 
   private:
     const std::filesystem::path m_ResourcesPath;

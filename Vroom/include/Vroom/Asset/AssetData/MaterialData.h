@@ -5,10 +5,12 @@
 #include <variant>
 #include <unordered_map>
 
+#include "Vroom/Asset/Parsing/Json.h"
+
 namespace vrm
 {
 
-  class MaterialData
+  class VRM_API MaterialData
   {
   public:
     enum class EShadingModel : uint8_t
@@ -20,8 +22,12 @@ namespace vrm
 
     struct Parameter
     {
-      std::string name;
-      std::variant<float, glm::vec2, glm::vec3, glm::vec4, std::string> value;
+      Parameter() = default;
+      Parameter(const std::string& name) : name(name) {}
+      Parameter& operator=(const Parameter&) = default;
+      Parameter(const Parameter&) = default;
+      Parameter& operator=(Parameter&&) = default;
+      Parameter(Parameter&&) = default;
 
       template <typename T>
       inline void setValue(const T &val) { value = val; }
@@ -40,11 +46,19 @@ namespace vrm
 
       inline bool isTexture() const { return std::holds_alternative<std::string>(value); }
       inline const std::string &getTexture() const { return std::get<std::string>(value); }
+
+      std::string name;
+      std::variant<float, glm::vec2, glm::vec3, glm::vec4, std::string> value;
     };
 
   public:
     MaterialData();
     ~MaterialData();
+
+    MaterialData& operator=(const MaterialData&) = default;
+    MaterialData(const MaterialData&) = default;
+    MaterialData& operator=(MaterialData&&) = default;
+    MaterialData(MaterialData&&) = default;
 
     inline static const std::string &GetShadingModelName(EShadingModel model);
 
@@ -79,3 +93,19 @@ namespace vrm
   }
 
 } // namespace vrm
+
+namespace nlohmann
+{
+
+  NLOHMANN_JSON_SERIALIZE_ENUM(vrm::MaterialData::EShadingModel,
+  {
+    { vrm::MaterialData::EShadingModel::ePhong, vrm::MaterialData::GetShadingModelName(vrm::MaterialData::EShadingModel::ePhong) }
+  })
+
+  void VRM_API to_json(json& j, const vrm::MaterialData::Parameter& e);
+  void VRM_API from_json(const json& j, vrm::MaterialData::Parameter& e);
+
+  void VRM_API to_json(json& j, const vrm::MaterialData& e);
+  void VRM_API from_json(const json& j, vrm::MaterialData& e);
+
+}

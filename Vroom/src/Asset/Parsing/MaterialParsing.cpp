@@ -9,91 +9,103 @@
 
 using namespace vrm;
 
-static bool ParseParameter(const json& j, MaterialData::Parameter& param)
+bool MaterialParsing::Parse(const json &jsonData, MaterialData &outMaterialData)
 {
-  CHECK_ATTR_STRING(j, Type);
-  CHECK_ATTR(j, Value);
-
-  if (TypeVal == "float")
-  {
-    float val;
-    CHECK(GetParamValue(Value, val), "Could not parse parameter value {} as a {}", val, TypeVal);
-    param.value = val;
-  }
-  else if (TypeVal == "vec2")
-  {
-    glm::vec2 val;
-    CHECK(GetParamValue(Value, val), "Could not parse parameter value {} as a {}", glm::to_string(val), TypeVal);
-    param.value = val;
-  }
-  else if (TypeVal == "vec3")
-  {
-    glm::vec3 val;
-    CHECK(GetParamValue(Value, val), "Could not parse parameter value {} as a {}", glm::to_string(val), TypeVal);
-    param.value = val;
-  }
-  else if (TypeVal == "vec4")
-  {
-    glm::vec4 val;
-    CHECK(GetParamValue(Value, val), "Could not parse parameter value {} as a {}", glm::to_string(val), TypeVal);
-    param.value = val;
-  }
-  else if (TypeVal == "texture")
-  {
-    std::string val;
-    CHECK(GetParamValue(Value, val), "Could not parse parameter value {} as a {}", val, TypeVal);
-    param.value = val;
-  }
-  else
-  {
-    CHECK(false, "Unknown parameter type: {}", TypeVal);
-  }
+  outMaterialData = jsonData;
 
   return true;
 }
 
-static bool ParseParameters(const json& j, MaterialData& mat)
+
+namespace nlohmann
 {
-  CHECK_ATTR_OBJECT(j, Parameters);
 
-  for (const auto& [j_name, j_object] : ParametersVal)
+  void to_json(json& j, const vrm::MaterialData::Parameter& e)
   {
-    MaterialData::Parameter param;
-    param.name = j_name;
-    CHECK(ParseParameter(j_object, param), "Error while parsing parameter");
-    mat.addParameter(param);
-  }
+    auto& value = j["Value"];
+    auto& type = j["Type"];
 
-  return true;
-}
-
-static bool ParseShadingModelName(const json &j, MaterialData &mat)
-{
-  CHECK_ATTR_STRING(j, ShadingModel);
-
-  for (uint8_t i = 0; i < static_cast<uint8_t>(MaterialData::EShadingModel::eCount); ++i)
-  {
-    auto modelEnum = static_cast<MaterialData::EShadingModel>(i);
-    if (MaterialData::GetShadingModelName(modelEnum) == ShadingModelVal)
+    if (e.isFloat())
     {
-      mat.setShadingModel(modelEnum);
-      return true;
+      value = e.getFloat();
+      type = "float";
+    }
+    else if (e.isVec2())
+    {
+      value = e.getVec2();
+      type = "vec2";
+    }
+    else if (e.isVec3())
+    {
+      value = e.getVec3();
+      type = "vec3";
+    }
+    else if (e.isVec4())
+    {
+      value = e.getVec4();
+      type = "vec4";
+    }
+    else if (e.isTexture())
+    {
+      value = e.getTexture();
+      type = "texture";
     }
   }
 
-  CHECK(false, "Unknown ShadingModel value: {}", ShadingModelVal);
-}
+  void from_json(const json& j, vrm::MaterialData::Parameter& e)
+  {
+    const auto& value = j["Value"];
+    const auto& type = j["Type"];
+    
+    if (type == "float")
+    {
+      float v = value;
+      e.setValue(v);
+    }
+    else if (type == "vec2")
+    {
+      glm::vec2 v = value;
+      e.setValue(v);
+    }
+    else if (type == "vec3")
+    {
+      glm::vec3 v = value;
+      e.setValue(v);
+    }
+    else if (type == "vec4")
+    {
+      glm::vec4 v = value;
+      e.setValue(v);
+    }
+    else if (type == "texture")
+    {
+      std::string v = value;
+      e.setValue(v);
+    }
+  }
 
-bool MaterialParsing::Parse(const json &jsonData, MaterialData &outSceneData)
-{
-  CHECK_OBJECT(jsonData);
+  void to_json(json& j, const vrm::MaterialData& e)
+  {
+    j["ShadingModel"] = e.getShadingModel();
+    auto& params = j["Parameters"];
 
-  MaterialData mat;
+    for (const auto& [name, param] : e.getParameters())
+    {
+      params[name] = param;
+    }
+  }
 
-  CHECK(ParseShadingModelName(jsonData, mat), "Error while parsing shading model name");
-  CHECK(ParseParameters(jsonData, mat), "Error while parsing ShadingModel parameters");
+  void from_json(const json& j, vrm::MaterialData& e)
+  {
+    e = {};
+    e.setShadingModel(j["ShadingModel"]);
+    for (const auto& [name, param] : j["Parameters"].get<json::object_t>())
+    {
+      vrm::MaterialData::Parameter p;
+      p = param;
+      p.name = name;
+      e.addParameter(p);
+    }
+  }
 
-  outSceneData = std::move(mat);
-
-  return true;
 }

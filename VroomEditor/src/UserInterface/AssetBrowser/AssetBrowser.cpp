@@ -8,6 +8,7 @@
 #include "VroomEditor/UserInterface/AssetBrowser/AssetUtils.h"
 #include "VroomEditor/UserInterface/AssetBrowser/AssetParentDir.h"
 #include "VroomEditor/UserInterface/OSFileDrop.h"
+#include "VroomEditor/Import/ModelImporter.h"
 
 #include "Vroom/Core/Log.h"
 
@@ -156,31 +157,7 @@ bool AssetBrowser::onImgui()
       if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("OSFileDrop"); payload && payload->DataSize == sizeof(OSFileDrop))
       {
         OSFileDrop* fileDrop = reinterpret_cast<OSFileDrop*>(payload->Data);
-        VRM_ASSERT(fileDrop->files);
-        VRM_LOG_TRACE("Dropped {}", fileDrop->files);
-        
-        std::filesystem::path from = fileDrop->files;
-        std::filesystem::path to = m_CurrentPath;
-        if (from.has_filename())
-          to = to / from.filename();
-
-        try
-        {
-          if (!std::filesystem::exists(from))
-          {
-            VRM_LOG_WARN("Source path does not exist: {}", from.string());
-          }
-          else
-          {
-            std::filesystem::copy(from, to, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
-            VRM_LOG_TRACE("Successfully copied from {} to {}", from.string(), to.string());
-            updateDirectoryContent();
-          }
-        }
-        catch (const std::exception& e)
-        {
-          VRM_LOG_WARN("Could not copy {} to {}: {}", from.string(), to.string(), e.what());
-        }
+        _handleFileDrop(*fileDrop);
       }
 
       ImGui::EndDragDropTarget();
@@ -192,4 +169,52 @@ bool AssetBrowser::onImgui()
   ImGui::End();
   
   return ret;
+}
+
+void AssetBrowser::_handleFileDrop(const OSFileDrop& dropData)
+{
+  VRM_ASSERT(dropData.files);
+  VRM_LOG_TRACE("Dropped {}", dropData.files);
+  
+  std::filesystem::path from = dropData.files;
+  std::filesystem::path to = m_CurrentPath;
+  if (from.has_filename())
+  {
+    if (true)
+    {
+      ModelImporter importer;
+      if (importer.import(from, to))
+      {
+        VRM_LOG_INFO("Imported file {} to {} directory.", from.string(), to.string());
+        updateDirectoryContent();
+      }
+      else
+      {
+        VRM_LOG_WARN("Error while importing file {} to {} directory.", from.string(), to.string());
+      }
+      return;
+    }
+    else
+    {
+      to = to / from.filename();
+    }
+  }
+
+  try
+  {
+    if (!std::filesystem::exists(from))
+    {
+      VRM_LOG_WARN("Source path does not exist: {}", from.string());
+    }
+    else
+    {
+      std::filesystem::copy(from, to, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
+      VRM_LOG_TRACE("Successfully copied from {} to {}", from.string(), to.string());
+      updateDirectoryContent();
+    }
+  }
+  catch (const std::exception& e)
+  {
+    VRM_LOG_WARN("Could not copy {} to {}: {}", from.string(), to.string(), e.what());
+  }
 }

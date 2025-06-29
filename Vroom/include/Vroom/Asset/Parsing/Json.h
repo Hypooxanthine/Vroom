@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vroom/Core/Assert.h"
+#include "Vroom/Api.h"
 
 #include <nlohmann/json.hpp>
 #include <optional>
@@ -9,10 +10,10 @@
 
 #define CHECK(x, ...) VRM_CHECK_RET_FALSE_MSG(x, __VA_ARGS__)
 
+using json = nlohmann::json;
+
 namespace vrm
 {
-
-using json = nlohmann::json;
 
 #define ELSE else{} else
 
@@ -179,16 +180,35 @@ inline bool GetParamValue(const json& paramValue, glm::vec<L, T>& outValue)
 
   return true;
 }
-  
-template <glm::length_t L, typename T>
-void to_json(json& j, const glm::vec<L, T>& p)
-{
-  j = json::array();
-  
-  for (glm::length_t i = 0; i < L; ++i)
-  {
-    j.emplace_back(p[i]);
-  }
-}
 
 } // namespace vrm
+
+namespace nlohmann
+{
+  
+  template <glm::length_t L, typename T>
+  inline void to_json(json& j, const glm::vec<L, T> p)
+  {
+    j = json::array();
+    
+    for (glm::length_t i = 0; i < L; ++i)
+    {
+      j.emplace_back(p[i]);
+    }
+  }
+    
+  template <glm::length_t L, typename T>
+  inline void from_json(const json j, glm::vec<L, T>& p)
+  {
+    if (!j.is_array())
+    {
+      throw std::runtime_error("json must be an array");
+    }
+
+    for (glm::length_t i = 0; i < L; ++i)
+    {
+      p[i] = j.at(i).get<float>();
+    }
+  }
+
+}

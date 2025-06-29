@@ -186,46 +186,51 @@ json SceneData::ScriptComponent::serialize() const
   return std::move(j);
 }
 
-void vrm::to_json(json& j, const SceneData::Component* component)
+namespace nlohmann
 {
-  if (component != nullptr)
-    j = component->serialize();
-}
 
-void vrm::to_json(json& j, const SceneData::SceneNode& node)
-{
-  j = json::object();
-  to_json(j["name"], node.name);
-  to_json(j["type"], node.type);
-
-  auto& j_parents = (j["parent"] = nullptr);
-
-  if (!node.parent.empty())
+  void to_json(json& j, const SceneData::Component* component)
   {
-    j_parents = node.parent;
+    if (component != nullptr)
+      j = component->serialize();
   }
 
-  if (node.components.empty())
+  void to_json(json& j, const SceneData::SceneNode& node)
   {
-    return; 
+    j = json::object();
+    j["name"] = node.name;
+    j["type"] = node.type;
+
+    auto& j_parents = (j["parent"] = nullptr);
+
+    if (!node.parent.empty())
+    {
+      j_parents = node.parent;
+    }
+
+    if (node.components.empty())
+    {
+      return; 
+    }
+
+    auto& j_components = (j["components"] = json::array());
+
+    for (const auto& [_, component] : node.components)
+    {
+      json& j = j_components.emplace_back();
+      j = component.get();
+    }
   }
 
-  auto& j_components = (j["components"] = json::array());
-
-  for (const auto& [_, component] : node.components)
+  void to_json(json& j, const SceneData& scene)
   {
-    json& j = j_components.emplace_back();
-    to_json(j, component.get());
-  }
-}
+    j = json::object();
+    json& nodes = j["scene_nodes"] = json::array();
 
-void vrm::to_json(json& j, const SceneData& scene)
-{
-  j = json::object();
-  json& nodes = j["scene_nodes"] = json::array();
-
-  for (const SceneData::SceneNode& node : scene.getNodes())
-  {
-    to_json(nodes.emplace_back(), node);
+    for (const SceneData::SceneNode& node : scene.getNodes())
+    {
+      nodes.emplace_back() = node;
+    }
   }
+
 }

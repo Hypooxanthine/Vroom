@@ -16,49 +16,6 @@
 
 using namespace vrm;
 
-MetaFile::MetaFile(const std::filesystem::path& metaPath, const std::filesystem::path& filePath)
-  : metaPath(metaPath), filePath(filePath)
-{
-  if (!load())
-  {
-    type = EType::eNone;
-  }
-}
-
-bool MetaFile::load()
-{
-  std::ifstream ifs;
-  ifs.open(metaPath);
-
-  VRM_CHECK_RET_FALSE_MSG(ifs.is_open(), "Could not open .meta file: {}", metaPath.string());
-
-  json j;
-  try
-  {
-    ifs >> j;
-  }
-  catch(const std::exception& e)
-  {
-    VRM_CHECK_RET_FALSE_MSG(false, "Could not parse .meta json content: {}. Parsing error:\n{}", metaPath.string(), e.what());
-  }
-
-  CHECK_OBJECT(j);
-  CHECK_ATTR_STRING(j, Type);
-  
-  static const std::unordered_map<std::string, EType> typeTable =
-  {
-    { "Scene",    EType::eScene },
-    { "Mesh",     EType::eMesh },
-    { "Material", EType::eMaterial },
-  };
-
-  CHECK(typeTable.contains(TypeVal), "Unknown file type: {}", TypeVal);
-
-  type = typeTable.at(TypeVal);
-
-  return true;
-}
-
 std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const std::filesystem::path& path)
 {
   // Directories
@@ -86,22 +43,56 @@ std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const std::filesyst
     return std::make_unique<AssetFile>(path);
   }
 
-  return CreateAssetElement(MetaFile{ metaDataPath, path });
+  std::ifstream ifs(metaDataPath);
+  if (ifs.is_open())
+  {
+    json j;
+    ifs >> j;
+    MetaFile metaData = j;
+    return CreateAssetElement(metaData, path);
+  }
+  else
+  {
+    VRM_LOG_WARN("Meta file {} exists but could not open it", metaDataPath.string());
+    return nullptr;
+  }
+
 }
 
-std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const MetaFile& meta)
+std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const MetaFile& meta, const std::filesystem::path& filePath)
 {
-  switch (meta.type)
+  switch (meta.Type)
   {
   case MetaFile::EType::eScene:
-    return std::make_unique<AssetFileSceneAsset>(meta.filePath);
+    return std::make_unique<AssetFileSceneAsset>(filePath);
   case MetaFile::EType::eMesh:
-    return std::make_unique<AssetFileMeshAsset>(meta.filePath);
+    return std::make_unique<AssetFileMeshAsset>(filePath);
   case MetaFile::EType::eMaterial:
-    return std::make_unique<AssetFileMaterialAsset>(meta.filePath);
+    return std::make_unique<AssetFileMaterialAsset>(filePath);
   case MetaFile::EType::eNone:
   default:
     return nullptr;
+  }
+}
+
+bool AssetUtils::CreateMetaFile(const MetaFile& meta, const std::filesystem::path& filePath)
+{
+  std::ofstream ofs;
+  std::filesystem::path metaPath = filePath;
+  metaPath += ".meta";
+  ofs.open(metaPath, std::fstream::trunc);
+
+  if (ofs.is_open())
+  {
+    json j = meta;
+    ofs << j;
+
+    return true;
+  }
+  else
+  {
+    VRM_LOG_WARN("Could not create meta file {} for file {}.", metaPath.string(), filePath.string());
+    return false;
   }
 }
 

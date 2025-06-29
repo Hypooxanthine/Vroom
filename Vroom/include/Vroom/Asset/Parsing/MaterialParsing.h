@@ -12,7 +12,7 @@ namespace vrm
   public:
     MaterialParsing() = delete;
 
-    static bool Parse(const nlohmann::json &jsonData, MaterialData &outSceneData);
+    static bool Parse(const nlohmann::json &jsonData, MaterialData &outMaterialData);
 
   };
 

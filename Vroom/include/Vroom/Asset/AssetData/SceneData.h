@@ -156,18 +156,21 @@ namespace vrm
 
   };
 
-NLOHMANN_JSON_SERIALIZE_ENUM(
-  SceneData::SceneNode::EType,
-  {
-    { SceneData::SceneNode::EType::eRoot  , "Root"    },
-    { SceneData::SceneNode::EType::eEntity, "Entity"  },
-  }
-)
-
-void VRM_API to_json(json& j, const SceneData::Component* component);
-
-void VRM_API to_json(json& j, const SceneData::SceneNode& node);
-
-void VRM_API to_json(json& j, const SceneData& scene);
+  NLOHMANN_JSON_SERIALIZE_ENUM(
+    SceneData::SceneNode::EType,
+    {
+      { SceneData::SceneNode::EType::eRoot  , "Root"    },
+      { SceneData::SceneNode::EType::eEntity, "Entity"  },
+    }
+  )
 
 } // namespace vrm
+
+namespace nlohmann
+{
+
+  void VRM_API to_json(json& j, const vrm::SceneData::Component* component);
+  void VRM_API to_json(json& j, const vrm::SceneData::SceneNode& node);
+  void VRM_API to_json(json& j, const vrm::SceneData& scene);
+
+}
