@@ -240,7 +240,7 @@ OrthographicCamera ShadowMappingPass::constructViewProjFromDirLight(const Camera
 
   /* Simple algo : light frustum looking towards view position */
 
-  if (false)
+  // if (false)
   {
     glm::vec3 viewPos = renderCamera.getPosition();
 
