@@ -1,7 +1,5 @@
 #include "Vroom/Asset/StaticAsset/TextureAsset.h"
 
-#include <stb_image/stb_image.h>
-
 #include "Vroom/Core/Log.h"
 
 using namespace vrm;

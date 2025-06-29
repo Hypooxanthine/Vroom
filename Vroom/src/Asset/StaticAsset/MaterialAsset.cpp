@@ -95,9 +95,11 @@ bool MaterialAsset::buildShaderData()
         d = {.name = paramPrefix + "_TEXTURE_SLOT", .value = std::to_string(m_textures.size())};
         m_materialShaderData.addDefine(ShaderData::EShaderType::eFragment, d);
 
-        VRM_CHECK_RET_FALSE_MSG(manager.tryLoadAsset<TextureAsset>(param.getTexture()), "Could not load material texture: {}", param.getTexture());
+        std::string texturePath = applyPathOrder(param.getTexture());
 
-        m_textures.push_back(manager.getAsset<TextureAsset>(param.getTexture()));
+        VRM_CHECK_RET_FALSE_MSG(manager.tryLoadAsset<TextureAsset>(texturePath), "Could not load material texture: {}", texturePath);
+
+        m_textures.push_back(manager.getAsset<TextureAsset>(texturePath));
       }
       else
       {

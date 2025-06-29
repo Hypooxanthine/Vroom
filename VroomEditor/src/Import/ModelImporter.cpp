@@ -141,6 +141,10 @@ void ModelImporter::_createFiles()
     try
     {
       ofs << j;
+      ofs.close();
+      MetaFile metaData;
+      metaData.Type = MetaFile::EType::eMaterial;
+      AssetUtils::CreateMetaFile(metaData, matPath);
     }
     catch (const std::exception& e)
     {
