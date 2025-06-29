@@ -55,3 +55,7 @@ add_subdirectory(spdlog)
 # ----- ENTT -----
 
 add_subdirectory(entt)
+
+# ----- Assimp -----
+
+add_subdirectory(assimp)

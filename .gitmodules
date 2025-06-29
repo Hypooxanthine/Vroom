@@ -21,3 +21,6 @@
 [submodule "imguizmo"]
 	path = deps/imguizmo
 	url = git@github.com:CedricGuillemet/ImGuizmo.git
+[submodule "assimp"]
+	path = deps/assimp
+	url = git@github.com:assimp/assimp.git

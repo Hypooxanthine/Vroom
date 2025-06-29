@@ -30,6 +30,7 @@ set(LIBRARIES
     libglew_shared
     glfw
     nlohmann_json::nlohmann_json
+    assimp
 )
 
 # ----- Project directories -----
