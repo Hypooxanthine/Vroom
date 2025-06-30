@@ -152,6 +152,13 @@ private:
      */
     void draw();
 
+
+    /**
+     * @brief Last step of the application loop.
+     * 
+     */
+    void endFrame();
+
 private:
     static Application* s_Instance;
 
