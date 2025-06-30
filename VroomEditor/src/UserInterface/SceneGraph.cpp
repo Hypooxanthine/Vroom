@@ -7,6 +7,9 @@
 #include <Vroom/Scene/Components/HierarchyComponent.h>
 #include <Vroom/Scene/Components/NameComponent.h>
 
+#include "VroomEditor/UserInterface/EntityEditor.h"
+#include "VroomEditor/UserInterface/UserInterfaceLayer.h"
+
 #include <imgui.h>
 
 using namespace vrm;
@@ -40,8 +43,6 @@ bool SceneGraph::onImgui()
   }
   ImGui::End();
 
-  m_entityEditor.renderImgui();
-
   handleFrameContext();
 
   return ret;
@@ -73,7 +74,7 @@ void SceneGraph::renderEntityEntryRecursive(Entity& e)
     | ImGuiTreeNodeFlags_OpenOnArrow
     ;
 
-  if (m_entityEditor.isEditingEntity(e))
+  if (m_frameContext.entityEditor->isEditingEntity(e))
     flags = flags | ImGuiTreeNodeFlags_Selected;
 
   bool open = ImGui::TreeNodeEx(name.c_str(), flags, "%s", name.c_str());
@@ -100,7 +101,7 @@ void SceneGraph::clickBehaviour(Entity& e)
 {
   if (ImGui::IsItemClicked())
   {
-    m_entityEditor.openOrCloseIfSame(e);
+    m_frameContext.entityEditor->openOrCloseIfSame(e);
   }
 }
 
@@ -170,18 +171,19 @@ void SceneGraph::dragAndDropBehaviour(Entity& e)
 
 void SceneGraph::selectEntity(Entity& e)
 {
-  m_entityEditor.openOrCloseIfSame(e);
+  m_frameContext.entityEditor->openOrCloseIfSame(e);
 }
 
 void SceneGraph::unselectEntity()
 {
-  m_entityEditor.close();
+  m_frameContext.entityEditor->close();
 }
 
 void SceneGraph::setupFrameContext()
 {
   m_frameContext = {};
   m_frameContext.activeScene = &Application::Get().getGameLayer().getScene();
+  m_frameContext.entityEditor = &static_cast<EntityEditor&>(UserInterfaceLayer::Get().getElement(EInterfaceElement::eEntityEditor));
 }
 
 void SceneGraph::handleFrameContext()

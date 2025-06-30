@@ -1,14 +1,15 @@
 #pragma once
 
-#include "VroomEditor/UserInterface/ImGuiElement.h"
+#include <Vroom/Scene/Entity.h>
 
-#include "VroomEditor/UserInterface/EntityEditor/EntityEditor.h"
+#include "VroomEditor/UserInterface/ImGuiElement.h"
 
 namespace vrm
 {
 
 class Entity;
 class Scene;
+class EntityEditor;
 
 class SceneGraph : public ImGuiElement
 {
@@ -46,9 +47,9 @@ private:
     Entity requestNewChild;
 
     Scene* activeScene = nullptr;
+    EntityEditor* entityEditor;
   };
 
-  EntityEditor m_entityEditor;
   FrameContext m_frameContext;
 };
 

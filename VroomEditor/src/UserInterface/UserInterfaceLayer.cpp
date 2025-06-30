@@ -22,6 +22,7 @@
 #include "VroomEditor/UserInterface/AssetBrowser/AssetBrowser.h"
 #include "VroomEditor/UserInterface/SceneGraph.h"
 #include "VroomEditor/UserInterface/EditorPreferences.h"
+#include "VroomEditor/UserInterface/EntityEditor.h"
 
 #include "VroomEditor/Serial/Json.h"
 
@@ -68,13 +69,14 @@ void UserInterfaceLayer::onInit()
   VRM_ASSERT_MSG(m_Font, "Failed to load font.");
 
   // Interfaces setup
-  auto& mainMenuBar = emplaceImGuiElement<MainMenuBar>(EInterfaceElement::eMainMenuBar);
-  auto& statisticsPanel = emplaceImGuiElement<StatisticsPanel>(EInterfaceElement::eStatisticsPanel);
-  auto& renderSettingsPanel = emplaceImGuiElement<RenderSettingsPanel>(EInterfaceElement::eRenderSettingsPanel);
+  emplaceImGuiElement<MainMenuBar>(EInterfaceElement::eMainMenuBar);
+  emplaceImGuiElement<StatisticsPanel>(EInterfaceElement::eStatisticsPanel);
+  emplaceImGuiElement<RenderSettingsPanel>(EInterfaceElement::eRenderSettingsPanel);
   auto& viewport = emplaceImGuiElement<Viewport>(EInterfaceElement::eViewport);
-  auto& assetBrowser = emplaceImGuiElement<AssetBrowser>(EInterfaceElement::eAssetBrowser);
-  auto& sceneGraph = emplaceImGuiElement<SceneGraph>(EInterfaceElement::eSceneGraph);
-  auto& editorPreferences = emplaceImGuiElement<EditorPreferences>(EInterfaceElement::eEditorPreferences, false);
+  emplaceImGuiElement<AssetBrowser>(EInterfaceElement::eAssetBrowser);
+  emplaceImGuiElement<SceneGraph>(EInterfaceElement::eSceneGraph);
+  emplaceImGuiElement<EditorPreferences>(EInterfaceElement::eEditorPreferences, false);
+  emplaceImGuiElement<EntityEditor>(EInterfaceElement::eEntityEditor);
 
   viewport.setRenderTexture(&Renderer::Get().getMainFrameBuffer().getColorAttachmentTexture(0));
 

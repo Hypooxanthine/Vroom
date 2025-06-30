@@ -1,4 +1,4 @@
-#include "VroomEditor/UserInterface/EntityEditor/EntityEditor.h"
+#include "VroomEditor/UserInterface/EntityEditor.h"
 
 #include <Vroom/Core/Assert.h>
 #include <Vroom/Core/Application.h>
@@ -7,7 +7,7 @@
 
 #include <imgui.h>
 
-#include "VroomEditor/UserInterface/EntityEditor/ComponentEditor.h"
+#include "VroomEditor/UserInterface/ComponentEditor.h"
 
 using namespace vrm;
 

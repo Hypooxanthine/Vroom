@@ -1,4 +1,4 @@
-#include "VroomEditor/UserInterface/EntityEditor/ComponentEditor.h"
+#include "VroomEditor/UserInterface/ComponentEditor.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
