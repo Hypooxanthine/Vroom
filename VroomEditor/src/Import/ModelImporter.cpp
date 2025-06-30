@@ -40,6 +40,7 @@ struct ModelImporter::Impl
     const aiScene* scene = nullptr;
     std::unordered_map<std::string, json> outMaterials;
     std::unordered_set<std::filesystem::path> texturesToImport;
+    size_t genMatId = 0;
   } ctx;
 };
 
@@ -72,7 +73,7 @@ bool ModelImporter::import(const std::filesystem::path& inPath, const std::files
   for (unsigned int i = 0; i < IMPL.ctx.scene->mNumMaterials; ++i)
   {
     aiMaterial* mat = IMPL.ctx.scene->mMaterials[i];
-    _processMaterial(mat);
+    _processMaterial(mat, i);
   }
 
   _createFiles();
@@ -160,12 +161,14 @@ void ModelImporter::_createFiles()
   AssetUtils::CreateMetaFile(metaData, IMPL.ctx.outDir / meshFileName);
 }
 
-void ModelImporter::_processMaterial(aiMaterial* material)
+void ModelImporter::_processMaterial(aiMaterial* material, unsigned int id)
 {
   std::string matName = material->GetName().C_Str();
-
-  if (IMPL.ctx.outMaterials.contains(matName))
-    return;
+    
+  if (matName.empty())
+  {
+    matName = "GenMat_" + std::to_string(id);
+  }
 
   MaterialData data;
   data.setShadingModel(MaterialData::EShadingModel::ePhong);
@@ -174,11 +177,6 @@ void ModelImporter::_processMaterial(aiMaterial* material)
   std::string diffuseMap = _getTexture(material, aiTextureType_DIFFUSE);
   std::string specularMap = _getTexture(material, aiTextureType_SPECULAR);
   std::string shininessMap = _getTexture(material, aiTextureType_SHININESS);
-
-  for (unsigned int i = 0; i < material->mNumProperties; ++i)
-  {
-    VRM_LOG_INFO("Property: {}", material->mProperties[i]->mKey.C_Str());
-  }
   
   MaterialData::Parameter p;
   

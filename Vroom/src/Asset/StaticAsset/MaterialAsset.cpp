@@ -133,7 +133,8 @@ bool MaterialAsset::loadImpl(const std::string &filePath)
   }
   catch (const std::exception &e)
   {
-    VRM_CHECK_FAIL_MSG("Json data from file \"{}\" could not be read. Parser error:\n{}", filePath, e.what());
+    VRM_LOG_ERROR("Json data from file \"{}\" could not be read. Parser error:\n{}", filePath, e.what());
+    return false;
   }
 
   VRM_CHECK_RET_FALSE_MSG(MaterialParsing::Parse(j, m_data), "Could not parse MaterialData from file: {}", filePath);

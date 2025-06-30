@@ -117,6 +117,10 @@ void MeshAsset::_processMesh(aiMesh* mesh, const aiScene* scene)
   {
     matName = "Resources/Engine/Material/DefaultMaterial.json";
   }
+  else if (matName.empty())
+  {
+    matName = applyPathOrder("GenMat_" + std::to_string(mesh->mMaterialIndex));
+  }
   else
   {
     matName = applyPathOrder(matName);
