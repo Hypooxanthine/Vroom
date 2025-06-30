@@ -13,8 +13,9 @@ Vroom is a 3D game engine made with OpenGL. It is a personal project I'm doing t
   - Clustered rendering for point lights
   - Modular shaders and materials
 - Assets
-  - Handful assets loader
-  - Keeping track of (un)used asset for runtime memory management
+  - Asset loader based on file path/name
+  - Keeping track of (un)used asset for runtime memory management + caching
+  - Mesh importer
 - Inputs
   - Triggers, for callbacks on press/release-compatible events
   - Custom events, for callback on any events
