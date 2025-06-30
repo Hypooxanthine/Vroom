@@ -17,16 +17,12 @@ public:
   SceneGraph();
   virtual ~SceneGraph();
 
-  void selectEntity(Entity& e);
-  void unselectEntity();
-
 protected:
 
   virtual bool onImgui() override;
 
   void renderEntityEntryRecursive(Entity& e);
   void clickBehaviour(Entity& e);
-  void contextualMenuBehaviour(Entity& e);
   void dragAndDropBehaviour(Entity& e);
 
 private:
@@ -42,9 +38,6 @@ private:
     {
       Entity parent, child;
     } RequestHierarchyEdit;
-
-    Entity deletedEntity;
-    Entity requestNewChild;
 
     Scene* activeScene = nullptr;
     EntityEditor* entityEditor;

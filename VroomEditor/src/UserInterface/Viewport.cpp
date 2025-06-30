@@ -8,6 +8,7 @@
 #include <Vroom/Render/Renderer.h>
 
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
+#include "VroomEditor/UserInterface/EntityEditor.h"
 #include "VroomEditor/UserInterface/SceneGraph.h"
 
 #include "ImGuizmo.h"
@@ -79,23 +80,35 @@ bool Viewport::onImgui()
         ImGui::Image(textureID, imageSize, ImVec2(0, 1), ImVec2(1, 0));
         ImVec2 rectMin = ImGui::GetItemRectMin();
         ImVec2 rectSize = ImGui::GetItemRectSize();
-          infos.clickPos = { -1, -1 };
 
-        if (ImGui::IsMouseHoveringRect(rectMin, ImGui::GetItemRectMax()) && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        if (!ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.01f) && !m_clicking && ImGui::BeginPopupContextItem("popup"))
         {
-          m_clicking = true;
+          _rightClick(glm::ivec2{ (ImGui::GetMousePos() - rectMin).x, rectSize.y - (ImGui::GetMousePos() - rectMin).y });
+          ImGui::EndPopup();
         }
-        else if (ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.01f) || !ImGui::IsWindowFocused() || infos.manipulatingGuizmo)
+        else
         {
-          m_clicking = false; // Cancels click
-        }
-        else if (m_clicking && ImGui::IsMouseReleased(ImGuiMouseButton_Left))// && ImGui::GetMouseDragDelta().x == 0.f && ImGui::GetMouseDragDelta().y == 0.f)
-        {
-          infos.clickPos = glm::ivec2{ (ImGui::GetMousePos() - rectMin).x, rectSize.y - (ImGui::GetMousePos() - rectMin).y };
-          m_clicking = false;
+          m_cachedPopupEntity = {};
         }
 
-        m_Active = ImGui::IsWindowFocused() && ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.f) && !m_clicking;
+        if (!ImGui::IsPopupOpen("popup"))
+        {
+          if (ImGui::IsMouseHoveringRect(rectMin, ImGui::GetItemRectMax()) && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+          {
+            m_clicking = true;
+          }
+          else if (ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.01f) || !ImGui::IsWindowFocused() || infos.manipulatingGuizmo)
+          {
+            m_clicking = false; // Cancels click
+          }
+          else if (m_clicking && ImGui::IsMouseReleased(ImGuiMouseButton_Left))// && ImGui::GetMouseDragDelta().x == 0.f && ImGui::GetMouseDragDelta().y == 0.f)
+          {
+            _leftClick(glm::ivec2{ (ImGui::GetMousePos() - rectMin).x, rectSize.y - (ImGui::GetMousePos() - rectMin).y });
+            m_clicking = false;
+          }
+
+          m_Active = ImGui::IsWindowFocused() && ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.f) && !m_clicking;
+        }
 
         // VRM_LOG_TRACE("Image size: {} {},", imageSize.x, imageSize.y);
 
@@ -105,7 +118,7 @@ bool Viewport::onImgui()
       }
 
       ImGui::PopStyleVar();
-      ImGui::SetCursorPos(cursor + ImVec2{5, 5});
+      ImGui::SetCursorPos(cursor + ImVec2{ 5, 5 });
 
       if (ImGui::Button(m_localSpace ? "Local" : "World"))
       {
@@ -129,4 +142,62 @@ bool Viewport::onImgui()
   infos.localSpace = m_localSpace;
 
   return ret;
+}
+
+
+void Viewport::_leftClick(const glm::ivec2& pos)
+{
+  if (pos.x > -1 && pos.y > -1)
+  {
+    uint32_t rawId = Renderer::Get().getEntityIndexOnPixel(pos);
+    UserInterfaceLayer::Get().pushRoutine(Layer::EFrameLocation::ePreEndFrame, [=](Layer& l)
+    {
+      auto& scene = Application::Get().getGameLayer().getScene();
+      auto& sceneGraph = VRM_EDITOR_UI_ELEMENT(SceneGraph);
+      auto& entityEditor = VRM_EDITOR_UI_ELEMENT(EntityEditor);
+
+      if (scene.entityExists(entt::entity(rawId)))
+      {
+        Entity e = scene.getEntity(entt::entity(rawId));
+        entityEditor.openOrCloseIfSame(e);
+      }
+      else
+      {
+        entityEditor.close();
+      }
+
+    });
+  }
+}
+
+void Viewport::_rightClick(const glm::ivec2& pos)
+{
+  if (m_cachedPopupEntity.isValid())
+  {
+    EntityEditor::ContextualMenuBehaviour(m_cachedPopupEntity);
+  }
+  else
+  {
+    bool shouldClose = true;
+
+    if (pos.x > -1 && pos.y > -1)
+    {
+      uint32_t rawId = Renderer::Get().getEntityIndexOnPixel(pos);
+      auto& scene = Application::Get().getGameLayer().getScene();
+
+      if (scene.entityExists(entt::entity(rawId)))
+      {
+        m_cachedPopupEntity = scene.getEntity(entt::entity(rawId));
+        EntityEditor::ContextualMenuBehaviour(m_cachedPopupEntity);
+        VRM_EDITOR_UI_ELEMENT(EntityEditor).open(m_cachedPopupEntity);
+        shouldClose = false;
+      }
+    }
+
+    if (shouldClose)
+    {
+      m_cachedPopupEntity = {};
+      ImGui::CloseCurrentPopup();
+    }
+  }
 }

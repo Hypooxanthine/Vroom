@@ -91,15 +91,11 @@ Entity& Entity::operator=(Entity&& other)
     return *this;
 }
 
-entt::registry& Entity::getEnttRegistry()
+entt::registry& Entity::getEnttRegistry() const
 {
   return m_Scene->getRegistry();
 }
 
-const entt::registry& Entity::getEnttRegistry() const
-{
-  return const_cast<Entity*>(this)->getEnttRegistry();
-}
 
 bool Entity::isValid() const
 {

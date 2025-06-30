@@ -40,6 +40,20 @@ namespace vrm
     Entity(entt::entity handle, entt::registry* registry, Scene* scene);
 
     /**
+     * @brief Copy constructor.
+     * @warning It does not create a new entity, but a new reference to the same entity.
+     *
+     */
+    Entity(const Entity&);
+
+    /**
+     * @brief Copy assignment operator.
+     * @warning It does not create a new entity, but a new reference to the same entity.
+     *
+     */
+    Entity& operator=(const Entity&);
+
+    /**
      * @brief Move constructor.
      *
      */
@@ -58,7 +72,7 @@ namespace vrm
      *
      * @return Entity
      */
-    Entity clone() { return Entity(*this); }
+    Entity clone() const { return Entity(*this); }
 
     /**
      * @brief Add a component to the entity.
@@ -201,31 +215,11 @@ namespace vrm
 
   private:
 
-    /**
-     * @brief Copy constructor.
-     * @warning It does not create a new entity, but a new reference to the same entity.
-     *
-     */
-    Entity(const Entity&);
-
-    /**
-     * @brief Copy assignment operator.
-     * @warning It does not create a new entity, but a new reference to the same entity.
-     *
-     */
-    Entity& operator=(const Entity&);
-
     template<typename T>
-    T& getComponentInternal()
+    T& getComponentInternal() const
     {
       VRM_ASSERT_MSG(hasComponent<T>(), "Entity does not have component.");
       return getEnttRegistry().get<T>(m_Handle);
-    }
-
-    template <typename T>
-    const T& getComponentInternal() const
-    {
-      return const_cast<Entity*>(this)->getComponentInternal<T>();
     }
 
     template<typename T>
@@ -235,9 +229,7 @@ namespace vrm
       getEnttRegistry().remove<T>(m_Handle);
     }
 
-    entt::registry& getEnttRegistry();
-
-    const entt::registry& getEnttRegistry() const;
+    entt::registry& getEnttRegistry() const;
 
     inline entt::entity getHandle() const { return m_Handle; }
 

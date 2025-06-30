@@ -80,7 +80,11 @@ void SceneGraph::renderEntityEntryRecursive(Entity& e)
   bool open = ImGui::TreeNodeEx(name.c_str(), flags, "%s", name.c_str());
 
   clickBehaviour(e);
-  contextualMenuBehaviour(e);
+  if (ImGui::BeginPopupContextItem())
+  {
+    EntityEditor::ContextualMenuBehaviour(e);
+    ImGui::EndPopup();
+  }
   dragAndDropBehaviour(e);
 
   if (open)
@@ -102,31 +106,6 @@ void SceneGraph::clickBehaviour(Entity& e)
   if (ImGui::IsItemClicked())
   {
     m_frameContext.entityEditor->openOrCloseIfSame(e);
-  }
-}
-
-void SceneGraph::contextualMenuBehaviour(Entity& e)
-{
-  bool isRoot = e.isRoot();
-  if (ImGui::BeginPopupContextItem())
-  {
-    if (isRoot)
-      ImGui::BeginDisabled();
-
-    if (ImGui::Selectable("Delete"))
-    {
-      m_frameContext.deletedEntity = e.clone();
-    }
-
-    if (isRoot)
-      ImGui::EndDisabled();
-
-    if (ImGui::Selectable("Add child"))
-    {
-      m_frameContext.requestNewChild = e.clone();
-    }
-
-    ImGui::EndPopup();
   }
 }
 
@@ -169,21 +148,11 @@ void SceneGraph::dragAndDropBehaviour(Entity& e)
   }
 }
 
-void SceneGraph::selectEntity(Entity& e)
-{
-  m_frameContext.entityEditor->openOrCloseIfSame(e);
-}
-
-void SceneGraph::unselectEntity()
-{
-  m_frameContext.entityEditor->close();
-}
-
 void SceneGraph::setupFrameContext()
 {
   m_frameContext = {};
   m_frameContext.activeScene = &Application::Get().getGameLayer().getScene();
-  m_frameContext.entityEditor = &static_cast<EntityEditor&>(UserInterfaceLayer::Get().getElement(EInterfaceElement::eEntityEditor));
+  m_frameContext.entityEditor = &VRM_EDITOR_UI_ELEMENT(EntityEditor);
 }
 
 void SceneGraph::handleFrameContext()
@@ -202,16 +171,5 @@ void SceneGraph::handleFrameContext()
       hierarchy.parent,
       hierarchy.child
     );
-  }
-
-  if (Entity& e = m_frameContext.deletedEntity)
-  {
-    m_frameContext.activeScene->destroyEntity(e);
-  }
-
-  if (Entity& parent = m_frameContext.requestNewChild)
-  {
-    Entity newChild = m_frameContext.activeScene->createEntity();
-    m_frameContext.activeScene->setEntitiesRelation(parent, newChild);
   }
 }

@@ -19,7 +19,7 @@ namespace vrm
   {
   public:
 
-    using DeferredRoutine = std::function<void()>;
+    using DeferredRoutine = std::function<void(Layer&)>;
 
     struct EFrameLocation
     {
@@ -125,7 +125,7 @@ namespace vrm
      */
     inline bool isHandlingEvents() const { return m_ShouldHandleEvents; }
 
-    void pushRoutine(const DeferredRoutine& routine, EFrameLocation::Type location);
+    void pushRoutine(EFrameLocation::Type location, const DeferredRoutine& routine);
 
   protected:
 

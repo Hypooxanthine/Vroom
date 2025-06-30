@@ -4,6 +4,10 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui.h"
 
+#include <glm/fwd.hpp>
+
+#include <Vroom/Scene/Entity.h>
+
 namespace vrm
 {
 
@@ -40,6 +44,11 @@ namespace vrm
   protected:
     bool onImgui() override;
 
+  private:
+    
+    void _leftClick(const glm::ivec2& pos);
+    void _rightClick(const glm::ivec2& pos);
+
   private: // ImGui related variables
     const gl::Texture *m_renderTexture;
 
@@ -50,6 +59,8 @@ namespace vrm
     bool m_localSpace = false;
 
     bool m_clicking = false;
+
+    Entity m_cachedPopupEntity;
 
   private:
     bool m_DidSizeChangeLastFrame = false;

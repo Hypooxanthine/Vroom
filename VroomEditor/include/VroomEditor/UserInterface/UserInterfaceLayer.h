@@ -10,6 +10,8 @@
 #include "Vroom/Core/Layer.h"
 #include "VroomEditor/UserInterface/OSFileDrop.h"
 
+#define VRM_EDITOR_UI_ELEMENT(Class) (static_cast<Class&>(UserInterfaceLayer::Get().getElement(EInterfaceElement::e ## Class)))
+
 struct ImFont;
 struct ImGuiStyle;
 
@@ -58,7 +60,6 @@ namespace vrm
       bool paused = false;
       bool manipulatingGuizmo = false;
       bool localSpace = false;
-      glm::ivec2 clickPos = { -1, -1 };
     };
 
   public:

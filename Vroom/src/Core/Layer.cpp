@@ -60,7 +60,7 @@ void Layer::submitEvent(Event &e)
     onEvent(e);
 }
 
-void Layer::pushRoutine(const DeferredRoutine& routine, EFrameLocation::Type location)
+void Layer::pushRoutine(EFrameLocation::Type location, const DeferredRoutine& routine)
 {
   VRM_ASSERT(location >= 0 && location < EFrameLocation::eCount);
   m_deferredRountines.at(location).push_back(routine);
@@ -84,7 +84,7 @@ void Layer::_consumeRountines(EFrameLocation::Type location)
   {
     for (auto& routine : routines)
     {
-      routine();
+      routine(*this);
     }
 
     routines.clear();

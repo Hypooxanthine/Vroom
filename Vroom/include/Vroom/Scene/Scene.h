@@ -69,7 +69,7 @@ namespace vrm
      *
      * @param sceneAsset Scene asset handle
      */
-    bool loadFromAsset(const SceneAsset::Handle &sceneAsset);
+    bool loadFromAsset(const SceneAsset::Handle& sceneAsset);
 
     SceneData getSceneData() const;
 
@@ -79,12 +79,12 @@ namespace vrm
      *
      * @param camera The camera to set.
      */
-    inline void setCamera(CameraBasic *camera) { m_Camera = camera; }
-    inline const CameraBasic &getCamera() const { return *m_Camera; }
-    inline CameraBasic &getCamera() { return *m_Camera; }
+    inline void setCamera(CameraBasic* camera) { m_Camera = camera; }
+    inline const CameraBasic& getCamera() const { return *m_Camera; }
+    inline CameraBasic& getCamera() { return *m_Camera; }
 
-    entt::registry &getRegistry() { return m_Registry; }
-    const entt::registry &getRegistry() const { return m_Registry; }
+    entt::registry& getRegistry() { return m_Registry; }
+    const entt::registry& getRegistry() const { return m_Registry; }
 
     /**
      * @brief Creates an entity.
@@ -92,7 +92,7 @@ namespace vrm
      * @param name The name of the entity.
      * @return Entity The created entity.
      */
-    Entity createEntity(const std::string &name);
+    Entity createEntity(const std::string& name);
 
     /**
      * @brief Creates an entity with a default name.
@@ -101,7 +101,7 @@ namespace vrm
      */
     Entity createEntity();
 
-    void renameEntity(Entity &e, const std::string &name);
+    void renameEntity(Entity& e, const std::string& name);
 
     /**
      * @brief Checks if an entity exists by its name.
@@ -110,7 +110,7 @@ namespace vrm
      * @return true If the entity exists.
      * @return false If the entity does not exist.
      */
-    bool entityExists(const std::string &name) const;
+    bool entityExists(const std::string& name) const;
 
     bool entityExists(entt::entity e) const;
 
@@ -128,35 +128,35 @@ namespace vrm
      * @param name The name of the entity.
      * @return Entity The entity.
      */
-    Entity getEntity(const std::string &name);
+    Entity getEntity(const std::string& name);
 
     /**
      * @brief Gets scene root entity.
      *
      * @return Entity The entity.
      */
-    inline Entity &getRoot() { return m_Root; }
+    inline Entity& getRoot() { return m_Root; }
 
     inline const Entity& getRoot() const { return m_Root; }
 
     /**
      * @brief Check if "parent" is the parent of "child"
      */
-    bool checkEntitiesRelation(const Entity &parent, const Entity &child) const;
+    bool checkEntitiesRelation(const Entity& parent, const Entity& child) const;
 
     /**
      * @brief Check if "ancestor" is an ancestor of "child"
      */
-    bool checkEntityAncestor(const Entity &ancestor, const Entity &child) const;
+    bool checkEntityAncestor(const Entity& ancestor, const Entity& child) const;
 
-    void setEntitiesRelation(Entity &parent, Entity &child);
+    void setEntitiesRelation(const Entity& parent, const Entity& child);
 
     /**
      * @brief Destroys an entity.
      *
      * @param entity The entity to destroy.
      */
-    void destroyEntity(Entity &entity);
+    void destroyEntity(const Entity& entity);
 
     /**
      * @brief Destroys all entities.
@@ -197,8 +197,8 @@ namespace vrm
     virtual void onSpawn() {}
 
     /**
-     * @brief 
-     * 
+     * @brief
+     *
      * @tparam CallOnFirst If false, every entity should have a valid parent. If false, this function will try to get first's parent, which can be null if first is root.
      * @tparam Fn signature : bool(Entity& currentEntity, Entity& parentEntity). If it returns false, traversal is aborted on the current subtree.
      * @param first The first entity to consider.
@@ -227,11 +227,11 @@ namespace vrm
      *
      * @return Entity Created entity.
      */
-    Entity createRawEntity(const std::string &nameTag);
+    Entity createRawEntity(const std::string& nameTag);
 
     Entity createRoot();
 
-    void renameRoot(const std::string &rootName);
+    void renameRoot(const std::string& rootName);
 
     void destroyEntityRecursive(Entity entity);
 
@@ -239,10 +239,10 @@ namespace vrm
 
     // Scene loading
 
-    bool loadFromAsset2(const SceneData &data);
+    bool loadFromAsset2(const SceneData& data);
 
     void addNodeRecursive(const Entity& e, SceneData& data, const std::string& parent, const SceneData::SceneNode::EType& nodetype) const;
-    
+
     void addNodeComponents(const Entity& e, SceneData& data, size_t nodeID) const;
 
   private:
@@ -253,7 +253,7 @@ namespace vrm
     bool m_spawned = false;
 
     static FirstPersonCamera s_DefaultCamera;
-    CameraBasic *m_Camera;
+    CameraBasic* m_Camera;
 
     Entity m_Root;
   };

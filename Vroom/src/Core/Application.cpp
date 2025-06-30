@@ -83,6 +83,7 @@ void Application::run()
     newFrame();
     update();
     draw();
+    endFrame();
   }
 }
 

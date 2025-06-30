@@ -196,7 +196,7 @@ bool Scene::checkEntityAncestor(const Entity& ancestor, const Entity& child) con
   return checkEntityAncestor(ancestor, child.getParent());
 }
 
-void Scene::setEntitiesRelation(Entity& parent, Entity& child)
+void Scene::setEntitiesRelation(const Entity& parent, const Entity& child)
 {
   VRM_ASSERT_MSG(m_Registry.valid(parent), "Unknown parent entity");
   VRM_ASSERT_MSG(m_Registry.valid(child), "Unknown child entity");
@@ -218,12 +218,12 @@ void Scene::setEntitiesRelation(Entity& parent, Entity& child)
   TransformComponent::SceneAttorney::setFrameDirty(tChild, true);
 }
 
-void Scene::destroyEntity(Entity& entity)
+void Scene::destroyEntity(const Entity& entity)
 {
   VRM_ASSERT_MSG(m_Registry.valid(entity), "Entity is not valid.");
   VRM_ASSERT_MSG(entity != m_Root, "You cannot delete root entity!");
 
-  auto parent = entity.getComponentInternal<HierarchyComponent>().parent.clone();
+  auto parent = entity.getComponentInternal<HierarchyComponent>().parent;
   VRM_ASSERT_MSG(m_Registry.valid(parent.getHandle()), "The parent of the entity you want to destroy is not valid");
 
   destroyEntityRecursive(entity);

@@ -7,27 +7,33 @@
 namespace vrm
 {
 
-class Entity;
+  class Entity;
 
-class EntityEditor : public ImGuiElement
-{
-public:
-  EntityEditor();
-  virtual ~EntityEditor();
+  class EntityEditor : public ImGuiElement
+  {
+  public:
 
-  void open(Entity& e);
-  void openOrCloseIfSame(Entity& e);
-  void close();
+    static void ContextualMenuBehaviour(const Entity& e);
+    static void RequestDeleteEntity(const Entity& e);
+    static void RequestCreateEntityChild(const Entity& parent);
 
-  bool isEditingEntity(const Entity& e) const;
+  public:
+    EntityEditor();
+    virtual ~EntityEditor();
 
-protected:
+    void open(const Entity& e);
+    void openOrCloseIfSame(const Entity& e);
+    void close();
 
-  virtual bool onImgui() override;
+    bool isEditingEntity(const Entity& e) const;
 
-private:
-  bool m_open = false;
-  Entity m_entity;
-};
+  protected:
+
+    virtual bool onImgui() override;
+
+  private:
+    bool m_open = false;
+    Entity m_entity;
+  };
 
 } // namespace vrm
