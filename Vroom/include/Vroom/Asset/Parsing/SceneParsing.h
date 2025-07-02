@@ -1,20 +1,14 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
+#include "Vroom/Asset/Parsing/Json.h"
 
 #include "Vroom/Asset/AssetData/SceneData.h"
 
-namespace vrm
+namespace nlohmann
 {
-  
-class SceneParsing
-{
-public:
-  SceneParsing() = delete;
 
-  static bool Parse(const nlohmann::json& jsonData, SceneData& outSceneData);
+  void VRM_API to_json(json& j, const vrm::SceneData& scene);
 
-  static void Serialize(const SceneData& sceneData, nlohmann::json& outJson);
-};
+  void VRM_API from_json(const json& j, vrm::SceneData& scene);
 
-} // namespace vrm
+}

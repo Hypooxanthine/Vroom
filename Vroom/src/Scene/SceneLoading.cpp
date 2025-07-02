@@ -21,16 +21,16 @@ bool Scene::loadFromAsset2(const SceneData& data)
 {
   bool foundRoot = false;
 
-  for (const auto& node : data.getNodes())
+  for (const auto& node : data.nodes)
   {
-    if (node.type == SceneData::SceneNode::EType::eRoot)
+    if (node.type == SceneNodeData::EType::eRoot)
     {
       VRM_CHECK_RET_FALSE_MSG(!foundRoot, "You cannot specify 2 root nodes");
 
       // A root entity is already provided by the Scene
       renameRoot(node.name);
       VRM_CHECK_RET_FALSE_MSG(node.parent.empty(), "Root node cannot specify a parent node");
-      VRM_CHECK_RET_FALSE_MSG(node.components.empty(), "Root not cannot hold components");
+      VRM_CHECK_RET_FALSE_MSG(node.components.empty(), "Root cannot hold components");
       foundRoot = true;
       continue;
     }
@@ -60,7 +60,7 @@ bool Scene::loadFromAsset2(const SceneData& data)
 
     for (const auto& [_, compData] : node.components)
     {
-      VRM_CHECK_RET_FALSE_MSG(compData->addToEntity(entity), "Could not add component to entity");
+      compData->addToEntity(entity);
     }
   }
 
@@ -84,73 +84,65 @@ bool Scene::loadFromAsset(const SceneAsset::Handle& sceneAsset)
   return true;
 }
 
-void Scene::addNodeComponents(const Entity& e, SceneData& data, size_t nodeID) const
+void Scene::addNodeComponents(const Entity& e, SceneNodeData& data) const
 {
   if (const auto* c = m_Registry.try_get<TransformComponent>(e); c != nullptr)
   {
-    auto cd = std::make_unique<SceneData::TransformComponent>();
-
-    cd->position = c->getPosition();
-    cd->rotation = c->getRotation();
-    cd->scale = c->getScale();
-
-    data.addComponent(nodeID, std::move(cd));
+    auto& cd = data.emplaceComponent<TransformComponentData>();
+    cd.position = c->getPosition();
+    cd.rotation = c->getRotation();
+    cd.scale = c->getScale();
   }
 
   if (const auto* c = m_Registry.try_get<MeshComponent>(e); c != nullptr)
   {
-    auto cd = std::make_unique<SceneData::MeshComponent>();
-
-    cd->resourceName = c->getMesh()->getFilePath();
-    cd->castsShadow = c->doesCastShadow();
-
-    data.addComponent(nodeID, std::move(cd));
+    auto& mc = data.emplaceComponent<MeshComponentData>();
+    mc.resourceName = c->getMesh()->getFilePath();
+    mc.castsShadow = c->doesCastShadow();
   }
 
   if (const auto* c = m_Registry.try_get<DirectionalLightComponent>(e); c != nullptr)
   {
-    auto cd = std::make_unique<SceneData::DirectionalLightComponent>();
-
-    cd->color = c->color;
-    cd->intensity = c->intensity;
-    cd->castsShadows = c->castsShadows;
-
-    data.addComponent(nodeID, std::move(cd));
+    auto& dlc = data.emplaceComponent<DirectionalLightComponentData>();
+    dlc.color = c->color;
+    dlc.intensity = c->intensity;
+    dlc.castsShadows = c->castsShadows;
   }
 
   if (const auto* c = m_Registry.try_get<PointLightComponent>(e); c != nullptr)
   {
-    auto cd = std::make_unique<SceneData::PointLightComponent>();
-
-    cd->color = c->color;
-    cd->intensity = c->intensity;
-    cd->radius = c->radius;
-    cd->constantAttenuation = c->constantAttenuation;
-    cd->linearAttenuation = c->linearAttenuation;
-    cd->quadraticAttenuation = c->quadraticAttenuation;
-
-    data.addComponent(nodeID, std::move(cd));
+    auto& plc = data.emplaceComponent<PointLightComponentData>();
+    plc.color = c->color;
+    plc.intensity = c->intensity;
+    plc.radius = c->radius;
+    plc.constantAttenuation = c->constantAttenuation;
+    plc.linearAttenuation = c->linearAttenuation;
+    plc.quadraticAttenuation = c->quadraticAttenuation;
   }
 
   if (const auto* c = m_Registry.try_get<ScriptHandler>(e); c != nullptr)
   {
-    auto cd = std::make_unique<SceneData::ScriptComponent>();
-
-    cd->resourceName = c->getScript().getScriptName();
-
-    data.addComponent(nodeID, std::move(cd));
+    auto& sc = data.emplaceComponent<ScriptComponentData>();
+    sc.resourceName = c->getScript().getScriptName();
   }
 }
 
-void Scene::addNodeRecursive(const Entity& e, SceneData& data, const std::string& parent, const SceneData::SceneNode::EType& nodetype) const
+void Scene::addNodeRecursive(const Entity& e, SceneData& data, const std::string& parent, const SceneNodeData::EType& nodetype) const
 {
-  const std::string& name = e.getName();
-  size_t id = data.addNode(name, nodetype, parent);
-  addNodeComponents(e, data, id);
+  SceneNodeData nodeData;
+  nodeData.name = e.getName();
+  nodeData.type = nodetype;
+  nodeData.parent = parent;
 
+  addNodeComponents(e, nodeData);
+
+  // Add the node to the scene data
+  data.nodes.emplace_back(std::move(nodeData));
+
+  // Add children recursively
   for (const auto& child : e.getChildren())
   {
-    addNodeRecursive(child, data, name, SceneData::SceneNode::EType::eEntity);
+    addNodeRecursive(child, data, e.getName(), SceneNodeData::EType::eEntity);
   }
 }
 
@@ -158,7 +150,7 @@ SceneData Scene::getSceneData() const
 {
   SceneData data;
 
-  addNodeRecursive(getRoot(), data, "", SceneData::SceneNode::EType::eRoot);
+  addNodeRecursive(getRoot(), data, "", SceneNodeData::EType::eRoot);
 
   return std::move(data);
 }

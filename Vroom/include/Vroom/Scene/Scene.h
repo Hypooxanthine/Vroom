@@ -241,9 +241,9 @@ namespace vrm
 
     bool loadFromAsset2(const SceneData& data);
 
-    void addNodeRecursive(const Entity& e, SceneData& data, const std::string& parent, const SceneData::SceneNode::EType& nodetype) const;
+    void addNodeRecursive(const Entity& e, SceneData& data, const std::string& parent, const SceneNodeData::EType& nodetype) const;
 
-    void addNodeComponents(const Entity& e, SceneData& data, size_t nodeID) const;
+    void addNodeComponents(const Entity& e, SceneNodeData& data) const;
 
   private:
     entt::registry m_Registry;

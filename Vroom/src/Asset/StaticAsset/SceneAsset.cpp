@@ -41,7 +41,15 @@ bool SceneAsset::loadImpl(const std::string& filePath)
 
   m_data.reset(new SceneData());
 
-  VRM_CHECK_RET_FALSE_MSG(SceneParsing::Parse(jsonData, *m_data), "Error while parsing scene from json");
+  try
+  {
+    from_json(jsonData, *m_data);
+  }
+  catch (const nlohmann::json::exception& e)
+  {
+    VRM_LOG_ERROR("Error while parsing scene from json: {}", e.what());
+    return false;
+  }
 
   return true;
 }

@@ -89,3 +89,17 @@
 #define VRM_CHECK_RET_FALSE(x) VRM_CHECK_RETVAL(x, false)
 
 #define VRM_CHECK_RET_FALSE_MSG(x, ...) VRM_CHECK_RETVAL_MSG(x, false, __VA_ARGS__)
+
+#define VRM_CHECK_THROW(x) \
+  if (!(x))                         \
+  {                                 \
+    VRM_CHECK_FAIL;                 \
+    throw std::runtime_error("Check failed at file " + std::filesystem::path(__FILE__).filename().string() + ", line " + std::to_string(__LINE__)); \
+  }
+
+#define VRM_CHECK_THROW_MSG(x, ...) \
+  if (!(x))                                                                 \
+  {                                                                         \
+    VRM_CHECK_FAIL_MSG(__VA_ARGS__);                                        \
+    throw std::runtime_error("Check failed at file " + std::filesystem::path(__FILE__).filename().string() + ", line " + std::to_string(__LINE__)); \
+  }

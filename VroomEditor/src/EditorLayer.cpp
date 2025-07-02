@@ -4,6 +4,7 @@
 #include <Vroom/Core/GameLayer.h>
 #include <Vroom/Core/Window.h>
 #include <Vroom/Render/Renderer.h>
+#include <Vroom/Asset/Parsing/SceneParsing.h>
 #include <fstream>
 #include <future>
 
@@ -84,7 +85,16 @@ void EditorLayer::saveScene()
   SceneData data = scene.getSceneData();
 
   json j;
-  to_json(j, data);
+
+  try
+  {
+    j = data;
+  }
+  catch (const nlohmann::json::exception& e)
+  {
+    VRM_LOG_ERROR("Error while serializing scene to json: {}", e.what());
+    return;
+  }
 
   {
     std::ofstream ofs;
