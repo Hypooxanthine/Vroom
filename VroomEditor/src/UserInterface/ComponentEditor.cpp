@@ -247,6 +247,9 @@ bool PointLightComponentEditor::editEntityComponent(Entity& e) const
   auto color = component.color;
   auto intensity = component.intensity;
   auto radius = component.radius;
+  auto constantAttenuation = component.constantAttenuation;
+  auto linearAttenuation = component.linearAttenuation;
+  auto quadraticAttenuation = component.quadraticAttenuation;
 
   if (ImGui::ColorEdit3("Color", &color.x))
     component.color = color;
@@ -254,6 +257,12 @@ bool PointLightComponentEditor::editEntityComponent(Entity& e) const
     component.intensity = intensity;
   if (ImGui::DragFloat("Radius", &radius, 0.1f, 0.f, std::numeric_limits<float>::max(), "%.2f", ImGuiSliderFlags_AlwaysClamp))
     component.radius = radius;
+  if (ImGui::DragFloat("Constant Attenuation", &constantAttenuation, 0.01f, 0.f, std::numeric_limits<float>::max(), "%.3f", ImGuiSliderFlags_AlwaysClamp))
+    component.constantAttenuation = constantAttenuation;
+  if (ImGui::DragFloat("Linear Attenuation", &linearAttenuation, 0.01f, 0.f, std::numeric_limits<float>::max(), "%.3f", ImGuiSliderFlags_AlwaysClamp))
+    component.linearAttenuation = linearAttenuation;
+  if (ImGui::DragFloat("Quadratic Attenuation", &quadraticAttenuation, 0.01f, 0.f, std::numeric_limits<float>::max(), "%.3f", ImGuiSliderFlags_AlwaysClamp))
+    component.quadraticAttenuation = quadraticAttenuation;
 
   return true;
 }

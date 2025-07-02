@@ -13,7 +13,9 @@ namespace vrm
     glm::vec4 color;
     float intensity;
     float radius;
-    float _pad0[2];
+    float constantAttenuation;
+    float linearAttenuation;
+    float quadraticAttenuation;
   };
 
 } // namespace vrm

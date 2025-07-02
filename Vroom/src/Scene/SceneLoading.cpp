@@ -125,6 +125,9 @@ void Scene::addNodeComponents(const Entity& e, SceneData& data, size_t nodeID) c
     cd->color = c->color;
     cd->intensity = c->intensity;
     cd->radius = c->radius;
+    cd->constantAttenuation = c->constantAttenuation;
+    cd->linearAttenuation = c->linearAttenuation;
+    cd->quadraticAttenuation = c->quadraticAttenuation;
 
     data.addComponent(nodeID, std::move(cd));
   }

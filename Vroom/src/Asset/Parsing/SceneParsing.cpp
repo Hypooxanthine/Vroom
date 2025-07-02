@@ -154,6 +154,21 @@ static bool HandleEntityPointLightComponent(SceneData::SceneNode& e, const json&
       CHECK_ATTR_FLOAT(param, value);
       CHECK(GetParamValue(value, plc->radius), "Error while parsing radius parameter");
     }
+    else if (nameVal == "ConstantAttenuation")
+    {
+      CHECK_ATTR_FLOAT(param, value);
+      CHECK(GetParamValue(value, plc->constantAttenuation), "Error while parsing constantAttenuation parameter");
+    }
+    else if (nameVal == "LinearAttenuation")
+    {
+      CHECK_ATTR_FLOAT(param, value);
+      CHECK(GetParamValue(value, plc->linearAttenuation), "Error while parsing linearAttenuation parameter");
+    }
+    else if (nameVal == "QuadraticAttenuation")
+    {
+      CHECK_ATTR_FLOAT(param, value);
+      CHECK(GetParamValue(value, plc->quadraticAttenuation), "Error while parsing quadraticAttenuation parameter");
+    }
     else
       CHECK(false, "Unsupported PointLightComponent parameter {}", nameVal);
   }

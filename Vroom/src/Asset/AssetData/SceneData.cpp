@@ -136,6 +136,9 @@ bool SceneData::PointLightComponent::addToEntity(Entity& entity)
   plc.color = color;
   plc.intensity = intensity;
   plc.radius = radius;
+  plc.constantAttenuation = constantAttenuation;
+  plc.linearAttenuation = linearAttenuation;
+  plc.quadraticAttenuation = quadraticAttenuation;
 
   return true;
 }
@@ -158,6 +161,21 @@ json SceneData::PointLightComponent::serialize() const
   {
     json& j = j_params.emplace_back(GetBasicParameterJson("Radius")).at("value");
     to_json(j, this->radius);
+  }
+
+  {
+    json& j = j_params.emplace_back(GetBasicParameterJson("ConstantAttenuation")).at("value");
+    to_json(j, this->constantAttenuation);
+  }
+
+  {
+    json& j = j_params.emplace_back(GetBasicParameterJson("LinearAttenuation")).at("value");
+    to_json(j, this->linearAttenuation);
+  }
+
+  {
+    json& j = j_params.emplace_back(GetBasicParameterJson("QuadraticAttenuation")).at("value");
+    to_json(j, this->quadraticAttenuation);
   }
 
   return std::move(j);

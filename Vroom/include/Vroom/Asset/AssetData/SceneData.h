@@ -63,6 +63,9 @@ namespace vrm
       glm::vec3 color;
       float intensity;
       float radius;
+      float constantAttenuation;
+      float linearAttenuation;
+      float quadraticAttenuation;
 
       bool addToEntity(Entity& entity) override;
       nlohmann::json serialize() const override;

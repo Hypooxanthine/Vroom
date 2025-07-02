@@ -111,16 +111,24 @@ vec4 ComputeFragmentColor()
 
     vec3 lightDir = (pointLight.position.xyz - v_Position);
 
-    if (dot(lightDir, g_normal) < 0)
-      continue;
-
     float lightDistance2 = dot(lightDir, lightDir);
+
+    if (lightDistance2 < 0)
+      continue;
+      
     if (lightDistance2 > pointLight.radius * pointLight.radius)
         continue;
 
+    float lightDistance = sqrt(lightDistance2);
+
     lightDir = normalize(lightDir);
     vec3 lightColor = vec3(pointLight.color[0], pointLight.color[1], pointLight.color[2]);
-    float lightIntensity = pointLight.intensity / (4.f * VRM_PI * lightDistance2);
+    float lightIntensity =
+      pointLight.intensity / (
+        pointLight.constantAttenuation
+      + pointLight.linearAttenuation    * lightDistance
+      + pointLight.quadraticAttenuation * lightDistance2
+      );
 
     vec3 lightContribution = ShadingModel(lightColor * lightIntensity, lightDir);
 

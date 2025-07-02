@@ -19,7 +19,10 @@ void LightRegistry::submitLight(const PointLightComponent &pointLight, const glm
       .position = glm::vec4(position, 1.f),
       .color = glm::vec4(pointLight.color, 1.f),
       .intensity = pointLight.intensity,
-      .radius = pointLight.radius
+      .radius = pointLight.radius,
+      .constantAttenuation = pointLight.constantAttenuation,
+      .linearAttenuation = pointLight.linearAttenuation,
+      .quadraticAttenuation = pointLight.quadraticAttenuation,
     }
   );
 }

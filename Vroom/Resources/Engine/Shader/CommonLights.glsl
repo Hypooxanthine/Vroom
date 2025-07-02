@@ -16,6 +16,9 @@ struct PointLight
   vec4  color;
   float intensity;
   float radius;
+  float constantAttenuation;
+  float linearAttenuation;
+  float quadraticAttenuation;
 };
 
 #endif
