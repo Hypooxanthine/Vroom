@@ -7,9 +7,9 @@
 #include "Vroom/Render/Clustering/LightRegistry.h"
 #include "Vroom/Render/Camera/OrthographicCamera.h"
 
-namespace vrm::gl
+namespace vrm::render
 {
-  class AutoResizeStorageBuffer;
+  class AutoBuffer;
 }
 
 namespace vrm
@@ -31,7 +31,7 @@ namespace vrm
     LightRegistry* lights = nullptr;
     const MeshRegistry* meshRegistry = nullptr;
     gl::Texture* depthTextureArray = nullptr;
-    gl::AutoResizeStorageBuffer* lightMatricesStorageBuffer = nullptr;
+    render::AutoBuffer* lightMatricesBuffer = nullptr;
 
   protected:
 
@@ -55,7 +55,7 @@ namespace vrm
 
     std::vector<gl::FrameBuffer> m_frameBuffers;
     std::vector<size_t> m_dirLightShadowCasters;
-    std::unique_ptr<StorageBufferRegistry<glm::mat4, size_t, LightRegistry::s_maxDirLights, sizeof(glm::vec4)>> m_lightMatricesSBR;
+    LinearRegistry<glm::mat4, size_t> m_lightMatrices;
     std::vector<OrthographicCamera> m_dirLightCameras;
     std::vector<RenderMesh> m_debugDirLights;
 

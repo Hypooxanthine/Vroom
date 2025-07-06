@@ -155,7 +155,7 @@ uint GetRelevantLightCount()
 
 uint GetTotalDirectionalLightCount()
 {
-  return LightBlock_directionalLightCount;
+  return g_directionalLightCount;
 }
 
 uint GetRelevantDirectionalLightCount()
@@ -165,12 +165,12 @@ uint GetRelevantDirectionalLightCount()
 
 DirectionalLight GetRelevantDirectionalLight(in uint index)
 {
-  return LightBlock_directionalLights[index];
+  return g_directionalLights[index];
 }
 
 uint GetTotalPointLightCount()
 {
-  return LightBlock_pointLightCount;
+  return g_pointLightCount;
 }
 
 uint GetRelevantPointLightCount()
@@ -187,7 +187,7 @@ PointLight GetRelevantPointLight(in uint index)
 #ifdef VRM_CLUSTERED_RENDERING
   return GetRelevantPointLight_ClusteredRendering(index);
 #else
-  return LightBlock_pointLights[index];
+  return g_pointLights[index];
 #endif
 }
 
@@ -198,7 +198,7 @@ float linearizeDepth(float depth)
 
 float ComputeDirectionalShadowFactor(in uint shadowCasterId, in float lightDotNormal)
 {
-  const mat4 lightMatrix = LightMatricesBlock_directionalLightMatrices[shadowCasterId];
+  const mat4 lightMatrix = g_directionalLightMatrices[shadowCasterId];
   const vec4 pos_clipspace_light = lightMatrix * vec4(v_Position, 1.f);
   const vec4 pos_ndc_light = pos_clipspace_light / pos_clipspace_light.w;
 

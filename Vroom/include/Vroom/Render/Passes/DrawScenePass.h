@@ -14,7 +14,7 @@ namespace vrm::gl
 {
   class Shader;
   class FrameBuffer;
-  class StorageBufferBase;
+  class Buffer;
   class Texture;
 }
 
@@ -52,7 +52,7 @@ namespace vrm
     uint8_t softShadowKernelRadius = 2;
     MeshTags meshTags;
 
-    std::unordered_map<std::string, const gl::StorageBufferBase*> storageBufferParameters;
+    std::unordered_map<std::string, const gl::Buffer*> storageBufferParameters;
 
   protected:
 

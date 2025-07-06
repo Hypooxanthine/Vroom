@@ -3,16 +3,15 @@
 #include "Vroom/Render/Abstraction/Vertex.h"
 #include "Vroom/Asset/AssetData/MeshData.h"
 
+#include "Vroom/Render/Abstraction/Buffer.h"
 #include "Vroom/Render/Abstraction/VertexArray.h"
-#include "Vroom/Render/Abstraction/IndexBuffer.h"
-#include "Vroom/Render/Abstraction/VertexBuffer.h"
 
 namespace vrm
 {
 
-class RenderMesh
-{
-public:
+  class RenderMesh
+  {
+  public:
     RenderMesh(const MeshData& meshData);
 
     RenderMesh(const RenderMesh&) = delete;
@@ -23,17 +22,16 @@ public:
 
     ~RenderMesh();
 
-    const gl::VertexArray& getVertexArray() const { return m_VertexArray; }
-    const gl::IndexBuffer& getIndexBuffer() const { return m_IndexBuffer; }
+    const gl::VertexArray& getVertexArray() const { return m_vertexArray; }
+    const gl::Buffer& getIndexBuffer() const { return m_indexBuffer; }
 
     inline GLuint getIndexCount() const { return m_indexCount; }
 
-private:
-    gl::VertexBuffer<Vertex> m_VertexBuffer;
-    gl::IndexBuffer m_IndexBuffer;
-    gl::VertexArray m_VertexArray;
+  private:
+    gl::Buffer m_vertexBuffer, m_indexBuffer;
+    gl::VertexArray m_vertexArray;
 
     GLuint m_indexCount;
-};
+  };
 
 } // namespace vrm

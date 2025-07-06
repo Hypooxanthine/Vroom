@@ -3,12 +3,33 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include "Vroom/Asset/AssetManager.h"
-#include "Vroom/Render/Abstraction/StorageBuffer.h"
 #include "Vroom/Asset/StaticAsset/ShaderAsset.h"
 #include "Vroom/Core/Application.h"
 #include "Vroom/Scene/Scene.h"
 
 using namespace vrm;
+
+namespace
+{
+
+  struct RawHeader
+  {
+    glm::uint xCount;
+    glm::uint yCount;
+    glm::uint zCount;
+    glm::uint _pad;
+  };
+
+  struct RawCluster
+  {
+    glm::vec4 minAABB_VS;
+    glm::vec4 maxAABB_VS;
+    glm::uint indexCount;
+    glm::uint lightIndices[100];
+    glm::uint _pad[3];
+  };
+
+}
 
 ClusteredLights::ClusteredLights()
 {
@@ -43,8 +64,6 @@ ClusteredLights::ClusteredLights()
 
   // shaderSrc.compute.dump(cullerPath.data() + ".dump.glsl"s);
   // VRM_LOG_INFO("Builder dumped into {}", cullerPath.data() + ".dump.glsl"s);
-
-  m_SSBOClusterInfoSSBO.reset(0);
 }
 
 void ClusteredLights::setupClusters(const glm::uvec3 &clusterCount, const CameraBasic &camera)
@@ -56,19 +75,24 @@ void ClusteredLights::setupClusters(const glm::uvec3 &clusterCount, const Camera
   m_TotalClusters = m_ClusterCount.x * m_ClusterCount.y * m_ClusterCount.z;
   m_Projection = camera.getProjection();
 
-  m_SSBOClusterInfoData.clusters.clear();
-  m_SSBOClusterInfoData.clusters.assign(clusterCount.x * clusterCount.y * clusterCount.z, SSBOCluster());
-  m_SSBOClusterInfoData.xCount = clusterCount.x;
-  m_SSBOClusterInfoData.yCount = clusterCount.y;
-  m_SSBOClusterInfoData.zCount = clusterCount.z;
-  m_SSBOClusterInfoSSBO.reset(m_SSBOClusterInfoData.getSize() * 10);
-  m_SSBOClusterInfoSSBO.setData(m_SSBOClusterInfoData.getConstantData(), m_SSBOClusterInfoData.getConstantSize());
+  RawHeader header;
+  {
+    header.xCount = clusterCount.x;
+    header.yCount = clusterCount.y;
+    header.zCount = clusterCount.z;
+  }
+
+  m_clustersBuffer.ensureCapacity(sizeof(header) + m_TotalClusters * sizeof(RawCluster));
+  std::span<uint8_t> map = m_clustersBuffer.mapWriteOnly();
+  std::memcpy(map.data(), &header, sizeof(header));
   // m_SSBOClusterInfoSSBO.setData(m_SSBOClusterInfoData.getVariableData(), m_SSBOClusterInfoData.getVariableSize(), m_SSBOClusterInfoData.getConstantSize());
+
+  m_clustersBuffer.unmap();
 
   glm::mat4 invProjectionMatrix = glm::inverse(camera.getProjection()); // Only needed for clusters setup.
 
   m_ClustersBuilder.bind();
-  m_ClustersBuilder.setStorageBuffer("ClusterInfoBlock", m_SSBOClusterInfoSSBO);
+  m_ClustersBuilder.setStorageBuffer("ClusterInfoBlock", m_clustersBuffer.getBuffer());
   m_ClustersBuilder.setUniform1f("u_Near", camera.getNear());
   m_ClustersBuilder.setUniform1f("u_Far", camera.getFar());
   m_ClustersBuilder.setUniformMat4f("u_InvProjection", invProjectionMatrix);
@@ -76,11 +100,11 @@ void ClusteredLights::setupClusters(const glm::uvec3 &clusterCount, const Camera
   GLCall(glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT));
 }
 
-void ClusteredLights::processLights(const CameraBasic &camera, const gl::StorageBufferBase& lights)
+void ClusteredLights::processLights(const CameraBasic &camera, const gl::Buffer& lights)
 {
   m_LightsCuller.bind();
-  m_LightsCuller.setStorageBuffer("LightBlock", lights);
-  m_LightsCuller.setStorageBuffer("ClusterInfoBlock", m_SSBOClusterInfoSSBO);
+  m_LightsCuller.setStorageBuffer("PointLightBlock", lights);
+  m_LightsCuller.setStorageBuffer("ClusterInfoBlock", m_clustersBuffer.getBuffer());
   m_LightsCuller.setUniformMat4f("u_View", camera.getView());
   GLCall(glDispatchCompute(m_TotalClusters / 128u, 1, 1));
   GLCall(glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT));

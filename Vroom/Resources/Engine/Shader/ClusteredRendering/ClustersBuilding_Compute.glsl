@@ -12,9 +12,9 @@ vec3 intersectionLineAndZPerpendicularPlane(vec3 linePoint, vec3 lineDirection, 
 
 void main()
 {
-  uint xCount = ClusterInfoBlock_xCount;
-  uint yCount = ClusterInfoBlock_yCount;
-  uint zCount = ClusterInfoBlock_zCount;
+  uint xCount = g_clusterHeader.xCount;
+  uint yCount = g_clusterHeader.yCount;
+  uint zCount = g_clusterHeader.zCount;
 
   uint x = gl_GlobalInvocationID.x, y = gl_GlobalInvocationID.y, z = gl_GlobalInvocationID.z;
   uint clusterIndex = x + y * xCount + z * xCount * yCount;
@@ -66,8 +66,8 @@ void main()
     farDepth
   );
 
-  ClusterInfoBlock_clusters[clusterIndex].minAABB_VS = vec4(min(nearMin, farMin), 1.0);
-  ClusterInfoBlock_clusters[clusterIndex].maxAABB_VS = vec4(max(nearMax, farMax), 1.0);
+  g_clusters[clusterIndex].minAABB_VS = vec4(min(nearMin, farMin), 1.0);
+  g_clusters[clusterIndex].maxAABB_VS = vec4(max(nearMax, farMax), 1.0);
 }
 
 vec3 intersectionLineAndZPerpendicularPlane(vec3 linePoint, vec3 lineDirection, float depth)

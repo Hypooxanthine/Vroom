@@ -12,7 +12,7 @@ namespace vrm::gl
 {
 
   class Texture;
-  class StorageBufferBase;
+  class Buffer;
 
   class Shader
   {
@@ -142,7 +142,7 @@ namespace vrm::gl
 
     void setTexture(const GLString &name, const Texture& texture, GLuint slot) const;
 
-    void setStorageBuffer(const GLString &name, const StorageBufferBase &ssbo) const;
+    void setStorageBuffer(const GLString &name, const gl::Buffer &ssbo) const;
 
     /**
      * @brief Gets OpenGL ID from this shader.
@@ -154,12 +154,19 @@ namespace vrm::gl
 
   private:
     GLuint CompileShader(GLenum type, const GLString &source, bool recordErrors);
-    GLuint getStorageBufferIndex(const GLString &name) const;
+    GLuint getStorageBufferLocation(const GLString &name) const;
 
   private:
     unsigned int m_RendererID = 0;
     mutable std::unordered_map<GLString, int> m_UniformLocationCache;
-    mutable std::unordered_map<GLString, GLuint> m_ssboIndexCache;
+
+    struct SsboIndexLoc
+    {
+      GLuint index;
+      GLuint loc;
+    };
+    mutable GLuint m_nextSsboLoc = 0;
+    mutable std::unordered_map<GLString, SsboIndexLoc> m_ssboIndexCache;
 
     std::unordered_set<GLuint> m_attachedShaders;
     GLString m_errorRecord;

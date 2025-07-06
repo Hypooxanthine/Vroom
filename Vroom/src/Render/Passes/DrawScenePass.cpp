@@ -4,7 +4,7 @@
 
 #include "Vroom/Render/Camera/CameraBasic.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
-#include "Vroom/Render/Abstraction/StorageBuffer.h"
+#include "Vroom/Render/Abstraction/Buffer.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/RenderObject/RenderMesh.h"
 
@@ -124,8 +124,8 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
 
     const auto& mesh = *queuedMesh.mesh;
 
-    mesh.getVertexArray().bind();
-    mesh.getIndexBuffer().bind();
+    gl::VertexArray::Bind(mesh.getVertexArray());
+    gl::Buffer::Bind(mesh.getIndexBuffer(), GL_ELEMENT_ARRAY_BUFFER);
 
     glDrawElements(GL_TRIANGLES, (GLsizei)mesh.getIndexCount(), GL_UNSIGNED_INT, nullptr);
   }

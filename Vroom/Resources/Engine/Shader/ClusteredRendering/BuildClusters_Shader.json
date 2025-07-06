@@ -7,19 +7,11 @@
         "Layout": "std430",
         "Variables": [
           {
-            "Name": "xCount",
-            "Type": "uint"
+            "Name": "g_clusterHeader",
+            "Type": "ClusterHeader"
           },
           {
-            "Name": "yCount",
-            "Type": "uint"
-          },
-          {
-            "Name": "zCount",
-            "Type": "uint"
-          },
-          {
-            "Name": "clusters[]",
+            "Name": "g_clusters[]",
             "Type": "Cluster"
           }
         ]

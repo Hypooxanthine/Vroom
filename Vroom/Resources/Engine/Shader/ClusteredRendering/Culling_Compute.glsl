@@ -13,19 +13,19 @@ bool testSphereAABB(uint i, Cluster c);
 // each invocation of main() is a thread processing a cluster
 void main()
 {
-  uint xCount = ClusterInfoBlock_xCount;
-  uint yCount = ClusterInfoBlock_yCount;
-  uint zCount = ClusterInfoBlock_zCount;
+  uint xCount = g_clusterHeader.xCount;
+  uint yCount = g_clusterHeader.yCount;
+  uint zCount = g_clusterHeader.zCount;
 
   uint x = gl_GlobalInvocationID.x, y = gl_GlobalInvocationID.y, z = gl_GlobalInvocationID.z;
   uint clusterIndex = x + y * xCount + z * xCount * yCount;
-  Cluster cluster = ClusterInfoBlock_clusters[clusterIndex];
+  Cluster cluster = g_clusters[clusterIndex];
 
   // we need to reset count because culling runs every frame.
   // otherwise it would accumulate.
   cluster.indexCount = 0;
 
-  for (uint i = 0; i < LightBlock_pointLightCount; ++i)
+  for (uint i = 0; i < g_pointLightCount; ++i)
   {
     if (testSphereAABB(i, cluster) && cluster.indexCount < 100)
     {
@@ -33,7 +33,7 @@ void main()
       cluster.indexCount++;
     }
   }
-  ClusterInfoBlock_clusters[clusterIndex] = cluster;
+  g_clusters[clusterIndex] = cluster;
 }
 
 bool sphereAABBIntersection(vec3 center, float radius, vec3 aabbMin, vec3 aabbMax)
@@ -48,7 +48,7 @@ bool sphereAABBIntersection(vec3 center, float radius, vec3 aabbMin, vec3 aabbMa
 // this just unpacks data for sphereAABBIntersection
 bool testSphereAABB(uint i, Cluster cluster)
 {
-  PointLight pointLight = LightBlock_pointLights[i];
+  PointLight pointLight = g_pointLights[i];
   vec3 center = vec3(u_View * pointLight.position);
   float radius = pointLight.radius;
 

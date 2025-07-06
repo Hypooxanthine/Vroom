@@ -4,7 +4,7 @@
 #include <set>
 
 #include "Vroom/DataStructure/LinearRegistry.h"
-#include "Vroom/Render/Abstraction/StorageBuffer.h"
+#include "Vroom/Render/AutoBuffer.h"
 #include "Vroom/Core/Assert.h"
 
 namespace vrm
@@ -23,7 +23,7 @@ namespace vrm
    * @tparam IdType The identifier type, to retrieve and update elements (std::string, size_t, ...)
    * @tparam MaxElements If 0, no check will be made on the number of registered elements
    */
-  template <typename GpuType, typename IdType, GLuint MaxElements = 0, GLuint Alignment = static_cast<GLuint>(GpuType::Alignment)>
+  template <typename GpuType, typename IdType, GLuint MaxElements = 0, size_t Alignment = GpuType::Alignment>
   class StorageBufferRegistry
   {
   public:
@@ -32,7 +32,7 @@ namespace vrm
 
   public:
 
-    inline StorageBufferRegistry(gl::AutoResizeStorageBuffer* storageBuffer, GLuint offset)
+    inline StorageBufferRegistry(render::AutoBuffer* storageBuffer, GLuint offset)
       : m_ssbo(storageBuffer), m_offset(offset)
     {
     }
@@ -74,16 +74,25 @@ namespace vrm
     inline void updateGpuData()
     {
       uint32_t elementsCount = static_cast<uint32_t>(m_data.getElementCount());
-      m_ssbo->setData(&elementsCount, sizeof(elementsCount), m_offset);
-      GLuint counterSize = std::max(static_cast<GLuint>(sizeof(elementsCount)), Alignment);
+      size_t counterSize = std::max(sizeof(elementsCount), Alignment);
 
-      m_ssbo->setData(m_data.getRawData(), static_cast<GLsizei>(m_data.getElementCount() * sizeof(GpuType)), m_offset + counterSize);
+      m_ssbo->ensureCapacity(m_offset + sizeof(elementsCount) + m_data.getElementCount() * sizeof(GpuType), true);
+      std::span<uint8_t> map = m_ssbo->mapWriteOnly(m_offset, sizeof(elementsCount) + m_data.getElementCount() * sizeof(GpuType));
+
+      std::memcpy(map.data(),               &elementsCount,      sizeof(elementsCount));
+      std::memcpy(map.data() + counterSize, m_data.getRawData(), m_data.getElementCount() * sizeof(GpuType));
+
+      // m_ssbo->setData(&elementsCount, sizeof(elementsCount), m_offset);
+      
+      // m_ssbo->setData(m_data.getRawData(), static_cast<GLsizei>(m_data.getElementCount() * sizeof(GpuType)), m_offset + counterSize);
+
+      m_ssbo->unmap();
     }
 
   private:
     RegistryType m_data;
 
-    gl::AutoResizeStorageBuffer* m_ssbo;
+    render::AutoBuffer* m_ssbo;
     GLuint m_offset;
   };
 

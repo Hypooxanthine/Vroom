@@ -7,7 +7,7 @@
 namespace vrm::gl
 {
   class FrameBuffer;
-  class StorageBufferBase;
+  class Buffer;
 }
 
 namespace vrm
@@ -28,7 +28,7 @@ namespace vrm
   
     glm::uvec3 clusterCount = { 1, 1, 1 };
     const CameraBasic** camera = nullptr;
-    const gl::StorageBufferBase* lightsStorageBuffer = nullptr;
+    const gl::Buffer* lightsStorageBuffer = nullptr;
     ClusteredLights* clusteredLights = nullptr;
 
   protected:

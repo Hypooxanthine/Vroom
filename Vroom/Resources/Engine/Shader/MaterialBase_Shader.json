@@ -96,24 +96,30 @@
     ],
     "StorageBuffers": [
       {
-        "Name": "LightBlock",
+        "Name": "PointLightBlock",
         "Layout": "std430",
         "Variables": [
           {
-            "Name": "directionalLightCount",
+            "Name": "g_pointLightCount",
             "Type": "uint"
           },
           {
-            "Name": "directionalLights[10]",
-            "Type": "DirectionalLight"
-          },
-          {
-            "Name": "pointLightCount",
-            "Type": "uint"
-          },
-          {
-            "Name": "pointLights[]",
+            "Name": "g_pointLights[]",
             "Type": "PointLight"
+          }
+        ]
+      },
+      {
+        "Name": "DirLightBlock",
+        "Layout": "std430",
+        "Variables": [
+          {
+            "Name": "g_directionalLightCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "g_directionalLights[]",
+            "Type": "DirectionalLight"
           }
         ]
       },
@@ -122,11 +128,11 @@
         "Layout": "std430",
         "Variables": [
           {
-            "Name": "directionalLightMatrixCount",
+            "Name": "g_directionalLightMatrixCount",
             "Type": "uint"
           },
           {
-            "Name": "directionalLightMatrices[10]",
+            "Name": "g_directionalLightMatrices[]",
             "Type": "mat4"
           }
         ]
@@ -137,19 +143,11 @@
         "EnableIf": "VRM_CLUSTERED_RENDERING",
         "Variables": [
           {
-            "Name": "xCount",
-            "Type": "uint"
+            "Name": "g_clusterHeader",
+            "Type": "ClusterHeader"
           },
           {
-            "Name": "yCount",
-            "Type": "uint"
-          },
-          {
-            "Name": "zCount",
-            "Type": "uint"
-          },
-          {
-            "Name": "clusters[]",
+            "Name": "g_clusters[]",
             "Type": "Cluster"
           }
         ]

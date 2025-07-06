@@ -10,7 +10,6 @@
 #include "Vroom/Render/RawShaderData/SSBOPointLightData.h"
 #include "Vroom/Render/RawShaderData/SSBODirectionalLightData.h"
 #include "Vroom/Render/Helpers/StorageBufferRegistry.h"
-#include "Vroom/Render/Abstraction/StorageBuffer.h"
 
 namespace vrm
 {
@@ -20,17 +19,31 @@ namespace vrm
   class LightRegistry
   {
   public:
-    static constexpr size_t s_SBRAlignment = std::max(SSBODirectionalLightData::Alignment, SSBOPointLightData::Alignment);
-    static constexpr size_t s_maxDirLights = 10;
-    static constexpr GLsizei s_dirLightSize = sizeof(SSBODirectionalLightData);
-    static constexpr GLintptr s_dirLightOffset = 0;
-    static constexpr GLintptr s_pointLightOffset = s_SBRAlignment  + s_maxDirLights * s_dirLightSize;
-    static constexpr GLsizei s_pointLightSize = sizeof(SSBOPointLightData);
 
-    using DirLightsSBR = StorageBufferRegistry<SSBODirectionalLightData, size_t, s_maxDirLights>;
-    using DirLightRegistry = DirLightsSBR::RegistryType;
-    using PointLightsSBR = StorageBufferRegistry<SSBOPointLightData, size_t>;
-    using PointLightRegistry = PointLightsSBR::RegistryType;
+    struct RawDirLight
+    {
+      glm::mat4 viewProj;
+      glm::vec4 direction;
+      glm::vec4 color;
+      float intensity;
+      uint32_t castsShadows;
+      float _pad[2];
+    };
+
+    struct RawPointLight
+    {
+      glm::vec4 position;
+      glm::vec4 color;
+      float intensity;
+      float radius;
+      float constantAttenuation;
+      float linearAttenuation;
+      float quadraticAttenuation;
+      float _pad[3];
+    };
+
+    using DirLightRegistry = LinearRegistry<RawDirLight, size_t>;
+    using PointLightRegistry = LinearRegistry<RawPointLight, size_t>;
 
   public:
     LightRegistry();
@@ -41,10 +54,8 @@ namespace vrm
     LightRegistry& operator=(const LightRegistry&) = delete;
     LightRegistry& operator=(LightRegistry&&) = default;
 
-    inline const DirLightRegistry& getDirectionalLights() const { return m_dirLightsRegistry.getCPURegistry(); }
-    inline const PointLightRegistry& getPointLights() const { return m_pointLightsRegistry.getCPURegistry(); }
-
-    inline static consteval size_t GetMaxDirectionalLights() { return s_maxDirLights; }
+    inline const DirLightRegistry& getDirectionalLights() const { return m_dirLightsRegistry; }
+    inline const PointLightRegistry& getPointLights() const { return m_pointLightsRegistry; }
 
     void startRegistering();
     void endRegistering();
@@ -53,16 +64,22 @@ namespace vrm
 
     void submitLight(const DirectionalLightComponent& dirLight, const glm::vec3& direction, size_t identifier);
 
-    inline const gl::AutoResizeStorageBuffer& getPointLightsStorageBuffer() const { return m_ssbo; }
+    inline const gl::Buffer& getPointLightsStorageBuffer() const { return m_pointLightsBuffer.getBuffer(); }
+    
+    inline const gl::Buffer& getDirLightsStorageBuffer() const { return m_dirLightsBuffer.getBuffer(); }
 
   private:
 
+    void _updateGpuDirLights();
+
+    void _updateGpuPointLights();
+
   private:
 
-    DirLightsSBR m_dirLightsRegistry;
-    PointLightsSBR m_pointLightsRegistry;
+    DirLightRegistry m_dirLightsRegistry;
+    PointLightRegistry m_pointLightsRegistry;
 
-    gl::AutoResizeStorageBuffer m_ssbo;
+    render::AutoBuffer m_dirLightsBuffer, m_pointLightsBuffer;
   };
 
 } // namespace vrm

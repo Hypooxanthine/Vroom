@@ -7,6 +7,7 @@
 
 #include "Vroom/Render/Aabb.h"
 #include "Vroom/Render/Frustum.h"
+#include "Vroom/Render/AutoBuffer.h"
 
 #include "Vroom/Render/RenderViewport.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
@@ -29,9 +30,7 @@ ShadowMappingPass::~ShadowMappingPass()
 void ShadowMappingPass::onInit()
 {
   VRM_ASSERT(lights != nullptr);
-  VRM_ASSERT(lightMatricesStorageBuffer != nullptr);
-  lightMatricesStorageBuffer->reset(sizeof(glm::vec4) + sizeof(glm::mat4) * LightRegistry::s_maxDirLights);
-  m_lightMatricesSBR = std::make_unique<decltype(m_lightMatricesSBR)::element_type>(lightMatricesStorageBuffer, 0);
+  VRM_ASSERT(lightMatricesBuffer != nullptr);
 }
 
 void ShadowMappingPass::onSetup(const RenderPassContext& ctx)
@@ -47,7 +46,7 @@ void ShadowMappingPass::onSetup(const RenderPassContext& ctx)
     return;
   }
 
-  m_lightMatricesSBR->startRegistering();
+  m_lightMatrices.startRegistering();
   m_dirLightCameras.clear();
   m_debugDirLights.clear();
   m_dirLightCameras.reserve(m_dirLightShadowCasters.size());
@@ -61,11 +60,23 @@ void ShadowMappingPass::onSetup(const RenderPassContext& ctx)
     // VRM_LOG_TRACE("Light direction: {}", glm::to_string(dirLight.direction));
     m_debugDirLights.emplace_back(m_dirLightCameras.back().generateViewVolumeMesh());
 
-    m_lightMatricesSBR->submit(i, m_dirLightCameras.back().getViewProjection());
+    m_lightMatrices.submit(i, m_dirLightCameras.back().getViewProjection());
   }
 
-  m_lightMatricesSBR->endRegistering();
+  m_lightMatrices.endRegistering();
 
+  lightMatricesBuffer->ensureCapacity(sizeof(glm::vec4) + m_lightMatrices.getElementCount() * sizeof(glm::mat4));
+  {
+    std::span<uint8_t> map = lightMatricesBuffer->mapWriteOnly(true);
+
+    glm::uint* lightCount = reinterpret_cast<glm::uint*>(map.data());
+    *lightCount = static_cast<glm::uint>(m_lightMatrices.getElementCount());
+
+    glm::mat4* matrices = reinterpret_cast<glm::mat4*>(map.data() + sizeof(glm::vec4));
+    std::memcpy(matrices, m_lightMatrices.getRawData(), m_lightMatrices.getElementCount() * sizeof(glm::mat4));
+
+    lightMatricesBuffer->unmap();
+  }
 }
 
 void ShadowMappingPass::onRender(const RenderPassContext& ctx) const
@@ -216,8 +227,8 @@ void ShadowMappingPass::renderMeshes(const CameraBasic& camera, const RenderView
 
     const auto& mesh = *queuedMesh.mesh;
 
-    mesh.getVertexArray().bind();
-    mesh.getIndexBuffer().bind();
+    gl::VertexArray::Bind(mesh.getVertexArray());
+    gl::Buffer::Bind(mesh.getIndexBuffer(), GL_ELEMENT_ARRAY_BUFFER);
 
     glDrawElements(GL_TRIANGLES, (GLsizei)mesh.getIndexCount(), GL_UNSIGNED_INT, nullptr);
   }
@@ -317,9 +328,8 @@ void ShadowMappingPass::renderDirLightsFrustums(const RenderPassContext& ctx) co
     applyViewportUniforms(shader, ctx.viewport);
     material->applyUniforms(shader);
 
-
-    mesh.getVertexArray().bind();
-    mesh.getIndexBuffer().bind();
+    gl::VertexArray::Bind(mesh.getVertexArray());
+    gl::Buffer::Bind(mesh.getIndexBuffer(), GL_ELEMENT_ARRAY_BUFFER);
 
     glDrawElements(GL_TRIANGLES, (GLsizei)mesh.getIndexCount(), GL_UNSIGNED_INT, nullptr);
   }

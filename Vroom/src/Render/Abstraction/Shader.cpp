@@ -6,8 +6,8 @@
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Core/Log.h"
 
-#include "Vroom/Render/Abstraction/StorageBuffer.h"
 #include "Vroom/Render/Abstraction/Texture.h"
+#include "Vroom/Render/Abstraction/Buffer.h"
 
 using namespace vrm;
 using namespace vrm::gl;
@@ -125,6 +125,8 @@ void Shader::unload()
     m_RendererID = 0;
     m_attachedShaders.clear();
     m_UniformLocationCache.clear();
+    m_ssboIndexCache.clear();
+    m_nextSsboLoc = 0;
   }
 }
 
@@ -200,17 +202,27 @@ int Shader::getUniformLocation(const GLString& name) const
   return location;
 }
 
-GLuint Shader::getStorageBufferIndex(const GLString& name) const
+GLuint Shader::getStorageBufferLocation(const GLString& name) const
 {
   if (!m_ssboIndexCache.contains(name))
   {
-    GLuint ssboIndex = glGetProgramResourceIndex(m_RendererID, GL_SHADER_STORAGE_BLOCK, name.c_str());
-    m_ssboIndexCache[name] = ssboIndex;
+    SsboIndexLoc indexLoc;
+    indexLoc.index = glGetProgramResourceIndex(m_RendererID, GL_SHADER_STORAGE_BLOCK, name.c_str());
+    if (indexLoc.index != GL_INVALID_INDEX)
+    {
+      indexLoc.loc = m_nextSsboLoc++;
+      glShaderStorageBlockBinding(m_RendererID, indexLoc.index, indexLoc.loc);
+    }
+    else
+    {
+      indexLoc.loc = -1;
+      VRM_LOG_ERROR("Could not find StorageBuffer \"{}\" in shader. Maybe it is dead code ?", name);
+    }
 
-    VRM_CHECK_MSG(ssboIndex != GL_INVALID_INDEX, "Could not find StorageBuffer \"{}\" in shader. Maybe it is dead code ?", name);
+    m_ssboIndexCache[name] = indexLoc;
   }
 
-  return m_ssboIndexCache.at(name);
+  return m_ssboIndexCache.at(name).loc;
 }
 
 void Shader::setTexture(const GLString &name, const Texture& texture, GLuint slot) const
@@ -220,9 +232,12 @@ void Shader::setTexture(const GLString &name, const Texture& texture, GLuint slo
   setUniform1i(name, slot);
 }
 
-void Shader::setStorageBuffer(const GLString& name, const StorageBufferBase& ssbo) const
+void Shader::setStorageBuffer(const GLString& name, const gl::Buffer& ssbo) const
 {
-  VRM_ASSERT_MSG(ssbo.isBindingPointValid(), "Invalid StorageBuffer binding point");
-
-  GLCall(glShaderStorageBlockBinding(m_RendererID, getStorageBufferIndex(name), ssbo.getBindingPoint()));
+  GLuint loc = getStorageBufferLocation(name);
+  if (loc != -1)
+  {
+    Buffer::Bind(ssbo, GL_SHADER_STORAGE_BUFFER);
+    GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, loc, ssbo.getRenderId()));
+  }
 }

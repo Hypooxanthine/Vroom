@@ -75,6 +75,21 @@ bool RenderSettingsPanel::onImgui()
       settingsChanged = true;
     }
 
+    if (ImGui::Checkbox("Clustered shading", &settings.clusteredShading))
+    {
+      settingsChanged = true;
+    }
+
+    if (settings.clusteredShading)
+    {
+      glm::ivec3 clusterCount = glm::ivec3(settings.clusterCount);
+      if (ImGui::DragInt3("Cluster count", &clusterCount.x, 1.f, 1, 64, "%d"))
+      {
+        settings.clusterCount = glm::uvec3(clusterCount);
+        settingsChanged = true;
+      }
+    }
+
     ImGui::SeparatorText("Render tools");
 
     if (ImGui::Checkbox("Show light complexity", &settings.showLightComplexity))

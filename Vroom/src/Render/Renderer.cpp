@@ -15,8 +15,6 @@
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Render/Abstraction/VertexArray.h"
-#include "Vroom/Render/Abstraction/VertexBuffer.h"
-#include "Vroom/Render/Abstraction/IndexBuffer.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
@@ -80,7 +78,8 @@ void Renderer::createRenderPasses()
   m_passManager.reset();
   m_frameBufferPool.clear();
   m_texturePool.clear();
-  m_autoresizeStorageBufferPool.clear();
+  m_buffersPool.clear();
+  m_autoBuffersPool.clear();
 
   m_mainFrameBuffer.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
   m_mainFrameBuffer.setColorAttachment(0, 4, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
@@ -126,14 +125,15 @@ void Renderer::createRenderPasses()
     pass.meshRegistry = &m_meshRegistry;
     pass.resolution = 4096;
     pass.depthTextureArray = &maps;
-    pass.lightMatricesStorageBuffer = m_autoresizeStorageBufferPool.emplace("lightMatricesStorageBuffer");
+    pass.lightMatricesBuffer = m_autoBuffersPool.emplace("LightMatricesStorageBuffer");
   }
 
   // Light clustering
+  if (m_renderSettings.clusteredShading)
   {
     auto& pass = m_passManager.pushPass<LightClusteringPass>();
     pass.camera = &m_Camera;
-    pass.clusterCount = { 12, 12, 24 };
+    pass.clusterCount = m_renderSettings.clusterCount;
     pass.lightsStorageBuffer = &m_LightRegistry.getPointLightsStorageBuffer();
     pass.clusteredLights = &m_ClusteredLights;
   }
@@ -147,8 +147,13 @@ void Renderer::createRenderPasses()
     pass.viewport = &m_viewport;
     pass.faceCulling = DrawSceneRenderPass::EFaceCulling::eCullBack;
     pass.frontFace = DrawSceneRenderPass::EFrontFace::eCCW;
-    pass.storageBufferParameters["LightBlock"] = &m_LightRegistry.getPointLightsStorageBuffer();
-    pass.storageBufferParameters["ClusterInfoBlock"] = &m_ClusteredLights.getClustersShaderStorage();
+    pass.storageBufferParameters["PointLightBlock"] = &m_LightRegistry.getPointLightsStorageBuffer();
+    pass.storageBufferParameters["DirLightBlock"] = &m_LightRegistry.getDirLightsStorageBuffer();
+    if (m_renderSettings.clusteredShading)
+    {
+      pass.addDefine("VRM_CLUSTERED_RENDERING");
+      pass.storageBufferParameters["ClusterInfoBlock"] = &m_ClusteredLights.getClustersShaderStorage();
+    }
     if (m_renderSettings.showLightComplexity)
       pass.addDefine("VRM_LIGHT_COMPLEXITY");
     
@@ -156,7 +161,7 @@ void Renderer::createRenderPasses()
     if (m_renderSettings.shadowsEnable)
     {
       pass.dirLightShadowMaps = m_texturePool.get("DirLightsShadowMaps");
-      pass.storageBufferParameters["LightMatricesBlock"] = m_autoresizeStorageBufferPool.get("lightMatricesStorageBuffer");
+      pass.storageBufferParameters["LightMatricesBlock"] = &m_autoBuffersPool.get("LightMatricesStorageBuffer")->getBuffer();
       pass.softShadowKernelRadius = m_renderSettings.softShadowKernelRadius;
     }
   }

@@ -309,7 +309,7 @@ std::string ShaderData::combineUniformBuffers(const std::vector<UniformBuffer>& 
 
     for (const auto& var : ubo.variables)
     {
-      uboCode += applyEnableIf(std::format("  {} {}_{};\n", var.type, ubo.name, var.name), var.enableIf);
+      uboCode += applyEnableIf(std::format("  {} {};\n", var.type, var.name), var.enableIf);
     }
 
     uboCode += "};\n";
@@ -323,7 +323,7 @@ std::string ShaderData::combineUniformBuffers(const std::vector<UniformBuffer>& 
 
     for (const auto& var : ubo.variables)
     {
-      uboCode += applyEnableIf(std::format("  {} {}_{};\n", var.type, ubo.name, var.name), var.enableIf);
+      uboCode += applyEnableIf(std::format("  {} {};\n", var.type, var.name), var.enableIf);
     }
 
     uboCode += "};\n";
@@ -360,7 +360,7 @@ std::string ShaderData::combineStorageBuffers(const std::vector<StorageBuffer>& 
         varCode += toString(qual) + " ";
       }
 
-      varCode += std::format("{} {}_{};\n", var.type, ssbo.name, var.name);
+      varCode += std::format("{} {};\n", var.type, var.name);
 
       ssboCode += applyEnableIf(varCode, var.enableIf);
     }
@@ -390,7 +390,7 @@ std::string ShaderData::combineStorageBuffers(const std::vector<StorageBuffer>& 
         varCode += toString(qual) + " ";
       }
 
-      varCode += std::format("{} {}_{};\n", var.type, ssbo.name, var.name);
+      varCode += std::format("{} {};\n", var.type, var.name);
 
       ssboCode += applyEnableIf(varCode, var.enableIf);
     }
@@ -437,7 +437,7 @@ std::string ShaderData::applyEnableIf(const std::string& source, const std::stri
   if (enableIf.empty())
     return source;
 
-  return std::format("#if defined {}\n{}#endif // defined {}\n", enableIf, source, enableIf);
+  return std::format("#if defined({})\n{}#endif // defined {}\n", enableIf, source, enableIf);
 }
 
 std::string ShaderData::toString(const ShaderData::EMemoryQualifier& qualifier) const

@@ -4,8 +4,8 @@
 #include <string>
 
 #include "Vroom/Render/RawShaderData/SSBOClusterInfo.h"
+#include "Vroom/Render/AutoBuffer.h"
 
-#include "Vroom/Render/Abstraction/StorageBuffer.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
 
@@ -31,13 +31,12 @@ namespace vrm
 
     void setupClusters(const glm::uvec3& clusterCount, const CameraBasic& camera);
 
-    void processLights(const CameraBasic& camera, const gl::StorageBufferBase& lights);
+    void processLights(const CameraBasic& camera, const gl::Buffer& lights);
 
-    inline const gl::AutoResizeStorageBuffer& getClustersShaderStorage() const { return m_SSBOClusterInfoSSBO; }
+    inline const gl::Buffer& getClustersShaderStorage() const { return m_clustersBuffer.getBuffer(); }
 
   private:
-    SSBOClusterInfo m_SSBOClusterInfoData;
-    gl::AutoResizeStorageBuffer m_SSBOClusterInfoSSBO;
+    render::AutoBuffer m_clustersBuffer;
 
     glm::uvec3 m_ClusterCount;
     unsigned int m_TotalClusters;

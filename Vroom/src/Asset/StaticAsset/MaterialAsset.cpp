@@ -109,9 +109,6 @@ bool MaterialAsset::buildShaderData()
     }
   }
 
-  // Last defines...
-  m_materialShaderData.addDefine(ShaderData::EShaderType::eAll, {.name = "VRM_CLUSTERED_RENDERING"});
-
   return true;
 }
 

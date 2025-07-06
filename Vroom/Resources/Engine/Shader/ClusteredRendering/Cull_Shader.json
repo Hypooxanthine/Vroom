@@ -32,23 +32,15 @@
     ],
     "StorageBuffers": [
       {
-        "Name": "LightBlock",
+        "Name": "PointLightBlock",
         "Layout": "std430",
         "Variables": [
           {
-            "Name": "directionalLightCount",
+            "Name": "g_pointLightCount",
             "Type": "uint"
           },
           {
-            "Name": "directionalLights[10]",
-            "Type": "DirectionalLight"
-          },
-          {
-            "Name": "pointLightCount",
-            "Type": "uint"
-          },
-          {
-            "Name": "pointLights[]",
+            "Name": "g_pointLights[]",
             "Type": "PointLight"
           }
         ]
@@ -58,19 +50,11 @@
         "Layout": "std430",
         "Variables": [
           {
-            "Name": "xCount",
-            "Type": "uint"
+            "Name": "g_clusterHeader",
+            "Type": "ClusterHeader"
           },
           {
-            "Name": "yCount",
-            "Type": "uint"
-          },
-          {
-            "Name": "zCount",
-            "Type": "uint"
-          },
-          {
-            "Name": "clusters[]",
+            "Name": "g_clusters[]",
             "Type": "Cluster"
           }
         ]

@@ -17,6 +17,8 @@ namespace vrm
     friend class test_LinearRegistry;
     using ContainerType = std::vector<T>;
     using KeySet = std::unordered_set<IdType>;
+    using ElementType = T;
+    using KeyType = IdType;
 
   public:
 

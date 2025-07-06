@@ -12,7 +12,7 @@
 #include "Vroom/Render/Passes/RenderPassManager.h"
 #include "Vroom/Render/MeshRegistry.h"
 #include "Vroom/Render/Abstraction/OwningFrameBuffer.h"
-#include "Vroom/Render/Abstraction/StorageBuffer.h"
+#include "Vroom/Render/Abstraction/Buffer.h"
 #include "Vroom/Render/Clustering/LightRegistry.h"
 #include "Vroom/Render/Clustering/ClusteredLights.h"
 
@@ -154,8 +154,8 @@ namespace vrm
 
     ResourcePool<gl::FrameBuffer> m_frameBufferPool;
     ResourcePool<gl::Texture> m_texturePool;
-    ResourcePool<gl::StorageBuffer> m_storageBufferPool;
-    ResourcePool<gl::AutoResizeStorageBuffer> m_autoresizeStorageBufferPool;
+    ResourcePool<gl::Buffer> m_buffersPool; 
+    ResourcePool<render::AutoBuffer> m_autoBuffersPool;
   };
 
 } // namespace vrm
