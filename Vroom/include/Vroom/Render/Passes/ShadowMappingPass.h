@@ -2,8 +2,8 @@
 
 #include "Vroom/Render/Passes/RenderPass.h"
 
+#include "Vroom/DataStructure/LinearRegistry.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
-#include "Vroom/Render/Helpers/StorageBufferRegistry.h"
 #include "Vroom/Render/Clustering/LightRegistry.h"
 #include "Vroom/Render/Camera/OrthographicCamera.h"
 

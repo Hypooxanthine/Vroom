@@ -7,9 +7,10 @@
 
 #include <glm/glm.hpp>
 
+#include "Vroom/DataStructure/LinearRegistry.h"
+#include "Vroom/Render/AutoBuffer.h"
 #include "Vroom/Render/RawShaderData/SSBOPointLightData.h"
 #include "Vroom/Render/RawShaderData/SSBODirectionalLightData.h"
-#include "Vroom/Render/Helpers/StorageBufferRegistry.h"
 
 namespace vrm
 {
