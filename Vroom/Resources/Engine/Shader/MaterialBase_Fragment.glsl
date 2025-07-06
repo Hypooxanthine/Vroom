@@ -51,11 +51,12 @@ void main()
 
   SetupGlobalVars();
 
+  vec4 shadeColor = ComputeFragmentColor();
+
 #ifdef VRM_LIGHT_COMPLEXITY
   float cplx = GetLightComplexity();
-  vec4 shadeColor = vec4(cplx, 0.f, 1.f - cplx, 1.f);
-#else
-  vec4 shadeColor = ComputeFragmentColor();
+  float cplxAlpha = 0.7;
+  shadeColor = vec4(cplx, 0.f, 1.f - cplx, 1.f) * cplxAlpha + shadeColor * (1.0 - cplxAlpha);
 #endif
 
   finalColor = shadeColor;
@@ -112,25 +113,18 @@ vec4 ComputeFragmentColor()
     vec3 lightDir = (pointLight.position.xyz - v_Position);
 
     float lightDistance2 = dot(lightDir, lightDir);
-
-    if (lightDistance2 < 0)
-      continue;
       
     if (lightDistance2 > pointLight.radius * pointLight.radius)
         continue;
 
     float lightDistance = sqrt(lightDistance2);
-
-    lightDir = normalize(lightDir);
     vec3 lightColor = vec3(pointLight.color[0], pointLight.color[1], pointLight.color[2]);
-    float lightIntensity =
-      pointLight.intensity / (
-        pointLight.constantAttenuation
-      + pointLight.linearAttenuation    * lightDistance
-      + pointLight.quadraticAttenuation * lightDistance2
-      );
 
-    vec3 lightContribution = ShadingModel(lightColor * lightIntensity, lightDir);
+    float physicalAttenuation = 1.0 / (1.0 + pointLight.constantAttenuation + pointLight.linearAttenuation * lightDistance + pointLight.quadraticAttenuation * lightDistance2);
+    float smoothCutoff = 1.0 - smoothstep(pointLight.smoothRadius * pointLight.radius, pointLight.radius, lightDistance);
+    float lightIntensity = pointLight.intensity * physicalAttenuation * smoothCutoff;
+
+    vec3 lightContribution = ShadingModel(lightColor * lightIntensity, normalize(lightDir));
 
     shadeColor += lightContribution;
   }

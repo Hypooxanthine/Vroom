@@ -243,26 +243,14 @@ VRM_REGISTER_COMPONENT_EDITOR(PointLightComponent, "Point light component", true
 bool PointLightComponentEditor::editEntityComponent(Entity& e) const
 {
   auto &component = get(e);
-  
-  auto color = component.color;
-  auto intensity = component.intensity;
-  auto radius = component.radius;
-  auto constantAttenuation = component.constantAttenuation;
-  auto linearAttenuation = component.linearAttenuation;
-  auto quadraticAttenuation = component.quadraticAttenuation;
 
-  if (ImGui::ColorEdit3("Color", &color.x))
-    component.color = color;
-  if (ImGui::DragFloat("Intensity", &intensity, 0.1f, 0.f, std::numeric_limits<float>::max(), "%.2f", ImGuiSliderFlags_AlwaysClamp))
-    component.intensity = intensity;
-  if (ImGui::DragFloat("Radius", &radius, 0.1f, 0.f, std::numeric_limits<float>::max(), "%.2f", ImGuiSliderFlags_AlwaysClamp))
-    component.radius = radius;
-  if (ImGui::DragFloat("Constant Attenuation", &constantAttenuation, 0.01f, 0.f, std::numeric_limits<float>::max(), "%.3f", ImGuiSliderFlags_AlwaysClamp))
-    component.constantAttenuation = constantAttenuation;
-  if (ImGui::DragFloat("Linear Attenuation", &linearAttenuation, 0.01f, 0.f, std::numeric_limits<float>::max(), "%.3f", ImGuiSliderFlags_AlwaysClamp))
-    component.linearAttenuation = linearAttenuation;
-  if (ImGui::DragFloat("Quadratic Attenuation", &quadraticAttenuation, 0.01f, 0.f, std::numeric_limits<float>::max(), "%.3f", ImGuiSliderFlags_AlwaysClamp))
-    component.quadraticAttenuation = quadraticAttenuation;
+  ImGui::ColorEdit3("Color", &component.color.x);
+  ImGui::DragFloat("Intensity", &component.intensity, 0.1f, 0.f, std::numeric_limits<float>::max(), "%.2f", ImGuiSliderFlags_AlwaysClamp);
+  ImGui::DragFloat("Radius", &component.radius, 0.1f, 0.f, std::numeric_limits<float>::max(), "%.2f", ImGuiSliderFlags_AlwaysClamp);
+  ImGui::DragFloat("Smooth radius", &component.smoothRadius, 0.01f, 0.f, 1.f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+  ImGui::DragFloat("Constant Attenuation", &component.constantAttenuation, 0.01f, 0.f, std::numeric_limits<float>::max(), "%.3f", ImGuiSliderFlags_AlwaysClamp);
+  ImGui::DragFloat("Linear Attenuation", &component.linearAttenuation, 0.01f, 0.f, std::numeric_limits<float>::max(), "%.3f", ImGuiSliderFlags_AlwaysClamp);
+  ImGui::DragFloat("Quadratic Attenuation", &component.quadraticAttenuation, 0.01f, 0.f, std::numeric_limits<float>::max(), "%.3f", ImGuiSliderFlags_AlwaysClamp);
 
   return true;
 }

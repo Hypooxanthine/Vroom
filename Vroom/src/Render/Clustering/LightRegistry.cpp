@@ -19,6 +19,7 @@ void LightRegistry::submitLight(const PointLightComponent &pointLight, const glm
       .color = glm::vec4(pointLight.color, 1.f),
       .intensity = pointLight.intensity,
       .radius = pointLight.radius,
+      .smoothRadius = pointLight.smoothRadius,
       .constantAttenuation = pointLight.constantAttenuation,
       .linearAttenuation = pointLight.linearAttenuation,
       .quadraticAttenuation = pointLight.quadraticAttenuation,

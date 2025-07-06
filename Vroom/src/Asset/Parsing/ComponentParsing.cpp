@@ -270,6 +270,7 @@ void PointLightComponentData::addToEntity(Entity& entity)
   plc.color = color;
   plc.intensity = intensity;
   plc.radius = radius;
+  plc.smoothRadius = smoothRadius;
   plc.constantAttenuation = constantAttenuation;
   plc.linearAttenuation = linearAttenuation;
   plc.quadraticAttenuation = quadraticAttenuation;
@@ -281,6 +282,7 @@ void PointLightComponentData::getFromEntity(const Entity& entity)
   this->color = plc.color;
   this->intensity = plc.intensity;
   this->radius = plc.radius;
+  this->smoothRadius = plc.smoothRadius;
   this->constantAttenuation = plc.constantAttenuation;
   this->linearAttenuation = plc.linearAttenuation;
   this->quadraticAttenuation = plc.quadraticAttenuation;
@@ -311,6 +313,13 @@ json PointLightComponentData::serialize() const
     radiusParam["name"] = "Radius";
     json& radius = radiusParam["value"];
     to_json(radius, this->radius);
+  }
+
+  {
+    json& smoothRadiusParam = params.emplace_back();
+    smoothRadiusParam["name"] = "SmoothRadius";
+    json& smoothRadius = smoothRadiusParam["value"];
+    to_json(smoothRadius, this->smoothRadius);
   }
 
   {
@@ -363,6 +372,11 @@ bool PointLightComponentData::deserialize(const json& j)
     {
       VRM_CHECK_RET_FALSE_MSG(param["value"].is_number_float(), "Expected float for Radius value");
       this->radius = param["value"];
+    }
+    else if (nameVal == "SmoothRadius")
+    {
+      VRM_CHECK_RET_FALSE_MSG(param["value"].is_number_float(), "Expected float for SmoothRadius value");
+      this->smoothRadius = param["value"];
     }
     else if (nameVal == "ConstantAttenuation")
     {

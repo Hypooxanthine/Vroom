@@ -19,8 +19,6 @@
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
 
-#include "Vroom/Render/RawShaderData/SSBOPointLightData.h"
-
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/ShaderAsset.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"

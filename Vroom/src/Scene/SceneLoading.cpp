@@ -88,42 +88,32 @@ void Scene::addNodeComponents(const Entity& e, SceneNodeData& data) const
 {
   if (const auto* c = m_Registry.try_get<TransformComponent>(e); c != nullptr)
   {
-    auto& cd = data.emplaceComponent<TransformComponentData>();
-    cd.position = c->getPosition();
-    cd.rotation = c->getRotation();
-    cd.scale = c->getScale();
+    auto& comp = data.emplaceComponent<TransformComponentData>();
+    comp.getFromEntity(e);
   }
 
   if (const auto* c = m_Registry.try_get<MeshComponent>(e); c != nullptr)
   {
-    auto& mc = data.emplaceComponent<MeshComponentData>();
-    mc.resourceName = c->getMesh()->getFilePath();
-    mc.castsShadow = c->doesCastShadow();
+    auto& comp = data.emplaceComponent<MeshComponentData>();
+    comp.getFromEntity(e);
   }
 
   if (const auto* c = m_Registry.try_get<DirectionalLightComponent>(e); c != nullptr)
   {
-    auto& dlc = data.emplaceComponent<DirectionalLightComponentData>();
-    dlc.color = c->color;
-    dlc.intensity = c->intensity;
-    dlc.castsShadows = c->castsShadows;
+    auto& comp = data.emplaceComponent<DirectionalLightComponentData>();
+    comp.getFromEntity(e);
   }
 
   if (const auto* c = m_Registry.try_get<PointLightComponent>(e); c != nullptr)
   {
-    auto& plc = data.emplaceComponent<PointLightComponentData>();
-    plc.color = c->color;
-    plc.intensity = c->intensity;
-    plc.radius = c->radius;
-    plc.constantAttenuation = c->constantAttenuation;
-    plc.linearAttenuation = c->linearAttenuation;
-    plc.quadraticAttenuation = c->quadraticAttenuation;
+    auto& comp = data.emplaceComponent<PointLightComponentData>();
+    comp.getFromEntity(e);
   }
 
   if (const auto* c = m_Registry.try_get<ScriptHandler>(e); c != nullptr)
   {
-    auto& sc = data.emplaceComponent<ScriptComponentData>();
-    sc.resourceName = c->getScript().getScriptName();
+    auto& comp = data.emplaceComponent<ScriptComponentData>();
+    comp.getFromEntity(e);
   }
 }
 

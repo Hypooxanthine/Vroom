@@ -60,6 +60,7 @@ namespace vrm
     glm::vec3 color;
     float intensity;
     float radius;
+    float smoothRadius;
     float constantAttenuation;
     float linearAttenuation;
     float quadraticAttenuation;

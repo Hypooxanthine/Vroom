@@ -9,8 +9,6 @@
 
 #include "Vroom/DataStructure/LinearRegistry.h"
 #include "Vroom/Render/AutoBuffer.h"
-#include "Vroom/Render/RawShaderData/SSBOPointLightData.h"
-#include "Vroom/Render/RawShaderData/SSBODirectionalLightData.h"
 
 namespace vrm
 {
@@ -37,10 +35,11 @@ namespace vrm
       glm::vec4 color;
       float intensity;
       float radius;
+      float smoothRadius;
       float constantAttenuation;
       float linearAttenuation;
       float quadraticAttenuation;
-      float _pad[3];
+      float _pad[2];
     };
 
     using DirLightRegistry = LinearRegistry<RawDirLight, size_t>;

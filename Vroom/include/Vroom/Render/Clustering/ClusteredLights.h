@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 
-#include "Vroom/Render/RawShaderData/SSBOClusterInfo.h"
 #include "Vroom/Render/AutoBuffer.h"
 
 #include "Vroom/Render/Abstraction/Shader.h"
