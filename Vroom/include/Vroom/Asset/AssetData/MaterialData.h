@@ -16,6 +16,7 @@ namespace vrm
     enum class EShadingModel : uint8_t
     {
       ePhong = 0,
+      eMicrofacets,
       eCount,
       eDefault = ePhong
     };
@@ -86,7 +87,8 @@ namespace vrm
   inline const std::string &MaterialData::GetShadingModelName(EShadingModel model)
   {
     static const std::unordered_map<EShadingModel, std::string> table = {
-      { EShadingModel::ePhong, "Phong" }
+      { EShadingModel::ePhong, "Phong" },
+      { EShadingModel::eMicrofacets, "Microfacets" },
     };
 
     return table.at(model);
@@ -99,7 +101,8 @@ namespace nlohmann
 
   NLOHMANN_JSON_SERIALIZE_ENUM(vrm::MaterialData::EShadingModel,
   {
-    { vrm::MaterialData::EShadingModel::ePhong, vrm::MaterialData::GetShadingModelName(vrm::MaterialData::EShadingModel::ePhong) }
+    { vrm::MaterialData::EShadingModel::ePhong, vrm::MaterialData::GetShadingModelName(vrm::MaterialData::EShadingModel::ePhong) },
+    { vrm::MaterialData::EShadingModel::eMicrofacets, vrm::MaterialData::GetShadingModelName(vrm::MaterialData::EShadingModel::eMicrofacets) },
   })
 
   void VRM_API to_json(json& j, const vrm::MaterialData::Parameter& e);

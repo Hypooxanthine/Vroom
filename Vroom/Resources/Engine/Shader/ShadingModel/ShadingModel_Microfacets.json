@@ -1,0 +1,29 @@
+{
+  "Fragment": {
+    "Sources": [
+      "Resources/Engine/Shader/ShadingModel/ShadingModel_Microfacets_Impl.glsl"
+    ],
+    "Uniforms": [
+      {
+        "Name": "u_PhongDiffuse",
+        "Type": "vec3",
+        "EnableIf": "VRM_Phong_Diffuse_UNIFORM"
+      },
+      {
+        "Name": "u_PhongSpecular",
+        "Type": "vec3",
+        "EnableIf": "VRM_Phong_Specular_UNIFORM"
+      },
+      {
+        "Name": "u_PhongShininess",
+        "Type": "float",
+        "EnableIf": "VRM_Phong_Shininess_UNIFORM"
+      },
+      {
+        "Name": "u_PhongTextures[VRM_Phong_TEXTURES_COUNT]",
+        "Type": "sampler2D",
+        "EnableIf": "VRM_Phong_ENABLE_TEXTURES"
+      }
+    ]
+  }
+}
