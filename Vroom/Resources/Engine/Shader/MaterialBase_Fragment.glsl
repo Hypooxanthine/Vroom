@@ -11,6 +11,7 @@
 // Function declarations
 
 // To be defined by the shading model
+void SetupGlobalVars_ShadingModel();
 vec3 ShadingModel(in vec3 lightColor, in vec3 lightDirection);
 
 void SetupGlobalVars();
@@ -73,6 +74,8 @@ void SetupGlobalVars()
 #ifdef VRM_CLUSTERED_RENDERING
   SetupGlobalVars_ClusteredRendering();
 #endif
+
+  SetupGlobalVars_ShadingModel();
 }
 
 vec4 ComputeFragmentColor()

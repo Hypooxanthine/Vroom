@@ -34,6 +34,11 @@ float GetShininess()
 #endif
 }
 
+void SetupGlobalVars_ShadingModel()
+{
+
+}
+
 vec3 ShadingModel(in vec3 lightColor, in vec3 lightDirection)
 {
   float diff = max(dot(g_normal, lightDirection), 0.f);
