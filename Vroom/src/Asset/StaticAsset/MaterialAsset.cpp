@@ -14,7 +14,7 @@ using namespace vrm;
 static const std::unordered_map<MaterialData::EShadingModel, std::string> S_SHADING_MODEL_SPECIFIC_SHADERS =
 {
   { MaterialData::EShadingModel::ePhong, "Resources/Engine/Shader/ShadingModel/ShadingModel_Phong.json" },
-  { MaterialData::EShadingModel::eMicrofacets, "Resources/Engine/Shader/ShadingModel/ShadingModel_Microfacets.json" },
+  { MaterialData::EShadingModel::ePBR, "Resources/Engine/Shader/ShadingModel/ShadingModel_PBR.json" },
 };
 
 MaterialAsset::MaterialAsset()
@@ -62,7 +62,7 @@ void MaterialAsset::applyUniforms(const gl::Shader& shader) const
     shader.setUniform1iv(prefix + "Textures", m_data.getTextureCount(), slots.data());
   }
 }
-
+ 
 bool MaterialAsset::buildShaderData()
 {
   AssetManager &manager = AssetManager::Get();

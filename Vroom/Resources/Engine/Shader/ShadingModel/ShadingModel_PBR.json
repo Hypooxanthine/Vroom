@@ -1,0 +1,29 @@
+{
+  "Fragment": {
+    "Sources": [
+      "Resources/Engine/Shader/ShadingModel/ShadingModel_PBR_Impl.glsl"
+    ],
+    "Uniforms": [
+      {
+        "Name": "u_PBRAlbedo",
+        "Type": "vec3",
+        "EnableIf": "VRM_PBR_Albedo_UNIFORM"
+      },
+      {
+        "Name": "u_PBRRoughness",
+        "Type": "float",
+        "EnableIf": "VRM_PBR_Roughness_UNIFORM"
+      },
+      {
+        "Name": "u_PBRMetalness",
+        "Type": "float",
+        "EnableIf": "VRM_PBR_Metalness_UNIFORM"
+      },
+      {
+        "Name": "u_PBRTextures[VRM_PBR_TEXTURES_COUNT]",
+        "Type": "sampler2D",
+        "EnableIf": "VRM_PBR_ENABLE_TEXTURES"
+      }
+    ]
+  }
+}

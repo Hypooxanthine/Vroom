@@ -25,7 +25,8 @@ namespace vrm
 
     void _createFiles();
 
-    void _processMaterial(aiMaterial* material, unsigned int id);
+    void _processMaterialPhong(aiMaterial* material, unsigned int id);
+    void _processMaterialPBR(aiMaterial* material, unsigned int id);
 
     std::string _getTexture(aiMaterial* material, aiTextureType type) const;
     void _registerTexture(const std::string& texName);

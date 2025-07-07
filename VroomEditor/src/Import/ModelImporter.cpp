@@ -73,7 +73,7 @@ bool ModelImporter::import(const std::filesystem::path& inPath, const std::files
   for (unsigned int i = 0; i < IMPL.ctx.scene->mNumMaterials; ++i)
   {
     aiMaterial* mat = IMPL.ctx.scene->mMaterials[i];
-    _processMaterial(mat, i);
+    _processMaterialPBR(mat, i);
   }
 
   _createFiles();
@@ -161,7 +161,7 @@ void ModelImporter::_createFiles()
   AssetUtils::CreateMetaFile(metaData, IMPL.ctx.outDir / meshFileName);
 }
 
-void ModelImporter::_processMaterial(aiMaterial* material, unsigned int id)
+void ModelImporter::_processMaterialPhong(aiMaterial* material, unsigned int id)
 {
   std::string matName = material->GetName().C_Str();
     
@@ -221,6 +221,75 @@ void ModelImporter::_processMaterial(aiMaterial* material, unsigned int id)
   {
     float col;
     material->Get(AI_MATKEY_SHININESS, col);
+    p.setValue(col);
+    data.addParameter(p);
+  }
+
+  std::filesystem::path outPath = IMPL.ctx.outDir / matName;
+  
+  IMPL.ctx.outMaterials[matName] = data;
+}
+
+void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
+{
+  std::string matName = material->GetName().C_Str();
+    
+  if (matName.empty())
+  {
+    matName = "GenMat_" + std::to_string(id);
+  }
+
+  MaterialData data;
+  data.setShadingModel(MaterialData::EShadingModel::ePBR);
+  
+
+  std::string albedoMap = _getTexture(material, aiTextureType_BASE_COLOR);
+  std::string metalnessMap = _getTexture(material, aiTextureType_METALNESS);
+  std::string roughnessMap = _getTexture(material, aiTextureType_DIFFUSE_ROUGHNESS);
+  
+  MaterialData::Parameter p;
+  
+  p.name = "Albedo";
+  if (albedoMap.size() > 0)
+  {
+    _registerTexture(albedoMap);
+    p.setValue(albedoMap);
+    data.addParameter(p);
+  }
+  else
+  {
+    aiColor4D col;
+    material->Get(AI_MATKEY_COLOR_DIFFUSE, col);
+    p.setValue(glm::vec3(col.r, col.g, col.b));
+    data.addParameter(p);
+  }
+   
+  p.name = "Metalness";
+  if (metalnessMap.size() > 0)
+  {
+    _registerTexture(metalnessMap);
+    p.setValue(metalnessMap);
+    data.addParameter(p);
+  }
+  else
+  {
+    float col;
+    material->Get(AI_MATKEY_METALLIC_FACTOR, col);
+    p.setValue(col);
+    data.addParameter(p);
+  }
+   
+  p.name = "Roughness";
+  if (roughnessMap.size() > 0)
+  {
+    _registerTexture(roughnessMap);
+    p.setValue(roughnessMap);
+    data.addParameter(p);
+  }
+  else
+  {
+    float col;
+    material->Get(AI_MATKEY_ROUGHNESS_FACTOR, col);
     p.setValue(col);
     data.addParameter(p);
   }

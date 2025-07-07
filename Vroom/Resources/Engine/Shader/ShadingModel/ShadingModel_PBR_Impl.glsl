@@ -1,12 +1,12 @@
-#ifndef _SHADINGMODEL_MICROFACETS_IMPL_GLSL_
-#define _SHADINGMODEL_MICROFACETS_IMPL_GLSL_
+#ifndef _SHADINGMODEL_PBR_IMPL_GLSL_
+#define _SHADINGMODEL_PBR_IMPL_GLSL_
 
 vec3 GetAlbedo()
 {
-#ifdef VRM_Microfacets_Albedo_UNIFORM
-  return u_MicrofacetsAlbedo;
-#elif defined (VRM_Microfacets_Albedo_TEXTURE) && defined (VRM_Microfacets_Albedo_TEXTURE_SLOT)
-  return texture(u_MicrofacetsTextures[VRM_Microfacets_Albedo_TEXTURE_SLOT], v_TexCoord).xyz;
+#ifdef VRM_PBR_Albedo_UNIFORM
+  return u_PBRAlbedo;
+#elif defined (VRM_PBR_Albedo_TEXTURE) && defined (VRM_PBR_Albedo_TEXTURE_SLOT)
+  return texture(u_PBRTextures[VRM_PBR_Albedo_TEXTURE_SLOT], v_TexCoord).xyz;
 #else
   return vec3(1.f, 1.f, 1.f);
 #endif
@@ -14,10 +14,10 @@ vec3 GetAlbedo()
 
 float GetSpecular()
 {
-#ifdef VRM_Microfacets_Specular_UNIFORM
-  return u_MicrofacetsSpecular;
-#elif defined (VRM_Microfacets_Specular_TEXTURE) && defined (VRM_Microfacets_Specular_TEXTURE_SLOT)
-  return texture(u_MicrofacetsTextures[VRM_Microfacets_Specular_TEXTURE_SLOT], v_TexCoord).x;
+#ifdef VRM_PBR_Specular_UNIFORM
+  return u_PBRSpecular;
+#elif defined (VRM_PBR_Specular_TEXTURE) && defined (VRM_PBR_Specular_TEXTURE_SLOT)
+  return texture(u_PBRTextures[VRM_PBR_Specular_TEXTURE_SLOT], v_TexCoord).x;
 #else
   return 0.5;
 #endif
@@ -25,10 +25,10 @@ float GetSpecular()
 
 float GetRoughness()
 {
-#ifdef VRM_Microfacets_Roughness_UNIFORM
-  return u_MicrofacetsRoughness;
-#elif defined (VRM_Microfacets_Roughness_TEXTURE) && defined (VRM_Microfacets_Roughness_TEXTURE_SLOT)
-  return texture(u_MicrofacetsTextures[VRM_Microfacets_Roughness_TEXTURE_SLOT], v_TexCoord).x;
+#ifdef VRM_PBR_Roughness_UNIFORM
+  return u_PBRRoughness;
+#elif defined (VRM_PBR_Roughness_TEXTURE) && defined (VRM_PBR_Roughness_TEXTURE_SLOT)
+  return texture(u_PBRTextures[VRM_PBR_Roughness_TEXTURE_SLOT], v_TexCoord).x;
 #else
   return 0.5;
 #endif
@@ -36,17 +36,16 @@ float GetRoughness()
 
 float GetMetalness()
 {
-#ifdef VRM_Microfacets_Metalness_UNIFORM
-  return u_MicrofacetsMetalness;
-#elif defined (VRM_Microfacets_Metalness_TEXTURE) && defined (VRM_Microfacets_Metalness_TEXTURE_SLOT)
-  return texture(u_MicrofacetsTextures[VRM_Microfacets_Metalness_TEXTURE_SLOT], v_TexCoord).x;
+#ifdef VRM_PBR_Metalness_UNIFORM
+  return u_PBRMetalness;
+#elif defined (VRM_PBR_Metalness_TEXTURE) && defined (VRM_PBR_Metalness_TEXTURE_SLOT)
+  return texture(u_PBRTextures[VRM_PBR_Metalness_TEXTURE_SLOT], v_TexCoord).x;
 #else
   return 0.0;
 #endif
 }
 
 vec3 g_albedo;
-float g_specular;
 float g_metallness;
 float g_roughness;
 vec3 g_F0;
@@ -111,7 +110,6 @@ vec3 BRDF(in vec3 viewDir, in vec3 lightDir)
 void SetupGlobalVars_ShadingModel()
 {
   g_albedo = GetAlbedo();
-  g_specular = GetSpecular();
   g_metallness = GetMetalness();
   g_roughness = GetRoughness();
   g_F0 = mix(vec3(0.04), g_albedo, g_metallness);
@@ -122,4 +120,4 @@ vec3 ShadingModel(in vec3 lightColor, in vec3 lightDirection)
   return BRDF(g_viewDir, lightDirection) * lightColor * max(0.0, dot(g_normal, lightDirection));
 }
 
-#endif // _SHADINGMODEL_MICROFACETS_IMPL_GLSL_
+#endif // _SHADINGMODEL_PBR_IMPL_GLSL_
