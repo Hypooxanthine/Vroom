@@ -35,7 +35,6 @@ protected:
   virtual void onDrawPicto();
   virtual TextureAsset::Handle getPicto() const;
   virtual std::string getPictoAssetName() const;
-  virtual void onDrawText();
   virtual std::string getText() const;
   virtual void onDoubleClick() {}
   virtual void onAddCustomBehaviour() {}
@@ -46,15 +45,21 @@ protected:
 private:
 
   void onClick();
+  void contextualBehaviour();
+  void onDrawText();
 
 protected:
   static ImVec2 s_ElementSize;
   TextureAsset::Handle m_Picto;
+  bool m_rightClickable = true;
+  bool m_isTextEditable = true;
+  bool m_deletable = true;
 
 private:
   std::filesystem::path m_ElementPath;
   AssetBrowser* m_Browser = nullptr;
   bool m_selected = false;
+  bool m_editingText = false;
 };
 
 } // namespace vrm

@@ -121,3 +121,31 @@ void AssetUtils::OpenNativeFileExplorer(const std::filesystem::path& path)
 {
   std::thread(OpenNativeFileExplorer_Impl, path).detach();
 }
+
+bool AssetUtils::DeleteAssetElement(const std::filesystem::path& path)
+{
+  // std::filesystem::remove_all()
+  namespace fs = std::filesystem;
+
+  try
+  {
+    fs::path metaPath = path;
+    metaPath += ".meta";
+
+    if (fs::exists(metaPath))
+    {
+      std::filesystem::remove(metaPath);
+    }
+
+    if (fs::exists(path))
+    {
+      fs::remove_all(path);
+    }
+  }
+  catch(const std::exception& e)
+  {
+    return false;
+  }
+
+  return true;
+}

@@ -9,7 +9,9 @@ using namespace vrm;
 AssetParentDir::AssetParentDir(const std::filesystem::path& path)
     : AssetDirectory(path)
 {
-
+  m_rightClickable = false;
+  m_isTextEditable = false;
+  m_deletable = false;
 }
 
 AssetParentDir::~AssetParentDir()

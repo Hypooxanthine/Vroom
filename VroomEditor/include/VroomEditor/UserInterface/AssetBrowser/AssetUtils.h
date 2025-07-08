@@ -45,6 +45,9 @@ namespace vrm
     static bool CreateMetaFile(const MetaFile& meta, const std::filesystem::path& filePath);
 
     static void OpenNativeFileExplorer(const std::filesystem::path& path);
+
+    // File or directory. Will checks for meta files and remove them if exist
+    static bool DeleteAssetElement(const std::filesystem::path& path);
   };
 
 }
