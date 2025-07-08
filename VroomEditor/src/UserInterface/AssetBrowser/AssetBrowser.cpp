@@ -86,18 +86,16 @@ void AssetBrowser::updateDirectoryContent()
     elem->setBrowser(this);
 }
 
-void AssetBrowser::selectElement(const AssetElement* element)
+void AssetBrowser::toggleSelectElement(const AssetElement* element)
 {
   if (m_selectedAsset == element)
   {
-    m_selectedAsset->setSelected(false);
-    m_selectedAsset = nullptr;
+    unselectElement();
     return;
   }
-  else if (m_selectedAsset)
+  else
   {
-    m_selectedAsset->setSelected(false);
-    m_selectedAsset = nullptr;
+    unselectElement();
   }
 
   auto it = std::find_if(m_Assets.begin(), m_Assets.end(), [&element](const std::unique_ptr<AssetElement>& elem) { return elem.get() == element;});
@@ -109,6 +107,15 @@ void AssetBrowser::selectElement(const AssetElement* element)
 
   it->get()->setSelected(true);
   m_selectedAsset = it->get();
+}
+
+void AssetBrowser::unselectElement()
+{
+  if (m_selectedAsset)
+  {
+    m_selectedAsset->setSelected(false);
+    m_selectedAsset = nullptr;
+  }
 }
 
 bool AssetBrowser::onImgui()

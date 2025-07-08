@@ -69,9 +69,19 @@ bool AssetElement::onImgui()
   static constexpr auto flags = ImGuiButtonFlags_MouseButtonLeft | (ImGuiButtonFlags_AllowOverlap | ImGuiButtonFlags_FlattenChildren);
   ImGui::InvisibleButton("##interact", ImGui::GetItemRectSize(), flags);
 
-  if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()) && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+  if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()))
   {
-    onDoubleClick();
+    if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+    {
+      onDoubleClick();
+    }
+  }
+  else
+  {
+    if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+    {
+      requestUnselectThis();
+    }
   }
 
   onAddCustomBehaviour();
@@ -81,6 +91,21 @@ bool AssetElement::onImgui()
   if (m_selected)
   {
     ImGui::PopStyleColor();
+
+    if (ImGui::IsKeyPressed(ImGuiKey_Delete))
+    {
+      requestDeleteThis();
+    }
+
+    if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+    {
+      requestUnselectThis();
+    }
+
+    if (ImGui::IsKeyPressed(ImGuiKey_F2))
+    {
+      setRenaming();
+    }
   }
 
   return ret;
@@ -180,8 +205,11 @@ std::string AssetElement::getText() const
 
 void AssetElement::onClick()
 {
+  if (!m_isSelectable)
+    return;
+
   EditorLayer::Get().pushRoutine([this](auto& layer) {
-    getBrowser().selectElement(this);
+    getBrowser().toggleSelectElement(this);
     });
 }
 
@@ -201,12 +229,27 @@ void AssetElement::contextualBehaviour()
   {
     if (ImGui::Selectable("Delete"))
     {
-      EditorLayer::Get().pushRoutine([this](auto& layer) {
-        AssetUtils::DeleteAssetElement(getPath());
-        getBrowser().updateDirectoryContent();
-        });
+      requestDeleteThis();
     }
 
     if (!m_deletable) ImGui::EndDisabled();
+  }
+}
+
+void AssetElement::requestDeleteThis()
+{
+  EditorLayer::Get().pushRoutine([this](auto& layer) {
+    AssetUtils::DeleteAssetElement(getPath());
+    getBrowser().updateDirectoryContent();
+    });
+}
+
+void AssetElement::requestUnselectThis()
+{
+  if (m_selected)
+  {
+    EditorLayer::Get().pushRoutine([this](auto& layer) {
+      getBrowser().unselectElement();
+      });
   }
 }

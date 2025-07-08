@@ -36,10 +36,10 @@ struct ModelImporter::Impl
 
   struct ImportContext
   {
-    std::filesystem::path inFile, outDir;
+    std::filesystem::path inFile, inDir, outDir;
     const aiScene* scene = nullptr;
     std::unordered_map<std::string, json> outMaterials;
-    std::unordered_set<std::filesystem::path> texturesToImport;
+    std::unordered_set<std::filesystem::path> filesToCopy;
     size_t genMatId = 0;
   } ctx;
 };
@@ -67,13 +67,29 @@ bool ModelImporter::import(const std::filesystem::path& inPath, const std::files
   }
 
   IMPL.ctx.inFile = inPath;
+  IMPL.ctx.inDir = inPath; IMPL.ctx.inDir.remove_filename();
   IMPL.ctx.outDir = outPath;
   IMPL.ctx.scene = scene;
+
+  // Check if the imported file is a GLTF file and copy .bin file if it exists
+  std::filesystem::path binFile = IMPL.ctx.inFile;
+  binFile.replace_extension(".bin");
+  if (binFile.extension() == ".bin" && std::filesystem::exists(binFile))
+  {
+    binFile = binFile.lexically_relative(IMPL.ctx.inDir);
+    IMPL.ctx.filesToCopy.emplace(binFile);
+  }
 
   for (unsigned int i = 0; i < IMPL.ctx.scene->mNumMaterials; ++i)
   {
     aiMaterial* mat = IMPL.ctx.scene->mMaterials[i];
-    _processMaterialPBR(mat, i);
+    aiShadingMode shadingModel;
+    mat->Get(AI_MATKEY_SHADING_MODEL, shadingModel);
+
+    if (shadingModel == aiShadingMode_PBR_BRDF)
+      _processMaterialPBR(mat, i);
+    else
+      _processMaterialPhong(mat, i);
   }
 
   _createFiles();
@@ -89,11 +105,9 @@ void ModelImporter::_createFiles()
   meshFileName = meshFileName.filename();
   // Importing textures
 
-  for (const std::filesystem::path& texPath : IMPL.ctx.texturesToImport)
+  for (const std::filesystem::path& filePath : IMPL.ctx.filesToCopy)
   {
-    std::filesystem::path src = IMPL.ctx.inFile;
-    src.remove_filename();
-    src = src / texPath;
+    std::filesystem::path src = std::filesystem::canonical(IMPL.ctx.inDir / filePath);
 
     if (!std::filesystem::exists(src))
     {
@@ -101,7 +115,7 @@ void ModelImporter::_createFiles()
       continue;
     }
 
-    std::filesystem::path dst = IMPL.ctx.outDir / texPath;
+    std::filesystem::path dst = IMPL.ctx.outDir / filePath;
 
     if (std::filesystem::exists(dst))
     {
@@ -115,6 +129,8 @@ void ModelImporter::_createFiles()
     {
       if (!std::filesystem::exists(dstDir))
         std::filesystem::create_directories(dstDir);
+
+      // VRM_LOG_INFO("Copying {} to {}", src.string(), dst.string());
       std::filesystem::copy_file(src, dst);
     }
     catch(const std::exception& e)
@@ -316,5 +332,5 @@ std::string ModelImporter::_getTexture(aiMaterial* material, aiTextureType type)
 void ModelImporter::_registerTexture(const std::string& texName)
 {
   std::filesystem::path inPath = IMPL.ctx.inFile / texName;
-  IMPL.ctx.texturesToImport.emplace(texName);
+  IMPL.ctx.filesToCopy.emplace(texName);
 }

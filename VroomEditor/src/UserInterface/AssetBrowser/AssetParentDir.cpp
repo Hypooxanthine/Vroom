@@ -12,6 +12,7 @@ AssetParentDir::AssetParentDir(const std::filesystem::path& path)
   m_rightClickable = false;
   m_isTextEditable = false;
   m_deletable = false;
+  m_isSelectable = false;
 }
 
 AssetParentDir::~AssetParentDir()

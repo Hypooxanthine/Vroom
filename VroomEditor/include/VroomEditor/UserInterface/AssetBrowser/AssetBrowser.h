@@ -22,7 +22,8 @@ namespace vrm
     void setCurrentPath(const std::filesystem::path &newPath);
     void updateDirectoryContent();
 
-    void selectElement(const AssetElement* element);
+    void toggleSelectElement(const AssetElement* element);
+    void unselectElement();
 
   protected:
     bool onImgui() override;

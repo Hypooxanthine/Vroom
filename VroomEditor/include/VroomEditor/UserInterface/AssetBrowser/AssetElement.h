@@ -50,9 +50,13 @@ private:
   void onDrawText();
   void onRenaming();
 
+  void requestDeleteThis();
+  void requestUnselectThis();
+
 protected:
   static ImVec2 s_ElementSize;
   TextureAsset::Handle m_Picto;
+  bool m_isSelectable = true;
   bool m_rightClickable = true;
   bool m_isTextEditable = true;
   bool m_deletable = true;
