@@ -16,6 +16,13 @@
 
 using namespace vrm;
 
+std::filesystem::path AssetUtils::GetMetaName(const std::filesystem::path& baseName)
+{
+  std::filesystem::path meta = baseName;
+  meta += ".meta";
+  return meta;
+}
+
 std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const std::filesystem::path& path)
 {
   // Directories
@@ -35,8 +42,7 @@ std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const std::filesyst
     return nullptr;
   }
 
-  std::filesystem::path metaDataPath = path;
-  metaDataPath += ".meta";
+  std::filesystem::path metaDataPath = GetMetaName(path);
 
   if (!std::filesystem::exists(metaDataPath))
   {
@@ -78,8 +84,7 @@ std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const MetaFile& met
 bool AssetUtils::CreateMetaFile(const MetaFile& meta, const std::filesystem::path& filePath)
 {
   std::ofstream ofs;
-  std::filesystem::path metaPath = filePath;
-  metaPath += ".meta";
+  std::filesystem::path metaPath = GetMetaName(filePath);
   ofs.open(metaPath, std::fstream::trunc);
 
   if (ofs.is_open())
@@ -122,15 +127,27 @@ void AssetUtils::OpenNativeFileExplorer(const std::filesystem::path& path)
   std::thread(OpenNativeFileExplorer_Impl, path).detach();
 }
 
+bool AssetUtils::CreateDirectory(const std::filesystem::path& path)
+{
+  try
+  {
+    std::filesystem::create_directory(path);
+  }
+  catch(const std::exception& e)
+  {
+    return false;
+  }
+
+  return true;
+}
+
 bool AssetUtils::DeleteAssetElement(const std::filesystem::path& path)
 {
-  // std::filesystem::remove_all()
   namespace fs = std::filesystem;
 
   try
   {
-    fs::path metaPath = path;
-    metaPath += ".meta";
+    fs::path metaPath = GetMetaName(path);
 
     if (fs::exists(metaPath))
     {
@@ -140,6 +157,30 @@ bool AssetUtils::DeleteAssetElement(const std::filesystem::path& path)
     if (fs::exists(path))
     {
       fs::remove_all(path);
+    }
+  }
+  catch(const std::exception& e)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+bool AssetUtils::RenameAssetElement(const std::filesystem::path& assetPath, const std::filesystem::path& targetName)
+{
+  namespace fs = std::filesystem;
+
+  try
+  {
+    fs::path metaPath = GetMetaName(assetPath);
+
+    fs::rename(assetPath, targetName);
+
+    if (fs::exists(metaPath))
+    {
+      fs::path newMetaPath = GetMetaName(targetName);
+      fs::rename(metaPath, newMetaPath);
     }
   }
   catch(const std::exception& e)

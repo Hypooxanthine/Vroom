@@ -152,6 +152,14 @@ bool AssetBrowser::onImgui()
 
     if (ImGui::BeginPopupContextWindow("##browserpopup", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
     {
+      if (ImGui::Selectable("Create directory"))
+      {
+        EditorLayer::Get().pushRoutine([this](auto& layer) {
+          AssetUtils::CreateDirectory(m_CurrentPath / "NewDirectory");
+          updateDirectoryContent();
+        });
+      }
+
       if (ImGui::Selectable("Open in OS explorer"))
       {
         AssetUtils::OpenNativeFileExplorer(m_CurrentPath);

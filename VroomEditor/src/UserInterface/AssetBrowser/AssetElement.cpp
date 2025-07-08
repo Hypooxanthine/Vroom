@@ -10,6 +10,7 @@
 #include <Vroom/Core/Log.h>
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 using namespace vrm;
 
@@ -44,7 +45,14 @@ bool AssetElement::onImgui()
   {
     ImGui::SetWindowFontScale(0.8f);
     onDrawPicto();
-    onDrawText();
+    if (m_renaming)
+    {
+      onRenaming();
+    }
+    else
+    {
+      onDrawText();
+    }
   }
   ImGui::EndChild();
 
@@ -125,6 +133,46 @@ void AssetElement::onDrawText()
   }
 }
 
+void AssetElement::onRenaming()
+{
+  std::string fileName = getText();
+
+  constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsNoBlank;
+
+  if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0))
+    ImGui::SetKeyboardFocusHere(0);
+
+  if (ImGui::InputText("##FileNameEdit", &fileName, flags))
+  {
+    if (fileName.empty())
+    {
+      if (auto* state = ImGui::GetInputTextState(ImGui::GetItemID()))
+      {
+        state->ReloadUserBufAndKeepSelection();
+      }
+    }
+    else
+    {
+      std::filesystem::path newPath = getPath();
+      newPath.remove_filename();
+      newPath = newPath / fileName;
+
+      EditorLayer::Get().pushRoutine([this, newPath](auto& layer) {
+        AssetUtils::RenameAssetElement(getPath(), newPath);
+        getBrowser().updateDirectoryContent();
+      });
+    }
+    
+    m_renaming = false;
+  }
+
+
+  if (ImGui::IsKeyPressed(ImGuiKey_Escape) || !ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
+  {
+    m_renaming = false;
+  }
+}
+
 std::string AssetElement::getText() const
 {
   return getPath().filename().string();
@@ -143,7 +191,7 @@ void AssetElement::contextualBehaviour()
   {
     if (ImGui::Selectable("Rename"))
     {
-
+      setRenaming();
     }
 
     if (!m_isTextEditable) ImGui::EndDisabled();

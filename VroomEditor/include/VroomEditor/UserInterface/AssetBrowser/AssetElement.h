@@ -27,6 +27,7 @@ public:
   inline void setBrowser(AssetBrowser* browser) { m_Browser = browser; }
 
   inline void setSelected(bool selected) { m_selected = selected; }
+  inline void setRenaming() { m_renaming = true; }
 
 protected:
   inline static consteval std::string_view GetDefaultPictoAssetName() { return "Resources/Editor/Picto/unknown.png"; }
@@ -47,6 +48,7 @@ private:
   void onClick();
   void contextualBehaviour();
   void onDrawText();
+  void onRenaming();
 
 protected:
   static ImVec2 s_ElementSize;
@@ -59,7 +61,7 @@ private:
   std::filesystem::path m_ElementPath;
   AssetBrowser* m_Browser = nullptr;
   bool m_selected = false;
-  bool m_editingText = false;
+  bool m_renaming = false;
 };
 
 } // namespace vrm

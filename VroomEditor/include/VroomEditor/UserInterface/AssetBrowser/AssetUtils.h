@@ -42,12 +42,19 @@ namespace vrm
      */
     static std::unique_ptr<AssetElement> CreateAssetElement(const MetaFile& meta, const std::filesystem::path& filePath);
 
+    static std::filesystem::path GetMetaName(const std::filesystem::path& baseName);
+
     static bool CreateMetaFile(const MetaFile& meta, const std::filesystem::path& filePath);
 
     static void OpenNativeFileExplorer(const std::filesystem::path& path);
 
-    // File or directory. Will checks for meta files and remove them if exist
+    static bool CreateDirectory(const std::filesystem::path& path);
+
+    // File or directory. Will check for meta files and remove them if exist
     static bool DeleteAssetElement(const std::filesystem::path& path);
+
+    // File or directory. Will check for meta files and rename them if exist
+    static bool RenameAssetElement(const std::filesystem::path& assetPath, const std::filesystem::path& targetName);
   };
 
 }
