@@ -15,14 +15,6 @@ class AssetBrowser;
 class AssetElement : public ImGuiElement
 {
 public:
-  enum class EAction
-  {
-    eNone = 0,
-    eNavigate,
-    eLoadScene
-  };
-
-public:
   AssetElement(const std::filesystem::path &elementPath);
   virtual ~AssetElement();
 
@@ -32,10 +24,9 @@ public:
   inline static const auto& GetElementSize() { return s_ElementSize; }
   inline static void SetElementSize(const ImVec2& size) { s_ElementSize = size; }
 
-  inline AssetBrowser &getBrowser() { return *m_Browser; }
-  inline const AssetBrowser &getBrowser() const { return *m_Browser; }
+  inline void setBrowser(AssetBrowser* browser) { m_Browser = browser; }
 
-  inline EAction getAction() const { return m_Action; }
+  inline void setSelected(bool selected) { m_selected = selected; }
 
 protected:
   inline static consteval std::string_view GetDefaultPictoAssetName() { return "Resources/Editor/Picto/unknown.png"; }
@@ -46,8 +37,15 @@ protected:
   virtual std::string getPictoAssetName() const;
   virtual void onDrawText();
   virtual std::string getText() const;
-  virtual EAction onDoubleClick() { return EAction::eNone; }
-  virtual void onAddCustomBehaviour() {};
+  virtual void onDoubleClick() {}
+  virtual void onAddCustomBehaviour() {}
+
+  inline AssetBrowser &getBrowser() { return *m_Browser; }
+  inline const AssetBrowser &getBrowser() const { return *m_Browser; }
+
+private:
+
+  void onClick();
 
 protected:
   static ImVec2 s_ElementSize;
@@ -55,8 +53,8 @@ protected:
 
 private:
   std::filesystem::path m_ElementPath;
-  AssetBrowser *m_Browser;
-  EAction m_Action = EAction::eNone;
+  AssetBrowser* m_Browser = nullptr;
+  bool m_selected = false;
 };
 
 } // namespace vrm

@@ -3,6 +3,9 @@
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/TextureAsset.h"
 
+#include "VroomEditor/EditorLayer.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetBrowser.h"
+
 #include <Vroom/Core/Log.h>
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -23,11 +26,16 @@ AssetElement::~AssetElement()
 bool AssetElement::onImgui()
 {
   bool ret = false;
-  m_Action = EAction::eNone;
+
+  if (m_selected)
+  {
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyle().Colors[ImGuiCol_FrameBg]);
+  }
 
   ImGui::PushID(ImGui::GetID(getPath().c_str()));
 
-  constexpr auto childFlags = ImGuiChildFlags_Borders;
+  auto childFlags = ImGuiChildFlags_Borders
+  ;
   constexpr auto windowFlags = ImGuiWindowFlags_None | ImGuiWindowFlags_ChildWindow;
 
   auto cursor = ImGui::GetCursorPos();
@@ -43,19 +51,23 @@ bool AssetElement::onImgui()
   static constexpr auto flags = ImGuiButtonFlags_MouseButtonLeft | (ImGuiButtonFlags_AllowOverlap | ImGuiButtonFlags_FlattenChildren);
   ImGui::InvisibleButton("##interact", ImGui::GetItemRectSize(), flags);
 
-  if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()) && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+  if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()))
   {
-    auto action = onDoubleClick();
-    if (action != EAction::eNone)
-    {
-      m_Action = action;
-      ret = true;
-    }
+    if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+      onDoubleClick();
+    else if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+      onClick();
   }
 
   onAddCustomBehaviour();
 
   ImGui::PopID();
+
+  if (m_selected)
+  {
+    ImGui::PopStyleColor();
+  }
+
   return ret;
 }
 
@@ -109,4 +121,11 @@ void AssetElement::onDrawText()
 std::string AssetElement::getText() const
 {
   return getPath().filename().string();
+}
+
+void AssetElement::onClick()
+{
+  EditorLayer::Get().pushRoutine([this](auto& layer){
+    getBrowser().selectElement(this);
+  });
 }

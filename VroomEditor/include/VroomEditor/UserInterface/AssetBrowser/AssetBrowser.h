@@ -22,8 +22,7 @@ namespace vrm
     void setCurrentPath(const std::filesystem::path &newPath);
     void updateDirectoryContent();
 
-    inline AssetElement::EAction getAction() const { return m_Action; }
-    inline const std::filesystem::path &getSelectedAsset() const { return m_SelectedAsset; }
+    void selectElement(const AssetElement* element);
 
   protected:
     bool onImgui() override;
@@ -37,8 +36,7 @@ namespace vrm
     std::filesystem::path m_CurrentPath;
 
     std::vector<std::unique_ptr<AssetElement>> m_Assets;
-    AssetElement::EAction m_Action = AssetElement::EAction::eNone;
-    std::filesystem::path m_SelectedAsset;
+    AssetElement* m_selectedAsset = nullptr;
   };
 
 } // namespace vrm

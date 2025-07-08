@@ -13,7 +13,7 @@ public:
 
 protected:
   virtual std::string getPictoAssetName() const override;
-  virtual EAction onDoubleClick() override { return EAction::eNavigate; }
+  virtual void onDoubleClick() override;
 
 private:
 };

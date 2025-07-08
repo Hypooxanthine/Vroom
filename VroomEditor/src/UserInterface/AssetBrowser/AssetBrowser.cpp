@@ -46,6 +46,7 @@ void AssetBrowser::setCurrentPath(const std::filesystem::path &newPath)
 void AssetBrowser::updateDirectoryContent()
 {
   m_Assets.clear();
+  m_selectedAsset = nullptr;
 
   if (m_CurrentPath != m_ResourcesPath)
   {
@@ -80,6 +81,34 @@ void AssetBrowser::updateDirectoryContent()
     m_Assets.emplace_back(std::move(elem));
   for (auto&& elem : files)
     m_Assets.emplace_back(std::move(elem));
+
+  for (auto& elem : m_Assets)
+    elem->setBrowser(this);
+}
+
+void AssetBrowser::selectElement(const AssetElement* element)
+{
+  if (m_selectedAsset == element)
+  {
+    m_selectedAsset->setSelected(false);
+    m_selectedAsset = nullptr;
+    return;
+  }
+  else if (m_selectedAsset)
+  {
+    m_selectedAsset->setSelected(false);
+    m_selectedAsset = nullptr;
+  }
+
+  auto it = std::find_if(m_Assets.begin(), m_Assets.end(), [&element](const std::unique_ptr<AssetElement>& elem) { return elem.get() == element;});
+
+  if (it == m_Assets.end())
+  {
+    return;
+  }
+
+  it->get()->setSelected(true);
+  m_selectedAsset = it->get();
 }
 
 bool AssetBrowser::onImgui()
@@ -88,10 +117,6 @@ bool AssetBrowser::onImgui()
 
   if (ImGui::Begin("Asset browser", m_open))
   {
-    m_Action = AssetElement::EAction::eNone;
-    m_SelectedAsset.clear();
-    std::filesystem::path nextPath = m_CurrentPath;
-
     static constexpr char sep = std::filesystem::path::preferred_separator;
     std::string displayPath = sep + m_CurrentPath.lexically_relative(m_ResourcesPath.parent_path()).string();
     if (!displayPath.ends_with(sep))
@@ -119,24 +144,7 @@ bool AssetBrowser::onImgui()
       if (ImGui::GetCursorPosX() + AssetElement::GetElementSize().x > windowWidth)
         ImGui::NewLine();
 
-      if (elem->renderImgui())
-      {
-        m_Action = elem->getAction();
-
-        if (m_Action == AssetElement::EAction::eNavigate)
-        {
-          nextPath = elem->getPath();
-        }
-        else if (m_Action == AssetElement::EAction::eLoadScene)
-        {
-          EditorLayer::Get().loadScene(elem->getPath().string());
-        }
-        else
-        {
-          m_SelectedAsset = elem->getPath();
-          ret = true;
-        }
-      }
+      elem->renderImgui();
     }
 
     // windowSize.y = ImGui::GetCursorPosY() - windowPos.y;
@@ -162,8 +170,6 @@ bool AssetBrowser::onImgui()
 
       ImGui::EndDragDropTarget();
     }
-
-    setCurrentPath(nextPath);
   }
 
   ImGui::End();
