@@ -10,6 +10,11 @@
         "EnableIf": "VRM_PBR_Albedo_UNIFORM"
       },
       {
+        "Name": "u_PBRSpecular",
+        "Type": "float",
+        "EnableIf": "VRM_PBR_Specular_UNIFORM"
+      },
+      {
         "Name": "u_PBRRoughness",
         "Type": "float",
         "EnableIf": "VRM_PBR_Roughness_UNIFORM"
@@ -18,6 +23,11 @@
         "Name": "u_PBRMetalness",
         "Type": "float",
         "EnableIf": "VRM_PBR_Metalness_UNIFORM"
+      },
+      {
+        "Name": "u_PBRIOR",
+        "Type": "float",
+        "EnableIf": "VRM_PBR_IOR_UNIFORM"
       },
       {
         "Name": "u_PBRTextures[VRM_PBR_TEXTURES_COUNT]",
