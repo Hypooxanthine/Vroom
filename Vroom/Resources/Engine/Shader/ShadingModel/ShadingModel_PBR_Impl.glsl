@@ -56,6 +56,19 @@ float GetIOR()
 #endif
 }
 
+#if defined (VRM_PBR_Normal_TEXTURE) && defined (VRM_PBR_Normal_TEXTURE_SLOT)
+  #define VRM_USE_NORMAL_MAP 1
+#endif
+
+vec3 GetNormal()
+{
+#if defined (VRM_USE_NORMAL_MAP)
+  return texture(u_PBRTextures[VRM_PBR_Normal_TEXTURE_SLOT], v_TexCoord).xyz;
+#else
+  return vec3(0.0);
+#endif
+}
+
 vec3 g_albedo;
 float g_specular;
 float g_roughness;

@@ -260,8 +260,10 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   
 
   std::string albedoMap = _getTexture(material, aiTextureType_BASE_COLOR);
+  std::string specularMap = _getTexture(material, aiTextureType_SPECULAR);
   std::string metalnessMap = _getTexture(material, aiTextureType_METALNESS);
   std::string roughnessMap = _getTexture(material, aiTextureType_DIFFUSE_ROUGHNESS);
+  std::string normalMap = _getTexture(material, aiTextureType_NORMALS);
   
   MaterialData::Parameter p;
   
@@ -270,6 +272,21 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   {
     _registerTexture(albedoMap);
     p.setValue(albedoMap);
+    data.addParameter(p);
+  }
+  else
+  {
+    aiColor4D col;
+    material->Get(AI_MATKEY_COLOR_DIFFUSE, col);
+    p.setValue(glm::vec3(col.r, col.g, col.b));
+    data.addParameter(p);
+  }
+  
+  p.name = "Specular";
+  if (specularMap.size() > 0)
+  {
+    _registerTexture(specularMap);
+    p.setValue(specularMap);
     data.addParameter(p);
   }
   else
@@ -307,6 +324,14 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
     float col;
     material->Get(AI_MATKEY_ROUGHNESS_FACTOR, col);
     p.setValue(col);
+    data.addParameter(p);
+  }
+   
+  p.name = "Normal";
+  if (normalMap.size() > 0)
+  {
+    _registerTexture(normalMap);
+    p.setValue(normalMap);
     data.addParameter(p);
   }
 
