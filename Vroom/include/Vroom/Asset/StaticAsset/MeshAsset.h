@@ -1,6 +1,6 @@
 #pragma once
 
-#include <list>
+#include <vector>
 
 #include "Vroom/Api.h"
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
@@ -35,7 +35,7 @@ namespace vrm
     MeshAsset();
     ~MeshAsset();
 
-    const std::list<SubMesh>& getSubMeshes() const { return m_SubMeshes; }
+    const std::vector<SubMesh>& getSubMeshes() const { return m_SubMeshes; }
 
     void addSubmesh(const MeshData& mesh, MaterialAsset::Handle instance);
     void addSubmesh(const MeshData& mesh);
@@ -51,7 +51,7 @@ namespace vrm
     void _processMesh(aiMesh* mesh, const aiScene* scene);
 
   private:
-    std::list<SubMesh> m_SubMeshes;
+    std::vector<SubMesh> m_SubMeshes;
   };
 
 } // namespace vrm
