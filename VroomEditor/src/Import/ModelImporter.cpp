@@ -331,6 +331,7 @@ std::string ModelImporter::_getTexture(aiMaterial* material, aiTextureType type)
 
 void ModelImporter::_registerTexture(const std::string& texName)
 {
-  std::filesystem::path inPath = IMPL.ctx.inFile / texName;
-  IMPL.ctx.filesToCopy.emplace(texName);
+  std::string formatted = texName;
+  std::replace(formatted.begin(), formatted.end(), '\\', '/');
+  IMPL.ctx.filesToCopy.emplace(formatted);
 }
