@@ -37,8 +37,6 @@ add_executable(VroomEditor                      ${PROJECT_IMPL} ${PROJECT_HEADER
 target_include_directories(VroomEditor  PUBLIC  ${INCLUDE_DIR} ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
 target_link_libraries(VroomEditor       PUBLIC  ${LIBRARIES})
 
-add_dependencies(VroomEditor ScriptsLibrary)
-
 # Compile options
 if (MSVC)
     target_compile_options(VroomEditor PRIVATE /MP)
@@ -59,34 +57,32 @@ endif()
 set(OUTPUT_DIR $<TARGET_FILE_DIR:VroomEditor>)
 set(OUTPUT_RESOURCES_DIR ${OUTPUT_DIR}/Resources)
 
-add_custom_command(TARGET VroomEditor POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E make_directory
-  ${OUTPUT_RESOURCES_DIR}
-)
-
-add_custom_command(TARGET VroomEditor POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${ENGINE_RESOURCE_DIR} ${EDITOR_RESOURCE_DIR}
-  ${OUTPUT_RESOURCES_DIR}
-)
-
-add_custom_command(TARGET VroomEditor POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy
-  ${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini
-  ${OUTPUT_DIR}
-)
-
 if (WIN32)
   set(SCRIPTS_BUILDER ${CMAKE_CURRENT_SOURCE_DIR}/scriptsBuilder.bat)
 elseif (UNIX)
   set(SCRIPTS_BUILDER ${CMAKE_CURRENT_SOURCE_DIR}/scriptsBuilder.sh)
 endif()
 
-add_custom_command(TARGET VroomEditor POST_BUILD
+add_custom_target(VroomEditorResources
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+    # Create /Resources dir
+    ${OUTPUT_RESOURCES_DIR}
+
   COMMAND ${CMAKE_COMMAND} -E copy
-  $<TARGET_FILE:Vroom> $<TARGET_FILE:glfw> $<TARGET_FILE:libglew_shared> $<TARGET_FILE:ScriptsLibrary> ${SCRIPTS_BUILDER}
-  ${OUTPUT_DIR}
+    # Copy shared/runtime libraries
+    $<TARGET_FILE:Vroom> $<TARGET_FILE:glfw> $<TARGET_FILE:libglew_shared> $<TARGET_FILE:ScriptsLibrary> ${SCRIPTS_BUILDER}
+    # Imgui default config
+    ${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini
+    ${OUTPUT_DIR}
+  
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    # Copy Resources dirs
+    ${ENGINE_RESOURCE_DIR} ${EDITOR_RESOURCE_DIR}
+    ${OUTPUT_RESOURCES_DIR}
 )
+
+add_dependencies(VroomEditor VroomEditorResources)
+add_dependencies(VroomEditorResources Vroom glfw libglew_shared ScriptsLibrary)
 
 target_compile_definitions(VroomEditor
   PRIVATE VRM_RUNTIME_SCRIPTS_PATH="$<TARGET_FILE_NAME:ScriptsLibrary>"
