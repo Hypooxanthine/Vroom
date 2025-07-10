@@ -19,9 +19,10 @@ void MaterialData::setShadingModel(EShadingModel model)
 
 void MaterialData::addParameter(const Parameter& param)
 {
+  VRM_CHECK_RET_MSG(param.type != Parameter::Type::eNone, "Parameter must have a type");
   VRM_CHECK_RET_MSG(!m_parameters.contains(param.name), "Material parameter already set !");
 
-  if (param.isTexture())
+  if (param.type == Parameter::eSampler2D)
     ++m_textureCount;
   
   m_parameters[param.name] = param;

@@ -86,6 +86,32 @@ void AssetBrowser::updateDirectoryContent()
     elem->setBrowser(this);
 }
 
+AssetElement* AssetBrowser::findCurrentDirElement(const std::string& elementName)
+{
+  for (const auto& elem : m_Assets)
+  {
+    if (elem->getPath().has_filename() && elem->getPath().filename() == elementName)
+    {
+      return elem.get();
+    }
+  }
+
+  return nullptr;
+}
+
+AssetElement* AssetBrowser::findCurrentDirElement(const std::filesystem::path& elementPath)
+{
+  for (const auto& elem : m_Assets)
+  {
+    if (elem->getPath().has_filename() && elem->getPath() == elementPath)
+    {
+      return elem.get();
+    }
+  }
+
+  return nullptr;
+}
+
 void AssetBrowser::toggleSelectElement(const AssetElement* element)
 {
   if (m_selectedAsset == element)
@@ -109,12 +135,67 @@ void AssetBrowser::toggleSelectElement(const AssetElement* element)
   m_selectedAsset = it->get();
 }
 
+void AssetBrowser::toggleSelectElement(const std::string& elementName)
+{
+  const AssetElement* elem = findCurrentDirElement(elementName);
+  if (elem)
+  {
+    toggleSelectElement(elem);
+  }
+}
+
+void AssetBrowser::selectElement(const AssetElement* element)
+{
+  if (m_selectedAsset == element)
+  {
+    return;
+  }
+
+  unselectElement(); // If any is selected, stop it
+
+  auto it = std::find_if(m_Assets.begin(), m_Assets.end(), [&element](const std::unique_ptr<AssetElement>& elem) { return elem.get() == element;});
+
+  if (it == m_Assets.end())
+  {
+    return;
+  }
+
+  it->get()->setSelected(true);
+  m_selectedAsset = it->get();
+}
+
+void AssetBrowser::selectElement(const std::string& elementName)
+{
+  const AssetElement* elem = findCurrentDirElement(elementName);
+  if (elem)
+  {
+    selectElement(elem);
+  }
+}
+
+void AssetBrowser::selectElement(const std::filesystem::path& elementPath)
+{
+  const AssetElement* elem = findCurrentDirElement(elementPath);
+  if (elem)
+  {
+    selectElement(elem);
+  }
+}
+
 void AssetBrowser::unselectElement()
 {
   if (m_selectedAsset)
   {
     m_selectedAsset->setSelected(false);
     m_selectedAsset = nullptr;
+  }
+}
+
+void AssetBrowser::unselectElement(const AssetElement* element)
+{
+  if (m_selectedAsset == element)
+  {
+    unselectElement();
   }
 }
 
@@ -162,8 +243,17 @@ bool AssetBrowser::onImgui()
       if (ImGui::Selectable("Create directory"))
       {
         EditorLayer::Get().pushRoutine([this](auto& layer) {
-          AssetUtils::CreateDirectory(m_CurrentPath / "NewDirectory");
-          updateDirectoryContent();
+          static const std::string newDirName = "NewDirectory";
+          if (AssetUtils::CreateDirectory(m_CurrentPath / newDirName))
+          {
+            updateDirectoryContent();
+            AssetElement* elem = findCurrentDirElement(newDirName);
+            if (elem) // Should always be true
+            {
+              toggleSelectElement(elem);
+              elem->setRenaming();
+            }
+          }
         });
       }
 

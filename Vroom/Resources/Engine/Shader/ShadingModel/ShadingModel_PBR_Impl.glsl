@@ -3,10 +3,10 @@
 
 vec3 GetAlbedo()
 {
-#ifdef VRM_PBR_Albedo_UNIFORM
-  return u_PBRAlbedo;
-#elif defined (VRM_PBR_Albedo_TEXTURE) && defined (VRM_PBR_Albedo_TEXTURE_SLOT)
-  return texture(u_PBRTextures[VRM_PBR_Albedo_TEXTURE_SLOT], v_TexCoord).xyz;
+#ifdef VRM_UNIFORM_u_albedo
+  return u_albedo;
+#elif defined (VRM_TEXTURE_u_albedo)
+  return texture(u_albedo, v_TexCoord).xyz;
 #else
   return vec3(1.f, 1.f, 1.f);
 #endif
@@ -14,10 +14,10 @@ vec3 GetAlbedo()
 
 float GetSpecular()
 {
-#ifdef VRM_PBR_Specular_UNIFORM
-  return u_PBRSpecular;
-#elif defined (VRM_PBR_Specular_TEXTURE) && defined (VRM_PBR_Specular_TEXTURE_SLOT)
-  return texture(u_PBRTextures[VRM_PBR_Specular_TEXTURE_SLOT], v_TexCoord).x;
+#ifdef VRM_UNIFORM_u_specular
+  return u_specular;
+#elif defined (VRM_TEXTURE_u_specular)
+  return texture(u_specular, v_TexCoord).x;
 #else
   return 0.5;
 #endif
@@ -25,10 +25,10 @@ float GetSpecular()
 
 float GetRoughness()
 {
-#ifdef VRM_PBR_Roughness_UNIFORM
-  return u_PBRRoughness;
-#elif defined (VRM_PBR_Roughness_TEXTURE) && defined (VRM_PBR_Roughness_TEXTURE_SLOT)
-  return texture(u_PBRTextures[VRM_PBR_Roughness_TEXTURE_SLOT], v_TexCoord).x;
+#ifdef VRM_UNIFORM_u_roughness
+  return u_roughness;
+#elif defined (VRM_TEXTURE_u_roughness)
+  return texture(u_roughness, v_TexCoord).x;
 #else
   return 0.5;
 #endif
@@ -36,10 +36,10 @@ float GetRoughness()
 
 float GetMetalness()
 {
-#ifdef VRM_PBR_Metalness_UNIFORM
-  return u_PBRMetalness;
-#elif defined (VRM_PBR_Metalness_TEXTURE) && defined (VRM_PBR_Metalness_TEXTURE_SLOT)
-  return texture(u_PBRTextures[VRM_PBR_Metalness_TEXTURE_SLOT], v_TexCoord).x;
+#ifdef VRM_UNIFORM_u_metalness
+  return u_metalness;
+#elif defined (VRM_TEXTURE_u_metalness)
+  return texture(u_metalness, v_TexCoord).x;
 #else
   return 0.0;
 #endif
@@ -47,25 +47,12 @@ float GetMetalness()
 
 float GetIOR()
 {
-#ifdef VRM_PBR_IOR_UNIFORM
-  return u_PBRIOR;
-#elif defined (VRM_PBR_IOR_TEXTURE) && defined (VRM_PBR_IOR_TEXTURE_SLOT)
-  return texture(u_PBRTextures[VRM_PBR_IOR_TEXTURE_SLOT], v_TexCoord).x;
+#ifdef VRM_UNIFORM_u_IOR
+  return u_IOR;
+#elif defined (VRM_TEXTURE_u_IOR)
+  return texture(u_IOR, v_TexCoord).x;
 #else
   return 1.5;
-#endif
-}
-
-#if defined (VRM_PBR_Normal_TEXTURE) && defined (VRM_PBR_Normal_TEXTURE_SLOT)
-  #define VRM_USE_NORMAL_MAP 1
-#endif
-
-vec3 GetNormal()
-{
-#if defined (VRM_USE_NORMAL_MAP)
-  return texture(u_PBRTextures[VRM_PBR_Normal_TEXTURE_SLOT], v_TexCoord).xyz;
-#else
-  return vec3(0.0);
 #endif
 }
 

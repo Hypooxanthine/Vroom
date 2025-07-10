@@ -5,34 +5,54 @@
     ],
     "Uniforms": [
       {
-        "Name": "u_PBRAlbedo",
+        "Name": "u_albedo",
         "Type": "vec3",
-        "EnableIf": "VRM_PBR_Albedo_UNIFORM"
+        "EnableIf": "VRM_UNIFORM_u_albedo"
       },
       {
-        "Name": "u_PBRSpecular",
+        "Name": "u_specular",
         "Type": "float",
-        "EnableIf": "VRM_PBR_Specular_UNIFORM"
+        "EnableIf": "VRM_UNIFORM_u_specular"
       },
       {
-        "Name": "u_PBRRoughness",
+        "Name": "u_roughness",
         "Type": "float",
-        "EnableIf": "VRM_PBR_Roughness_UNIFORM"
+        "EnableIf": "VRM_UNIFORM_u_roughness"
       },
       {
-        "Name": "u_PBRMetalness",
+        "Name": "u_metalness",
         "Type": "float",
-        "EnableIf": "VRM_PBR_Metalness_UNIFORM"
+        "EnableIf": "VRM_UNIFORM_u_metalness"
       },
       {
-        "Name": "u_PBRIOR",
+        "Name": "u_IOR",
         "Type": "float",
-        "EnableIf": "VRM_PBR_IOR_UNIFORM"
+        "EnableIf": "VRM_UNIFORM_u_IOR"
       },
       {
-        "Name": "u_PBRTextures[VRM_PBR_TEXTURES_COUNT]",
+        "Name": "u_albedo",
         "Type": "sampler2D",
-        "EnableIf": "VRM_PBR_ENABLE_TEXTURES"
+        "EnableIf": "VRM_TEXTURE_u_albedo"
+      },
+      {
+        "Name": "u_specular",
+        "Type": "sampler2D",
+        "EnableIf": "VRM_TEXTURE_u_specular"
+      },
+      {
+        "Name": "u_roughness",
+        "Type": "sampler2D",
+        "EnableIf": "VRM_TEXTURE_u_roughness"
+      },
+      {
+        "Name": "u_metalness",
+        "Type": "sampler2D",
+        "EnableIf": "VRM_TEXTURE_u_metalness"
+      },
+      {
+        "Name": "u_IOR",
+        "Type": "sampler2D",
+        "EnableIf": "VRM_TEXTURE_u_IOR"
       }
     ]
   }

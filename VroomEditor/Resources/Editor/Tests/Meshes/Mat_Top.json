@@ -1,7 +1,7 @@
 {
   "ShadingModel": "Phong",
   "Parameters": {
-    "Diffuse": {
+    "u_diffuse": {
       "Type": "vec3",
       "Value": [
         0.001105,
@@ -9,7 +9,7 @@
         0.000000
       ]
     },
-    "Specular": {
+    "u_specular": {
       "Type": "vec3",
       "Value": [
         0.100000,
@@ -17,7 +17,7 @@
         0.100000
       ]
     },
-    "Shininess": {
+    "u_shininess": {
       "Type": "float",
       "Value": 1.0
     }

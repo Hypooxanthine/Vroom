@@ -5,24 +5,34 @@
     ],
     "Uniforms": [
       {
-        "Name": "u_PhongDiffuse",
+        "Name": "u_diffuse",
         "Type": "vec3",
-        "EnableIf": "VRM_Phong_Diffuse_UNIFORM"
+        "EnableIf": "VRM_UNIFORM_u_diffuse"
       },
       {
-        "Name": "u_PhongSpecular",
+        "Name": "u_specular",
         "Type": "vec3",
-        "EnableIf": "VRM_Phong_Specular_UNIFORM"
+        "EnableIf": "VRM_UNIFORM_u_specular"
       },
       {
-        "Name": "u_PhongShininess",
+        "Name": "u_shininess",
         "Type": "float",
-        "EnableIf": "VRM_Phong_Shininess_UNIFORM"
+        "EnableIf": "VRM_UNIFORM_u_shininess"
       },
       {
-        "Name": "u_PhongTextures[VRM_Phong_TEXTURES_COUNT]",
+        "Name": "u_diffuse",
         "Type": "sampler2D",
-        "EnableIf": "VRM_Phong_ENABLE_TEXTURES"
+        "EnableIf": "VRM_TEXTURE_u_diffuse"
+      },
+      {
+        "Name": "u_specular",
+        "Type": "sampler2D",
+        "EnableIf": "VRM_TEXTURE_u_specular"
+      },
+      {
+        "Name": "u_shininess",
+        "Type": "sampler2D",
+        "EnableIf": "VRM_TEXTURE_u_shininess"
       }
     ]
   }

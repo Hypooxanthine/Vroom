@@ -50,6 +50,7 @@ private:
   void onDrawText();
   void onRenaming();
 
+  void requestSelectThis();
   void requestDeleteThis();
   void requestUnselectThis();
 

@@ -107,13 +107,13 @@ void ModelImporter::_createFiles()
 
   for (const std::filesystem::path& filePath : IMPL.ctx.filesToCopy)
   {
-    std::filesystem::path src = std::filesystem::canonical(IMPL.ctx.inDir / filePath);
-
-    if (!std::filesystem::exists(src))
+    if (!std::filesystem::exists(IMPL.ctx.inDir / filePath))
     {
-      VRM_LOG_WARN("Could not find texture {} required by the imported model.", src.string());
+      VRM_LOG_WARN("File {} was not found.", (IMPL.ctx.inDir / filePath).string());
       continue;
     }
+
+    std::filesystem::path src = std::filesystem::canonical(IMPL.ctx.inDir / filePath);
 
     std::filesystem::path dst = IMPL.ctx.outDir / filePath;
 
@@ -196,10 +196,11 @@ void ModelImporter::_processMaterialPhong(aiMaterial* material, unsigned int id)
   
   MaterialData::Parameter p;
   
-  p.name = "Diffuse";
+  p.name = "u_diffuse";
   if (diffuseMap.size() > 0)
   {
     _registerTexture(diffuseMap);
+    p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(diffuseMap);
     data.addParameter(p);
   }
@@ -207,14 +208,16 @@ void ModelImporter::_processMaterialPhong(aiMaterial* material, unsigned int id)
   {
     aiColor4D col;
     material->Get(AI_MATKEY_COLOR_DIFFUSE, col);
+    p.type = MaterialData::Parameter::eVec3;
     p.setValue(glm::vec3(col.r, col.g, col.b));
     data.addParameter(p);
   }
   
-  p.name = "Specular";
+  p.name = "u_specular";
   if (specularMap.size() > 0)
   {
     _registerTexture(specularMap);
+    p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(specularMap);
     data.addParameter(p);
   }
@@ -222,14 +225,16 @@ void ModelImporter::_processMaterialPhong(aiMaterial* material, unsigned int id)
   {
     aiColor4D col;
     material->Get(AI_MATKEY_COLOR_SPECULAR, col);
+    p.type = MaterialData::Parameter::eVec3;
     p.setValue(glm::vec3(col.r, col.g, col.b));
     data.addParameter(p);
   }
    
-  p.name = "Shininess";
+  p.name = "u_shininess";
   if (shininessMap.size() > 0)
   {
     _registerTexture(shininessMap);
+    p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(shininessMap);
     data.addParameter(p);
   }
@@ -237,6 +242,7 @@ void ModelImporter::_processMaterialPhong(aiMaterial* material, unsigned int id)
   {
     float col;
     material->Get(AI_MATKEY_SHININESS, col);
+    p.type = MaterialData::Parameter::eFloat;
     p.setValue(col);
     data.addParameter(p);
   }
@@ -267,10 +273,11 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   
   MaterialData::Parameter p;
   
-  p.name = "Albedo";
+  p.name = "u_albedo";
   if (albedoMap.size() > 0)
   {
     _registerTexture(albedoMap);
+    p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(albedoMap);
     data.addParameter(p);
   }
@@ -278,14 +285,16 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   {
     aiColor4D col;
     material->Get(AI_MATKEY_COLOR_DIFFUSE, col);
+    p.type = MaterialData::Parameter::eVec3;
     p.setValue(glm::vec3(col.r, col.g, col.b));
     data.addParameter(p);
   }
   
-  p.name = "Specular";
+  p.name = "u_specular";
   if (specularMap.size() > 0)
   {
     _registerTexture(specularMap);
+    p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(specularMap);
     data.addParameter(p);
   }
@@ -293,14 +302,16 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   {
     aiColor4D col;
     material->Get(AI_MATKEY_COLOR_DIFFUSE, col);
+    p.type = MaterialData::Parameter::eVec3;
     p.setValue(glm::vec3(col.r, col.g, col.b));
     data.addParameter(p);
   }
    
-  p.name = "Metalness";
+  p.name = "u_metalness";
   if (metalnessMap.size() > 0)
   {
     _registerTexture(metalnessMap);
+    p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(metalnessMap);
     data.addParameter(p);
   }
@@ -308,14 +319,16 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   {
     float col;
     material->Get(AI_MATKEY_METALLIC_FACTOR, col);
+    p.type = MaterialData::Parameter::eFloat;
     p.setValue(col);
     data.addParameter(p);
   }
    
-  p.name = "Roughness";
+  p.name = "u_roughness";
   if (roughnessMap.size() > 0)
   {
     _registerTexture(roughnessMap);
+    p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(roughnessMap);
     data.addParameter(p);
   }
@@ -323,14 +336,16 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   {
     float col;
     material->Get(AI_MATKEY_ROUGHNESS_FACTOR, col);
+    p.type = MaterialData::Parameter::eFloat;
     p.setValue(col);
     data.addParameter(p);
   }
    
-  p.name = "Normal";
+  p.name = "u_normal";
   if (normalMap.size() > 0)
   {
     _registerTexture(normalMap);
+    p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(normalMap);
     data.addParameter(p);
   }

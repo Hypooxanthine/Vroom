@@ -58,7 +58,14 @@ bool AssetElement::onImgui()
 
   if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
     onClick();
-  if (m_rightClickable && ImGui::BeginPopupContextItem("popup", ImGuiPopupFlags_MouseButtonRight))
+
+  if (m_rightClickable && ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+  {
+    requestSelectThis(); // Right clicking selects the element
+    ImGui::OpenPopup("popup");
+  }
+
+  if (ImGui::BeginPopup("popup", ImGuiPopupFlags_MouseButtonRight))
   {
     contextualBehaviour();
 
@@ -78,8 +85,9 @@ bool AssetElement::onImgui()
   }
   else
   {
-    if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+    if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right))
     {
+      // Clicking somewhere else should unselect the element
       requestUnselectThis();
     }
   }
@@ -210,7 +218,7 @@ void AssetElement::onClick()
 
   EditorLayer::Get().pushRoutine([this](auto& layer) {
     getBrowser().toggleSelectElement(this);
-    });
+     });
 }
 
 void AssetElement::contextualBehaviour()
@@ -236,6 +244,13 @@ void AssetElement::contextualBehaviour()
   }
 }
 
+void AssetElement::requestSelectThis()
+{
+  EditorLayer::Get().pushRoutine([this](auto& layer) {
+    getBrowser().selectElement(this);
+    });
+}
+
 void AssetElement::requestDeleteThis()
 {
   EditorLayer::Get().pushRoutine([this](auto& layer) {
@@ -249,7 +264,7 @@ void AssetElement::requestUnselectThis()
   if (m_selected)
   {
     EditorLayer::Get().pushRoutine([this](auto& layer) {
-      getBrowser().unselectElement();
+      getBrowser().unselectElement(this);
       });
   }
 }

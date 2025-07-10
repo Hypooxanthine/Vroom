@@ -22,8 +22,15 @@ namespace vrm
     void setCurrentPath(const std::filesystem::path &newPath);
     void updateDirectoryContent();
 
+    AssetElement* findCurrentDirElement(const std::string& elementName);
+    AssetElement* findCurrentDirElement(const std::filesystem::path& elementPath);
     void toggleSelectElement(const AssetElement* element);
+    void toggleSelectElement(const std::string& elementName);
+    void selectElement(const AssetElement* element);
+    void selectElement(const std::string& elementName);
+    void selectElement(const std::filesystem::path& elementPath);
     void unselectElement();
+    void unselectElement(const AssetElement* element); // Only unselect if the currently selected element is "element"
 
   protected:
     bool onImgui() override;

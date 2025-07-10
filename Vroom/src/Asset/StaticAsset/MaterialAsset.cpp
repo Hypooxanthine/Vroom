@@ -40,26 +40,25 @@ void MaterialAsset::applyUniforms(const gl::Shader& shader) const
 {
   shader.bind();
 
-  std::string prefix = "u_" + m_data.getShadingModelName();
   uint8_t textureCount = 0;
-  for (const auto &[name, param] : m_data.getParameters())
+  for (const auto &[pName, param] : m_data.getParameters())
   {
     auto visitor = overloaded{
-      [&, this](float value) { shader.setUniform1f(prefix + name, value); },
-      [&, this](const glm::vec2& value) { shader.setUniform2f(prefix + name, value); },
-      [&, this](const glm::vec3& value) { shader.setUniform3f(prefix + name, value); },
-      [&, this](const glm::vec4& value) { shader.setUniform4f(prefix + name, value); },
-      [&, this](const std::string& textureName) { shader.setTexture(prefix + "Textures", m_textures.at(textureCount)->getGPUTexture(), textureCount); ++textureCount; }
+      [&, this](float value) { shader.setUniform1f(pName, value); },
+      [&, this](const glm::vec2& value) { shader.setUniform2f(pName, value); },
+      [&, this](const glm::vec3& value) { shader.setUniform3f(pName, value); },
+      [&, this](const glm::vec4& value) { shader.setUniform4f(pName, value); },
+      [&, this](const glm::mat4& value) { shader.setUniformMat4f(pName, value); },
+      [&, this](const std::string& value) { },
     };
 
     std::visit(visitor, param.value);
-  }
 
-  if (m_data.getTextureCount() > 0)
-  {
-    std::vector<int> slots(m_data.getTextureCount());
-    std::iota(slots.begin(), slots.end(), 0);
-    shader.setUniform1iv(prefix + "Textures", m_data.getTextureCount(), slots.data());
+    if (param.type == MaterialData::Parameter::eSampler2D)
+    {
+      shader.setTexture(pName, m_textures.at(textureCount)->getGPUTexture(), textureCount);
+      ++textureCount;
+    }
   }
 }
  
@@ -69,34 +68,28 @@ bool MaterialAsset::buildShaderData()
 
   // Settings defines depending on material parameters
   {
-    std::string prefix = "VRM_" + m_data.getShadingModelName();
-
     ShaderData::Define d =
     {
-      .name = prefix + "_TEXTURES_COUNT",
+      .name = "VRM_TEXTURE_COUNT",
       .value = std::to_string(m_data.getTextureCount())
     };
-    m_materialShaderData.addDefine(ShaderData::EShaderType::eFragment, d);
+    m_materialShaderData.addDefine(ShaderData::EShaderType::eAll, d);
 
     if (m_data.getTextureCount() > 0)
     {
-      d = {.name = prefix + "_ENABLE_TEXTURES"};
+      d = {.name = "VRM_ENABLE_TEXTURES"};
 
-      m_materialShaderData.addDefine(ShaderData::EShaderType::eFragment, d);
+      m_materialShaderData.addDefine(ShaderData::EShaderType::eAll, d);
     }
 
-    for (const auto &[name, param] : m_data.getParameters())
+    for (const auto &[pName, param] : m_data.getParameters())
     {
-      std::string paramPrefix = prefix + "_" + name;
-
-      if (param.isTexture())
+      if (param.type == MaterialData::Parameter::eSampler2D)
       {
-        d = {.name = paramPrefix + "_TEXTURE"};
-        m_materialShaderData.addDefine(ShaderData::EShaderType::eFragment, d);
-        d = {.name = paramPrefix + "_TEXTURE_SLOT", .value = std::to_string(m_textures.size())};
-        m_materialShaderData.addDefine(ShaderData::EShaderType::eFragment, d);
+        d = {.name = "VRM_TEXTURE_" + pName };
+        m_materialShaderData.addDefine(ShaderData::EShaderType::eAll, d);
 
-        std::string texturePath = applyPathOrder(param.getTexture());
+        std::string texturePath = applyPathOrder(param.getValue<std::string>());
 
         VRM_CHECK_RET_FALSE_MSG(manager.tryLoadAsset<TextureAsset>(texturePath), "Could not load material texture: {}", texturePath);
 
@@ -104,8 +97,8 @@ bool MaterialAsset::buildShaderData()
       }
       else
       {
-        d = {.name = paramPrefix + "_UNIFORM"};
-        m_materialShaderData.addDefine(ShaderData::EShaderType::eFragment, d);
+        d = {.name = "VRM_UNIFORM_" + pName };
+        m_materialShaderData.addDefine(ShaderData::EShaderType::eAll, d);
       }
     }
   }

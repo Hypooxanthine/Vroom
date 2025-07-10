@@ -3,10 +3,10 @@
 
 vec3 GetDiffuse()
 {
-#ifdef VRM_Phong_Diffuse_UNIFORM
-  return u_PhongDiffuse;
-#elif defined (VRM_Phong_Diffuse_TEXTURE) && defined (VRM_Phong_Diffuse_TEXTURE_SLOT)
-  return texture(u_PhongTextures[VRM_Phong_Diffuse_TEXTURE_SLOT], v_TexCoord).xyz;
+#ifdef VRM_UNIFORM_u_diffuse
+  return u_diffuse;
+#elif defined (VRM_TEXTURE_u_diffuse)
+  return texture(u_diffuse, v_TexCoord).xyz;
 #else
   return vec3(1.f, 1.f, 1.f);
 #endif
@@ -14,10 +14,10 @@ vec3 GetDiffuse()
 
 vec3 GetSpecular()
 {
-#ifdef VRM_Phong_Specular_UNIFORM
-  return u_PhongSpecular;
-#elif defined (VRM_Phong_Specular_TEXTURE) && defined (VRM_Phong_Specular_TEXTURE_SLOT)
-  return texture(u_PhongTextures[VRM_Phong_Specular_TEXTURE_SLOT], v_TexCoord).xyz;
+#ifdef VRM_UNIFORM_u_specular
+  return u_specular;
+#elif defined (VRM_TEXTURE_u_specular)
+  return texture(u_specular, v_TexCoord).xyz;
 #else
   return vec3(1.f, 1.f, 1.f);
 #endif
@@ -25,10 +25,10 @@ vec3 GetSpecular()
 
 float GetShininess()
 {
-#ifdef VRM_Phong_Shininess_UNIFORM
-  return u_PhongShininess;
-#elif defined (VRM_Phong_Shininess_TEXTURE) && defined (VRM_Phong_Shininess_TEXTURE_SLOT)
-  return texture(u_PhongTextures[VRM_Phong_Shininess_TEXTURE_SLOT], v_TexCoord).x;
+#ifdef VRM_UNIFORM_u_shininess
+  return u_shininess;
+#elif defined (VRM_TEXTURE_u_shininess)
+  return texture(u_shininess, v_TexCoord).x;
 #else
   return 1.f;
 #endif

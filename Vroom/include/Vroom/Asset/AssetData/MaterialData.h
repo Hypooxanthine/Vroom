@@ -10,6 +10,7 @@
 namespace vrm
 {
 
+  // Represents a shading model and a bunch of parameters
   class VRM_API MaterialData
   {
   public:
@@ -23,6 +24,14 @@ namespace vrm
 
     struct Parameter
     {
+
+      enum Type : uint8_t
+      {
+        eNone = 0,
+        eFloat, eVec2, eVec3, eVec4, eMat4,
+        eSampler2D
+      };
+
       Parameter() = default;
       Parameter(const std::string& name) : name(name) {}
       Parameter& operator=(const Parameter&) = default;
@@ -33,23 +42,12 @@ namespace vrm
       template <typename T>
       inline void setValue(const T &val) { value = val; }
 
-      inline bool isFloat() const { return std::holds_alternative<float>(value); }
-      inline const float &getFloat() const { return std::get<float>(value); }
-
-      inline bool isVec2() const { return std::holds_alternative<glm::vec2>(value); }
-      inline const glm::vec2 &getVec2() const { return std::get<glm::vec2>(value); }
-
-      inline bool isVec3() const { return std::holds_alternative<glm::vec3>(value); }
-      inline const glm::vec3 &getVec3() const { return std::get<glm::vec3>(value); }
-
-      inline bool isVec4() const { return std::holds_alternative<glm::vec4>(value); }
-      inline const glm::vec4 &getVec4() const { return std::get<glm::vec4>(value); }
-
-      inline bool isTexture() const { return std::holds_alternative<std::string>(value); }
-      inline const std::string &getTexture() const { return std::get<std::string>(value); }
+      template <typename T>
+      inline const T& getValue() const { return std::get<T>(value); }
 
       std::string name;
-      std::variant<float, glm::vec2, glm::vec3, glm::vec4, std::string> value;
+      Type type = Type::eNone;
+      std::variant<float, glm::vec2, glm::vec3, glm::vec4, glm::mat4, std::string> value;
     };
 
   public:
@@ -103,6 +101,17 @@ namespace nlohmann
   {
     { vrm::MaterialData::EShadingModel::ePhong, vrm::MaterialData::GetShadingModelName(vrm::MaterialData::EShadingModel::ePhong) },
     { vrm::MaterialData::EShadingModel::ePBR, vrm::MaterialData::GetShadingModelName(vrm::MaterialData::EShadingModel::ePBR) },
+  })
+
+  NLOHMANN_JSON_SERIALIZE_ENUM(vrm::MaterialData::Parameter::Type,
+  {
+    { vrm::MaterialData::Parameter::eNone, "none" },
+    { vrm::MaterialData::Parameter::eFloat, "float" },
+    { vrm::MaterialData::Parameter::eVec2, "vec2" },
+    { vrm::MaterialData::Parameter::eVec3, "vec3" },
+    { vrm::MaterialData::Parameter::eVec4, "vec4" },
+    { vrm::MaterialData::Parameter::eMat4, "mat4" },
+    { vrm::MaterialData::Parameter::eSampler2D, "sampler2D" },
   })
 
   void VRM_API to_json(json& j, const vrm::MaterialData::Parameter& e);

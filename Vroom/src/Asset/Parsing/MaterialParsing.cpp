@@ -23,64 +23,90 @@ namespace nlohmann
   void to_json(json& j, const vrm::MaterialData::Parameter& e)
   {
     auto& value = j["Value"];
-    auto& type = j["Type"];
+    j["Type"] = e.type;
 
-    if (e.isFloat())
+    switch(e.type)
     {
-      value = e.getFloat();
-      type = "float";
-    }
-    else if (e.isVec2())
-    {
-      value = e.getVec2();
-      type = "vec2";
-    }
-    else if (e.isVec3())
-    {
-      value = e.getVec3();
-      type = "vec3";
-    }
-    else if (e.isVec4())
-    {
-      value = e.getVec4();
-      type = "vec4";
-    }
-    else if (e.isTexture())
-    {
-      value = e.getTexture();
-      type = "texture";
+      case vrm::MaterialData::Parameter::eFloat:
+      {
+        value = e.getValue<float>();
+        break;
+      }
+      case vrm::MaterialData::Parameter::eVec2:
+      {
+        value = e.getValue<glm::vec2>();
+        break;
+      }
+      case vrm::MaterialData::Parameter::eVec3:
+      {
+        value = e.getValue<glm::vec3>();
+        break;
+      }
+      case vrm::MaterialData::Parameter::eVec4:
+      {
+        value = e.getValue<glm::vec4>();
+        break;
+      }
+      case vrm::MaterialData::Parameter::eMat4:
+      {
+        value = e.getValue<glm::mat4>();
+        break;
+      }
+      case vrm::MaterialData::Parameter::eSampler2D:
+      {
+        value = e.getValue<std::string>();
+        break;
+      }
+      default:
+      {
+        VRM_ASSERT_MSG(false, "Unsupported type");
+        break;
+      }
     }
   }
 
   void from_json(const json& j, vrm::MaterialData::Parameter& e)
   {
     const auto& value = j["Value"];
-    const auto& type = j["Type"];
-    
-    if (type == "float")
+    e.type = j["Type"];
+
+    switch(e.type)
     {
-      float v = value;
-      e.setValue(v);
-    }
-    else if (type == "vec2")
-    {
-      glm::vec2 v = value;
-      e.setValue(v);
-    }
-    else if (type == "vec3")
-    {
-      glm::vec3 v = value;
-      e.setValue(v);
-    }
-    else if (type == "vec4")
-    {
-      glm::vec4 v = value;
-      e.setValue(v);
-    }
-    else if (type == "texture")
-    {
-      std::string v = value;
-      e.setValue(v);
+      case vrm::MaterialData::Parameter::eFloat:
+      {
+        e.setValue<float>(value);
+        break;
+      }
+      case vrm::MaterialData::Parameter::eVec2:
+      {
+        e.setValue<glm::vec2>(value);
+        break;
+      }
+      case vrm::MaterialData::Parameter::eVec3:
+      {
+        e.setValue<glm::vec3>(value);
+        break;
+      }
+      case vrm::MaterialData::Parameter::eVec4:
+      {
+        e.setValue<glm::vec4>(value);
+        break;
+      }
+      case vrm::MaterialData::Parameter::eMat4:
+      {
+        e.setValue<glm::mat4>(value);
+        break;
+      }
+      case vrm::MaterialData::Parameter::eSampler2D:
+      {
+        e.setValue<std::string>(value);
+        break;
+      }
+      default:
+      {
+        VRM_ASSERT_MSG(false, "Unsupported type");
+        break;
+      }
     }
   }
 

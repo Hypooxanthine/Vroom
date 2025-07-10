@@ -187,7 +187,7 @@ namespace nlohmann
 {
   
   template <glm::length_t L, typename T>
-  inline void to_json(json& j, const glm::vec<L, T> p)
+  inline void to_json(json& j, const glm::vec<L, T>& p)
   {
     j = json::array();
     
@@ -208,6 +208,44 @@ namespace nlohmann
     for (glm::length_t i = 0; i < L; ++i)
     {
       p[i] = j.at(i).get<float>();
+    }
+  }
+  
+  template <glm::length_t L, typename T>
+  inline void to_json(json& j, const glm::mat<L, L, T>& p)
+  {
+    j = json::array();
+
+    for (glm::length_t col = 0; col < L; ++col)
+    {
+      json column = json::array();
+      for (glm::length_t row = 0; row < L; ++row)
+      {
+        column.emplace_back(p[col][row]);
+      }
+      j.emplace_back(column);
+    }
+  }
+    
+  template <glm::length_t L, typename T>
+  inline void from_json(const json j, glm::mat<L, L, T>& p)
+  {
+    if (!j.is_array())
+    {
+      throw std::runtime_error("json must be an array");
+    }
+
+    for (glm::length_t col = 0; col < L; ++col)
+    {
+      if (!j.at(col).is_array())
+      {
+        throw std::runtime_error("matrix column must be an array");
+      }
+      
+      for (glm::length_t row = 0; row < L; ++row)
+      {
+        p[col][row] = j.at(col).at(row).get<T>();
+      }
     }
   }
 

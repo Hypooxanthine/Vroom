@@ -1,11 +1,11 @@
 {
   "ShadingModel": "Phong",
   "Parameters": {
-    "Diffuse": {
-      "Type": "texture",
+    "u_diffuse": {
+      "Type": "sampler2D",
       "Value": "Resources/Editor/Tests/Textures/Texture_Textured_Cube.png"
     },
-    "Specular": {
+    "u_specular": {
       "Type": "vec3",
       "Value": [
         0.05,
@@ -13,7 +13,7 @@
         0.05
       ]
     },
-    "Shininess": {
+    "u_shininess": {
       "Type": "float",
       "Value": 1.0
     }
