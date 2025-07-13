@@ -1,1 +1,366 @@
-{"scene_nodes":[{"components":[{"params":[{"name":"Position","value":[0.0,0.0,0.0]},{"name":"Rotation","value":[0.0,0.0,0.0]},{"name":"Scale","value":[1.0,1.0,1.0]}],"type":"TransformComponent"}],"name":"Root","parent":null,"type":"Root"},{"components":[{"params":[{"name":"ResourceName","value":"/home/alex/Documents/dev/Vroom/build/linux-debug/VroomEditor/Resources/Editor/Tests/Meshes/Textured_Cube.obj"},{"name":"CastsShadow","value":true}],"type":"MeshComponent"},{"params":[{"name":"Position","value":[0.0,-1.0,0.0]},{"name":"Rotation","value":[0.0,0.0,0.0]},{"name":"Scale","value":[50.0,0.10000000149011612,50.0]}],"type":"TransformComponent"}],"name":"Plane","parent":"Root","type":"Entity"},{"components":[{"params":[{"name":"ScriptName","value":"VRM_MovingLightScript_ID"}],"type":"ScriptComponent"},{"params":[{"name":"Color","value":[1.0,1.0,1.0]},{"name":"Intensity","value":7.300000190734863},{"name":"Radius","value":40.5},{"name":"ConstantAttenuation","value":4.619999885559082},{"name":"LinearAttenuation","value":0.09000000357627869},{"name":"QuadraticAttenuation","value":0.03200000151991844}],"type":"PointLightComponent"},{"params":[{"name":"ResourceName","value":"/home/alex/Documents/dev/Vroom/build/linux-debug/VroomEditor/Resources/Editor/Tests/Meshes/sphere.obj"},{"name":"CastsShadow","value":true}],"type":"MeshComponent"},{"params":[{"name":"Position","value":[5.0,10.0,5.0]},{"name":"Rotation","value":[0.0,-0.0,0.0]},{"name":"Scale","value":[0.20000000298023224,0.20000000298023224,0.20000000298023224]}],"type":"TransformComponent"}],"name":"Light_0","parent":"Root","type":"Entity"},{"components":[{"params":[{"name":"ScriptName","value":"VRM_RotatingDirLightScript_ID"}],"type":"ScriptComponent"},{"params":[{"name":"Color","value":[1.0,1.0,1.0]},{"name":"Intensity","value":0.5},{"name":"CastsShadows","value":true}],"type":"DirectionalLightComponent"},{"params":[{"name":"ResourceName","value":"/home/alex/Documents/dev/Vroom/build/linux-debug/VroomEditor/Resources/Editor/Tests/Meshes/sphere.obj"},{"name":"CastsShadow","value":true}],"type":"MeshComponent"},{"params":[{"name":"Position","value":[5.0,10.0,5.0]},{"name":"Rotation","value":[0.0,0.7853981852531433,0.7853981852531433]},{"name":"Scale","value":[0.20000000298023224,0.20000000298023224,0.20000000298023224]}],"type":"TransformComponent"}],"name":"Dir_light","parent":"Root","type":"Entity"},{"components":[{"params":[{"name":"ResourceName","value":"/home/alex/Documents/dev/Vroom/build/linux-debug/VroomEditor/Resources/Editor/Tests/Meshes/Textured_Cube.obj"},{"name":"CastsShadow","value":true}],"type":"MeshComponent"},{"params":[{"name":"Position","value":[0.0,0.0,0.0]},{"name":"Rotation","value":[0.0,0.0,0.0]},{"name":"Scale","value":[1.0,1.0,1.0]}],"type":"TransformComponent"}],"name":"ColoredCube","parent":"Root","type":"Entity"},{"components":[{"params":[{"name":"ScriptName","value":"VRM_SuzanneScript_ID"}],"type":"ScriptComponent"},{"params":[{"name":"ResourceName","value":"/home/alex/Documents/dev/Vroom/build/linux-debug/VroomEditor/Resources/Editor/Tests/Meshes/Suzanne.obj"},{"name":"CastsShadow","value":true}],"type":"MeshComponent"},{"params":[{"name":"Position","value":[10.0,0.0,0.0]},{"name":"Rotation","value":[0.0,0.0,0.0]},{"name":"Scale","value":[1.0,1.0,1.0]}],"type":"TransformComponent"}],"name":"Suzanne_0","parent":"ColoredCube","type":"Entity"}]}
+{
+  "scene_nodes": [
+    {
+      "components": [
+        {
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ],
+          "type": "TransformComponent"
+        }
+      ],
+      "name": "Root",
+      "parent": null,
+      "type": "Root"
+    },
+    {
+      "components": [
+        {
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Editor/Tests/Meshes/Textured_Cube.obj"
+            },
+            {
+              "name": "CastsShadow",
+              "value": true
+            }
+          ],
+          "type": "MeshComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                0.0,
+                -1.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                50.0,
+                0.10000000149011612,
+                50.0
+              ]
+            }
+          ],
+          "type": "TransformComponent"
+        }
+      ],
+      "name": "Plane",
+      "parent": "Root",
+      "type": "Entity"
+    },
+    {
+      "components": [
+        {
+          "params": [
+            {
+              "name": "ScriptName",
+              "value": "VRM_MovingLightScript_ID"
+            }
+          ],
+          "type": "ScriptComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "Color",
+              "value": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "Intensity",
+              "value": 7.300000190734863
+            },
+            {
+              "name": "Radius",
+              "value": 40.5
+            },
+            {
+              "name": "ConstantAttenuation",
+              "value": 4.619999885559082
+            },
+            {
+              "name": "LinearAttenuation",
+              "value": 0.09000000357627869
+            },
+            {
+              "name": "QuadraticAttenuation",
+              "value": 0.03200000151991844
+            }
+          ],
+          "type": "PointLightComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Editor/Tests/Meshes/sphere.obj"
+            },
+            {
+              "name": "CastsShadow",
+              "value": true
+            }
+          ],
+          "type": "MeshComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                5.0,
+                10.0,
+                5.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                -0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+              ]
+            }
+          ],
+          "type": "TransformComponent"
+        }
+      ],
+      "name": "Light_0",
+      "parent": "Root",
+      "type": "Entity"
+    },
+    {
+      "components": [
+        {
+          "params": [
+            {
+              "name": "ScriptName",
+              "value": "VRM_RotatingDirLightScript_ID"
+            }
+          ],
+          "type": "ScriptComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "Color",
+              "value": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "Intensity",
+              "value": 0.5
+            },
+            {
+              "name": "CastsShadows",
+              "value": true
+            }
+          ],
+          "type": "DirectionalLightComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Editor/Tests/Meshes/sphere.obj"
+            },
+            {
+              "name": "CastsShadow",
+              "value": true
+            }
+          ],
+          "type": "MeshComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                5.0,
+                10.0,
+                5.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.7853981852531433,
+                0.7853981852531433
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+              ]
+            }
+          ],
+          "type": "TransformComponent"
+        }
+      ],
+      "name": "Dir_light",
+      "parent": "Root",
+      "type": "Entity"
+    },
+    {
+      "components": [
+        {
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Editor/Tests/Meshes/Textured_Cube.obj"
+            },
+            {
+              "name": "CastsShadow",
+              "value": true
+            }
+          ],
+          "type": "MeshComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ],
+          "type": "TransformComponent"
+        }
+      ],
+      "name": "ColoredCube",
+      "parent": "Root",
+      "type": "Entity"
+    },
+    {
+      "components": [
+        {
+          "params": [
+            {
+              "name": "ScriptName",
+              "value": "VRM_SuzanneScript_ID"
+            }
+          ],
+          "type": "ScriptComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources/Editor/Tests/Meshes/Suzanne.obj"
+            },
+            {
+              "name": "CastsShadow",
+              "value": true
+            }
+          ],
+          "type": "MeshComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                10.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ],
+          "type": "TransformComponent"
+        }
+      ],
+      "name": "Suzanne_0",
+      "parent": "ColoredCube",
+      "type": "Entity"
+    }
+  ]
+}

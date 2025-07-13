@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 3.31)
-
 # ----- GLFW -----
 
 set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
@@ -58,4 +56,5 @@ add_subdirectory(entt)
 
 # ----- Assimp -----
 
+set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)
 add_subdirectory(assimp)

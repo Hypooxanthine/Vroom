@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 3.31)
-
 project(VroomTests)
 
 add_library(DummyLib SHARED test_RuntimeLibrary_DummyLib.cpp)

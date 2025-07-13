@@ -134,7 +134,7 @@ namespace vrm
 
     std::filesystem::path _formatAssetId(const std::filesystem::path& assetID) const
     {
-      return std::filesystem::absolute(assetID);
+      return std::filesystem::relative(assetID);
     }
 
   private:

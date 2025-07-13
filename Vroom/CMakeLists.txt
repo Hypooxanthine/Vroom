@@ -1,6 +1,4 @@
-﻿cmake_minimum_required (VERSION 3.31)
-
-set(DART_TESTING_ENABLED OFF)
+﻿set(DART_TESTING_ENABLED OFF)
 
 # ----- Project definition -----
 

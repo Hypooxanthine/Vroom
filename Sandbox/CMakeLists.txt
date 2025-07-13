@@ -1,6 +1,4 @@
-﻿cmake_minimum_required (VERSION 3.31)
-
-# ----- Project definition -----
+﻿# ----- Project definition -----
 
 project(Sandbox)
 
