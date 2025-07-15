@@ -300,10 +300,10 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   }
   else
   {
-    aiColor4D col;
+    float col;
     material->Get(AI_MATKEY_COLOR_DIFFUSE, col);
-    p.type = MaterialData::Parameter::eVec3;
-    p.setValue(glm::vec3(col.r, col.g, col.b));
+    p.type = MaterialData::Parameter::eFloat;
+    p.setValue(col);
     data.addParameter(p);
   }
    
