@@ -75,6 +75,16 @@ bool RenderSettingsPanel::onImgui()
       settingsChanged = true;
     }
 
+    if (ImGui::Checkbox("Normal mapping", &settings.normalMapping.activated))
+    {
+      settingsChanged = true;
+    }
+
+    if (settings.normalMapping.activated && ImGui::Checkbox("Orthogonalize tangent space", &settings.normalMapping.reorthoTangentSpace))
+    {
+      settingsChanged = true;
+    }
+
     if (ImGui::Checkbox("Clustered shading", &settings.clusteredShading))
     {
       settingsChanged = true;

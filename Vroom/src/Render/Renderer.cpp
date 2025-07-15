@@ -148,7 +148,14 @@ void Renderer::createRenderPasses()
     pass.storageBufferParameters["PointLightBlock"] = &m_LightRegistry.getPointLightsStorageBuffer();
     pass.storageBufferParameters["DirLightBlock"] = &m_LightRegistry.getDirLightsStorageBuffer();
 
-    pass.addDefine("VRM_NORMAL_MAPPING");
+    if (m_renderSettings.normalMapping.activated)
+    {
+      pass.addDefine("VRM_NORMAL_MAPPING");
+      if (m_renderSettings.normalMapping.reorthoTangentSpace)
+      {
+        pass.addDefine("VRM_REORTHOGONALIZE_TANGENT_SPACE");
+      }
+    }
 
     if (m_renderSettings.clusteredShading)
     {
