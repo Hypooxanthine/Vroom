@@ -127,8 +127,9 @@ void MeshAsset::_processMesh(aiMesh* mesh, const aiScene* scene)
   }
 
   MaterialAsset::Handle mat;
-  if (AssetManager::Get().tryLoadAsset<MaterialAsset>(matName))
-    mat = AssetManager::Get().getAsset<MaterialAsset>(matName);
+  std::string path = applyPathOrder(matName);
+  if (AssetManager::Get().tryLoadAsset<MaterialAsset>(path))
+    mat = AssetManager::Get().getAsset<MaterialAsset>(path);
   else
   {
     VRM_LOG_WARN("Couldn't load material \"{}\", falling back to default material.", matName);
