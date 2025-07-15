@@ -147,11 +147,15 @@ void Renderer::createRenderPasses()
     pass.frontFace = DrawSceneRenderPass::EFrontFace::eCCW;
     pass.storageBufferParameters["PointLightBlock"] = &m_LightRegistry.getPointLightsStorageBuffer();
     pass.storageBufferParameters["DirLightBlock"] = &m_LightRegistry.getDirLightsStorageBuffer();
+
+    pass.addDefine("VRM_NORMAL_MAPPING");
+
     if (m_renderSettings.clusteredShading)
     {
       pass.addDefine("VRM_CLUSTERED_RENDERING");
       pass.storageBufferParameters["ClusterInfoBlock"] = &m_ClusteredLights.getClustersShaderStorage();
     }
+
     if (m_renderSettings.showLightComplexity)
       pass.addDefine("VRM_LIGHT_COMPLEXITY");
     

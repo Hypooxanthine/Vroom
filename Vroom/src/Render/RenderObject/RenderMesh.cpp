@@ -53,6 +53,26 @@ RenderMesh::RenderMesh(const MeshData &meshData)
 
     m_vertexArray.enableAttribute(attribOrderer++, attribute, m_vertexBuffer);
   }
+
+  {
+    attribute.componentCount = 3;
+    attribute.componentType = GL_FLOAT;
+    attribute.normalized = false;
+    attribute.vertexBufferOffsetBytes = offsetof(Vertex, tangent);
+    attribute.vertexBufferStrideBytes = sizeof(Vertex);
+
+    m_vertexArray.enableAttribute(attribOrderer++, attribute, m_vertexBuffer);
+  }
+
+  {
+    attribute.componentCount = 3;
+    attribute.componentType = GL_FLOAT;
+    attribute.normalized = false;
+    attribute.vertexBufferOffsetBytes = offsetof(Vertex, bitangent);
+    attribute.vertexBufferStrideBytes = sizeof(Vertex);
+
+    m_vertexArray.enableAttribute(attribOrderer++, attribute, m_vertexBuffer);
+  }
 }
 
 RenderMesh::RenderMesh(RenderMesh &&other)

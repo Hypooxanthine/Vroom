@@ -15,6 +15,7 @@ void SetupGlobalVars_ShadingModel();
 vec3 ShadingModel(in vec3 lightColor, in vec3 lightDirection);
 
 void SetupGlobalVars();
+void ComputeNormal();
 vec4 ComputeFragmentColor();
 float GetLightComplexity();
 
@@ -67,7 +68,7 @@ void main()
 void SetupGlobalVars()
 {
   g_viewDir = normalize(u_ViewPosition.xyz - v_Position.xyz);
-  g_normal = normalize(v_Normal);
+  ComputeNormal();
 
   g_fragCoords = ivec2(floor(gl_FragCoord.xy));
 
@@ -248,6 +249,15 @@ float ComputeDirectionalShadowFactor(in uint shadowCasterId, in float lightDotNo
   }
   
   return shadowFactor / float(kernelArea);
+}
+
+void ComputeNormal()
+{
+#if defined(VRM_TEXTURE_u_normal) && defined(VRM_NORMAL_MAPPING)
+  g_normal = normalize(v_TBN * (texture(u_normal, v_TexCoord).xyz * 2.0 - 1.0));
+#else
+  g_normal = normalize(v_Normal);
+#endif
 }
 
 #endif

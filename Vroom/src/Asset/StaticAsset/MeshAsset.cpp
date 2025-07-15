@@ -46,7 +46,7 @@ bool MeshAsset::loadImpl(const std::string& filePath)
   VRM_LOG_TRACE("Loading mesh: {}", filePath);
 
   Assimp::Importer importer;
-  const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+  const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
 
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
   {
@@ -95,6 +95,14 @@ void MeshAsset::_processMesh(aiMesh* mesh, const aiScene* scene)
     {
       const aiVector3D& aTexCoords = mesh->mTextureCoords[0][i];
       v.texCoords = glm::vec2{ aTexCoords.x, aTexCoords.y };
+    }
+
+    if (mesh->HasTangentsAndBitangents())
+    {
+      const aiVector3D& aTangent = mesh->mTangents[i];
+      const aiVector3D& aBitangent = mesh->mBitangents[i];
+      v.tangent = glm::vec3{ aTangent.x, aTangent.y, aTangent.z };
+      v.bitangent = glm::vec3{ aBitangent.x, aBitangent.y, aBitangent.z };
     }
   }
 
