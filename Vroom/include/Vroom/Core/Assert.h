@@ -3,23 +3,10 @@
 #include "Vroom/Core/Log.h"
 #include <filesystem>
 
-#if defined(VRM_DEBUG) && !defined(VRM_TARGET_VROOMTESTS)
-  #ifdef VRM_PLATFORM_LINUX
-    #include "signal.h"
-    #define VRM_DEBUGBREAK() raise(SIGTRAP)
-  #elif defined(VRM_PLATFORM_WINDOWS)
-    #define VRM_DEBUGBREAK() __debugbreak
-  #endif
-#else
-  #define VRM_DEBUGBREAK()
-#endif
-
-
 /**
  * @brief Request application crash with no message.
  */
 #define VRM_CRASH_NO_MSG() \
-  VRM_DEBUGBREAK();\
   throw std::runtime_error("Application crash has been requested.")
 
  /**

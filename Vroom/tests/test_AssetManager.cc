@@ -59,7 +59,6 @@ TEST_F(AssetManagerTest, GetAssetSecondTime)
 TEST_F(AssetManagerTest, GetAssetDifferentType)
 {
   EXPECT_NO_THROW(vrm::AssetManager::Get().loadAsset<vrm::MeshAsset>(pathOK));
-
   EXPECT_ANY_THROW(
     vrm::MaterialAsset::Handle mat = vrm::AssetManager::Get().getAsset<vrm::MaterialAsset>(pathOK)
   );
