@@ -53,12 +53,21 @@ namespace vrm
     template <typename T>
     AssetHandle<T> getAsset(const std::filesystem::path& assetID)
     {
-      loadAsset<T>(assetID);
+      AssetHandle<T> asset = tryGetAsset<T>(assetID);
+      VRM_DEBUG_ASSERT(asset.isValid());
+
+      return asset;
+    }
+
+    template <typename T>
+    AssetHandle<T> tryGetAsset(const std::filesystem::path& assetID)
+    {
+      if (!tryLoadAsset<T>(assetID)) return {};
 
       size_t index = m_keys.at(_formatAssetId(assetID));
 
       T* asT = dynamic_cast<T*>(m_assets.at(index).get());
-      VRM_DEBUG_ASSERT(asT != nullptr);
+      if (asT == nullptr) return {};
 
       return AssetHandle<T>{ *asT };
     }
