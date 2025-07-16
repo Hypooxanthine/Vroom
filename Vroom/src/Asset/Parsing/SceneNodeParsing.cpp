@@ -66,7 +66,8 @@ namespace nlohmann
         compData = component;
         VRM_CHECK_THROW_MSG(compData != nullptr, "Failed to deserialize component data");
 
-        auto typeIndex = std::type_index(typeid(*compData.get()));
+        auto* comp = compData.get();
+        auto typeIndex = std::type_index(typeid(*comp));
         if (node.components.find(typeIndex) != node.components.end())
         {
           VRM_LOG_ERROR("Component of type {} already exists in SceneNodeData '{}'", typeIndex.name(), node.name);
