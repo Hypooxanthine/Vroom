@@ -52,7 +52,8 @@ void GameLayer::onInit()
 
 void GameLayer::onEnd()
 {
-  m_CurrentScene->end();
+  if (m_CurrentScene)
+    m_CurrentScene->end();
 }
 
 void GameLayer::onNewFrame()

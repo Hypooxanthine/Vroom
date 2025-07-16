@@ -50,6 +50,7 @@ Application::~Application()
 
   Renderer::Shutdown();
   AssetManager::Shutdown();
+  m_Window->destroy();
   m_Window.release();
 
   glfwTerminate();

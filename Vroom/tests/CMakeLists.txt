@@ -44,22 +44,24 @@ include(CTest)
 set(OUTPUT_DIR $<TARGET_FILE_DIR:VroomTests>)
 set(OUTPUT_RESOURCES_DIR ${OUTPUT_DIR}/Resources)
 
-add_custom_command(TARGET VroomTests POST_BUILD
+add_custom_target(VroomTestsResources
   COMMAND ${CMAKE_COMMAND} -E make_directory
-  ${OUTPUT_RESOURCES_DIR}
-)
+    # Create /Resources dir
+    ${OUTPUT_RESOURCES_DIR}
 
-add_custom_command(TARGET VroomTests POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${ENGINE_RESOURCE_DIR}
-  ${OUTPUT_RESOURCES_DIR}
-)
-
-add_custom_command(TARGET VroomTests POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy
-  $<TARGET_FILE:DummyLib>
-  ${OUTPUT_DIR}
+    # Copy shared/runtime libraries
+    $<TARGET_FILE:glfw> $<TARGET_FILE:libglew_shared> $<TARGET_FILE:DummyLib>
+    ${OUTPUT_DIR}
+  
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    # Copy Resources dirs
+    ${ENGINE_RESOURCE_DIR}
+    ${OUTPUT_RESOURCES_DIR}
 )
+
+add_dependencies(VroomTests VroomTestsResources)
+add_dependencies(VroomTestsResources glfw libglew_shared)
 
 get_target_property(VRM_TEST_DUMMYLIB_FILENAME DummyLib TARGET_FILE_NAME)
 target_compile_definitions(VroomTests

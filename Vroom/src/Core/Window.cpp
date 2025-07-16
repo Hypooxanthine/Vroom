@@ -144,6 +144,7 @@ namespace vrm
     m_Title = "";
     m_Width = 0;
     m_Height = 0;
+    ACTIVE_WINDOW = nullptr;
   }
 
   const std::string& Window::getTitle() const
