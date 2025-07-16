@@ -3,7 +3,7 @@
 #include "Vroom/Core/Log.h"
 #include <filesystem>
 
-#ifdef VRM_DEBUG
+#if defined(VRM_DEBUG) && !defined(VRM_TARGET_VROOMTESTS)
   #ifdef VRM_PLATFORM_LINUX
     #include "signal.h"
     #define VRM_DEBUGBREAK() raise(SIGTRAP)

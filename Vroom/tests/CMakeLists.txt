@@ -24,6 +24,7 @@ file(GLOB_RECURSE TEST_SOURCES  *.cc)
 
 add_executable(VroomTests ${TEST_SOURCES})
 target_compile_definitions(VroomTests PRIVATE "VRM_STATIC")
+target_compile_definitions(VroomTests PRIVATE "VRM_TARGET_VROOMTESTS")
 
 add_dependencies(VroomTests DummyLib)
 
