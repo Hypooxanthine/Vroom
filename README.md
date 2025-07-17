@@ -60,18 +60,3 @@ cmake --build . --target=VroomEditor --config=Release --parallel
 cd VroomEditor # Don't use ./VroomEditor/VroomEditor directly because the program won't be able to load resource files.
 ./VroomEditor
 ```
-
-## External libraries
-
-- [glew](https://glew.sourceforge.net/)
-- [glfw](https://www.glfw.org/)
-- [glm](https://github.com/icaven/glm)
-- [spdlog](https://github.com/gabime/spdlog)
-- [stb](https://github.com/nothings/stb)
-- [entt](https://github.com/skypjack/entt)
-
-## Inspirations
-
-- [Hazel](https://github.com/TheCherno/Hazel), game engine created by TheCherno.
-- [Unreal Engine](https://www.unrealengine.com/)
-- [javidx9 (YouTube)](https://www.youtube.com/channel/UC-yuWVUplUJZvieEligKBkA)
