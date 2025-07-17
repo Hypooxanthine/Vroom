@@ -181,7 +181,6 @@ namespace vrm::gl
     inline void setDepthAttachment(const Texture& depthTexture, GLuint mipLevel = 0, float depthClearValue = 1.f)
     {
       VRM_ASSERT_MSG(!isDepthAttachmentUsed(), "Depth attachment is already used");
-      VRM_ASSERT_MSG(depthTexture.getDescription().sampleCount == 1, "Only 1 sample for depth");
 
       bind();
       depthTexture.bind();

@@ -78,30 +78,49 @@ void Renderer::createRenderPasses()
   m_texturePool.clear();
   m_buffersPool.clear();
   m_autoBuffersPool.clear();
-
-  m_mainFrameBuffer.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
-  m_mainFrameBuffer.setColorAttachment(0, 4, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
-  m_mainFrameBuffer.setRenderBufferDepthAttachment();
-  VRM_ASSERT_MSG(m_mainFrameBuffer.validate(), "Could not build main framebuffer");
+  m_finalTexture = nullptr;
+  m_renderFrameBuffer = nullptr;
 
   auto aa = m_renderSettings.antiAliasingLevel;
   bool aaOK = (aa != 0 && ((aa & (aa - 1)) == 0));
   VRM_ASSERT_MSG(aaOK, "Invalid antialiasing value: {}", aa);
 
-  // MSAA
-  if (aa > 1)
+  // Render frame buffer
   {
-    auto& fb = *m_frameBufferPool.emplace<gl::OwningFrameBuffer>("MsaaFramebuffer");
+    auto& fb = *m_frameBufferPool.emplace("RenderFramebuffer");
     fb.create(m_viewport.getSize().x, m_viewport.getSize().y, aa);
-    fb.setColorAttachment(0, 4, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
-    fb.setRenderBufferDepthAttachment(1.f);
-    VRM_ASSERT_MSG(fb.validate(), "Could not build MSAA framebuffer");
+
+    gl::Texture::Desc texDesc;
+    {
+      texDesc.dimension = 2;
+      texDesc.width = m_viewport.getSize().x;
+      texDesc.height = m_viewport.getSize().y;
+      texDesc.sampleCount = aa;
+    }
+
+    auto& colorTex = *m_texturePool.emplace("RenderColorBuffer");
+    {
+      texDesc.format = GL_RGBA;
+      texDesc.internalFormat = GL_RGBA8;
+      colorTex.create(texDesc);
+      fb.setColorAttachment(0, colorTex, 0, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
+    }
+
+    if (aa == 1)
+      m_finalTexture = &colorTex;
+    // else >> resolved frame buffer color buffer
+
+    auto& depthTex = *m_texturePool.emplace("RenderDepthBuffer");
+    {
+      texDesc.format = GL_DEPTH_COMPONENT;
+      texDesc.internalFormat = GL_DEPTH_COMPONENT24;
+      depthTex.create(texDesc);
+      fb.setDepthAttachment(depthTex);
+    }
+
+    VRM_ASSERT_MSG(fb.validate(), "Could not build render framebuffer");
 
     m_renderFrameBuffer = &fb;
-  }
-  else
-  {
-    m_renderFrameBuffer = &m_mainFrameBuffer;
   }
 
   // Clearing render framebuffer
@@ -223,10 +242,43 @@ void Renderer::createRenderPasses()
   // MSAA
   if (aa > 1)
   {
+    // We must resolve AA by blitting the render framebuffer
+    // into another one
+    auto& resolvedFb = *m_frameBufferPool.emplace("MsaaResolvedFramebuffer");
+    resolvedFb.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
+
+    gl::Texture::Desc texDesc;
+    {
+      texDesc.dimension = 2;
+      texDesc.width = m_viewport.getSize().x;
+      texDesc.height = m_viewport.getSize().y;
+      texDesc.sampleCount = 1;
+    }
+
+    auto& colorTex = *m_texturePool.emplace("MsaaResolvedColorBuffer");
+    m_finalTexture = &colorTex;
+    {
+      texDesc.format = GL_RGBA;
+      texDesc.internalFormat = GL_RGBA8;
+      colorTex.create(texDesc);
+      resolvedFb.setColorAttachment(0, colorTex, 0, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
+    }
+
+    auto& depthTex = *m_texturePool.emplace("MsaaResolvedDepthBuffer");
+    {
+      texDesc.format = GL_DEPTH_COMPONENT;
+      texDesc.internalFormat = GL_DEPTH_COMPONENT24;
+      depthTex.create(texDesc);
+      resolvedFb.setDepthAttachment(depthTex);
+    }
+
+    VRM_ASSERT_MSG(resolvedFb.validate(), "Could not build MSAA resolved framebuffer");
+
     auto& pass = m_passManager.pushPass<BlitFrameBufferPass>();
     pass.source = m_renderFrameBuffer;
-    pass.destination = &m_mainFrameBuffer;
+    pass.destination = &resolvedFb;
   }
+
 
   m_passManager.init();
   m_passManagerDirty = false;

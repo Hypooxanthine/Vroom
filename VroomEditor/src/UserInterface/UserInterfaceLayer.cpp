@@ -72,13 +72,11 @@ void UserInterfaceLayer::onInit()
   emplaceImGuiElement<MainMenuBar>(EInterfaceElement::eMainMenuBar);
   emplaceImGuiElement<StatisticsPanel>(EInterfaceElement::eStatisticsPanel);
   emplaceImGuiElement<RenderSettingsPanel>(EInterfaceElement::eRenderSettingsPanel);
-  auto& viewport = emplaceImGuiElement<Viewport>(EInterfaceElement::eViewport);
+  emplaceImGuiElement<Viewport>(EInterfaceElement::eViewport);
   emplaceImGuiElement<AssetBrowser>(EInterfaceElement::eAssetBrowser);
   emplaceImGuiElement<SceneGraph>(EInterfaceElement::eSceneGraph);
   emplaceImGuiElement<EditorPreferences>(EInterfaceElement::eEditorPreferences, false);
   emplaceImGuiElement<EntityEditor>(EInterfaceElement::eEntityEditor);
-
-  viewport.setRenderTexture(&Renderer::Get().getMainFrameBuffer().getColorAttachmentTexture(0));
 
   m_CustomEventManager.createCustomEvent("OSFileDrop").bindInput(Event::Type::FileDrop);
   m_CustomEventManager.bindPermanentCallback("OSFileDrop", [this](const Event& e) { this->fileDropCallback(e); e.handled = true; });
@@ -108,6 +106,7 @@ void UserInterfaceLayer::onEnd()
 void UserInterfaceLayer::onUpdate(const DeltaTime& dt)
 {
   m_fileDrop.clear();
+  VRM_EDITOR_UI_ELEMENT(Viewport).setRenderTexture(Renderer::Get().getRenderedTexture());
 }
 
 void UserInterfaceLayer::onRender()
@@ -231,6 +230,7 @@ void UserInterfaceLayer::saveImguiStyle(const ImGuiStyle& style) const
   }
 }
 
-#define IMPL_INTERFACE_ELEMENT_GETTER(Element) Element& UserInterfaceLayer::get##Element() { return static_cast<Element&>(getElement(EInterfaceElement::e##Element)); }
-
-IMPL_INTERFACE_ELEMENT_GETTER(Viewport)
+Viewport& UserInterfaceLayer::getViewport()
+{
+  return VRM_EDITOR_UI_ELEMENT(Viewport);
+}

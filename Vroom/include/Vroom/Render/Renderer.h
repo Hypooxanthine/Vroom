@@ -120,7 +120,7 @@ namespace vrm
      */
     void setViewportSize(const glm::uvec2& s);
 
-    const gl::OwningFrameBuffer& getMainFrameBuffer() const { return m_mainFrameBuffer; }
+    const gl::Texture* getRenderedTexture() const { return m_finalTexture; }
 
     uint32_t getEntityIndexOnPixel(const glm::ivec2& px) const;
 
@@ -144,8 +144,8 @@ namespace vrm
     bool m_passManagerDirty = false;
     RenderPassManager m_passManager;
 
-    gl::OwningFrameBuffer m_mainFrameBuffer;
     gl::FrameBuffer* m_renderFrameBuffer = nullptr;
+    gl::Texture* m_finalTexture = nullptr;
 
     MeshRegistry m_meshRegistry;
 
