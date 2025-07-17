@@ -19,7 +19,7 @@ namespace vrm
       ePhong = 0,
       ePBR,
       eCount,
-      eDefault = ePhong
+      eNone
     };
 
     struct Parameter
@@ -77,7 +77,7 @@ namespace vrm
     inline const auto &getTextureCount() const { return m_textureCount; }
 
   private:
-    EShadingModel m_shadingModel = EShadingModel::eDefault;
+    EShadingModel m_shadingModel = EShadingModel::eNone;
     std::unordered_map<std::string, Parameter> m_parameters;
     uint8_t m_textureCount = 0;
   };

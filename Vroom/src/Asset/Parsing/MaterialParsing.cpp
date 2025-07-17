@@ -112,7 +112,9 @@ namespace nlohmann
 
   void to_json(json& j, const vrm::MaterialData& e)
   {
-    j["ShadingModel"] = e.getShadingModel();
+    if (e.getShadingModel() != MaterialData::EShadingModel::eNone)
+      j["ShadingModel"] = e.getShadingModel();
+    
     auto& params = j["Parameters"];
 
     for (const auto& [name, param] : e.getParameters())
@@ -124,7 +126,9 @@ namespace nlohmann
   void from_json(const json& j, vrm::MaterialData& e)
   {
     e = {};
-    e.setShadingModel(j["ShadingModel"]);
+    if (j.contains("ShadingModel"))
+      e.setShadingModel(j["ShadingModel"]);
+    
     const json& params = j["Parameters"];
 
     if (params.is_null())

@@ -8,6 +8,7 @@
 
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/ShadingModelAsset.h"
+#include "Vroom/Asset/StaticAsset/ShaderAsset.h"
 
 using namespace vrm;
 
@@ -130,15 +131,26 @@ bool MaterialAsset::loadImpl(const std::string &filePath)
 
   VRM_CHECK_RET_FALSE_MSG(MaterialParsing::Parse(j, m_data), "Could not parse MaterialData from file: {}", filePath);
 
-  AssetManager &manager = AssetManager::Get();
+  AssetManager& manager = AssetManager::Get();
 
-  // Loading shading model
+  // Base material shader
+  {
+    static const std::string baseShaderPath = "Resources/Engine/Shader/MaterialBase_Shader.json";
+    VRM_CHECK_RET_FALSE_MSG(manager.tryLoadAsset<ShaderAsset>(baseShaderPath), "Could not load material base shader: {}", baseShaderPath);
+
+    ShaderAsset::Handle baseShader = manager.getAsset<ShaderAsset>(baseShaderPath);
+    m_materialShaderData = ShaderData{baseShader->getShaderData()};
+  }
+
+  // Shading model
+  if (m_data.getShadingModel() != MaterialData::EShadingModel::eNone)
   {
     const std::string &ID = S_SHADING_MODEL_SPECIFIC_SHADERS.at(m_data.getShadingModel());
     VRM_CHECK_RET_FALSE_MSG(manager.tryLoadAsset<ShadingModelAsset>(ID), "Couldn't load {} shading model at path {}", m_data.getShadingModelName(), ID);
 
     ShadingModelAsset::Handle shadingModel = manager.getAsset<ShadingModelAsset>(ID);
-    m_materialShaderData = ShaderData{shadingModel->getData()};
+    m_materialShaderData.absorb(shadingModel->getData());
+    m_materialShaderData.addDefine(ShaderData::EShaderType::eAll, { "VRM_SHADING_MODEL", "1" });
   }
 
   VRM_CHECK_RET_FALSE_MSG(buildShaderData(), "Could not build material shader data");

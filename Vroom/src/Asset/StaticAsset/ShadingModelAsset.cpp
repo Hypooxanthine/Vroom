@@ -24,10 +24,10 @@ bool ShadingModelAsset::loadImpl(const std::string &filePath)
 
   VRM_LOG_TRACE("Loading shading model: {}", filePath);
 
-  // Base material shader
+  // Base shading model material
   {
-    static const std::string baseShaderPath = "Resources/Engine/Shader/MaterialBase_Shader.json";
-    VRM_CHECK_RET_FALSE_MSG(manager.tryLoadAsset<ShaderAsset>(baseShaderPath), "Could not load material base shader: {}", baseShaderPath);
+    static const std::string baseShaderPath = "Resources/Engine/Shader/ShadingModel/ShadingModelBase_Shader.json";
+    VRM_CHECK_RET_FALSE_MSG(manager.tryLoadAsset<ShaderAsset>(baseShaderPath), "Could not load shading model base shader: {}", baseShaderPath);
 
     ShaderAsset::Handle baseShader = manager.getAsset<ShaderAsset>(baseShaderPath);
     m_data = ShaderData{baseShader->getShaderData()};
