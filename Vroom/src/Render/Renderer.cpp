@@ -101,7 +101,7 @@ void Renderer::createRenderPasses()
     auto& colorTex = *m_texturePool.emplace("RenderColorBuffer");
     {
       texDesc.format = GL_RGBA;
-      texDesc.internalFormat = GL_RGBA8;
+      texDesc.internalFormat = GL_RGBA16F; // HDR
       colorTex.create(texDesc);
       fb.setColorAttachment(0, colorTex, 0, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
     }
@@ -259,7 +259,7 @@ void Renderer::createRenderPasses()
     m_finalTexture = &colorTex;
     {
       texDesc.format = GL_RGBA;
-      texDesc.internalFormat = GL_RGBA8;
+      texDesc.internalFormat = GL_RGBA16F;
       colorTex.create(texDesc);
       resolvedFb.setColorAttachment(0, colorTex, 0, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
     }

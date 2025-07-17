@@ -67,29 +67,6 @@ namespace vrm
     void renderMeshes(const RenderPassContext& ctx) const;
 
     void applyStorageBufferParameters(const gl::Shader& shader) const;
-
-  private:
-
-    struct MaterialIdentifier
-    {
-      MaterialAsset::Handle matAsset;
-
-      struct Hasher
-      {
-        inline size_t operator()(const MaterialIdentifier& id) const
-        {
-          return std::hash<uintptr_t>()(id.matAsset.getPtr());
-        }
-      };
-
-      struct Equal
-      {
-        inline bool operator()(const MaterialIdentifier& lhs, const MaterialIdentifier& rhs) const
-        {
-          return lhs.matAsset.getPtr() == rhs.matAsset.getPtr();
-        }
-      };
-    };
   };
 
 } // namespace vrm 
