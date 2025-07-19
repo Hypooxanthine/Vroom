@@ -1,0 +1,9 @@
+#ifndef __RENDERFULLSCREEN_FRAGMENT_GLSL__
+#define __RENDERFULLSCREEN_FRAGMENT_GLSL__
+
+void main()
+{
+  
+}
+
+#endif // __RENDERFULLSCREEN_FRAGMENT_GLSL__

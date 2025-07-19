@@ -1,0 +1,57 @@
+{
+  "Global": {
+  },
+  "Vertex": {
+    "Sources": [
+      "Resources/shader.glsl"
+    ],
+    "VertexAttributes": [
+      {
+        "Name": "",
+        "Type": "",
+        "Layout": "location = 0"
+      }
+    ]
+  },
+  "Fragment": {
+    "EarlySources": [
+      "Resources/shader.glsl",
+      {
+        "File": "Resources/shader.glsl",
+        "EnableIf": ""
+      }
+    ],
+    "Sources": [
+      {
+        "File": "Resources/shader.glsl",
+        "EnableIf": ""
+      },
+      "Resources/shader.glsl"
+    ],
+    "Uniforms": [
+      {
+        "Name": "",
+        "Type": ""
+      }
+    ],
+    "StorageBuffers": [
+      {
+        "Name": "name",
+        "Layout": "std430",
+        "EnableIf": "",
+        "Variables": [
+          {
+            "Name": "",
+            "Type": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Varyings": [
+    {
+      "Name": "",
+      "Type": ""
+    }
+  ]
+}

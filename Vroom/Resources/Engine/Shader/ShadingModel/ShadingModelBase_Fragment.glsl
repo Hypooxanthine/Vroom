@@ -40,7 +40,7 @@ vec3 g_viewDir;
 vec3 g_normal;
 ivec2 g_fragCoords;
 
-void EntryPoint()
+void main()
 {
 #if defined(VRM_SHADOW_PASS)
   return;

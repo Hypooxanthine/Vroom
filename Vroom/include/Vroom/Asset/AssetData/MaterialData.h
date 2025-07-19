@@ -14,12 +14,20 @@ namespace vrm
   class VRM_API MaterialData
   {
   public:
-    enum class EShadingModel : uint8_t
+    enum class EType : int8_t
     {
+      eUndefined = -1,
+      eShadingModel = 0,
+      eCustomShader,
+      eCount
+    };
+
+    enum class EShadingModel : int8_t
+    {
+      eNone = -1,
       ePhong = 0,
       ePBR,
-      eCount,
-      eNone
+      eCount
     };
 
     struct Parameter
@@ -59,7 +67,10 @@ namespace vrm
     MaterialData& operator=(MaterialData&&) = default;
     MaterialData(MaterialData&&) = default;
 
-    inline static const std::string &GetShadingModelName(EShadingModel model);
+    void setType(EType type);
+    EType getType() const;
+
+    static const std::string &GetShadingModelName(EShadingModel model);
 
     void setShadingModel(EShadingModel model);
     inline EShadingModel getShadingModel() const { return m_shadingModel; }
@@ -77,7 +88,9 @@ namespace vrm
     inline const auto &getTextureCount() const { return m_textureCount; }
 
   private:
+    EType m_type = EType::eUndefined;
     EShadingModel m_shadingModel = EShadingModel::eNone;
+    std::string m_customShader = "";
     std::unordered_map<std::string, Parameter> m_parameters;
     uint8_t m_textureCount = 0;
   };
@@ -96,6 +109,13 @@ namespace vrm
 
 namespace nlohmann
 {
+
+  NLOHMANN_JSON_SERIALIZE_ENUM(vrm::MaterialData::EType,
+  {
+    { vrm::MaterialData::EType::eUndefined, "Undefined" },
+    { vrm::MaterialData::EType::eCustomShader, "CustomShader" },
+    { vrm::MaterialData::EType::eShadingModel, "ShadingModel" },
+  })
 
   NLOHMANN_JSON_SERIALIZE_ENUM(vrm::MaterialData::EShadingModel,
   {

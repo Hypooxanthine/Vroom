@@ -12,8 +12,22 @@ MaterialData::~MaterialData()
 {
 }
 
+void MaterialData::setType(EType type)
+{
+  if (m_type == type) return;
+  
+  m_type = type;
+  m_shadingModel = EShadingModel::eNone;
+}
+
+MaterialData::EType MaterialData::getType() const
+{
+  return m_type;
+}
+
 void MaterialData::setShadingModel(EShadingModel model)
 {
+  VRM_ASSERT_MSG(m_type == EType::eShadingModel, "Type is not shading model");
   m_shadingModel = model;
 }
 

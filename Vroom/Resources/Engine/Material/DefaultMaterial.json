@@ -1,4 +1,5 @@
 {
+  "Type": "ShadingModel",
   "ShadingModel": "Phong",
   "Parameters": {
     "u_diffuse": {

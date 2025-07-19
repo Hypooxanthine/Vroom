@@ -152,6 +152,11 @@ bool MaterialAsset::loadImpl(const std::string &filePath)
     m_materialShaderData.absorb(shadingModel->getData());
     m_materialShaderData.addDefine(ShaderData::EShaderType::eAll, { "VRM_SHADING_MODEL", "1" });
   }
+  // Custom shaders material
+  else
+  {
+    // ShaderData::Handle shader = manager.tryGetAsset<ShaderAsset>()
+  }
 
   VRM_CHECK_RET_FALSE_MSG(buildShaderData(), "Could not build material shader data");
 

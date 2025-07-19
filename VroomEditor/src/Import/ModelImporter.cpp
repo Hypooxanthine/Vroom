@@ -187,6 +187,7 @@ void ModelImporter::_processMaterialPhong(aiMaterial* material, unsigned int id)
   }
 
   MaterialData data;
+  data.setType(MaterialData::EType::eShadingModel);
   data.setShadingModel(MaterialData::EShadingModel::ePhong);
   
 
@@ -262,6 +263,7 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   }
 
   MaterialData data;
+  data.setType(MaterialData::EType::eShadingModel);
   data.setShadingModel(MaterialData::EShadingModel::ePBR);
   
 

@@ -1,0 +1,14 @@
+{
+  "Global": {
+  },
+  "Vertex": {
+    "Sources": [
+      "Resources/Engine/Shader/RenderFullscreen/RenderFullscreen_vertex.glsl"
+    ]
+  },
+  "Fragment": {
+    "Sources": [
+      "Resources/Engine/Shader/RenderFullscreen/RenderFullscreen_vertex.glsl"
+    ]
+  }
+}

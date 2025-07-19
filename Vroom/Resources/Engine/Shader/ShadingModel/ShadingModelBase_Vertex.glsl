@@ -1,7 +1,7 @@
 #ifndef _SHADINGMODELBASE_VERTEX_GLSL_
 #define _SHADINGMODELBASE_VERTEX_GLSL_
 
-void EntryPoint()
+void main()
 {
 	vec4 worldSpacePosition = u_Model * vec4(position, 1.0);
 	vec4 viewSpacePosition = u_View * worldSpacePosition;
