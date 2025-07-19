@@ -77,7 +77,7 @@ bool RenderSettingsPanel::onImgui()
       dynSettingsChanged = true;
     }
 
-    if (ImGui::SliderFloat("gamma", &dynSettings.hdr.gamma, 0.f, 10.f, "%.2f", ImGuiSliderFlags_ClampOnInput))
+    if (ImGui::SliderFloat("gamma", &dynSettings.hdr.gamma, 0.f, 1.f, "%.2f", ImGuiSliderFlags_ClampOnInput))
     {
       dynSettingsChanged = true;
     }
