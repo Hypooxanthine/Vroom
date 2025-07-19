@@ -2,26 +2,28 @@
 
 #include "Vroom/Render/Passes/RenderPass.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
+#include "Vroom/Render/Abstraction/VertexArray.h"
 
 namespace vrm::gl
 {
   class FrameBuffer;
+  class Texture;
 }
 
 namespace vrm
 {
   
-  class RenderFullscreenPass : public RenderPass
+  class ToneMappingPass : public RenderPass
   {
   public:
     
-    RenderFullscreenPass();
-    virtual ~RenderFullscreenPass();
+    ToneMappingPass();
+    virtual ~ToneMappingPass();
 
   public:
 
     gl::FrameBuffer* framebufferTarget = nullptr;
-    MaterialAsset::Handle material = {};
+    gl::Texture* hdrTex = nullptr;
 
   protected:
 
@@ -30,6 +32,12 @@ namespace vrm
     virtual void onSetup(const RenderPassContext& ctx) override;
 
     virtual void onRender(const RenderPassContext& ctx) const override;
+  
+  private:
+
+    MaterialAsset::Handle m_matAsset = {};
+    const PassMaterial* m_material = {};
+    gl::VertexArray m_dummyVao = {};
   };
 
 } // namespace vrm 

@@ -11,7 +11,6 @@ namespace vrm
     uint16_t frameRateLimit = 0; // 0 for unlimited
     uint8_t antiAliasingLevel = 1;
     bool shadowsEnable = true;
-    uint8_t softShadowKernelRadius = 2;
 
     struct NormalMappingSettings
     {
@@ -31,7 +30,6 @@ namespace vrm
         && frameRateLimit == s.frameRateLimit
         && antiAliasingLevel == s.antiAliasingLevel
         && shadowsEnable == s.shadowsEnable
-        && softShadowKernelRadius == s.softShadowKernelRadius
         && normalMapping.activated == s.normalMapping.activated
         && normalMapping.reorthoTangentSpace == s.normalMapping.reorthoTangentSpace
         && clusteredShading == s.clusteredShading

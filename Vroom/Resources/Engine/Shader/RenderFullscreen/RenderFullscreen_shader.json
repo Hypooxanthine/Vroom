@@ -1,6 +1,5 @@
 {
-  "Global": {
-  },
+  "Global": {},
   "Vertex": {
     "Sources": [
       "Resources/Engine/Shader/RenderFullscreen/RenderFullscreen_vertex.glsl"
@@ -8,7 +7,27 @@
   },
   "Fragment": {
     "Sources": [
-      "Resources/Engine/Shader/RenderFullscreen/RenderFullscreen_vertex.glsl"
+      "Resources/Engine/Shader/RenderFullscreen/RenderFullscreen_fragment.glsl"
+    ],
+    "Uniforms": [
+      {
+        "Name": "u_hdrTex",
+        "Type": "sampler2D"
+      },
+      {
+        "Name": "u_gamma",
+        "Type": "float"
+      },
+      {
+        "Name": "u_exposure",
+        "Type": "float"
+      }
     ]
-  }
+  },
+  "Varyings": [
+    {
+      "Name": "v_TexCoord",
+      "Type": "vec2"
+    }
+  ]
 }

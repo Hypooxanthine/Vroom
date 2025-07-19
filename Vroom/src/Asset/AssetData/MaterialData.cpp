@@ -31,6 +31,12 @@ void MaterialData::setShadingModel(EShadingModel model)
   m_shadingModel = model;
 }
 
+void MaterialData::setCustomShader(const std::string& customShader)
+{
+  VRM_ASSERT_MSG(m_type == EType::eCustomShader, "Type is not custom shader");
+  m_customShader = customShader;
+}
+
 void MaterialData::addParameter(const Parameter& param)
 {
   VRM_CHECK_RET_MSG(param.type != Parameter::Type::eNone, "Parameter must have a type");

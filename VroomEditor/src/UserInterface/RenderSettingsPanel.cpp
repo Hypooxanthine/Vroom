@@ -28,7 +28,9 @@ bool RenderSettingsPanel::onImgui()
 {
   bool ret = false;
   auto settings = Renderer::Get().getRenderSettings();
+  auto dynSettings = Renderer::Get().getDynamicRenderSettings();
   bool settingsChanged = false;
+  bool dynSettingsChanged = false;
 
   if (ImGui::Begin("Render settings", m_open))
   {
@@ -66,13 +68,23 @@ bool RenderSettingsPanel::onImgui()
       settingsChanged = true;
     }
 
-    int softShadowKernelRadius = static_cast<int>(settings.softShadowKernelRadius);
+    int softShadowKernelRadius = static_cast<int>(dynSettings.shadows.softShadowKernelRadius);
 
     ImGui::TextWrapped("Soft shadows kernel radius:");
     if (ImGui::SliderInt("##Soft shadows kernel radius", &softShadowKernelRadius, 0, 10, "%d", ImGuiSliderFlags_ClampOnInput))
     {
-      settings.softShadowKernelRadius = static_cast<uint8_t>(softShadowKernelRadius);
-      settingsChanged = true;
+      dynSettings.shadows.softShadowKernelRadius = static_cast<uint8_t>(softShadowKernelRadius);
+      dynSettingsChanged = true;
+    }
+
+    if (ImGui::SliderFloat("gamma", &dynSettings.hdr.gamma, 0.f, 10.f, "%.2f", ImGuiSliderFlags_ClampOnInput))
+    {
+      dynSettingsChanged = true;
+    }
+
+    if (ImGui::SliderFloat("exposure", &dynSettings.hdr.exposure, 0.f, 10.f, "%.2f", ImGuiSliderFlags_ClampOnInput))
+    {
+      dynSettingsChanged = true;
     }
 
     if (ImGui::Checkbox("Normal mapping", &settings.normalMapping.activated))
@@ -112,6 +124,11 @@ bool RenderSettingsPanel::onImgui()
   if (settingsChanged)
   {
     Renderer::Get().setRenderSettings(settings);
+  }
+
+  if (dynSettingsChanged)
+  {
+    Renderer::Get().setDynamicRenderSettings(dynSettings);
   }
 
   return ret;

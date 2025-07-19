@@ -76,6 +76,9 @@ namespace vrm
     inline EShadingModel getShadingModel() const { return m_shadingModel; }
     inline const std::string &getShadingModelName() const { return GetShadingModelName(m_shadingModel); }
 
+    void setCustomShader(const std::string& customShader);
+    inline const std::string& getCustomShader() const { return m_customShader; }
+
 
     void addParameter(const Parameter &param);
 

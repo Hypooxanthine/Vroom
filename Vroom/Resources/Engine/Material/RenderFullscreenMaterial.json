@@ -1,0 +1,4 @@
+{
+  "Type": "CustomShader",
+  "CustomShader": "Resources/Engine/Shader/RenderFullscreen/RenderFullscreen_shader.json"
+}

@@ -67,8 +67,10 @@ namespace vrm
     inline const GPURuntimeFeatures& getGPUFeatures() const { return m_gpuFeatures; }
 
     void setRenderSettings(const RenderSettings& settings);
-
     inline const RenderSettings& getRenderSettings() const { return m_renderSettings; }
+
+    void setDynamicRenderSettings(const DynamicRenderSettings& settings);
+    inline const DynamicRenderSettings& getDynamicRenderSettings() const { return m_dynamicSettings; }
 
     /**
      * @brief Has to be called before any rendering of current frame.
@@ -136,6 +138,7 @@ namespace vrm
 
     GPURuntimeFeatures m_gpuFeatures;
     RenderSettings m_renderSettings;
+    DynamicRenderSettings m_dynamicSettings;
 
     RenderViewport m_viewport = { { 0, 0 }, { 1, 1} };
 

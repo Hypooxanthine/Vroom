@@ -113,7 +113,7 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
       {
         VRM_ASSERT(dirLightShadowMaps);
         shader.setTexture("u_DirectionalShadowMaps", *dirLightShadowMaps, textOffset++);
-        shader.setUniform1ui("u_SoftShadowKernelRadius", softShadowKernelRadius);
+        shader.setUniform1ui("u_SoftShadowKernelRadius", ctx.dynamicSettings->shadows.softShadowKernelRadius);
       }
 
       applyCameraUniforms(shader, *ctx.mainCamera);

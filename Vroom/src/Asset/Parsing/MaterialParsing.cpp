@@ -117,6 +117,9 @@ namespace nlohmann
     if (e.getShadingModel() != MaterialData::EShadingModel::eNone)
       j["ShadingModel"] = e.getShadingModel();
     
+    if (e.getCustomShader().size() > 0)
+      j["CustomShader"] = e.getCustomShader();
+    
     auto& params = j["Parameters"];
 
     for (const auto& [name, param] : e.getParameters())
@@ -134,6 +137,12 @@ namespace nlohmann
 
     if (j.contains("ShadingModel"))
       e.setShadingModel(j["ShadingModel"]);
+
+    if (j.contains("CustomShader"))
+      e.setCustomShader(j["CustomShader"]);
+
+    if (!j.contains("Parameters"))
+      return;
     
     const json& params = j["Parameters"];
 

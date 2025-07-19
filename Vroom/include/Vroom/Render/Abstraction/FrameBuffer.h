@@ -244,7 +244,7 @@ namespace vrm::gl
         return true;
       }
 
-      VRM_LOG_WARN("Framebuffer incomplete, error code: {:x}", errCode);
+      VRM_LOG_WARN("Framebuffer incomplete, error code: {:X}", errCode);
       return false;
     }
 

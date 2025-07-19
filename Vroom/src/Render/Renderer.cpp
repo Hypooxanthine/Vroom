@@ -12,6 +12,7 @@
 #include "Vroom/Render/Passes/LightClusteringPass.h"
 #include "Vroom/Render/Passes/ShadowMappingPass.h"
 #include "Vroom/Render/Passes/ClearTexturePass.h"
+#include "Vroom/Render/Passes/ToneMappingPass.h"
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Render/Abstraction/VertexArray.h"
@@ -54,6 +55,11 @@ void Renderer::setRenderSettings(const RenderSettings& settings)
   }
 }
 
+void Renderer::setDynamicRenderSettings(const DynamicRenderSettings& settings)
+{
+  m_dynamicSettings = settings;
+}
+
 void Renderer::Init()
 {
   VRM_ASSERT_MSG(s_Instance == nullptr, "Renderer already initialized.");
@@ -81,6 +87,9 @@ void Renderer::createRenderPasses()
   m_finalTexture = nullptr;
   m_renderFrameBuffer = nullptr;
 
+  gl::Texture* hdrFlatTexture = nullptr;
+  gl::Texture* flatZBuffer = nullptr;
+
   auto aa = m_renderSettings.antiAliasingLevel;
   bool aaOK = (aa != 0 && ((aa & (aa - 1)) == 0));
   VRM_ASSERT_MSG(aaOK, "Invalid antialiasing value: {}", aa);
@@ -106,10 +115,6 @@ void Renderer::createRenderPasses()
       fb.setColorAttachment(0, colorTex, 0, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
     }
 
-    if (aa == 1)
-      m_finalTexture = &colorTex;
-    // else >> resolved frame buffer color buffer
-
     auto& depthTex = *m_texturePool.emplace("RenderDepthBuffer");
     {
       texDesc.format = GL_DEPTH_COMPONENT;
@@ -121,6 +126,11 @@ void Renderer::createRenderPasses()
     VRM_ASSERT_MSG(fb.validate(), "Could not build render framebuffer");
 
     m_renderFrameBuffer = &fb;
+    if (aa == 1)
+    {
+      hdrFlatTexture = &colorTex;
+      flatZBuffer = &depthTex;
+    }
   }
 
   // Clearing render framebuffer
@@ -190,7 +200,6 @@ void Renderer::createRenderPasses()
     {
       pass.dirLightShadowMaps = m_texturePool.get("DirLightsShadowMaps");
       pass.storageBufferParameters["LightMatricesBlock"] = &m_autoBuffersPool.get("LightMatricesStorageBuffer")->getBuffer();
-      pass.softShadowKernelRadius = m_renderSettings.softShadowKernelRadius;
     }
   }
 
@@ -255,21 +264,20 @@ void Renderer::createRenderPasses()
       texDesc.sampleCount = 1;
     }
 
-    auto& colorTex = *m_texturePool.emplace("MsaaResolvedColorBuffer");
-    m_finalTexture = &colorTex;
+    hdrFlatTexture = m_texturePool.emplace("MsaaResolvedColorBuffer");
     {
       texDesc.format = GL_RGBA;
       texDesc.internalFormat = GL_RGBA16F;
-      colorTex.create(texDesc);
-      resolvedFb.setColorAttachment(0, colorTex, 0, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
+      hdrFlatTexture->create(texDesc);
+      resolvedFb.setColorAttachment(0, *hdrFlatTexture, 0, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
     }
 
-    auto& depthTex = *m_texturePool.emplace("MsaaResolvedDepthBuffer");
+    flatZBuffer = m_texturePool.emplace("MsaaResolvedDepthBuffer");
     {
       texDesc.format = GL_DEPTH_COMPONENT;
       texDesc.internalFormat = GL_DEPTH_COMPONENT24;
-      depthTex.create(texDesc);
-      resolvedFb.setDepthAttachment(depthTex);
+      flatZBuffer->create(texDesc);
+      resolvedFb.setDepthAttachment(*flatZBuffer);
     }
 
     VRM_ASSERT_MSG(resolvedFb.validate(), "Could not build MSAA resolved framebuffer");
@@ -279,6 +287,37 @@ void Renderer::createRenderPasses()
     pass.destination = &resolvedFb;
   }
 
+  gl::Texture* rgbFlatTexture = nullptr;
+
+  // if (false)
+  // Tone mapping
+  {
+    gl::Texture::Desc texDesc;
+    {
+      texDesc.dimension = 2;
+      texDesc.width = m_viewport.getSize().x;
+      texDesc.height = m_viewport.getSize().y;
+      texDesc.sampleCount = 1;
+      texDesc.format = GL_RGBA;
+      texDesc.internalFormat = GL_RGBA8;
+    }
+
+    rgbFlatTexture = m_texturePool.emplace("rgbFlatTexture");
+    rgbFlatTexture->create(texDesc);
+
+    gl::FrameBuffer& fb = *m_frameBufferPool.emplace("hdrResolveFrameBuffer");
+    fb.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
+    fb.setColorAttachment(0, *rgbFlatTexture);
+    // fb.setDepthAttachment(*flatZBuffer);
+    VRM_ASSERT_MSG(fb.validate(), "Could not build hdrResolveFrameBuffer");
+
+    ToneMappingPass& pass = m_passManager.pushPass<ToneMappingPass>();
+
+    pass.hdrTex = hdrFlatTexture;
+    pass.framebufferTarget = &fb;
+  }
+
+  m_finalTexture = rgbFlatTexture;
 
   m_passManager.init();
   m_passManagerDirty = false;
@@ -304,6 +343,7 @@ void Renderer::endScene()
   m_LightRegistry.endRegistering();
 
   RenderPassContext renderContext;
+  renderContext.dynamicSettings = &m_dynamicSettings;
   renderContext.mainCamera = m_Camera;
   renderContext.frameBufferTarget = m_renderFrameBuffer;
   renderContext.viewport = m_viewport;

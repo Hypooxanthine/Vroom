@@ -3,6 +3,7 @@
 #include "Vroom/Render/RenderViewport.h"
 #include "Vroom/Render/MaterialDefines.h"
 #include "Vroom/Render/PassMaterials.h"
+#include "Vroom/Render/DynamicRenderSettings.h"
 
 namespace vrm::gl
 {
@@ -111,6 +112,7 @@ namespace vrm
 
   struct RenderPassContext
   {
+    DynamicRenderSettings* dynamicSettings;
     const CameraBasic* mainCamera = nullptr;
     const gl::FrameBuffer* frameBufferTarget = nullptr;
     RenderViewport viewport;
