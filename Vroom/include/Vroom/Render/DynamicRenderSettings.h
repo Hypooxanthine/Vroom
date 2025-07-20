@@ -14,7 +14,6 @@ namespace vrm
 
     struct Hdr
     {
-      float gamma = 1.f;
       float exposure = 1.f;
     } hdr;
 
@@ -22,7 +21,6 @@ namespace vrm
     {
       return true
         && shadows.softShadowKernelRadius == s.shadows.softShadowKernelRadius
-        && hdr.gamma == s.hdr.gamma
         && hdr.exposure == s.hdr.exposure
       ;
     }

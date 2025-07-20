@@ -9,7 +9,7 @@ void main()
 
   vec3 mapped = vec3(1.0) - exp(-hdrColor * u_exposure);
 
-  mapped = pow(mapped, vec3(1.f / u_gamma));
+  mapped = pow(mapped, vec3(1.f / 2.2f)); // gamma correction
 
   finalColor = vec4(mapped, 1.f);
 }

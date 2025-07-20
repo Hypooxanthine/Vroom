@@ -124,9 +124,10 @@ vec4 ComputeFragmentColor()
     float lightDistance = sqrt(lightDistance2);
     vec3 lightColor = vec3(pointLight.color[0], pointLight.color[1], pointLight.color[2]);
 
-    float physicalAttenuation = 1.0 / (1.0 + pointLight.constantAttenuation + pointLight.linearAttenuation * lightDistance + pointLight.quadraticAttenuation * lightDistance2);
+    float attenuation = 1.0 / (1.0 + pointLight.constantAttenuation + pointLight.linearAttenuation * lightDistance + pointLight.quadraticAttenuation * lightDistance2);
+    // float attenuation = 1.0 / lightDistance2;
     float smoothCutoff = 1.0 - smoothstep(pointLight.smoothRadius * pointLight.radius, pointLight.radius, lightDistance);
-    float lightIntensity = pointLight.intensity * physicalAttenuation * smoothCutoff;
+    float lightIntensity = pointLight.intensity * attenuation * smoothCutoff;
 
     vec3 lightContribution = ShadingModel(lightColor * lightIntensity, normalize(lightDir));
 

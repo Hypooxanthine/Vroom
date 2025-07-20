@@ -15,10 +15,6 @@
         "Type": "sampler2D"
       },
       {
-        "Name": "u_gamma",
-        "Type": "float"
-      },
-      {
         "Name": "u_exposure",
         "Type": "float"
       }

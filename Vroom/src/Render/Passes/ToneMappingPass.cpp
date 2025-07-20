@@ -37,7 +37,6 @@ void ToneMappingPass::onRender(const RenderPassContext& ctx) const
   auto& shader = m_material->getShader();
   shader.bind();
   shader.setTexture("u_hdrTex", *hdrTex, 0);
-  shader.setUniform1f("u_gamma", ctx.dynamicSettings->hdr.gamma);
   shader.setUniform1f("u_exposure", ctx.dynamicSettings->hdr.exposure);
   framebufferTarget->bind();
 

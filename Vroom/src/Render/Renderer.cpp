@@ -112,7 +112,7 @@ void Renderer::createRenderPasses()
       texDesc.format = GL_RGBA;
       texDesc.internalFormat = GL_RGBA16F; // HDR
       colorTex.create(texDesc);
-      fb.setColorAttachment(0, colorTex, 0, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
+      fb.setColorAttachment(0, colorTex);
     }
 
     auto& depthTex = *m_texturePool.emplace("RenderDepthBuffer");
@@ -269,7 +269,7 @@ void Renderer::createRenderPasses()
       texDesc.format = GL_RGBA;
       texDesc.internalFormat = GL_RGBA16F;
       hdrFlatTexture->create(texDesc);
-      resolvedFb.setColorAttachment(0, *hdrFlatTexture, 0, glm::vec4 { 0.1f, 0.1f, 0.1f, 1.f });
+      resolvedFb.setColorAttachment(0, *hdrFlatTexture);
     }
 
     flatZBuffer = m_texturePool.emplace("MsaaResolvedDepthBuffer");
@@ -299,7 +299,7 @@ void Renderer::createRenderPasses()
       texDesc.height = m_viewport.getSize().y;
       texDesc.sampleCount = 1;
       texDesc.format = GL_RGBA;
-      texDesc.internalFormat = GL_RGBA8;
+      texDesc.internalFormat = GL_SRGB8_ALPHA8;
     }
 
     rgbFlatTexture = m_texturePool.emplace("rgbFlatTexture");
