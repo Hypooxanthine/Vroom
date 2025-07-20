@@ -15,13 +15,33 @@ namespace vrm
     struct Hdr
     {
       float exposure = 1.f;
+
+      inline constexpr bool operator==(const Hdr& s) const
+      {
+        return true
+          && exposure == s.exposure
+        ;
+      }
     } hdr;
+
+    struct Bloom
+    {
+      float threshold = 1.f;
+
+      inline constexpr bool operator==(const Bloom& s) const
+      {
+        return true
+          && threshold == s.threshold
+        ;
+      }
+    } bloom;
 
     inline constexpr bool operator==(const DynamicRenderSettings& s) const
     {
       return true
         && shadows.softShadowKernelRadius == s.shadows.softShadowKernelRadius
-        && hdr.exposure == s.hdr.exposure
+        && hdr == s.hdr
+        && bloom == s.bloom
       ;
     }
   };

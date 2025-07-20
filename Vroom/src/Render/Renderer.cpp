@@ -115,6 +115,15 @@ void Renderer::createRenderPasses()
       fb.setColorAttachment(0, colorTex);
     }
 
+    if (m_renderSettings.bloom.activated)
+    {
+      auto& brightTex = *m_texturePool.emplace("BrightnessColorBuffer");
+      texDesc.format = GL_RGBA;
+      texDesc.internalFormat = GL_RGBA16F;
+      brightTex.create(texDesc);
+      fb.setColorAttachment(1, brightTex);
+    }
+
     auto& depthTex = *m_texturePool.emplace("RenderDepthBuffer");
     {
       texDesc.format = GL_DEPTH_COMPONENT;
@@ -176,6 +185,7 @@ void Renderer::createRenderPasses()
     pass.frontFace = DrawSceneRenderPass::EFrontFace::eCCW;
     pass.storageBufferParameters["PointLightBlock"] = &m_LightRegistry.getPointLightsStorageBuffer();
     pass.storageBufferParameters["DirLightBlock"] = &m_LightRegistry.getDirLightsStorageBuffer();
+    pass.addDefine("VRM_MAIN_RENDER_PASS");
 
     if (m_renderSettings.normalMapping.activated)
     {
@@ -184,6 +194,12 @@ void Renderer::createRenderPasses()
       {
         pass.addDefine("VRM_REORTHOGONALIZE_TANGENT_SPACE");
       }
+    }
+
+    if (m_renderSettings.bloom.activated)
+    {
+      pass.addDefine("VRM_EXTRACT_BRIGHTNESS");
+      pass.addDefine("VRM_BRIGHTNESS_OUT_SLOT", 1);
     }
 
     if (m_renderSettings.clusteredShading)

@@ -16,7 +16,27 @@ namespace vrm
     {
       bool activated = true;
       bool reorthoTangentSpace = false;
+
+      inline constexpr bool operator==(const NormalMappingSettings& s) const
+      {
+        return true
+          && activated == s.activated
+          && reorthoTangentSpace == s.reorthoTangentSpace
+        ;
+      }
     } normalMapping;
+
+    struct BloomSettings
+    {
+      bool activated = true;
+
+      inline constexpr bool operator==(const BloomSettings& s) const
+      {
+        return true
+          && activated == s.activated
+        ;
+      }
+    } bloom;
 
     bool clusteredShading = true;
     glm::uvec3 clusterCount = { 12, 12, 24 };
@@ -30,8 +50,8 @@ namespace vrm
         && frameRateLimit == s.frameRateLimit
         && antiAliasingLevel == s.antiAliasingLevel
         && shadowsEnable == s.shadowsEnable
-        && normalMapping.activated == s.normalMapping.activated
-        && normalMapping.reorthoTangentSpace == s.normalMapping.reorthoTangentSpace
+        && normalMapping == s.normalMapping
+        && bloom == s.bloom
         && clusteredShading == s.clusteredShading
         && clusterCount == s.clusterCount
         && showLightComplexity == s.showLightComplexity

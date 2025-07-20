@@ -100,6 +100,11 @@
         "Name": "u_normal",
         "Type": "sampler2D",
         "EnableIf": "VRM_TEXTURE_u_normal"
+      },
+      {
+        "Name": "u_bloomThreshold",
+        "Type": "float",
+        "EnableIf": "VRM_EXTRACT_BRIGHTNESS"
       }
     ],
     "StorageBuffers": [

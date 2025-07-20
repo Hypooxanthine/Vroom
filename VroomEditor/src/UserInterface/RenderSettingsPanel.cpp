@@ -82,6 +82,16 @@ bool RenderSettingsPanel::onImgui()
       dynSettingsChanged = true;
     }
 
+    if (ImGui::Checkbox("Bloom", &settings.bloom.activated))
+    {
+      settingsChanged = true;
+    }
+
+    if (settings.bloom.activated && ImGui::SliderFloat("Bloom threshold", &dynSettings.bloom.threshold, 0.f, 10.f))
+    {
+      dynSettingsChanged = true;
+    }
+
     if (ImGui::Checkbox("Normal mapping", &settings.normalMapping.activated))
     {
       settingsChanged = true;

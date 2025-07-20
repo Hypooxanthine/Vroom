@@ -7,6 +7,10 @@
   layout(location = 0) out vec4 finalColor;
 #endif
 
+#if defined(VRM_EXTRACT_BRIGHTNESS)
+  layout(location = VRM_BRIGHTNESS_OUT_SLOT) out vec4 brightness;
+#endif
+
 //--------------------------------------------------
 // Function declarations
 
@@ -49,20 +53,27 @@ void main()
 #if defined(VRM_ENTITY_PICKING)
   finalColor = u_EntityId;
   return;
-#else
+#endif // defined(VRM_ENTITY_PICKING)
 
+#if defined(VRM_MAIN_RENDER_PASS)
   SetupGlobalVars();
+  finalColor = ComputeFragmentColor();
+#endif // defined(VRM_MAIN_RENDER_PASS)
 
-  vec4 shadeColor = ComputeFragmentColor();
+#if defined(VRM_EXTRACT_BRIGHTNESS)
+  float fragBrightness = dot(finalColor.rgb, vec3(0.2126f, 0.7152f, 0.0722f));
+  if(fragBrightness > 1.f)
+    brightness = vec4(finalColor.rgb, 1.f);
+  else
+    brightness = vec4(0.f, 0.f, 0.f, 1.f);
 
-#ifdef VRM_LIGHT_COMPLEXITY
+#endif // defined(VRM_EXTRACT_BRIGHTNESS)
+
+#if defined(VRM_LIGHT_COMPLEXITY)
   float cplx = GetLightComplexity();
   float cplxAlpha = 0.7;
-  shadeColor = vec4(cplx, 0.f, 1.f - cplx, 1.f) * cplxAlpha + shadeColor * (1.0 - cplxAlpha);
-#endif
-
-  finalColor = shadeColor;
-#endif
+  finalColor = vec4(cplx, 0.f, 1.f - cplx, 1.f) * cplxAlpha + finalColor * (1.0 - cplxAlpha);
+#endif // defined(VRM_LIGHT_COMPLEXITY)
 }
 
 void SetupGlobalVars()
