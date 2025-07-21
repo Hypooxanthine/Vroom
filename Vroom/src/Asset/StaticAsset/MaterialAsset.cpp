@@ -18,6 +18,8 @@ static const std::unordered_map<MaterialData::EShadingModel, std::string> S_SHAD
   { MaterialData::EShadingModel::ePBR, "Resources/Engine/Shader/ShadingModel/ShadingModel_PBR.json" },
 };
 
+std::string S_POST_PROCESS_BASE_SHADER = "Resources/Engine/Shader/RenderFullscreen/RenderFullscreen_shader.json";
+
 MaterialAsset::MaterialAsset()
     : StaticAsset()
 {
@@ -151,6 +153,24 @@ bool MaterialAsset::loadImpl(const std::string &filePath)
     ShadingModelAsset::Handle shadingModel = manager.getAsset<ShadingModelAsset>(ID);
     m_materialShaderData.absorb(shadingModel->getData());
     m_materialShaderData.addDefine(ShaderData::EShaderType::eAll, { "VRM_SHADING_MODEL", "1" });
+  }
+  // Psot process material
+  else if (m_data.getType() == MaterialData::EType::ePostProcess)
+  {
+    // Base post process data
+    {
+      ShaderAsset::Handle shader = manager.tryGetAsset<ShaderAsset>(S_POST_PROCESS_BASE_SHADER);
+      VRM_CHECK_RET_FALSE_MSG(shader.isValid(), "Could not load engine post process base material {}", S_POST_PROCESS_BASE_SHADER);
+      m_materialShaderData.absorb(shader->getShaderData());
+    }
+    // Post process implementation
+    {
+      ShaderAsset::Handle shader = manager.tryGetAsset<ShaderAsset>(m_data.getCustomShader());
+      VRM_CHECK_RET_FALSE_MSG(shader.isValid(), "Could not load post process material implementation {}", m_data.getCustomShader());
+      m_materialShaderData.absorb(shader->getShaderData());
+    }
+
+    m_materialShaderData.addDefine(ShaderData::EShaderType::eAll, { "VRM_POST_PROCESS_MATERIAL", "1" });
   }
   // Custom shaders material
   else if (m_data.getType() == MaterialData::EType::eCustomShader)

@@ -49,6 +49,7 @@ namespace vrm
     EFaceCulling faceCulling = EFaceCulling::eNone;
     EFrontFace frontFace = EFrontFace::eCCW;
     bool shadowsEnable = false;
+    bool bloomEnable = false;
     MeshTags meshTags;
 
     std::unordered_map<std::string, const gl::Buffer*> storageBufferParameters;

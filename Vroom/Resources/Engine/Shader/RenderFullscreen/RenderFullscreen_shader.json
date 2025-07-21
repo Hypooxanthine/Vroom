@@ -10,14 +10,6 @@
       "Resources/Engine/Shader/RenderFullscreen/RenderFullscreen_fragment.glsl"
     ],
     "Uniforms": [
-      {
-        "Name": "u_hdrTex",
-        "Type": "sampler2D"
-      },
-      {
-        "Name": "u_exposure",
-        "Type": "float"
-      }
     ]
   },
   "Varyings": [

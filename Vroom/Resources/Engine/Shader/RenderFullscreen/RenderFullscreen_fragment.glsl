@@ -3,15 +3,16 @@
 
 layout(location = 0) out vec4 finalColor;
 
+vec4 RenderFullscreen_impl();
+
 void main()
 {
-  vec3 hdrColor = texture(u_hdrTex, v_TexCoord).rgb;
+  finalColor = RenderFullscreen_impl();
+}
 
-  vec3 mapped = vec3(1.0) - exp(-hdrColor * u_exposure);
-
-  mapped = pow(mapped, vec3(1.f / 2.2f)); // gamma correction
-
-  finalColor = vec4(mapped, 1.f);
+vec2 GetTexCoords()
+{
+  return v_TexCoord;
 }
 
 #endif // _RENDERFULLSCREEN_FRAGMENT_GLSL_

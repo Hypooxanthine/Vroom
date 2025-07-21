@@ -198,6 +198,7 @@ void Renderer::createRenderPasses()
 
     if (m_renderSettings.bloom.activated)
     {
+      pass.bloomEnable = true;
       pass.addDefine("VRM_EXTRACT_BRIGHTNESS");
       pass.addDefine("VRM_BRIGHTNESS_OUT_SLOT", 1);
     }

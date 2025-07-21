@@ -1,0 +1,4 @@
+{
+  "Type": "PostProcess",
+  "CustomShader": "Resources/Engine/Shader/RenderFullscreen/ToneMapping_shader.json"
+}

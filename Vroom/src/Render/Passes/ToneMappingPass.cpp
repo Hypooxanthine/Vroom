@@ -21,7 +21,7 @@ void ToneMappingPass::onInit()
   VRM_ASSERT_MSG(framebufferTarget != nullptr, "Invalid framebuffer");
   VRM_ASSERT_MSG(hdrTex != nullptr, "Invalid hdr texture");
 
-  m_matAsset = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/RenderFullscreenMaterial.json");
+  m_matAsset = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/ToneMappingPostProcessMaterial.json");
   m_material = &getPassMaterial(m_matAsset);
 
   m_dummyVao.create();

@@ -1,0 +1,18 @@
+{
+  "Global": {},
+  "Fragment": {
+    "Sources": [
+      "Resources/Engine/Shader/RenderFullscreen/ToneMapping_impl.glsl"
+    ],
+    "Uniforms": [
+      {
+        "Name": "u_hdrTex",
+        "Type": "sampler2D"
+      },
+      {
+        "Name": "u_exposure",
+        "Type": "float"
+      }
+    ]
+  }
+}

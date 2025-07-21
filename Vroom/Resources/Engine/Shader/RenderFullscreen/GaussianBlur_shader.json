@@ -1,0 +1,10 @@
+{
+  "Global": {},
+  "Fragment": {
+    "Sources": [
+      "Resources/Engine/Shader/RenderFullscreen/GaussianBlur_impl.glsl"
+    ],
+    "Uniforms": [
+    ]
+  }
+}

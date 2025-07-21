@@ -18,6 +18,7 @@ namespace vrm
     {
       eUndefined = -1,
       eShadingModel = 0,
+      ePostProcess,
       eCustomShader,
       eCount
     };
@@ -116,6 +117,7 @@ namespace nlohmann
   NLOHMANN_JSON_SERIALIZE_ENUM(vrm::MaterialData::EType,
   {
     { vrm::MaterialData::EType::eUndefined, "Undefined" },
+    { vrm::MaterialData::EType::ePostProcess, "PostProcess" },
     { vrm::MaterialData::EType::eCustomShader, "CustomShader" },
     { vrm::MaterialData::EType::eShadingModel, "ShadingModel" },
   })

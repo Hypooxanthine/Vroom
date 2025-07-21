@@ -116,6 +116,11 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
         shader.setUniform1ui("u_SoftShadowKernelRadius", ctx.dynamicSettings->shadows.softShadowKernelRadius);
       }
 
+      if (bloomEnable)
+      {
+        shader.setUniform1f("u_bloomThreshold", ctx.dynamicSettings->bloom.threshold);
+      }
+
       applyCameraUniforms(shader, *ctx.mainCamera);
       applyViewportUniforms(shader, ctx.viewport);
       applyStorageBufferParameters(shader);

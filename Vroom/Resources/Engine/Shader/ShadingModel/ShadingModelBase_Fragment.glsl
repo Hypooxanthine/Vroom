@@ -62,7 +62,7 @@ void main()
 
 #if defined(VRM_EXTRACT_BRIGHTNESS)
   float fragBrightness = dot(finalColor.rgb, vec3(0.2126f, 0.7152f, 0.0722f));
-  if(fragBrightness > 1.f)
+  if(fragBrightness > u_bloomThreshold)
     brightness = vec4(finalColor.rgb, 1.f);
   else
     brightness = vec4(0.f, 0.f, 0.f, 1.f);

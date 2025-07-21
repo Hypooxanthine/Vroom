@@ -2,7 +2,11 @@
 
 #include "Vroom/Core/Assert.h"
 
+#include <set>
+
 using namespace vrm;
+
+static const std::set<MaterialData::EType> s_customShaderSupportedTypes = { MaterialData::EType::eCustomShader, MaterialData::EType::ePostProcess };
  
 MaterialData::MaterialData()
 {
@@ -18,6 +22,7 @@ void MaterialData::setType(EType type)
   
   m_type = type;
   m_shadingModel = EShadingModel::eNone;
+  m_customShader = "";
 }
 
 MaterialData::EType MaterialData::getType() const
@@ -33,7 +38,7 @@ void MaterialData::setShadingModel(EShadingModel model)
 
 void MaterialData::setCustomShader(const std::string& customShader)
 {
-  VRM_ASSERT_MSG(m_type == EType::eCustomShader, "Type is not custom shader");
+  VRM_ASSERT_MSG(s_customShaderSupportedTypes.contains(m_type), "Material type does not support custom shader");
   m_customShader = customShader;
 }
 

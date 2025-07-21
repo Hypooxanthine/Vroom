@@ -1,0 +1,4 @@
+{
+  "Type": "PostProcess",
+  "CustomShader": "Resources/Engine/Shader/RenderFullscreen/GaussianBlur_shader.json"
+}
