@@ -21,7 +21,7 @@ void main()
   // Normal mapping
   #if defined(VRM_TEXTURE_u_normal) && defined(VRM_NORMAL_MAPPING)
   {
-    vec3 N = normalize(normalMatrix * normal);
+    vec3 N = v_Normal;
     vec3 T = normalize(normalMatrix * tangent);
     vec3 B = normalize(normalMatrix * bitangent);
 

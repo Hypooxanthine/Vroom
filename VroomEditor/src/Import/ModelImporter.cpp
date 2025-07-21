@@ -58,7 +58,7 @@ ModelImporter::~ModelImporter()
 
 bool ModelImporter::import(const std::filesystem::path& inPath, const std::filesystem::path& outPath)
 {
-  const aiScene* scene = IMPL.importer.ReadFile(inPath.string(), aiProcess_Triangulate | aiProcess_GenNormals);
+  const aiScene* scene = IMPL.importer.ReadFile(inPath.string(), 0);
 
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
   {

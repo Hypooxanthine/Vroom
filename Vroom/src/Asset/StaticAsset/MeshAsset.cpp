@@ -46,7 +46,7 @@ bool MeshAsset::loadImpl(const std::string& filePath)
   VRM_LOG_TRACE("Loading mesh: {}", filePath);
 
   Assimp::Importer importer;
-  const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
+  const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace | aiProcess_FindInvalidData);
 
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
   {
