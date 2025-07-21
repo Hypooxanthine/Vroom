@@ -17,6 +17,7 @@ Vroom is a 3D game engine made with OpenGL. It is a personal project I'm doing t
     - TODO: cascaded shadow maps
   - Kernel-based soft shadows
   - Normal mapping
+  - Bloom
   - Clustered rendering for point lights
   - Modular shaders and materials
 - Assets
