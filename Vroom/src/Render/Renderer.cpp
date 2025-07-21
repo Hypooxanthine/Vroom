@@ -123,6 +123,11 @@ void Renderer::createRenderPasses()
       texDesc.format = GL_RGBA;
       texDesc.internalFormat = GL_RGBA16F;
       brightnessTex->create(texDesc);
+      brightnessTex->bind();
+      glTexParameteri(brightnessTex->getDefaultTarget(), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(brightnessTex->getDefaultTarget(), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameteri(brightnessTex->getDefaultTarget(), GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(brightnessTex->getDefaultTarget(), GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       fb.setColorAttachment(1, *brightnessTex);
 
       if (aa == 1)
@@ -304,6 +309,11 @@ void Renderer::createRenderPasses()
       texDesc.format = GL_RGBA;
       texDesc.internalFormat = GL_RGBA16F;
       bloomBrightnessTextureNoMsaa->create(texDesc);
+      bloomBrightnessTextureNoMsaa->bind();
+      glTexParameteri(bloomBrightnessTextureNoMsaa->getDefaultTarget(), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(bloomBrightnessTextureNoMsaa->getDefaultTarget(), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameteri(bloomBrightnessTextureNoMsaa->getDefaultTarget(), GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(bloomBrightnessTextureNoMsaa->getDefaultTarget(), GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       resolvedFb.setColorAttachment(1, *bloomBrightnessTextureNoMsaa);
     }
 
@@ -337,6 +347,11 @@ void Renderer::createRenderPasses()
 
     gl::Texture& interColorBuffer = *m_texturePool.emplace("GaussianBlurIntermediateColorBuffer");
     interColorBuffer.create(texDesc);
+    interColorBuffer.bind();
+    glTexParameteri(interColorBuffer.getDefaultTarget(), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(interColorBuffer.getDefaultTarget(), GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(interColorBuffer.getDefaultTarget(), GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(interColorBuffer.getDefaultTarget(), GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     gl::FrameBuffer& framebufferA = *m_frameBufferPool.emplace("GaussianBlurFramebufferA");
     framebufferA.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
