@@ -294,10 +294,19 @@ namespace vrm::gl
       glBindFramebuffer(GL_READ_FRAMEBUFFER, src.getRenderID());
       glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dest.getRenderID());
 
-      glBlitFramebuffer(
-        0, 0, src.m_width, src.m_height,
-        0, 0, dest.m_width, dest.m_height,
-        GL_COLOR_BUFFER_BIT, GL_NEAREST);
+      for (size_t i = 0; i < s_MaxColorAttachments; ++i)
+      {
+        if (dest.m_drawBuffers.at(i) != GL_NONE && src.m_drawBuffers.at(i) != GL_NONE)
+        {
+          glReadBuffer(src.m_drawBuffers[i]);
+          glDrawBuffer(dest.m_drawBuffers[i]);
+
+          glBlitFramebuffer(
+            0, 0, src.m_width, src.m_height,
+            0, 0, dest.m_width, dest.m_height,
+            GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        }
+      }
     }
 
   protected:

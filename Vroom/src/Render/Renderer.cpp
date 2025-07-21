@@ -90,7 +90,7 @@ void Renderer::createRenderPasses()
 
   gl::Texture* hdrFlatTexture = nullptr;
   gl::Texture* flatZBuffer = nullptr;
-  gl::Texture* bloomBrightnessTexture = nullptr;
+  gl::Texture* bloomBrightnessTextureNoMsaa = nullptr;
 
   auto aa = m_renderSettings.antiAliasingLevel;
   bool aaOK = (aa != 0 && ((aa & (aa - 1)) == 0));
@@ -119,11 +119,17 @@ void Renderer::createRenderPasses()
 
     if (m_renderSettings.bloom.activated)
     {
-      bloomBrightnessTexture = m_texturePool.emplace("BrightnessColorBuffer");
+      gl::Texture* brightnessTex = m_texturePool.emplace("BrightnessColorBuffer");
       texDesc.format = GL_RGBA;
       texDesc.internalFormat = GL_RGBA16F;
-      bloomBrightnessTexture->create(texDesc);
-      fb.setColorAttachment(1, *bloomBrightnessTexture);
+      brightnessTex->create(texDesc);
+      fb.setColorAttachment(1, *brightnessTex);
+
+      if (aa == 1)
+      {
+        bloomBrightnessTextureNoMsaa = brightnessTex;
+      }
+      // else -> will be set in the msaa resolving step
     }
 
     auto& depthTex = *m_texturePool.emplace("RenderDepthBuffer");
@@ -291,6 +297,16 @@ void Renderer::createRenderPasses()
       resolvedFb.setColorAttachment(0, *hdrFlatTexture);
     }
 
+    if (m_renderSettings.bloom.activated)
+    {
+      // Overriding the brightness texture
+      bloomBrightnessTextureNoMsaa = m_texturePool.emplace("NoMsaaBrightnessColorBuffer");
+      texDesc.format = GL_RGBA;
+      texDesc.internalFormat = GL_RGBA16F;
+      bloomBrightnessTextureNoMsaa->create(texDesc);
+      resolvedFb.setColorAttachment(1, *bloomBrightnessTextureNoMsaa);
+    }
+
     flatZBuffer = m_texturePool.emplace("MsaaResolvedDepthBuffer");
     {
       texDesc.format = GL_DEPTH_COMPONENT;
@@ -329,13 +345,13 @@ void Renderer::createRenderPasses()
 
     gl::FrameBuffer& framebufferB = *m_frameBufferPool.emplace("GaussianBlurFramebufferB");
     framebufferB.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
-    framebufferB.setColorAttachment(0, *bloomBrightnessTexture);
+    framebufferB.setColorAttachment(0, *bloomBrightnessTextureNoMsaa);
     VRM_ASSERT_MSG(framebufferB.validate(), "Could not validate GaussianBlurFramebufferB");
 
     GaussianBlurPass& pass = m_passManager.pushPass<GaussianBlurPass>();
     pass.framebufferA = &framebufferA;
     pass.framebufferB = &framebufferB;
-    pass.texture = bloomBrightnessTexture; // Will store the final blurred texture.
+    pass.texture = bloomBrightnessTextureNoMsaa; // Will store the final blurred texture.
     pass.intermediateTexture = &interColorBuffer;
   }
 
@@ -368,7 +384,7 @@ void Renderer::createRenderPasses()
 
     if (m_renderSettings.bloom.activated)
     {
-      pass.blurredBrightness = bloomBrightnessTexture;
+      pass.blurredBrightness = bloomBrightnessTextureNoMsaa;
       pass.addDefine("VRM_BLOOM_ENABLE");
     }
   }
