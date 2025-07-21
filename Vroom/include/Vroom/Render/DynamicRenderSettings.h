@@ -27,11 +27,13 @@ namespace vrm
     struct Bloom
     {
       float threshold = 1.f;
+      uint8_t blurPasses = 5;
 
       inline constexpr bool operator==(const Bloom& s) const
       {
         return true
           && threshold == s.threshold
+          && blurPasses == s.blurPasses
         ;
       }
     } bloom;

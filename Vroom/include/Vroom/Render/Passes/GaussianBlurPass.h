@@ -8,23 +8,22 @@ namespace vrm::gl
 {
   class FrameBuffer;
   class Texture;
-}
+} // namespace vrm::gl
 
 namespace vrm
 {
   
-  class ToneMappingPass : public RenderPass
+  class GaussianBlurPass : public RenderPass
   {
   public:
-    
-    ToneMappingPass();
-    virtual ~ToneMappingPass();
 
-  public:
+    gl::FrameBuffer* framebufferA = nullptr;
+    gl::FrameBuffer* framebufferB = nullptr;
 
-    gl::FrameBuffer* framebufferTarget = nullptr;
-    gl::Texture* hdrTex = nullptr;
-    gl::Texture* blurredBrightness = nullptr; // If nullptr, bloom is assumed not activated
+    gl::Texture* texture = nullptr; // Input of A and output of the pass
+    gl::Texture* intermediateTexture = nullptr; // Input of B
+
+    size_t blurPasses = 5;
 
   protected:
 
@@ -33,7 +32,7 @@ namespace vrm
     virtual void onSetup(const RenderPassContext& ctx) override;
 
     virtual void onRender(const RenderPassContext& ctx) const override;
-  
+
   private:
 
     MaterialAsset::Handle m_matAsset = {};
@@ -41,4 +40,5 @@ namespace vrm
     gl::VertexArray m_dummyVao = {};
   };
 
-} // namespace vrm 
+} // namespace vrm
+

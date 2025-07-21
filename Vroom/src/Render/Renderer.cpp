@@ -13,6 +13,7 @@
 #include "Vroom/Render/Passes/ShadowMappingPass.h"
 #include "Vroom/Render/Passes/ClearTexturePass.h"
 #include "Vroom/Render/Passes/ToneMappingPass.h"
+#include "Vroom/Render/Passes/GaussianBlurPass.h"
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Render/Abstraction/VertexArray.h"
@@ -89,6 +90,7 @@ void Renderer::createRenderPasses()
 
   gl::Texture* hdrFlatTexture = nullptr;
   gl::Texture* flatZBuffer = nullptr;
+  gl::Texture* bloomBrightnessTexture = nullptr;
 
   auto aa = m_renderSettings.antiAliasingLevel;
   bool aaOK = (aa != 0 && ((aa & (aa - 1)) == 0));
@@ -117,11 +119,11 @@ void Renderer::createRenderPasses()
 
     if (m_renderSettings.bloom.activated)
     {
-      auto& brightTex = *m_texturePool.emplace("BrightnessColorBuffer");
+      bloomBrightnessTexture = m_texturePool.emplace("BrightnessColorBuffer");
       texDesc.format = GL_RGBA;
       texDesc.internalFormat = GL_RGBA16F;
-      brightTex.create(texDesc);
-      fb.setColorAttachment(1, brightTex);
+      bloomBrightnessTexture->create(texDesc);
+      fb.setColorAttachment(1, *bloomBrightnessTexture);
     }
 
     auto& depthTex = *m_texturePool.emplace("RenderDepthBuffer");
@@ -304,9 +306,41 @@ void Renderer::createRenderPasses()
     pass.destination = &resolvedFb;
   }
 
+  // Gaussian blur
+  if (m_renderSettings.bloom.activated)
+  {
+    gl::Texture::Desc texDesc;
+    {
+      texDesc.dimension = 2;
+      texDesc.width = m_viewport.getSize().x;
+      texDesc.height = m_viewport.getSize().y;
+      texDesc.sampleCount = 1;
+      texDesc.format = GL_RGBA;
+      texDesc.internalFormat = GL_RGBA16F;
+    }
+
+    gl::Texture& interColorBuffer = *m_texturePool.emplace("GaussianBlurIntermediateColorBuffer");
+    interColorBuffer.create(texDesc);
+
+    gl::FrameBuffer& framebufferA = *m_frameBufferPool.emplace("GaussianBlurFramebufferA");
+    framebufferA.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
+    framebufferA.setColorAttachment(0, interColorBuffer);
+    VRM_ASSERT_MSG(framebufferA.validate(), "Could not validate GaussianBlurframebufferA");
+
+    gl::FrameBuffer& framebufferB = *m_frameBufferPool.emplace("GaussianBlurFramebufferB");
+    framebufferB.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
+    framebufferB.setColorAttachment(0, *bloomBrightnessTexture);
+    VRM_ASSERT_MSG(framebufferB.validate(), "Could not validate GaussianBlurFramebufferB");
+
+    GaussianBlurPass& pass = m_passManager.pushPass<GaussianBlurPass>();
+    pass.framebufferA = &framebufferA;
+    pass.framebufferB = &framebufferB;
+    pass.texture = bloomBrightnessTexture; // Will store the final blurred texture.
+    pass.intermediateTexture = &interColorBuffer;
+  }
+
   gl::Texture* rgbFlatTexture = nullptr;
 
-  // if (false)
   // Tone mapping
   {
     gl::Texture::Desc texDesc;
@@ -325,13 +359,18 @@ void Renderer::createRenderPasses()
     gl::FrameBuffer& fb = *m_frameBufferPool.emplace("hdrResolveFrameBuffer");
     fb.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
     fb.setColorAttachment(0, *rgbFlatTexture);
-    // fb.setDepthAttachment(*flatZBuffer);
     VRM_ASSERT_MSG(fb.validate(), "Could not build hdrResolveFrameBuffer");
 
     ToneMappingPass& pass = m_passManager.pushPass<ToneMappingPass>();
 
     pass.hdrTex = hdrFlatTexture;
     pass.framebufferTarget = &fb;
+
+    if (m_renderSettings.bloom.activated)
+    {
+      pass.blurredBrightness = bloomBrightnessTexture;
+      pass.addDefine("VRM_BLOOM_ENABLE");
+    }
   }
 
   m_finalTexture = rgbFlatTexture;

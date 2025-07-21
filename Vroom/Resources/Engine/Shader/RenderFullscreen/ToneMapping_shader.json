@@ -12,6 +12,11 @@
       {
         "Name": "u_exposure",
         "Type": "float"
+      },
+      {
+        "Name": "u_blurredBrightness",
+        "Type": "sampler2D",
+        "EnableIf": "VRM_BLOOM_ENABLE"
       }
     ]
   }

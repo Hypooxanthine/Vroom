@@ -5,6 +5,14 @@
       "Resources/Engine/Shader/RenderFullscreen/GaussianBlur_impl.glsl"
     ],
     "Uniforms": [
+      {
+        "Name": "u_inputTexture",
+        "Type": "sampler2D"
+      },
+      {
+        "Name": "u_vertical",
+        "Type": "uint"
+      }
     ]
   }
 }

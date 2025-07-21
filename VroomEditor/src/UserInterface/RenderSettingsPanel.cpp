@@ -87,9 +87,22 @@ bool RenderSettingsPanel::onImgui()
       settingsChanged = true;
     }
 
-    if (settings.bloom.activated && ImGui::SliderFloat("Bloom threshold", &dynSettings.bloom.threshold, 0.f, 10.f))
+    if (settings.bloom.activated)
     {
-      dynSettingsChanged = true;
+      if (ImGui::SliderFloat("Bloom threshold", &dynSettings.bloom.threshold, 0.f, 10.f))
+      {
+        dynSettingsChanged = true;
+      }
+
+      int blurPasses = static_cast<int>(dynSettings.bloom.blurPasses);
+      int min = 1;
+      int max = std::numeric_limits<decltype(dynSettings.bloom.blurPasses)>::max();
+
+      if (ImGui::SliderInt("Bloom blur passes", &blurPasses, min, max, "%d", ImGuiSliderFlags_ClampOnInput))
+      {
+        dynSettings.bloom.blurPasses = blurPasses;
+        dynSettingsChanged = true;
+      }
     }
 
     if (ImGui::Checkbox("Normal mapping", &settings.normalMapping.activated))
