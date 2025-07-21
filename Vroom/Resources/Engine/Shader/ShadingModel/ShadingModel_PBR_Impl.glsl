@@ -84,27 +84,33 @@ float Xpositive(float value)
 float NormalDistribution_GGX(in vec3 lightDirection, in vec3 h, in float alpha2)
 {
   float NdotH = dot(g_normal, h);
+  
+  if (NdotH <= 0.0) return 0.0;
+  
   float NdotH2 = NdotH * NdotH;
-  float tanAbs = length(cross(h, g_normal)) / NdotH;
+  float tanAbs = length(cross(h, g_normal)) / max(NdotH, 0.001);
   float tan2 = tanAbs * tanAbs;
 
   float num = alpha2 * Xpositive(NdotH);
   float denom = NdotH2 * (alpha2 + tan2);
   denom = VRM_PI * denom * denom;
 
-  return num / denom;
+  return num / max(denom, 0.001);
 }
 
 float G1(in vec3 x, in vec3 h, in float alpha2)
 {
   float NdotX = dot(g_normal, x);
-  float tanAbs = length(cross(g_normal, x)) / NdotX;
+  
+  if (NdotX <= 0.0) return 0.0;
+  
+  float tanAbs = length(cross(g_normal, x)) / max(NdotX, 0.001);
   float tan2 = tanAbs * tanAbs;
 
-  float nom = Xpositive(dot(x, h) / dot(x, g_normal)) * 2.0;
+  float nom = Xpositive(dot(x, h) / max(dot(x, g_normal), 0.001)) * 2.0;
   float denom = 1.0 + sqrt(1.0 + alpha2 * tan2);
 
-  return nom / denom;
+  return nom / max(denom, 0.001);
 }
 
 float Geometric_GGX(in vec3 lightDirection, in vec3 h, in float alpha2)
@@ -117,15 +123,19 @@ vec3 ShadingModel(in vec3 lightColor, in vec3 lightDirection)
   float NdotL = dot(g_normal, lightDirection);
   float NdotV = dot(g_normal, g_viewDir);
   
-  vec3 h = normalize(lightDirection + g_viewDir); // Bisector
-  float VdotH = dot(g_viewDir, h);
+  if (NdotL <= 0.0 || NdotV <= 0.0) return vec3(0.0);
   
-  float alpha = g_roughness * g_roughness;
+  vec3 h = normalize(lightDirection + g_viewDir);
+  float VdotH = dot(g_viewDir, h);
+  float NdotH = dot(g_normal, h);
+  
+  if (VdotH <= 0.0 || NdotH <= 0.0) return vec3(0.0);
+  
+  float alpha = max(g_roughness * g_roughness, 0.001);
   float alpha2 = alpha * alpha;
 
-  // Calcul du terme de Fresnel (F)
   vec3 F0 = mix(vec3(g_F0), g_albedo, g_metallness);
-  vec3 F = F0 + (1.0 - F0) * pow(1.0 - VdotH, 5.0); // Fresnel-Schlick
+  vec3 F = F0 + (1.0 - F0) * pow(clamp(1.0 - VdotH, 0.0, 1.0), 5.0);
 
   float D = NormalDistribution_GGX(lightDirection, h, alpha2);
   float G = Geometric_GGX(lightDirection, h, alpha2);
@@ -137,12 +147,15 @@ vec3 ShadingModel(in vec3 lightColor, in vec3 lightDirection)
   // Diffuse BRDF (Lambert)
   vec3 diffuse = kD * g_albedo / VRM_PI;
 
-  // Specular BRDF (Cook-Torrance)
   vec3 numerator = D * G * F;
-  float denominator = 4.0 * max(NdotV, 0.0) * max(NdotL, 0.0) + 0.0001;
+  float denominator = 4.0 * NdotV * NdotL + 0.001;
   vec3 specular = numerator / denominator;
+  
+  specular = min(specular, vec3(10.0));
 
-  return lightColor * max(NdotL, 0.0) * (diffuse + specular);
+  vec3 result = lightColor * NdotL * (diffuse + specular);
+  
+  return clamp(result, vec3(0.0), vec3(100.0));
 }
 
 #endif // _SHADINGMODEL_PBR_IMPL_GLSL_
