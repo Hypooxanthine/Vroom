@@ -37,9 +37,10 @@ void ToneMappingPass::onRender(const RenderPassContext& ctx) const
   auto& shader = m_material->getShader();
   shader.bind();
   shader.setTexture("u_hdrTex", *hdrTex, 0);
-  if (blurredBrightness)
+  if (blurredBrightness) // Bloom activated
   {
     shader.setTexture("u_blurredBrightness", *blurredBrightness, 1);
+    shader.setUniform1f("u_bloomIntensity", ctx.dynamicSettings->bloom.intensity);
   }
   shader.setUniform1f("u_exposure", ctx.dynamicSettings->hdr.exposure);
   framebufferTarget->bind();

@@ -26,12 +26,14 @@ namespace vrm
 
     struct Bloom
     {
+      float intensity = 1.f;
       float threshold = 1.f;
       uint8_t blurPasses = 5;
 
       inline constexpr bool operator==(const Bloom& s) const
       {
         return true
+          && intensity == s.intensity
           && threshold == s.threshold
           && blurPasses == s.blurPasses
         ;

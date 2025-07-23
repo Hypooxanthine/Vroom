@@ -89,6 +89,11 @@ bool RenderSettingsPanel::onImgui()
 
     if (settings.bloom.activated)
     {
+      if (ImGui::SliderFloat("Bloom intensity", &dynSettings.bloom.intensity, 0.f, 10.f))
+      {
+        dynSettingsChanged = true;
+      }
+
       if (ImGui::SliderFloat("Bloom threshold", &dynSettings.bloom.threshold, 0.f, 10.f))
       {
         dynSettingsChanged = true;

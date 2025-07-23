@@ -17,6 +17,11 @@
         "Name": "u_blurredBrightness",
         "Type": "sampler2D",
         "EnableIf": "VRM_BLOOM_ENABLE"
+      },
+      {
+        "Name": "u_bloomIntensity",
+        "Type": "float",
+        "EnableIf": "VRM_BLOOM_ENABLE"
       }
     ]
   }
