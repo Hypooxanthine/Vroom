@@ -108,6 +108,7 @@ void MeshComponentData::addToEntity(Entity& entity)
   auto& mc = entity.addComponent<MeshComponent>();
   mc.setMesh(AssetManager::Get().getAsset<MeshAsset>(resourceName));
   mc.setCastsShadow(this->castsShadow);
+  mc.setVisible(this->visible);
 }
 
 void MeshComponentData::getFromEntity(const Entity& entity)
@@ -115,6 +116,7 @@ void MeshComponentData::getFromEntity(const Entity& entity)
   const auto& mc = entity.getComponent<MeshComponent>();
   this->resourceName = mc.getMesh()->getFilePath();
   this->castsShadow = mc.doesCastShadow();
+  this->visible = mc.isVisible();
 }
 
 json MeshComponentData::serialize() const
@@ -136,6 +138,13 @@ json MeshComponentData::serialize() const
     castsShadowParam["name"] = "CastsShadow";
     json& castsShadow = castsShadowParam["value"];
     castsShadow = this->castsShadow;
+  }
+
+  {
+    json& visibleParam = params.emplace_back();
+    visibleParam["name"] = "Visible";
+    json& visibleVal = visibleParam["value"];
+    visibleVal = this->visible;
   }
 
   return std::move(j);
@@ -163,6 +172,11 @@ bool MeshComponentData::deserialize(const json& j)
     {
       VRM_CHECK_RET_FALSE_MSG(param["value"].is_boolean(), "Expected boolean for CastsShadow value");
       this->castsShadow = param["value"];
+    }
+    else if (nameVal == "Visible")
+    {
+      VRM_CHECK_RET_FALSE_MSG(param["value"].is_boolean(), "Expected boolean for Visible value");
+      this->visible = param["value"];
     }
     else
     {

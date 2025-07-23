@@ -36,6 +36,7 @@ namespace vrm
   {
     std::string resourceName;
     bool castsShadow;
+    bool visible = true; // If not present in serialized data, sets it to visible by default
     
     void addToEntity(Entity& entity) override;
     void getFromEntity(const Entity& entity) override;
