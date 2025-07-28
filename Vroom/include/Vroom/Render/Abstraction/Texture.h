@@ -24,6 +24,7 @@ namespace vrm::gl
       GLuint sampleCount = 1;
       GLboolean fixedSampleLocations = GL_TRUE;
       bool layered = false;
+      bool cubemap = false;
     };
   
   public:

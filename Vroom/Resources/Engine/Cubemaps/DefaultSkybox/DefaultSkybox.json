@@ -1,0 +1,8 @@
+{
+  "posx": "right.jpg",
+  "negx": "left.jpg",
+  "posy": "top.jpg",
+  "negy": "bottom.jpg",
+  "posz": "front.jpg",
+  "negz": "back.jpg"
+}

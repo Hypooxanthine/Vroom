@@ -27,6 +27,7 @@ namespace vrm
     ~CubemapAsset();
 
     inline const CubemapData& getData() const { return m_data; }
+    inline const gl::Texture& getGpuTexture() const { return m_gpuTexture; }
 
   protected:
     bool loadImpl(const std::string& filePath) override;
@@ -35,10 +36,12 @@ namespace vrm
 
     bool _loadTexture(const std::string& filePath, ByteTextureData& textureData);
     bool _compareTextureWithNegX(const ByteTextureData& tex) const;
+    bool _buildGpuCubemap();
 
   private:
 
     CubemapData m_data;
+    gl::Texture m_gpuTexture;
   };
 
 } // namespace vrm

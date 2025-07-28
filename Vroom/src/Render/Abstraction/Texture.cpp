@@ -44,26 +44,44 @@ void Texture::create(const Desc& desc)
       {
         if (desc.layered) // Array
         {
-          m_defaultTarget = GL_TEXTURE_2D_ARRAY;
-          bind();
-          GLCall(glTexStorage3D(m_defaultTarget, desc.mipmapCount, desc.internalFormat, desc.width, desc.height, desc.depth));
+          if (desc.cubemap) // Cubemap array
+          {
+            m_defaultTarget = GL_TEXTURE_CUBE_MAP_ARRAY;
+            bind();
+            GLCall(glTexStorage3D(m_defaultTarget, desc.mipmapCount, desc.internalFormat, desc.width, desc.height, desc.depth));
+          }
+          else // 2D texture array
+          {
+            m_defaultTarget = GL_TEXTURE_2D_ARRAY;
+            bind();
+            GLCall(glTexStorage3D(m_defaultTarget, desc.mipmapCount, desc.internalFormat, desc.width, desc.height, desc.depth));
+          }
         }
         else
         {
-          m_defaultTarget = GL_TEXTURE_2D;
-          bind();
-          GLCall(glTexStorage2D(m_defaultTarget, desc.mipmapCount, desc.internalFormat, desc.width, desc.height));
+          if (desc.cubemap) // Cubemap
+          {
+            m_defaultTarget = GL_TEXTURE_CUBE_MAP;
+            bind();
+            GLCall(glTexStorage2D(m_defaultTarget, desc.mipmapCount, desc.internalFormat, desc.width, desc.height));
+          }
+          else // 2D texture
+          {
+            m_defaultTarget = GL_TEXTURE_2D;
+            bind();
+            GLCall(glTexStorage2D(m_defaultTarget, desc.mipmapCount, desc.internalFormat, desc.width, desc.height));
+          }
         }
       }
       else // Multisampled
       {
-        if (desc.layered) // Array
+        if (desc.layered) // Multisample 2D texture array
         {
           m_defaultTarget = GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
           bind();
           glTexStorage3DMultisample(m_defaultTarget, desc.sampleCount, desc.internalFormat, desc.width, desc.height, desc.depth, desc.fixedSampleLocations);
         }
-        else
+        else // Multisample 2D texture
         {
           m_defaultTarget = GL_TEXTURE_2D_MULTISAMPLE;
           bind();
