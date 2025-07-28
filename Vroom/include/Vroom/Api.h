@@ -14,4 +14,6 @@
   #else
     #define VRM_API __declspec(dllimport)
   #endif
+#else
+  #define VRM_API
 #endif
