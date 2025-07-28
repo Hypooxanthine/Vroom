@@ -12,6 +12,15 @@ namespace vrm
   public:
     using Handle = AssetHandle<CubemapAsset>;
 
+    struct EFace
+    {
+      enum Type : size_t
+      {
+        ePosX = 0, eNegX, ePosY, eNegY, ePosZ, eNegZ,
+        eCount
+      };
+    };
+
   public:
 
     CubemapAsset();
@@ -21,6 +30,11 @@ namespace vrm
 
   protected:
     bool loadImpl(const std::string& filePath) override;
+
+  private:
+
+    bool _loadTexture(const std::string& filePath, ByteTextureData& textureData);
+    bool _compareTextureWithNegX(const ByteTextureData& tex) const;
 
   private:
 

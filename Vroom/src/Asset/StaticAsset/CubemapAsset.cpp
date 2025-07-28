@@ -38,22 +38,40 @@ bool CubemapAsset::loadImpl(const std::string& filePath)
     return false;
   }
 
-  auto& man = AssetManager::Get();
+  VRM_CHECK_RET_FALSE_MSG(_loadTexture(jdata.posx, m_data.posx), "Could not load {} texture", jdata.posx);
+  VRM_CHECK_RET_FALSE_MSG(_loadTexture(jdata.negx, m_data.negx), "Could not load {} texture", jdata.negx);
 
-  m_data.posx = man.tryGetAsset<TextureAsset>(jdata.posx);
-  VRM_CHECK_RET_FALSE_MSG(m_data.posx.isValid(), "Could not load {} texture", jdata.posx);
-  m_data.negx = man.tryGetAsset<TextureAsset>(jdata.negx);
-  VRM_CHECK_RET_FALSE_MSG(m_data.negx.isValid(), "Could not load {} texture", jdata.negx);
-
-  m_data.posy = man.tryGetAsset<TextureAsset>(jdata.posy);
-  VRM_CHECK_RET_FALSE_MSG(m_data.posy.isValid(), "Could not load {} texture", jdata.posy);
-  m_data.negy = man.tryGetAsset<TextureAsset>(jdata.negy);
-  VRM_CHECK_RET_FALSE_MSG(m_data.negy.isValid(), "Could not load {} texture", jdata.negy);
-
-  m_data.posz = man.tryGetAsset<TextureAsset>(jdata.posz);
-  VRM_CHECK_RET_FALSE_MSG(m_data.posz.isValid(), "Could not load {} texture", jdata.posz);
-  m_data.negz = man.tryGetAsset<TextureAsset>(jdata.negz);
-  VRM_CHECK_RET_FALSE_MSG(m_data.negz.isValid(), "Could not load {} texture", jdata.negz);
+  VRM_CHECK_RET_FALSE_MSG(_loadTexture(jdata.posy, m_data.posy), "Could not load {} texture", jdata.posy);
+  VRM_CHECK_RET_FALSE_MSG(_loadTexture(jdata.negy, m_data.negy), "Could not load {} texture", jdata.negy);
   
+  VRM_CHECK_RET_FALSE_MSG(_loadTexture(jdata.posz, m_data.posz), "Could not load {} texture", jdata.posz);
+  VRM_CHECK_RET_FALSE_MSG(_loadTexture(jdata.negz, m_data.negz), "Could not load {} texture", jdata.negz);
+  
+  return true;
+}
+
+bool CubemapAsset::_loadTexture(const std::string& filePath, ByteTextureData& textureData)
+{
+  VRM_LOG_TRACE("Loading texture: {}", filePath);
+
+  if (!textureData.loadFromFile(filePath))
+  {
+    VRM_LOG_ERROR("Failed to load texture: {}", filePath);
+    return false;
+  }
+
+  if (!_compareTextureWithNegX(textureData))
+  {
+    return false;
+  }
+
+  return true;
+}
+
+bool CubemapAsset::_compareTextureWithNegX(const ByteTextureData& tex) const
+{
+  VRM_CHECK_RET_FALSE_MSG(m_data.posx.getWidth() == tex.getWidth() && m_data.posx.getHeight() == tex.getHeight(), "Texture sizes don't match");
+  VRM_CHECK_RET_FALSE_MSG(m_data.posx.getFormat() == tex.getFormat(), "Texture formats don't match");
+
   return true;
 }
