@@ -9,6 +9,7 @@
 #include <Vroom/Scene/Scene.h>
 #include <Vroom/Asset/AssetManager.h>
 #include <Vroom/Asset/StaticAsset/MeshAsset.h>
+#include <Vroom/Asset/StaticAsset/CubemapAsset.h>
 
 #include "VroomEditor/EditorLayer.h"
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
@@ -21,6 +22,7 @@
 #include "Vroom/Scene/Components/PointLightComponent.h"
 #include "Vroom/Scene/Components/DirectionalLightComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
+#include "Vroom/Scene/Components/SkyboxComponent.h"
 
 //--------------------------------------------------
 // Preprocessor/template machinery
@@ -74,6 +76,7 @@ void ComponentEditor::EditEntity(Entity& e)
     AddComponentItem<DirectionalLightComponent>(e, "Directional light");
     AddComponentItem<PointLightComponent>(e, "Point light");
     AddComponentItem<MeshComponent>(e, "Mesh");
+    AddComponentItem<SkyboxComponent>(e, "Skybox");
 
     ImGui::EndCombo();
   }
@@ -307,7 +310,6 @@ bool MeshComponentEditor::editEntityComponent(Entity& e) const
   const size_t matSlotMax = component.getMaterials().getSlotCount();
   for (size_t matSlot = 0; matSlot < matSlotMax; ++matSlot)
   {
-    // return false;
     const auto& mat = component.getMaterials().getMaterial(matSlot);
     if (!mat.isValid()) continue;
     std::string inputName = "Material " + std::to_string(matSlot);
@@ -368,6 +370,32 @@ bool MeshComponentEditor::editEntityComponent(Entity& e) const
     
   if (requestNewMaterial.second.isValid())
     component.setMaterial(requestNewMaterial.first, requestNewMaterial.second);
+
+  return true;
+}
+
+VRM_REGISTER_COMPONENT_EDITOR(SkyboxComponent, "Skybox component", false)
+bool SkyboxComponentEditor::editEntityComponent(Entity& e) const
+{
+  auto &component = get(e);
+  constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsNoBlank;
+
+  std::string resourceName = component.getCubemapAsset()->getFilePath();
+  bool skyboxChanged = false;
+  if (ImGui::InputText("Mesh", &resourceName, flags))
+  {
+    if (AssetManager::Get().tryLoadAsset<CubemapAsset>(resourceName))
+    {
+      skyboxChanged = true;
+    }
+    else
+    {
+      if (auto* state = ImGui::GetInputTextState(ImGui::GetItemID()))
+      {
+        state->ReloadUserBufAndKeepSelection();
+      }
+    }
+  }
 
   return true;
 }

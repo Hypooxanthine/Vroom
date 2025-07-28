@@ -29,7 +29,7 @@ bool StaticAsset::load(const std::string& filePath)
 {
   m_filePath = filePath;
   
-  if (loadImpl(filePath))
+  if (loadImpl(applyPathOrder(filePath)))
   {
     return true;
   }

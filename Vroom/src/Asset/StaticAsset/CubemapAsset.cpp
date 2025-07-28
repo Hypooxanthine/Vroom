@@ -19,8 +19,9 @@ CubemapAsset::~CubemapAsset()
 
 bool CubemapAsset::loadImpl(const std::string& filePath)
 {
+  VRM_LOG_INFO("Loading skybox: {}", filePath);
   std::ifstream ifs;
-  ifs.open(applyPathOrder(filePath));
+  ifs.open(filePath);
 
   VRM_CHECK_RET_FALSE_MSG(ifs.is_open(), "Could not open {}", filePath);
 
@@ -48,6 +49,8 @@ bool CubemapAsset::loadImpl(const std::string& filePath)
   VRM_CHECK_RET_FALSE_MSG(_loadTexture(jdata.negz, m_data.negz), "Could not load {} texture", jdata.negz);
 
   VRM_CHECK_RET_FALSE_MSG(_buildGpuCubemap(), "Could not create GPU cubemap");
+
+  VRM_LOG_INFO("Skybox loaded: {}", filePath);
   
   return true;
 }
@@ -56,7 +59,7 @@ bool CubemapAsset::_loadTexture(const std::string& filePath, ByteTextureData& te
 {
   VRM_LOG_TRACE("Loading texture: {}", filePath);
 
-  if (!textureData.loadFromFile(filePath))
+  if (!textureData.loadFromFile(applyPathOrder(filePath)))
   {
     VRM_LOG_ERROR("Failed to load texture: {}", filePath);
     return false;
