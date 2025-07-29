@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cstdint>
+#include <string>
 
 #include "VroomEditor/UserInterface/ImGuiElement.h"
 
@@ -17,9 +18,11 @@ namespace vrm
   protected:
     bool onImgui() override;
 
-  protected:
+  private:
     std::vector<uint8_t> m_msaaPossibleValues;
     decltype(m_msaaPossibleValues)::iterator m_currentMsaaValue;
+    std::string m_watchedTexture = "";
+
   };
 
 } // namespace vrm

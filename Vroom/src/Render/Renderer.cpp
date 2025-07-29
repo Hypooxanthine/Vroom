@@ -503,6 +503,11 @@ void Renderer::setViewportSize(const glm::uvec2& s)
   m_passManagerDirty = true;
 }
 
+const gl::Texture* Renderer::getTexture(const std::string& texName) const
+{
+  return m_texturePool.tryGet(texName);
+}
+
 uint32_t Renderer::getEntityIndexOnPixel(const glm::ivec2& px) const
 {
   if (!m_frameBufferPool.contains("PickingFrameBuffer"))

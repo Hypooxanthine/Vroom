@@ -137,6 +137,24 @@ bool RenderSettingsPanel::onImgui()
 
     ImGui::SeparatorText("Render tools");
 
+    if (ImGui::BeginCombo("Watch texture", m_watchedTexture.empty() ? "Default" : m_watchedTexture.c_str()))
+    {
+      if (ImGui::Selectable("Default"))
+      {
+        m_watchedTexture = "";
+      }
+
+      for (const auto& [name, tex] : Renderer::Get().getTexturesPool().getData())
+      {
+        if (ImGui::Selectable(name.c_str()))
+        {
+          m_watchedTexture = name;
+        }
+      }
+
+      ImGui::EndCombo();
+    }
+
     if (ImGui::Checkbox("Show light complexity", &settings.showLightComplexity))
     {
       settingsChanged = true;

@@ -106,7 +106,8 @@ void UserInterfaceLayer::onEnd()
 void UserInterfaceLayer::onUpdate(const DeltaTime& dt)
 {
   m_fileDrop.clear();
-  VRM_EDITOR_UI_ELEMENT(Viewport).setRenderTexture(Renderer::Get().getRenderedTexture());
+  auto& viewport = VRM_EDITOR_UI_ELEMENT(Viewport);
+  viewport.setRenderTexture(Renderer::Get().getRenderedTexture());
 }
 
 void UserInterfaceLayer::onRender()

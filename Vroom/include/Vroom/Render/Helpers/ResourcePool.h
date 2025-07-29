@@ -24,6 +24,8 @@ namespace vrm
 
     }
 
+    inline const auto& getData() const { return m_data; }
+
     inline void clear()
     {
       m_data.clear();

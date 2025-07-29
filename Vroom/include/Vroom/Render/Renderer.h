@@ -124,6 +124,9 @@ namespace vrm
 
     const gl::Texture* getRenderedTexture() const { return m_finalTexture; }
 
+    const ResourcePool<vrm::gl::Texture>& getTexturesPool() const { return m_texturePool; }
+    const gl::Texture* getTexture(const std::string& texName) const;
+
     uint32_t getEntityIndexOnPixel(const glm::ivec2& px) const;
 
   private:
