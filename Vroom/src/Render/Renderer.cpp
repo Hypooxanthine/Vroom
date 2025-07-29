@@ -81,10 +81,7 @@ Renderer& Renderer::Get()
 void Renderer::createRenderPasses()
 {
   m_passManager.reset();
-  m_frameBufferPool.clear();
-  m_texturePool.clear();
-  m_buffersPool.clear();
-  m_autoBuffersPool.clear();
+  m_resources.clear();
   m_finalTexture = nullptr;
   m_renderFrameBuffer = nullptr;
 
@@ -98,7 +95,7 @@ void Renderer::createRenderPasses()
 
   // Render frame buffer
   {
-    auto& fb = *m_frameBufferPool.emplace("RenderFramebuffer");
+    auto& fb = *m_resources.genFramebuffer("RenderFramebuffer");
     fb.create(m_viewport.getSize().x, m_viewport.getSize().y, aa);
 
     gl::Texture::Desc texDesc;
@@ -109,7 +106,7 @@ void Renderer::createRenderPasses()
       texDesc.sampleCount = aa;
     }
 
-    auto& colorTex = *m_texturePool.emplace("RenderColorBuffer");
+    auto& colorTex = *m_resources.genTexture("RenderColorBuffer", texDesc.sampleCount == 1);
     {
       texDesc.format = GL_RGBA;
       texDesc.internalFormat = GL_RGBA16F; // HDR
@@ -119,7 +116,7 @@ void Renderer::createRenderPasses()
 
     if (m_renderSettings.bloom.activated)
     {
-      gl::Texture* brightnessTex = m_texturePool.emplace("BrightnessColorBuffer");
+      gl::Texture* brightnessTex = m_resources.genTexture("BrightnessColorBuffer", texDesc.sampleCount == 1);
       texDesc.format = GL_RGBA;
       texDesc.internalFormat = GL_RGBA16F;
       brightnessTex->create(texDesc);
@@ -137,11 +134,13 @@ void Renderer::createRenderPasses()
       // else -> will be set in the msaa resolving step
     }
 
-    auto& depthTex = *m_texturePool.emplace("RenderDepthBuffer");
+    auto& depthTex = *m_resources.genTexture("RenderDepthBuffer", texDesc.sampleCount == 1);
     {
       texDesc.format = GL_DEPTH_COMPONENT;
       texDesc.internalFormat = GL_DEPTH_COMPONENT24;
       depthTex.create(texDesc);
+      GLint swizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
+      glTexParameteriv(depthTex.getDefaultTarget(), GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
       fb.setDepthAttachment(depthTex);
     }
 
@@ -166,7 +165,7 @@ void Renderer::createRenderPasses()
   // Shadow mapping
   if (m_renderSettings.shadowsEnable)
   {
-    auto& maps = *m_texturePool.emplace("DirLightsShadowMaps");
+    auto& maps = *m_resources.genTexture("DirLightsShadowMaps");
 
     auto& pass = m_passManager.pushPass<ShadowMappingPass>();
 
@@ -174,7 +173,7 @@ void Renderer::createRenderPasses()
     pass.meshRegistry = &m_meshRegistry;
     pass.resolution = 4096;
     pass.depthTextureArray = &maps;
-    pass.lightMatricesBuffer = m_autoBuffersPool.emplace("LightMatricesStorageBuffer");
+    pass.lightMatricesBuffer = m_resources.genAutoBuffer("LightMatricesStorageBuffer");
   }
 
   // Light clustering
@@ -228,14 +227,14 @@ void Renderer::createRenderPasses()
     pass.shadowsEnable = m_renderSettings.shadowsEnable;
     if (m_renderSettings.shadowsEnable)
     {
-      pass.dirLightShadowMaps = m_texturePool.get("DirLightsShadowMaps");
-      pass.storageBufferParameters["LightMatricesBlock"] = &m_autoBuffersPool.get("LightMatricesStorageBuffer")->getBuffer();
+      pass.dirLightShadowMaps = m_resources.tryGetTexture("DirLightsShadowMaps");
+      pass.storageBufferParameters["LightMatricesBlock"] = &m_resources.tryGetAutoBuffer("LightMatricesStorageBuffer")->getBuffer();
     }
   }
 
   // Entity picking
   {
-    auto& tex = *m_texturePool.emplace("PickingColorTexture");
+    auto& tex = *m_resources.genTexture("PickingColorTexture");
     gl::Texture::Desc desc;
     {
       desc.dimension = 2;
@@ -246,14 +245,14 @@ void Renderer::createRenderPasses()
     }
     tex.create(desc);
     
-    auto& depth = *m_texturePool.emplace("PickingDepthTexture");
+    auto& depth = *m_resources.genTexture("PickingDepthTexture");
     {
       desc.internalFormat = GL_DEPTH_COMPONENT24;
       desc.format = GL_DEPTH_COMPONENT;
     }
     depth.create(desc);
     
-    auto& fb = *m_frameBufferPool.emplace("PickingFrameBuffer");
+    auto& fb = *m_resources.genFramebuffer("PickingFrameBuffer");
     fb.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
     fb.setColorAttachment(0, tex);
     fb.setDepthAttachment(depth);
@@ -283,7 +282,7 @@ void Renderer::createRenderPasses()
   {
     // We must resolve AA by blitting the render framebuffer
     // into another one
-    auto& resolvedFb = *m_frameBufferPool.emplace("MsaaResolvedFramebuffer");
+    auto& resolvedFb = *m_resources.genFramebuffer("MsaaResolvedFramebuffer");
     resolvedFb.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
 
     gl::Texture::Desc texDesc;
@@ -294,7 +293,7 @@ void Renderer::createRenderPasses()
       texDesc.sampleCount = 1;
     }
 
-    hdrFlatTexture = m_texturePool.emplace("MsaaResolvedColorBuffer");
+    hdrFlatTexture = m_resources.genTexture("MsaaResolvedColorBuffer", true);
     {
       texDesc.format = GL_RGBA;
       texDesc.internalFormat = GL_RGBA16F;
@@ -305,7 +304,7 @@ void Renderer::createRenderPasses()
     if (m_renderSettings.bloom.activated)
     {
       // Overriding the brightness texture
-      bloomBrightnessTextureNoMsaa = m_texturePool.emplace("NoMsaaBrightnessColorBuffer");
+      bloomBrightnessTextureNoMsaa = m_resources.genTexture("NoMsaaBrightnessColorBuffer", true);
       texDesc.format = GL_RGBA;
       texDesc.internalFormat = GL_RGBA16F;
       bloomBrightnessTextureNoMsaa->create(texDesc);
@@ -317,11 +316,13 @@ void Renderer::createRenderPasses()
       resolvedFb.setColorAttachment(1, *bloomBrightnessTextureNoMsaa);
     }
 
-    flatZBuffer = m_texturePool.emplace("MsaaResolvedDepthBuffer");
+    flatZBuffer = m_resources.genTexture("MsaaResolvedDepthBuffer", true);
     {
       texDesc.format = GL_DEPTH_COMPONENT;
       texDesc.internalFormat = GL_DEPTH_COMPONENT24;
       flatZBuffer->create(texDesc);
+      GLint swizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
+      glTexParameteriv(flatZBuffer->getDefaultTarget(), GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
       resolvedFb.setDepthAttachment(*flatZBuffer);
     }
 
@@ -345,7 +346,7 @@ void Renderer::createRenderPasses()
       texDesc.internalFormat = GL_RGBA16F;
     }
 
-    gl::Texture& interColorBuffer = *m_texturePool.emplace("GaussianBlurIntermediateColorBuffer");
+    gl::Texture& interColorBuffer = *m_resources.genTexture("GaussianBlurIntermediateColorBuffer");
     interColorBuffer.create(texDesc);
     interColorBuffer.bind();
     glTexParameteri(interColorBuffer.getDefaultTarget(), GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -353,12 +354,12 @@ void Renderer::createRenderPasses()
     glTexParameteri(interColorBuffer.getDefaultTarget(), GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(interColorBuffer.getDefaultTarget(), GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    gl::FrameBuffer& framebufferA = *m_frameBufferPool.emplace("GaussianBlurFramebufferA");
+    gl::FrameBuffer& framebufferA = *m_resources.genFramebuffer("GaussianBlurFramebufferA");
     framebufferA.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
     framebufferA.setColorAttachment(0, interColorBuffer);
     VRM_ASSERT_MSG(framebufferA.validate(), "Could not validate GaussianBlurframebufferA");
 
-    gl::FrameBuffer& framebufferB = *m_frameBufferPool.emplace("GaussianBlurFramebufferB");
+    gl::FrameBuffer& framebufferB = *m_resources.genFramebuffer("GaussianBlurFramebufferB");
     framebufferB.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
     framebufferB.setColorAttachment(0, *bloomBrightnessTextureNoMsaa);
     VRM_ASSERT_MSG(framebufferB.validate(), "Could not validate GaussianBlurFramebufferB");
@@ -384,10 +385,10 @@ void Renderer::createRenderPasses()
       texDesc.internalFormat = GL_SRGB8_ALPHA8;
     }
 
-    rgbFlatTexture = m_texturePool.emplace("rgbFlatTexture");
+    rgbFlatTexture = m_resources.genTexture("rgbFlatTexture");
     rgbFlatTexture->create(texDesc);
 
-    gl::FrameBuffer& fb = *m_frameBufferPool.emplace("hdrResolveFrameBuffer");
+    gl::FrameBuffer& fb = *m_resources.genFramebuffer("hdrResolveFrameBuffer");
     fb.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
     fb.setColorAttachment(0, *rgbFlatTexture);
     VRM_ASSERT_MSG(fb.validate(), "Could not build hdrResolveFrameBuffer");
@@ -404,7 +405,7 @@ void Renderer::createRenderPasses()
     }
   }
 
-  m_finalTexture = rgbFlatTexture;
+  updateFinalTextureWithWatched();
 
   m_passManager.init();
   m_passManagerDirty = false;
@@ -503,20 +504,47 @@ void Renderer::setViewportSize(const glm::uvec2& s)
   m_passManagerDirty = true;
 }
 
-const gl::Texture* Renderer::getTexture(const std::string& texName) const
+void Renderer::watchExposedTexture(const std::string& name)
 {
-  return m_texturePool.tryGet(texName);
+  if (name == m_watchedTexture)
+    return;
+
+  m_watchedTexture = name;
+
+  updateFinalTextureWithWatched();
+}
+
+void Renderer::updateFinalTextureWithWatched()
+{
+  if (m_watchedTexture != "")
+  {
+    if (m_resources.isTextureExposed(m_watchedTexture))
+    {
+      m_finalTexture = m_resources.tryGetTexture(m_watchedTexture);
+      if (m_finalTexture)
+      {
+        return; // OK
+      }
+    }
+    else
+    {
+      m_watchedTexture = "";
+    }
+  }
+
+  // Fallback : real color buffer
+  m_finalTexture = m_resources.tryGetTexture("rgbFlatTexture");
 }
 
 uint32_t Renderer::getEntityIndexOnPixel(const glm::ivec2& px) const
 {
-  if (!m_frameBufferPool.contains("PickingFrameBuffer"))
+  const gl::FrameBuffer* fb = m_resources.tryGetFramebuffer("PickingFrameBuffer");
+  if (fb == nullptr)
   {
     return 0;
   }
   
-  const auto& fb = *m_frameBufferPool.get("PickingFrameBuffer");
-  fb.bind();
+  fb->bind();
   glReadBuffer(GL_COLOR_ATTACHMENT0);
   uint32_t pixel;
   glReadPixels(px.x, px.y, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &pixel);

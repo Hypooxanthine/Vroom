@@ -27,8 +27,9 @@ RenderSettingsPanel::~RenderSettingsPanel()
 bool RenderSettingsPanel::onImgui()
 {
   bool ret = false;
-  auto settings = Renderer::Get().getRenderSettings();
-  auto dynSettings = Renderer::Get().getDynamicRenderSettings();
+  auto& renderer = Renderer::Get();
+  auto settings = renderer.getRenderSettings();
+  auto dynSettings = renderer.getDynamicRenderSettings();
   bool settingsChanged = false;
   bool dynSettingsChanged = false;
 
@@ -37,7 +38,7 @@ bool RenderSettingsPanel::onImgui()
 
     int framerateLimit = static_cast<int>(Application::Get().getFrameRateLimit());
     ImGui::TextWrapped("Framerate limit:");
-    if (ImGui::SliderInt("##Framerate limit", &framerateLimit, 0, 360, "%d", ImGuiSliderFlags_ClampOnInput))
+    if (ImGui::SliderInt("##Framerate limit", &framerateLimit, 0, 360, "%d", ImGuiSliderFlags_AlwaysClamp))
     {
       settings.frameRateLimit = static_cast<uint16_t>(framerateLimit);
       settingsChanged = true;
@@ -71,13 +72,13 @@ bool RenderSettingsPanel::onImgui()
     int softShadowKernelRadius = static_cast<int>(dynSettings.shadows.softShadowKernelRadius);
 
     ImGui::TextWrapped("Soft shadows kernel radius:");
-    if (ImGui::SliderInt("##Soft shadows kernel radius", &softShadowKernelRadius, 0, 10, "%d", ImGuiSliderFlags_ClampOnInput))
+    if (ImGui::SliderInt("##Soft shadows kernel radius", &softShadowKernelRadius, 0, 10, "%d", ImGuiSliderFlags_AlwaysClamp))
     {
       dynSettings.shadows.softShadowKernelRadius = static_cast<uint8_t>(softShadowKernelRadius);
       dynSettingsChanged = true;
     }
 
-    if (ImGui::SliderFloat("exposure", &dynSettings.hdr.exposure, 0.f, 10.f, "%.2f", ImGuiSliderFlags_ClampOnInput))
+    if (ImGui::SliderFloat("exposure", &dynSettings.hdr.exposure, 0.f, 10.f, "%.2f", ImGuiSliderFlags_AlwaysClamp))
     {
       dynSettingsChanged = true;
     }
@@ -103,7 +104,7 @@ bool RenderSettingsPanel::onImgui()
       int min = 1;
       int max = std::numeric_limits<decltype(dynSettings.bloom.blurPasses)>::max();
 
-      if (ImGui::SliderInt("Bloom blur passes", &blurPasses, min, max, "%d", ImGuiSliderFlags_ClampOnInput))
+      if (ImGui::SliderInt("Bloom blur passes", &blurPasses, min, max, "%d", ImGuiSliderFlags_AlwaysClamp))
       {
         dynSettings.bloom.blurPasses = blurPasses;
         dynSettingsChanged = true;
@@ -137,18 +138,20 @@ bool RenderSettingsPanel::onImgui()
 
     ImGui::SeparatorText("Render tools");
 
-    if (ImGui::BeginCombo("Watch texture", m_watchedTexture.empty() ? "Default" : m_watchedTexture.c_str()))
+    const std::string& watchedTexture = renderer.getWatchedTexture();
+
+    if (ImGui::BeginCombo("Watch texture", watchedTexture.empty() ? "Default" : watchedTexture.c_str()))
     {
       if (ImGui::Selectable("Default"))
       {
-        m_watchedTexture = "";
+        renderer.watchExposedTexture("");
       }
 
-      for (const auto& [name, tex] : Renderer::Get().getTexturesPool().getData())
+      for (const std::string& texName : Renderer::Get().getExposedTextureNames())
       {
-        if (ImGui::Selectable(name.c_str()))
+        if (ImGui::Selectable(texName.c_str()))
         {
-          m_watchedTexture = name;
+          renderer.watchExposedTexture(texName);
         }
       }
 

@@ -41,7 +41,7 @@ namespace vrm
       requires (std::is_base_of_v<T, Child> || std::is_same_v<Child, T>)
     inline Child* emplace(const NameType& name, Args&&... args)
     {
-      VRM_ASSERT(!m_data.contains(name));
+      VRM_ASSERT_MSG(!m_data.contains(name), "{} resources has already been created", name);
       auto ptr = std::make_unique<Child>(std::forward<Args>(args)...);
       Child* rawPtr = ptr.get();
 
@@ -64,6 +64,19 @@ namespace vrm
       VRM_ASSERT(it != m_data.end());
 
       return it->second.get();
+    }
+
+    inline T* tryGet(const NameType& name)
+    {
+      auto it = m_data.find(name);
+      if (it != m_data.end())
+      {
+        return it->second.get();
+      }
+      else
+      {
+        return nullptr;
+      }
     }
 
     inline const T* tryGet(const NameType& name) const

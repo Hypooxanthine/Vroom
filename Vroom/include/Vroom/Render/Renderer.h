@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "Vroom/Api.h"
-#include "Vroom/Render/Helpers/ResourcePool.h"
+#include "Vroom/Render/RenderResources.h"
 
 #include "Vroom/Render/GPURuntimeFeatures.h"
 #include "Vroom/Render/RenderSettings.h"
@@ -123,9 +123,9 @@ namespace vrm
     void setViewportSize(const glm::uvec2& s);
 
     const gl::Texture* getRenderedTexture() const { return m_finalTexture; }
-
-    const ResourcePool<vrm::gl::Texture>& getTexturesPool() const { return m_texturePool; }
-    const gl::Texture* getTexture(const std::string& texName) const;
+    const std::vector<std::string>& getExposedTextureNames() const { return m_resources.getExposedTextures(); }
+    void watchExposedTexture(const std::string& name);
+    const std::string& getWatchedTexture() const { return m_watchedTexture; }
 
     uint32_t getEntityIndexOnPixel(const glm::ivec2& px) const;
 
@@ -135,6 +135,7 @@ namespace vrm
 
   private:
     void createRenderPasses();
+    void updateFinalTextureWithWatched();
 
   private:
     static std::unique_ptr<Renderer> s_Instance;
@@ -152,16 +153,14 @@ namespace vrm
 
     gl::FrameBuffer* m_renderFrameBuffer = nullptr;
     gl::Texture* m_finalTexture = nullptr;
+    std::string m_watchedTexture = "";
 
     MeshRegistry m_meshRegistry;
 
     LightRegistry m_LightRegistry;
     ClusteredLights m_ClusteredLights;
 
-    ResourcePool<gl::FrameBuffer> m_frameBufferPool;
-    ResourcePool<gl::Texture> m_texturePool;
-    ResourcePool<gl::Buffer> m_buffersPool; 
-    ResourcePool<render::AutoBuffer> m_autoBuffersPool;
+    RenderResources m_resources;
   };
 
 } // namespace vrm
