@@ -17,7 +17,6 @@ RenderSettingsPanel::RenderSettingsPanel()
   {
     m_msaaPossibleValues.emplace_back(i);
   }
-  m_currentMsaaValue = m_msaaPossibleValues.begin();
 }
 
 RenderSettingsPanel::~RenderSettingsPanel()
@@ -45,18 +44,17 @@ bool RenderSettingsPanel::onImgui()
     }
 
     ImGui::TextWrapped("Antialiasing:");
-    if (ImGui::BeginCombo("##Antialiasing", std::to_string(*m_currentMsaaValue).c_str()))
+    if (ImGui::BeginCombo("##Antialiasing", std::to_string(settings.antiAliasingLevel).c_str()))
     {
       for (auto it = m_msaaPossibleValues.begin(); it != m_msaaPossibleValues.end(); ++it)
       {
-        const auto& valStr = std::to_string(*it);
-        bool selected = (m_currentMsaaValue == it);
+        auto itemValue = *it;
+        const auto& valStr = std::to_string(itemValue);
+        bool selected = (settings.antiAliasingLevel == itemValue);
 
         if (ImGui::Selectable(valStr.c_str(), &selected))
         {
-          m_currentMsaaValue = it;
-
-          settings.antiAliasingLevel = *it;
+          settings.antiAliasingLevel = itemValue;
           settingsChanged = true;
         }
       }
@@ -142,14 +140,16 @@ bool RenderSettingsPanel::onImgui()
 
     if (ImGui::BeginCombo("Watch texture", watchedTexture.empty() ? "Default" : watchedTexture.c_str()))
     {
-      if (ImGui::Selectable("Default"))
+      bool selected = (watchedTexture == "");
+      if (ImGui::Selectable("Default", selected))
       {
         renderer.watchExposedTexture("");
       }
 
       for (const std::string& texName : Renderer::Get().getExposedTextureNames())
       {
-        if (ImGui::Selectable(texName.c_str()))
+        selected = (watchedTexture == texName);
+        if (ImGui::Selectable(texName.c_str(), selected))
         {
           renderer.watchExposedTexture(texName);
         }
