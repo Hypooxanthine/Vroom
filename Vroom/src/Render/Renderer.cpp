@@ -238,6 +238,7 @@ void Renderer::createRenderPasses()
     auto& pass = m_passManager.pushPass<RenderSkyboxPass>();
 
     pass.skybox = &m_skybox;
+    pass.framebuffer = m_renderFrameBuffer;
   }
 
   // Entity picking

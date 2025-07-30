@@ -13,7 +13,11 @@
     ],
     "Uniforms": [
       {
-        "Name": "u_viewProjection",
+        "Name": "u_view",
+        "Type": "mat4"
+      },
+      {
+        "Name": "u_projection",
         "Type": "mat4"
       }
     ]

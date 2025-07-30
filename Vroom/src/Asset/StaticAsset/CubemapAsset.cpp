@@ -59,7 +59,7 @@ bool CubemapAsset::_loadTexture(const std::string& filePath, ByteTextureData& te
 {
   VRM_LOG_TRACE("Loading texture: {}", filePath);
 
-  if (!textureData.loadFromFile(applyPathOrder(filePath)))
+  if (!textureData.loadFromFile(applyPathOrder(filePath), false))
   {
     VRM_LOG_ERROR("Failed to load texture: {}", filePath);
     return false;

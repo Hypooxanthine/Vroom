@@ -15,6 +15,7 @@
 #include "Vroom/Scene/Components/NameComponent.h"
 #include "Vroom/Scene/Components/TransformComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
+#include "Vroom/Scene/Components/SkyboxComponent.h"
 #include "Vroom/Scene/Components/PointLightComponent.h"
 #include "Vroom/Scene/Components/DirectionalLightComponent.h"
 #include "Vroom/Scene/Components/HierarchyComponent.h"
@@ -91,6 +92,12 @@ void Scene::render()
   for (auto&& [e, m, t] : viewMeshes.each())
   {
     renderer.submitMesh(static_cast<uint32_t>(e), m, &t.getGlobalTransform());
+  }
+
+  auto viewSkyboxes = m_Registry.view<SkyboxComponent>();
+  for (auto&& [e, skybox] : viewSkyboxes.each())
+  {
+    renderer.submitSkybox(skybox);
   }
 
   onRender();

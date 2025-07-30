@@ -2,6 +2,7 @@
 
 #include "Vroom/Render/Passes/RenderPass.h"
 #include "Vroom/Render/Abstraction/VertexArray.h"
+#include "Vroom/Render/Abstraction/Buffer.h"
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 
 namespace vrm
@@ -23,6 +24,7 @@ namespace vrm
 
   public:
 
+    const gl::FrameBuffer* framebuffer = nullptr;
     const RenderSkybox* skybox = nullptr;
 
   protected:
@@ -35,8 +37,10 @@ namespace vrm
   
   private:
 
+    gl::Buffer m_vbo;
+    gl::VertexArray m_vao;
+
     const PassMaterial* m_material = nullptr;
-    MeshAsset::Handle m_cube = {};
   
   };
 

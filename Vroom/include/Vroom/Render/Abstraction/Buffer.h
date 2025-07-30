@@ -31,8 +31,8 @@ namespace vrm::gl
     Buffer& operator=(Buffer&& other);
     Buffer(Buffer&& other);
 
-    template <typename ArrayElement>
-    void create(const Desc& description, std::span<ArrayElement const> initialData)
+    template <typename ArrayElement, size_t ElementCount>
+    void create(const Desc& description, std::span<ArrayElement const, ElementCount> initialData)
     {
       VRM_ASSERT(initialData.data() == nullptr || initialData.size_bytes() <= description.capacity);
 
