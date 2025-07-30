@@ -71,7 +71,7 @@
           "params": [
             {
               "name": "ResourceName",
-              "value": "Resources\\Editor\\Tests\\Meshes\\Textured_Cube.obj"
+              "value": "Resources/Editor/Tests/Meshes/Textured_Cube.obj"
             },
             {
               "name": "CastsShadow",
@@ -124,7 +124,7 @@
           "params": [
             {
               "name": "ResourceName",
-              "value": "Resources\\Editor\\Tests\\Meshes\\sphere.obj"
+              "value": "Resources/Editor/Tests/Meshes/sphere.obj"
             },
             {
               "name": "CastsShadow",
@@ -223,7 +223,7 @@
           "params": [
             {
               "name": "ResourceName",
-              "value": "Resources\\Editor\\Tests\\Meshes\\sphere.obj"
+              "value": "Resources/Editor/Tests/Meshes/sphere.obj"
             },
             {
               "name": "CastsShadow",
@@ -306,7 +306,7 @@
           "params": [
             {
               "name": "ResourceName",
-              "value": "Resources\\Editor\\Tests\\Meshes\\Textured_Cube.obj"
+              "value": "Resources/Editor/Tests/Meshes/Textured_Cube.obj"
             },
             {
               "name": "CastsShadow",
@@ -359,7 +359,7 @@
           "params": [
             {
               "name": "ResourceName",
-              "value": "Resources\\Editor\\Tests\\Meshes\\Suzanne.obj"
+              "value": "Resources/Editor/Tests/Meshes/Suzanne.obj"
             },
             {
               "name": "CastsShadow",
@@ -421,7 +421,7 @@
           "params": [
             {
               "name": "ResourceName",
-              "value": "Resources\\Engine\\Cubemaps\\DefaultSkybox\\DefaultSkybox.json"
+              "value": "Resources/Engine/Cubemaps/DefaultSkybox/DefaultSkybox.json"
             }
           ],
           "type": "SkyboxComponent"
