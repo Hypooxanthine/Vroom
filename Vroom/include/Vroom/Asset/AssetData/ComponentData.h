@@ -57,6 +57,22 @@ namespace vrm
     bool deserialize(const nlohmann::json& j) override;
   };
 
+  struct SkyboxComponentData : ComponentData
+  {
+    std::string resourceName;
+
+    inline ComponentData* clone() const override
+    {
+      using ThisType = std::decay_t<decltype(*this)>;
+      return new ThisType(*this);
+    }
+    
+    void addToEntity(Entity& entity) override;
+    void getFromEntity(const Entity& entity) override;
+    nlohmann::json serialize() const override;
+    bool deserialize(const nlohmann::json& j) override;
+  };
+
   struct DirectionalLightComponentData : ComponentData
   {
     glm::vec3 color;

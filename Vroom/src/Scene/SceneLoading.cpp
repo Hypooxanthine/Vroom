@@ -11,6 +11,7 @@
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Scene/Components/TransformComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
+#include "Vroom/Scene/Components/SkyboxComponent.h"
 #include "Vroom/Scene/Components/ScriptComponent.h"
 #include "Vroom/Scene/Components/PointLightComponent.h"
 #include "Vroom/Scene/Components/DirectionalLightComponent.h"
@@ -95,6 +96,12 @@ void Scene::addNodeComponents(const Entity& e, SceneNodeData& data) const
   if (const auto* c = m_Registry.try_get<MeshComponent>(e); c != nullptr)
   {
     auto& comp = data.emplaceComponent<MeshComponentData>();
+    comp.getFromEntity(e);
+  }
+
+  if (const auto* c = m_Registry.try_get<SkyboxComponent>(e); c != nullptr)
+  {
+    auto& comp = data.emplaceComponent<SkyboxComponentData>();
     comp.getFromEntity(e);
   }
 

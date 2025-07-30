@@ -5,6 +5,7 @@
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Scene/Components/TransformComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
+#include "Vroom/Scene/Components/SkyboxComponent.h"
 #include "Vroom/Scene/Components/DirectionalLightComponent.h"
 #include "Vroom/Scene/Components/PointLightComponent.h"
 
@@ -181,6 +182,66 @@ bool MeshComponentData::deserialize(const json& j)
     else
     {
       VRM_LOG_ERROR("Unsupported MeshComponent parameter {}", nameVal);
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// ------------------------------------------------------
+// SkyboxComponentData
+
+void SkyboxComponentData::addToEntity(Entity& entity)
+{
+  auto& sc = entity.addComponent<SkyboxComponent>();
+  sc.setCubemapAsset(AssetManager::Get().getAsset<CubemapAsset>(resourceName));
+}
+
+void SkyboxComponentData::getFromEntity(const Entity& entity)
+{
+  const auto& mc = entity.getComponent<SkyboxComponent>();
+  this->resourceName = mc.getCubemapAsset()->getFilePath();
+}
+
+json SkyboxComponentData::serialize() const
+{
+  json j = json::object();
+  j["type"] = "SkyboxComponent";
+  json& params = j["params"] = json::array();
+
+  // ResourceName
+  {
+    json& rscParam = params.emplace_back();
+    rscParam["name"] = "ResourceName";
+    json& rsc = rscParam["value"];
+    rsc = this->resourceName;
+  }
+
+  return std::move(j);
+}
+
+bool SkyboxComponentData::deserialize(const json& j)
+{
+  VRM_CHECK_RET_FALSE_MSG(j.is_object(), "SkyboxComponentData: Expected an object, got {}", j.dump(2));
+  VRM_CHECK_RET_FALSE_MSG(j.contains("params"), "SkyboxComponentData: Missing 'params' field");
+
+  const auto& params = j["params"];
+  for (const auto& param : params)
+  {
+    VRM_CHECK_RET_FALSE_MSG(param.is_object(), "Unexpected SkyboxComponent parameter {}", param.dump(2));
+    VRM_CHECK_RET_FALSE_MSG(param.contains("name"), "SkyboxComponent parameter missing 'name' attribute");
+    VRM_CHECK_RET_FALSE_MSG(param.contains("value"), "SkyboxComponent parameter missing 'value' attribute");
+
+    const std::string nameVal = param["name"];
+    if (nameVal == "ResourceName")
+    {
+      VRM_CHECK_RET_FALSE_MSG(param["value"].is_string(), "Expected string for ResourceName value");
+      this->resourceName = param["value"];
+    }
+    else
+    {
+      VRM_LOG_ERROR("Unsupported SkyboxComponent parameter {}", nameVal);
       return false;
     }
   }
@@ -505,6 +566,12 @@ namespace nlohmann
       auto mc = std::make_unique<MeshComponentData>();
       VRM_CHECK_THROW_MSG(mc->deserialize(j), "Failed to deserialize MeshComponentData");
       component = std::move(mc);
+    }
+    else if (type == "SkyboxComponent")
+    {
+      auto sc = std::make_unique<SkyboxComponentData>();
+      VRM_CHECK_THROW_MSG(sc->deserialize(j), "Failed to deserialize SkyboxComponentData");
+      component = std::move(sc);
     }
     else if (type == "DirectionalLightComponent")
     {
