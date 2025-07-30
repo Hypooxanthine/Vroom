@@ -1,5 +1,6 @@
 #include "Vroom/Asset/AssetData/ComponentData.h"
 
+#include <filesystem>
 #include "Vroom/Asset/AssetManager.h"
 
 #include "Vroom/Scene/Entity.h"
@@ -10,6 +11,20 @@
 #include "Vroom/Scene/Components/PointLightComponent.h"
 
 using namespace vrm;
+
+std::string ComponentData::formatPath(const std::string& path)
+{
+  std::string out = path;
+  auto pos = out.find(L'\\');
+
+  while (pos != out.npos)
+  {
+    out[pos] = '/';
+    pos = out.find(L'\\', pos);
+  }
+
+  return out;
+}
 
 // ------------------------------------------------------
 // TransformComponentData
@@ -131,7 +146,7 @@ json MeshComponentData::serialize() const
     json& rscParam = params.emplace_back();
     rscParam["name"] = "ResourceName";
     json& rsc = rscParam["value"];
-    rsc = this->resourceName;
+    rsc = formatPath(this->resourceName);
   }
 
   {
@@ -167,7 +182,7 @@ bool MeshComponentData::deserialize(const json& j)
     if (nameVal == "ResourceName")
     {
       VRM_CHECK_RET_FALSE_MSG(param["value"].is_string(), "Expected string for ResourceName value");
-      this->resourceName = param["value"];
+      this->resourceName = formatPath(param["value"]);
     }
     else if (nameVal == "CastsShadow")
     {
@@ -215,7 +230,7 @@ json SkyboxComponentData::serialize() const
     json& rscParam = params.emplace_back();
     rscParam["name"] = "ResourceName";
     json& rsc = rscParam["value"];
-    rsc = this->resourceName;
+    rsc = formatPath(this->resourceName);
   }
 
   return std::move(j);
@@ -237,7 +252,7 @@ bool SkyboxComponentData::deserialize(const json& j)
     if (nameVal == "ResourceName")
     {
       VRM_CHECK_RET_FALSE_MSG(param["value"].is_string(), "Expected string for ResourceName value");
-      this->resourceName = param["value"];
+      this->resourceName = formatPath(param["value"]);
     }
     else
     {
@@ -505,7 +520,7 @@ json ScriptComponentData::serialize() const
     json& scriptNameParam = params.emplace_back();
     scriptNameParam["name"] = "ScriptName";
     json& scriptName = scriptNameParam["value"];
-    scriptName = this->resourceName;
+    scriptName = formatPath(this->resourceName);
   }
 
   return std::move(j);
@@ -527,7 +542,7 @@ bool ScriptComponentData::deserialize(const json& j)
     if (nameVal == "ScriptName")
     {
       VRM_CHECK_RET_FALSE_MSG(param["value"].is_string(), "Expected string for ScriptName value");
-      this->resourceName = param["value"];
+      this->resourceName = formatPath(param["value"]);
     }
     else
     {

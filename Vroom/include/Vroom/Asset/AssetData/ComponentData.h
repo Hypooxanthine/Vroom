@@ -19,6 +19,8 @@ namespace vrm
 
     virtual nlohmann::json serialize() const = 0;
     virtual bool deserialize(const nlohmann::json& j) = 0;
+
+    static std::string formatPath(const std::string& path);
   };
 
   struct TransformComponentData : ComponentData
