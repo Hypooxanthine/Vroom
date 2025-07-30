@@ -382,7 +382,7 @@ bool SkyboxComponentEditor::editEntityComponent(Entity& e) const
 
   std::string resourceName = component.getCubemapAsset()->getFilePath();
   bool skyboxChanged = false;
-  if (ImGui::InputText("Mesh", &resourceName, flags))
+  if (ImGui::InputText("Cubemap", &resourceName, flags))
   {
     if (AssetManager::Get().tryLoadAsset<CubemapAsset>(resourceName))
     {
