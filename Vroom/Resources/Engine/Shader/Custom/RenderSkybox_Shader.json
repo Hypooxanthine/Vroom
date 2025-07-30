@@ -1,0 +1,13 @@
+{
+  "Global": {},
+  "Vertex": {
+    "Sources": [
+      "Resources/Engine/Shader/Custom/RenderSkybox_vertex.glsl"
+    ]
+  },
+  "Fragment": {
+    "Sources": [
+      "Resources/Engine/Shader/Custom/RenderSkybox_fragment.glsl"
+    ]
+  }
+}

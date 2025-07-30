@@ -11,6 +11,7 @@
 #include "Vroom/Render/RenderViewport.h"
 #include "Vroom/Render/Passes/RenderPassManager.h"
 #include "Vroom/Render/MeshRegistry.h"
+#include "Vroom/Render/RenderObject/RenderSkybox.h"
 #include "Vroom/Render/Abstraction/OwningFrameBuffer.h"
 #include "Vroom/Render/Abstraction/Buffer.h"
 #include "Vroom/Render/Clustering/LightRegistry.h"
@@ -24,6 +25,7 @@ namespace vrm
   struct PointLightComponent;
   struct DirectionalLightComponent;
   class MeshComponent;
+  class SkyboxComponent;
   class CameraBasic;
 
   namespace gl
@@ -86,6 +88,8 @@ namespace vrm
 
     // Id must be a reliable value to identify the mesh component
     void submitMesh(uint32_t id, const MeshComponent& meshComponent, const glm::mat4* model);
+
+    void submitSkybox(const SkyboxComponent& skyboxComponent);
 
     void submitPointLight(size_t id, const PointLightComponent& pointLight, const glm::vec3& position);
 
@@ -156,6 +160,7 @@ namespace vrm
     std::string m_watchedTexture = "";
 
     MeshRegistry m_meshRegistry;
+    RenderSkybox m_skybox;
 
     LightRegistry m_LightRegistry;
     ClusteredLights m_ClusteredLights;

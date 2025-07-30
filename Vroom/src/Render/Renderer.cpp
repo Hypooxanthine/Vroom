@@ -30,6 +30,7 @@
 #include "Vroom/Scene/Components/PointLightComponent.h"
 #include "Vroom/Scene/Components/DirectionalLightComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
+#include "Vroom/Scene/Components/SkyboxComponent.h"
 
 #include "Vroom/Scene/Scene.h"
 
@@ -423,6 +424,7 @@ void Renderer::beginScene(const CameraBasic& camera)
 
   m_meshRegistry.startRegistering();
   m_LightRegistry.startRegistering();
+  m_skybox.clear();
 }
 
 void Renderer::endScene()
@@ -465,6 +467,11 @@ void Renderer::submitMesh(uint32_t id, const MeshComponent& meshComponent, const
 
     ++i;
   }
+}
+
+void Renderer::submitSkybox(const SkyboxComponent& skyboxComponent)
+{
+  m_skybox.setCubemap(skyboxComponent.getCubemapAsset());
 }
 
 void Renderer::submitPointLight(size_t id, const PointLightComponent& pointLight, const glm::vec3& position)
