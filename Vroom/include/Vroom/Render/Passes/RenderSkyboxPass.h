@@ -23,7 +23,6 @@ namespace vrm
 
   public:
 
-    const gl::FrameBuffer* framebuffer = nullptr;
     const RenderSkybox* skybox = nullptr;
 
   protected:

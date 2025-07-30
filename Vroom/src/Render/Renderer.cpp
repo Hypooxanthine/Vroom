@@ -14,6 +14,7 @@
 #include "Vroom/Render/Passes/ClearTexturePass.h"
 #include "Vroom/Render/Passes/ToneMappingPass.h"
 #include "Vroom/Render/Passes/GaussianBlurPass.h"
+#include "Vroom/Render/Passes/RenderSkyboxPass.h"
 
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Render/Abstraction/VertexArray.h"
@@ -231,6 +232,12 @@ void Renderer::createRenderPasses()
       pass.dirLightShadowMaps = m_resources.tryGetTexture("DirLightsShadowMaps");
       pass.storageBufferParameters["LightMatricesBlock"] = &m_resources.tryGetAutoBuffer("LightMatricesStorageBuffer")->getBuffer();
     }
+  }
+
+  {
+    auto& pass = m_passManager.pushPass<RenderSkyboxPass>();
+
+    pass.skybox = &m_skybox;
   }
 
   // Entity picking

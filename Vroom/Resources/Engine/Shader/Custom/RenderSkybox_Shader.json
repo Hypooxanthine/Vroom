@@ -3,11 +3,30 @@
   "Vertex": {
     "Sources": [
       "Resources/Engine/Shader/Custom/RenderSkybox_vertex.glsl"
+    ],
+    "VertexAttributes": [
+      {
+        "Name": "position",
+        "Type": "vec3",
+        "Layout": "location = 0"
+      }
+    ],
+    "Uniforms": [
+      {
+        "Name": "u_viewProjection",
+        "Type": "mat4"
+      }
     ]
   },
   "Fragment": {
     "Sources": [
       "Resources/Engine/Shader/Custom/RenderSkybox_fragment.glsl"
+    ],
+    "Uniforms": [
+      {
+        "Name": "u_cubemap",
+        "Type": "samplerCube"
+      }
     ]
   }
 }
