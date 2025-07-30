@@ -41,19 +41,6 @@
         {
           "params": [
             {
-              "name": "ResourceName",
-              "value": "Resources/Editor/Tests/Meshes/Textured_Cube.obj"
-            },
-            {
-              "name": "CastsShadow",
-              "value": true
-            }
-          ],
-          "type": "MeshComponent"
-        },
-        {
-          "params": [
-            {
               "name": "Position",
               "value": [
                 0.0,
@@ -79,6 +66,23 @@
             }
           ],
           "type": "TransformComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources\\Editor\\Tests\\Meshes\\Textured_Cube.obj"
+            },
+            {
+              "name": "CastsShadow",
+              "value": true
+            },
+            {
+              "name": "Visible",
+              "value": true
+            }
+          ],
+          "type": "MeshComponent"
         }
       ],
       "name": "Plane",
@@ -90,11 +94,48 @@
         {
           "params": [
             {
-              "name": "ScriptName",
-              "value": "VRM_MovingLightScript_ID"
+              "name": "Position",
+              "value": [
+                5.0,
+                10.0,
+                5.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+              ]
             }
           ],
-          "type": "ScriptComponent"
+          "type": "TransformComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources\\Editor\\Tests\\Meshes\\sphere.obj"
+            },
+            {
+              "name": "CastsShadow",
+              "value": true
+            },
+            {
+              "name": "Visible",
+              "value": true
+            }
+          ],
+          "type": "MeshComponent"
         },
         {
           "params": [
@@ -115,6 +156,10 @@
               "value": 40.5
             },
             {
+              "name": "SmoothRadius",
+              "value": 0.0
+            },
+            {
               "name": "ConstantAttenuation",
               "value": 4.619999885559082
             },
@@ -132,44 +177,11 @@
         {
           "params": [
             {
-              "name": "ResourceName",
-              "value": "Resources/Editor/Tests/Meshes/sphere.obj"
-            },
-            {
-              "name": "CastsShadow",
-              "value": true
+              "name": "ScriptName",
+              "value": "VRM_MovingLightScript_ID"
             }
           ],
-          "type": "MeshComponent"
-        },
-        {
-          "params": [
-            {
-              "name": "Position",
-              "value": [
-                5.0,
-                10.0,
-                5.0
-              ]
-            },
-            {
-              "name": "Rotation",
-              "value": [
-                0.0,
-                -0.0,
-                0.0
-              ]
-            },
-            {
-              "name": "Scale",
-              "value": [
-                0.20000000298023224,
-                0.20000000298023224,
-                0.20000000298023224
-              ]
-            }
-          ],
-          "type": "TransformComponent"
+          "type": "ScriptComponent"
         }
       ],
       "name": "Light_0",
@@ -178,49 +190,6 @@
     },
     {
       "components": [
-        {
-          "params": [
-            {
-              "name": "ScriptName",
-              "value": "VRM_RotatingDirLightScript_ID"
-            }
-          ],
-          "type": "ScriptComponent"
-        },
-        {
-          "params": [
-            {
-              "name": "Color",
-              "value": [
-                1.0,
-                1.0,
-                1.0
-              ]
-            },
-            {
-              "name": "Intensity",
-              "value": 0.5
-            },
-            {
-              "name": "CastsShadows",
-              "value": true
-            }
-          ],
-          "type": "DirectionalLightComponent"
-        },
-        {
-          "params": [
-            {
-              "name": "ResourceName",
-              "value": "Resources/Editor/Tests/Meshes/sphere.obj"
-            },
-            {
-              "name": "CastsShadow",
-              "value": true
-            }
-          ],
-          "type": "MeshComponent"
-        },
         {
           "params": [
             {
@@ -249,6 +218,53 @@
             }
           ],
           "type": "TransformComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources\\Editor\\Tests\\Meshes\\sphere.obj"
+            },
+            {
+              "name": "CastsShadow",
+              "value": true
+            },
+            {
+              "name": "Visible",
+              "value": true
+            }
+          ],
+          "type": "MeshComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "Color",
+              "value": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            {
+              "name": "Intensity",
+              "value": 0.5
+            },
+            {
+              "name": "CastsShadows",
+              "value": true
+            }
+          ],
+          "type": "DirectionalLightComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "ScriptName",
+              "value": "VRM_RotatingDirLightScript_ID"
+            }
+          ],
+          "type": "ScriptComponent"
         }
       ],
       "name": "Dir_light",
@@ -257,19 +273,6 @@
     },
     {
       "components": [
-        {
-          "params": [
-            {
-              "name": "ResourceName",
-              "value": "Resources/Editor/Tests/Meshes/Textured_Cube.obj"
-            },
-            {
-              "name": "CastsShadow",
-              "value": true
-            }
-          ],
-          "type": "MeshComponent"
-        },
         {
           "params": [
             {
@@ -298,6 +301,23 @@
             }
           ],
           "type": "TransformComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources\\Editor\\Tests\\Meshes\\Textured_Cube.obj"
+            },
+            {
+              "name": "CastsShadow",
+              "value": true
+            },
+            {
+              "name": "Visible",
+              "value": true
+            }
+          ],
+          "type": "MeshComponent"
         }
       ],
       "name": "ColoredCube",
@@ -306,28 +326,6 @@
     },
     {
       "components": [
-        {
-          "params": [
-            {
-              "name": "ScriptName",
-              "value": "VRM_SuzanneScript_ID"
-            }
-          ],
-          "type": "ScriptComponent"
-        },
-        {
-          "params": [
-            {
-              "name": "ResourceName",
-              "value": "Resources/Editor/Tests/Meshes/Suzanne.obj"
-            },
-            {
-              "name": "CastsShadow",
-              "value": true
-            }
-          ],
-          "type": "MeshComponent"
-        },
         {
           "params": [
             {
@@ -356,10 +354,81 @@
             }
           ],
           "type": "TransformComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources\\Editor\\Tests\\Meshes\\Suzanne.obj"
+            },
+            {
+              "name": "CastsShadow",
+              "value": true
+            },
+            {
+              "name": "Visible",
+              "value": true
+            }
+          ],
+          "type": "MeshComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "ScriptName",
+              "value": "VRM_SuzanneScript_ID"
+            }
+          ],
+          "type": "ScriptComponent"
         }
       ],
       "name": "Suzanne_0",
       "parent": "ColoredCube",
+      "type": "Entity"
+    },
+    {
+      "components": [
+        {
+          "params": [
+            {
+              "name": "Position",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Rotation",
+              "value": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "name": "Scale",
+              "value": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            }
+          ],
+          "type": "TransformComponent"
+        },
+        {
+          "params": [
+            {
+              "name": "ResourceName",
+              "value": "Resources\\Engine\\Cubemaps\\DefaultSkybox\\DefaultSkybox.json"
+            }
+          ],
+          "type": "SkyboxComponent"
+        }
+      ],
+      "name": "Skybox",
+      "parent": "Root",
       "type": "Entity"
     }
   ]
