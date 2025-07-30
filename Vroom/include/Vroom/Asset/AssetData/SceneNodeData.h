@@ -1,12 +1,10 @@
 #pragma once
 
-#include <unordered_map>
 #include <cstdint>
 #include <string>
-#include <memory>
-#include <typeindex>
 
 #include "Vroom/Asset/AssetData/ComponentData.h"
+#include "Vroom/Asset/AssetData/ComponentDataMap.h"
 
 namespace vrm
 {
@@ -28,23 +26,12 @@ namespace vrm
       , parent(parent)
     {
     }
+    
+    SceneNodeData& operator=(const SceneNodeData& other) = default;
+    SceneNodeData(const SceneNodeData&) = default;
 
-    SceneNodeData(SceneNodeData&& other)
-      : name(std::move(other.name))
-      , type(other.type)
-      , parent(std::move(other.parent))
-      , components(std::move(other.components))
-    {
-    }
-
-    SceneNodeData& operator=(SceneNodeData&& other)
-    {
-      name = std::move(other.name);
-      type = other.type;
-      parent = std::move(other.parent);
-      components = std::move(other.components);
-      return *this;
-    }
+    SceneNodeData& operator=(SceneNodeData&& other) = default;
+    SceneNodeData(SceneNodeData&& other) = default;
 
     template <typename T, typename... Args>
     T& emplaceComponent(Args&&... args)
@@ -58,7 +45,7 @@ namespace vrm
     std::string name;
     EType type;
     std::string parent;
-    std::unordered_map<std::type_index, std::unique_ptr<ComponentData>> components;
+    ComponentDataMap components;
   };
 
 }

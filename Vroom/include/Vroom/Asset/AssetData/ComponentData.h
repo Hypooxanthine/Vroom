@@ -12,7 +12,8 @@ namespace vrm
 
   struct ComponentData
   {
-    virtual ~ComponentData() {}
+    virtual ComponentData* clone() const = 0;
+
     virtual void addToEntity(Entity& entity) = 0;
     virtual void getFromEntity(const Entity& entity) = 0;
 
@@ -26,6 +27,12 @@ namespace vrm
     glm::vec3 rotation;
     glm::vec3 scale;
 
+    inline ComponentData* clone() const override
+    {
+      using ThisType = std::decay_t<decltype(*this)>;
+      return new ThisType(*this);
+    }
+
     void addToEntity(Entity& entity) override;
     void getFromEntity(const Entity& entity) override;
     nlohmann::json serialize() const override;
@@ -37,6 +44,12 @@ namespace vrm
     std::string resourceName;
     bool castsShadow;
     bool visible = true; // If not present in serialized data, sets it to visible by default
+
+    inline ComponentData* clone() const override
+    {
+      using ThisType = std::decay_t<decltype(*this)>;
+      return new ThisType(*this);
+    }
     
     void addToEntity(Entity& entity) override;
     void getFromEntity(const Entity& entity) override;
@@ -49,6 +62,12 @@ namespace vrm
     glm::vec3 color;
     float intensity;
     bool castsShadows;
+
+    inline ComponentData* clone() const override
+    {
+      using ThisType = std::decay_t<decltype(*this)>;
+      return new ThisType(*this);
+    }
     
     void addToEntity(Entity& entity) override;
     void getFromEntity(const Entity& entity) override;
@@ -66,6 +85,12 @@ namespace vrm
     float linearAttenuation;
     float quadraticAttenuation;
 
+    inline ComponentData* clone() const override
+    {
+      using ThisType = std::decay_t<decltype(*this)>;
+      return new ThisType(*this);
+    }
+
     void addToEntity(Entity& entity) override;
     void getFromEntity(const Entity& entity) override;
     nlohmann::json serialize() const override;
@@ -75,6 +100,12 @@ namespace vrm
   struct ScriptComponentData : ComponentData
   {
     std::string resourceName;
+
+    inline ComponentData* clone() const override
+    {
+      using ThisType = std::decay_t<decltype(*this)>;
+      return new ThisType(*this);
+    }
     
     void addToEntity(Entity& entity) override;
     void getFromEntity(const Entity& entity) override;
