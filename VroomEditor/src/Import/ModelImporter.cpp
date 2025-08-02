@@ -42,6 +42,9 @@ struct ModelImporter::Impl
     std::unordered_set<std::filesystem::path> filesToCopy;
     size_t genMatId = 0;
   } ctx;
+
+  MaterialData::TextureData getTexture(aiMaterial* material, aiTextureType type) const;
+  void registerTexture(const std::string& texName);
 };
 
 // -------------------------
@@ -190,17 +193,16 @@ void ModelImporter::_processMaterialPhong(aiMaterial* material, unsigned int id)
   data.setType(MaterialData::EType::eShadingModel);
   data.setShadingModel(MaterialData::EShadingModel::ePhong);
   
-
-  std::string diffuseMap = _getTexture(material, aiTextureType_DIFFUSE);
-  std::string specularMap = _getTexture(material, aiTextureType_SPECULAR);
-  std::string shininessMap = _getTexture(material, aiTextureType_SHININESS);
+  MaterialData::TextureData diffuseMap = IMPL.getTexture(material, aiTextureType_DIFFUSE);
+  MaterialData::TextureData specularMap = IMPL.getTexture(material, aiTextureType_SPECULAR);
+  MaterialData::TextureData shininessMap = IMPL.getTexture(material, aiTextureType_SHININESS);
   
   MaterialData::Parameter p;
   
   p.name = "u_diffuse";
-  if (diffuseMap.size() > 0)
+  if (diffuseMap.resourceName.size() > 0)
   {
-    _registerTexture(diffuseMap);
+    IMPL.registerTexture(diffuseMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(diffuseMap);
     data.addParameter(p);
@@ -215,9 +217,9 @@ void ModelImporter::_processMaterialPhong(aiMaterial* material, unsigned int id)
   }
   
   p.name = "u_specular";
-  if (specularMap.size() > 0)
+  if (specularMap.resourceName.size() > 0)
   {
-    _registerTexture(specularMap);
+    IMPL.registerTexture(specularMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(specularMap);
     data.addParameter(p);
@@ -232,9 +234,9 @@ void ModelImporter::_processMaterialPhong(aiMaterial* material, unsigned int id)
   }
    
   p.name = "u_shininess";
-  if (shininessMap.size() > 0)
+  if (shininessMap.resourceName.size() > 0)
   {
-    _registerTexture(shininessMap);
+    IMPL.registerTexture(shininessMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(shininessMap);
     data.addParameter(p);
@@ -267,18 +269,18 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   data.setShadingModel(MaterialData::EShadingModel::ePBR);
   
 
-  std::string albedoMap = _getTexture(material, aiTextureType_BASE_COLOR);
-  std::string specularMap = _getTexture(material, aiTextureType_SPECULAR);
-  std::string metalnessMap = _getTexture(material, aiTextureType_METALNESS);
-  std::string roughnessMap = _getTexture(material, aiTextureType_DIFFUSE_ROUGHNESS);
-  std::string normalMap = _getTexture(material, aiTextureType_NORMALS);
+  MaterialData::TextureData albedoMap = IMPL.getTexture(material, aiTextureType_BASE_COLOR);
+  MaterialData::TextureData specularMap = IMPL.getTexture(material, aiTextureType_SPECULAR);
+  MaterialData::TextureData metalnessMap = IMPL.getTexture(material, aiTextureType_METALNESS);
+  MaterialData::TextureData roughnessMap = IMPL.getTexture(material, aiTextureType_DIFFUSE_ROUGHNESS);
+  MaterialData::TextureData normalMap = IMPL.getTexture(material, aiTextureType_NORMALS);
   
   MaterialData::Parameter p;
   
   p.name = "u_albedo";
-  if (albedoMap.size() > 0)
+  if (albedoMap.resourceName.size() > 0)
   {
-    _registerTexture(albedoMap);
+    IMPL.registerTexture(albedoMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(albedoMap);
     data.addParameter(p);
@@ -293,9 +295,9 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   }
   
   p.name = "u_specular";
-  if (specularMap.size() > 0)
+  if (specularMap.resourceName.size() > 0)
   {
-    _registerTexture(specularMap);
+    IMPL.registerTexture(specularMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(specularMap);
     data.addParameter(p);
@@ -310,9 +312,9 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   }
    
   p.name = "u_metalness";
-  if (metalnessMap.size() > 0)
+  if (metalnessMap.resourceName.size() > 0)
   {
-    _registerTexture(metalnessMap);
+    IMPL.registerTexture(metalnessMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(metalnessMap);
     data.addParameter(p);
@@ -327,9 +329,9 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   }
    
   p.name = "u_roughness";
-  if (roughnessMap.size() > 0)
+  if (roughnessMap.resourceName.size() > 0)
   {
-    _registerTexture(roughnessMap);
+    IMPL.registerTexture(roughnessMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(roughnessMap);
     data.addParameter(p);
@@ -344,9 +346,9 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   }
    
   p.name = "u_normal";
-  if (normalMap.size() > 0)
+  if (normalMap.resourceName.size() > 0)
   {
-    _registerTexture(normalMap);
+    IMPL.registerTexture(normalMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(normalMap);
     data.addParameter(p);
@@ -357,23 +359,38 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   IMPL.ctx.outMaterials[matName] = data;
 }
 
-std::string ModelImporter::_getTexture(aiMaterial* material, aiTextureType type) const
+MaterialData::TextureData ModelImporter::Impl::getTexture(aiMaterial* material, aiTextureType type) const
 {
   if (material->GetTextureCount(type) > 0)
   {
+    MaterialData::TextureData texData;
     aiString texName;
-    material->GetTexture(type, 0, &texName);
-    return texName.C_Str();
+    aiTextureMapMode mapMode;
+    static const std::unordered_map<aiTextureMapMode, MaterialData::TextureData::EWrappingMode::Type> convTable =
+    {
+      { aiTextureMapMode_Wrap, MaterialData::TextureData::EWrappingMode::eWrap },
+      { aiTextureMapMode_Mirror, MaterialData::TextureData::EWrappingMode::eMirror },
+      { aiTextureMapMode_Clamp, MaterialData::TextureData::EWrappingMode::eClamp },
+    };
+
+
+    material->GetTexture(type, 0, &texName, nullptr, nullptr, nullptr, nullptr, &mapMode);
+    texData.resourceName = texName.C_Str();
+    
+    auto convIt = convTable.find(mapMode);
+    if (convIt != convTable.end()) texData.wrappingMode = convIt->second;
+
+    return texData;
   }
   else
   {
-    return "";
+    return {};
   }
 }
 
-void ModelImporter::_registerTexture(const std::string& texName)
+void ModelImporter::Impl::registerTexture(const std::string& texName)
 {
   std::string formatted = texName;
   std::replace(formatted.begin(), formatted.end(), '\\', '/');
-  IMPL.ctx.filesToCopy.emplace(formatted);
+  ctx.filesToCopy.emplace(formatted);
 }

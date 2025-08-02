@@ -19,7 +19,6 @@ bool MaterialParsing::Parse(const json &jsonData, MaterialData &outMaterialData)
 
 namespace nlohmann
 {
-
   void to_json(json& j, const vrm::MaterialData::Parameter& e)
   {
     auto& value = j["Value"];
@@ -54,7 +53,7 @@ namespace nlohmann
       }
       case vrm::MaterialData::Parameter::eSampler2D:
       {
-        value = e.getValue<std::string>();
+        value = e.getValue<MaterialData::TextureData>();
         break;
       }
       default:
@@ -99,7 +98,9 @@ namespace nlohmann
       }
       case vrm::MaterialData::Parameter::eSampler2D:
       {
-        e.setValue<std::string>(value);
+        MaterialData::TextureData texData;
+        texData.resourceName = value;
+        e.setValue(texData);
         break;
       }
       default:

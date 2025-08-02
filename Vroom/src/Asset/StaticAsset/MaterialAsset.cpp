@@ -52,7 +52,7 @@ void MaterialAsset::applyUniforms(const gl::Shader& shader) const
       [&, this](const glm::vec3& value) { shader.setUniform3f(pName, value); },
       [&, this](const glm::vec4& value) { shader.setUniform4f(pName, value); },
       [&, this](const glm::mat4& value) { shader.setUniformMat4f(pName, value); },
-      [&, this](const std::string& value) { },
+      [&, this](const MaterialData::TextureData& value) { },
     };
 
     std::visit(visitor, param.value);
@@ -92,11 +92,12 @@ bool MaterialAsset::buildShaderData()
         d = {.name = "VRM_TEXTURE_" + pName };
         m_materialShaderData.addDefine(ShaderData::EShaderType::eAll, d);
 
-        std::string texturePath = applyPathOrder(param.getValue<std::string>());
+        const MaterialData::TextureData& texParam = param.getValue<MaterialData::TextureData>();
+        std::string texPath = applyPathOrder(texParam.resourceName);
 
-        VRM_CHECK_RET_FALSE_MSG(manager.tryLoadAsset<TextureAsset>(texturePath), "Could not load material texture: {}", texturePath);
+        VRM_CHECK_RET_FALSE_MSG(manager.tryLoadAsset<TextureAsset>(texPath), "Could not load material texture: {}", texPath);
 
-        m_textures.push_back(manager.getAsset<TextureAsset>(texturePath));
+        m_textures.push_back(manager.getAsset<TextureAsset>(texPath));
       }
       else
       {

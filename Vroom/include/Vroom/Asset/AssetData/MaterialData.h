@@ -31,6 +31,20 @@ namespace vrm
       eCount
     };
 
+    struct TextureData
+    {
+      struct EWrappingMode
+      {
+        enum Type : uint8_t
+        {
+          eWrap = 0, eClamp, eMirror
+        };
+      };
+
+      std::string resourceName;
+      EWrappingMode::Type wrappingMode = EWrappingMode::eClamp;
+    };
+
     struct Parameter
     {
 
@@ -56,7 +70,7 @@ namespace vrm
 
       std::string name;
       Type type = Type::eNone;
-      std::variant<float, glm::vec2, glm::vec3, glm::vec4, glm::mat4, std::string> value;
+      std::variant<float, glm::vec2, glm::vec3, glm::vec4, glm::mat4, TextureData> value;
     };
 
   public:
@@ -138,6 +152,20 @@ namespace nlohmann
     { vrm::MaterialData::Parameter::eMat4, "mat4" },
     { vrm::MaterialData::Parameter::eSampler2D, "sampler2D" },
   })
+
+  NLOHMANN_JSON_SERIALIZE_ENUM(
+    vrm::MaterialData::TextureData::EWrappingMode::Type,
+    {
+      { vrm::MaterialData::TextureData::EWrappingMode::eWrap, "Wrap"},
+      { vrm::MaterialData::TextureData::EWrappingMode::eClamp, "Clamp"},
+      { vrm::MaterialData::TextureData::EWrappingMode::eMirror, "Mirror"}
+    }
+  );
+
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(vrm::MaterialData::TextureData, resourceName, wrappingMode);
+
+  void VRM_API to_json(json& j, const vrm::MaterialData::TextureData& e);
+  void VRM_API from_json(const json& j, vrm::MaterialData::TextureData& e);
 
   void VRM_API to_json(json& j, const vrm::MaterialData::Parameter& e);
   void VRM_API from_json(const json& j, vrm::MaterialData::Parameter& e);
