@@ -15,6 +15,12 @@ namespace vrm
       : m_origin(origin), m_size(size)
     {}
 
+    RenderViewport& operator=(const RenderViewport& other) = default;
+    RenderViewport(const RenderViewport& other) = default;
+
+    RenderViewport& operator=(RenderViewport&& other) = default;
+    RenderViewport(RenderViewport&& other) = default;
+
     inline const glm::uvec2& getOrigin() const { return m_origin; }
     inline const glm::uvec2& getSize() const { return m_size; }
 
