@@ -130,7 +130,7 @@ void Scene::spawn()
   m_spawned = true;
 }
 
-void Scene::setSplitScreenLayout(size_t rows, size_t columns)
+void Scene::setSplitScreenGridSize(size_t rows, size_t columns)
 {
   VRM_ASSERT_MSG(rows > 0 && columns > 0, "At least 1 row and 1 column are needed");
   RenderLayout newLayout(rows, columns);
@@ -152,7 +152,16 @@ void Scene::setSplitScreenLayout(size_t rows, size_t columns)
 void Scene::setCamera(CameraBasic* camera)
 {
   RenderView view(camera);
-  m_renderLayout.setView(0, 0, view);
+  m_renderLayout.setView(0, 0, view); // (0, 0) is always valid
+}
+
+void Scene::setCamera(CameraBasic* camera, size_t row, size_t col)
+{
+  VRM_ASSERT_MSG(row < m_renderLayout.getRows(), "Row {} is out of bounds. Row count is {}", row, m_renderLayout.getRows());
+  VRM_ASSERT_MSG(col < m_renderLayout.getCols(), "Column {} is out of bounds. Column count is {}", col, m_renderLayout.getCols());
+
+  RenderView view(camera);
+  m_renderLayout.setView(row, col, view);
 }
 
 CameraBasic* Scene::getCamera() const

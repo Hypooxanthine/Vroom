@@ -74,7 +74,7 @@ namespace vrm
 
     SceneData getSceneData() const;
 
-    void setSplitScreenLayout(size_t rows, size_t columns);
+    void setSplitScreenGridSize(size_t rows, size_t columns);
 
     /**
      * @brief Sets the camera of the scene.
@@ -83,6 +83,8 @@ namespace vrm
      * @param camera The camera to set.
      */
     void setCamera(CameraBasic* camera);
+
+    void setCamera(CameraBasic* camera, size_t splitScreenRow, size_t splitScreenCol);
 
     CameraBasic* getCamera() const;
 
