@@ -7,6 +7,7 @@
 #include "Vroom/Api.h"
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Render/Camera/FirstPersonCamera.h"
+#include "Vroom/Render/RenderLayout.h"
 
 #include "Vroom/Asset/StaticAsset/SceneAsset.h"
 
@@ -73,15 +74,17 @@ namespace vrm
 
     SceneData getSceneData() const;
 
+    void setSplitScreenLayout(size_t rows, size_t columns);
+
     /**
      * @brief Sets the camera of the scene.
      * @warning Scene does not take ownership of the camera, it only stores a pointer to it.
      *
      * @param camera The camera to set.
      */
-    inline void setCamera(CameraBasic* camera) { m_Camera = camera; }
-    inline const CameraBasic& getCamera() const { return *m_Camera; }
-    inline CameraBasic& getCamera() { return *m_Camera; }
+    void setCamera(CameraBasic* camera);
+
+    CameraBasic* getCamera() const;
 
     entt::registry& getRegistry() { return m_Registry; }
     const entt::registry& getRegistry() const { return m_Registry; }
@@ -253,7 +256,7 @@ namespace vrm
     bool m_spawned = false;
 
     static FirstPersonCamera s_DefaultCamera;
-    CameraBasic* m_Camera;
+    RenderLayout m_renderLayout;
 
     Entity m_Root;
   };

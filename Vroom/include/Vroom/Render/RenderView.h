@@ -14,11 +14,11 @@ namespace vrm
 
     RenderView() = delete;
 
-    RenderView(const CameraBasic* camera, const NormalizedViewport& viewport)
+    RenderView(CameraBasic* camera, const NormalizedViewport& viewport)
       : m_camera(camera), m_viewport(viewport)
     {}
 
-    RenderView(const CameraBasic* camera)
+    RenderView(CameraBasic* camera)
       : RenderView(camera, NormalizedViewport({ 0.f, 0.f }, { 1.f, 1.f }))
     {}
 
@@ -28,15 +28,15 @@ namespace vrm
     RenderView& operator=(RenderView&& other) = default;
     RenderView(RenderView&& other) = default;
 
-    inline const CameraBasic* getCamera() const { return m_camera; }
+    inline CameraBasic* getCamera() const { return m_camera; }
     inline const NormalizedViewport& getViewport() const { return m_viewport; }
 
-    inline void setCamera(const CameraBasic* camera) { m_camera = camera; }
+    inline void setCamera(CameraBasic* camera) { m_camera = camera; }
     inline void setViewport(const NormalizedViewport& viewport) { m_viewport = viewport; }
 
   private:
 
-    const CameraBasic* m_camera;
+    CameraBasic* m_camera;
     NormalizedViewport m_viewport;
 
   };

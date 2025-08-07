@@ -44,13 +44,13 @@ void Scene::init()
     .bindCallback(
       [this](const vrm::Event &e)
       {
-        getCamera().setViewportSize(static_cast<float>(e.newWidth), static_cast<float>(e.newHeight));
+        getCamera()->setViewportSize(static_cast<float>(e.newWidth), static_cast<float>(e.newHeight));
       });
 
   onInit();
 
   const auto &viewportSize = Renderer::Get().getViewportSize();
-  getCamera().setViewportSize(static_cast<float>(viewportSize.x), static_cast<float>(viewportSize.y));
+  getCamera()->setViewportSize(static_cast<float>(viewportSize.x), static_cast<float>(viewportSize.y));
 }
 
 void Scene::update(const DeltaTime& dt)
@@ -71,7 +71,7 @@ void Scene::render()
 
   Application &app = Application::Get();
   Renderer &renderer = Renderer::Get();
-  renderer.beginScene(getCamera());
+  renderer.beginScene(*getCamera());
 
   auto viewDirLights = m_Registry.view<DirectionalLightComponent, TransformComponent>();
   for (auto&& [e, dl, t] : viewDirLights.each())
@@ -128,6 +128,36 @@ void Scene::spawn()
 
   DepthFirstTraversal<false>(spawner, getRoot());
   m_spawned = true;
+}
+
+void Scene::setSplitScreenLayout(size_t rows, size_t columns)
+{
+  VRM_ASSERT_MSG(rows > 0 && columns > 0, "At least 1 row and 1 column are needed");
+  RenderLayout newLayout(rows, columns);
+
+  size_t keptRows = std::min(rows, m_renderLayout.getRows());
+  size_t keptCols = std::min(columns, m_renderLayout.getCols());
+
+  for (size_t i = 0; i < keptCols; ++i)
+  {
+    for (size_t j = 0; j < keptRows; ++j)
+    {
+      newLayout.setView(j, i, m_renderLayout.getView(j, i));
+    }
+  }
+
+  m_renderLayout = std::move(newLayout);
+}
+
+void Scene::setCamera(CameraBasic* camera)
+{
+  RenderView view(camera);
+  m_renderLayout.setView(0, 0, view);
+}
+
+CameraBasic* Scene::getCamera() const
+{
+  return m_renderLayout.getView(0, 0).getCamera();
 }
 
 Entity Scene::createEntity(const std::string &nameTag)
