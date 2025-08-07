@@ -17,39 +17,39 @@ RenderLayout::~RenderLayout()
 
 }
 
-RenderLayout::RenderLayout(size_t xSlices, size_t ySlices)
+RenderLayout::RenderLayout(size_t rows, size_t cols)
 {
-  VRM_ASSERT_MSG(xSlices > 0 && ySlices > 0, "RenderLayout slices cannot be zero");
+  VRM_ASSERT_MSG(rows > 0 && cols > 0, "RenderLayout rows or cols cannot be zero");
 
-  m_widths.assign(xSlices, 1.f / static_cast<float>(xSlices));
-  m_heights.assign(ySlices, 1.f / static_cast<float>(ySlices));
-  m_views.resize(xSlices * ySlices, RenderView(nullptr, NormalizedViewport()));
+  m_heights.assign(rows, 1.f / static_cast<float>(rows));
+  m_widths.assign(cols, 1.f / static_cast<float>(cols));
+  m_views.resize(rows * cols, RenderView(nullptr, NormalizedViewport()));
   updateViewports();
 }
 
-bool RenderLayout::isViewUsed(size_t xSlice, size_t ySlice) const
+bool RenderLayout::isViewUsed(size_t row, size_t col) const
 {
-  return getView(xSlice, ySlice).getCamera() != nullptr;
+  return getView(row, col).getCamera() != nullptr;
 }
 
 void RenderLayout::setWidths(const RelativeSizes& widths)
 {
-  VRM_ASSERT_MSG(widths.size() == getXTiles(), "{} relative sizes were given, but {} were expected", widths.size(), getXTiles());
+  VRM_ASSERT_MSG(widths.size() == getCols(), "{} relative sizes were given, but {} were expected", widths.size(), getCols());
   m_widths = NormalizedRelativeSizes(widths);
   updateViewports();
 }
 
 void RenderLayout::setHeights(const RelativeSizes& heights)
 {
-  VRM_ASSERT_MSG(heights.size() == getYTiles(), "{} relative sizes were given, but {} were expected", heights.size(), getYTiles());
+  VRM_ASSERT_MSG(heights.size() == getRows(), "{} relative sizes were given, but {} were expected", heights.size(), getRows());
   m_heights = NormalizedRelativeSizes(heights);
   updateViewports();
 }
 
-void RenderLayout::setView(size_t xSlice, size_t ySlice, const RenderView& view)
+void RenderLayout::setView(size_t row, size_t col, const RenderView& view)
 {
   NormalizedViewport viewport = view.getViewport();
-  auto& storedView = _getView(xSlice, ySlice);
+  auto& storedView = _getView(row, col);
   storedView = view;
   storedView.setViewport(viewport);
   updateViewports();

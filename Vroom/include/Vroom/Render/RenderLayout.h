@@ -22,10 +22,8 @@ namespace vrm
     /**
      * @brief Viewport sizes will be 1 / slices by default. Can be changed with setWidths and setHeights.
      * 
-     * @param xSlices Number of columns
-     * @param ySlices Number of rows
      */
-    RenderLayout(size_t xSlices, size_t ySlices);
+    RenderLayout(size_t rows, size_t cols);
 
     RenderLayout& operator=(const RenderLayout& other) = default;
     RenderLayout(const RenderLayout& other) = default;
@@ -33,27 +31,27 @@ namespace vrm
     RenderLayout& operator=(RenderLayout&& other) = default;
     RenderLayout(RenderLayout&& other) = default;
 
-    inline size_t getXTiles() const { return m_widths.size(); }
-    inline size_t getYTiles() const { return m_heights.size(); }
-    bool isViewUsed(size_t xSlice, size_t ySlice) const;
+    inline size_t getCols() const { return m_widths.size(); }
+    inline size_t getRows() const { return m_heights.size(); }
+    bool isViewUsed(size_t row, size_t col) const;
 
-    inline float getWidth(size_t xSlice) const { return m_widths.at(xSlice); }
-    inline float getHeight(size_t ySlice) const { return m_heights.at(ySlice); }
-    inline const RenderView& getView(size_t xSlice, size_t ySlice) const { return m_views.at(getViewIndex(xSlice, ySlice)); }
+    inline float getWidth(size_t col) const { return m_widths.at(col); }
+    inline float getHeight(size_t row) const { return m_heights.at(row); }
+    inline const RenderView& getView(size_t row, size_t col) const { return m_views.at(getViewIndex(row, col)); }
 
     void setWidths(const RelativeSizes& widths);
     void setHeights(const RelativeSizes& heights);
-    void setView(size_t xSlice, size_t ySlice, const RenderView& view);
+    void setView(size_t row, size_t col, const RenderView& view);
 
   private:
 
     static RelativeSizes NormalizedRelativeSizes(const RelativeSizes& sizesIn);
 
-    inline RenderView& _getView(size_t xSlice, size_t ySlice) { return m_views.at(getViewIndex(xSlice, ySlice)); }
+    inline RenderView& _getView(size_t row, size_t col) { return m_views.at(getViewIndex(row, col)); }
 
-    inline size_t getViewIndex(size_t xSlice, size_t ySlice) const
+    inline size_t getViewIndex(size_t row, size_t col) const
     {
-      return getXTiles() * ySlice + xSlice;
+      return getCols() * row + col;
     }
 
     inline void updateViewports();
@@ -69,16 +67,16 @@ namespace vrm
   {
     float cumulHeight = 0.f;
 
-    for (size_t j = 0; j < getYTiles(); ++j)
+    for (size_t j = 0; j < getRows(); ++j)
     {
-      const float height = m_heights.at(j);
+      const float height = getHeight(j);
       float cumulWidth = 0.f;
 
-      for (size_t i = 0; i < getXTiles(); ++i)
+      for (size_t i = 0; i < getCols(); ++i)
       {
-        const float width = m_widths.at(i);
+        const float width = getWidth(i);
 
-        RenderView& view = _getView(i, j);
+        RenderView& view = _getView(j, i);
 
         NormalizedViewport vp = view.getViewport();
 
