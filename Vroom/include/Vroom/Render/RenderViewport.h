@@ -26,6 +26,8 @@ namespace vrm
 
     inline void setOrigin(const glm::uvec2& origin) { m_origin = origin; }
     inline void setSize(const glm::uvec2& size) { m_size = size; }
+    inline void setWidth(float width) { m_size.x = width; }
+    inline void setHeight(float height) { m_size.y = height; }
 
   private:
     glm::uvec2 m_origin;
