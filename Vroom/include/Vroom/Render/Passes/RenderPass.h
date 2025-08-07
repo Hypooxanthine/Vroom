@@ -93,7 +93,7 @@ namespace vrm
 
     static void applyCameraUniforms(const gl::Shader& shader, const CameraBasic& camera);
 
-    static void applyViewportUniforms(const gl::Shader& shader, const RenderViewport& viewport);
+    static void applyViewportUniforms(const gl::Shader& shader, const render::Viewport& viewport);
 
     const PassMaterial& getPassMaterial(MaterialAsset::Handle asset, const MaterialDefines* customDefines) const;
     
@@ -115,7 +115,7 @@ namespace vrm
     DynamicRenderSettings* dynamicSettings;
     const CameraBasic* mainCamera = nullptr;
     const gl::FrameBuffer* frameBufferTarget = nullptr;
-    RenderViewport viewport;
+    render::Viewport viewport;
   };
 
 } // namespace vrm

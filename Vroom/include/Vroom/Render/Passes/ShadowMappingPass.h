@@ -6,6 +6,7 @@
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
 #include "Vroom/Render/Clustering/LightRegistry.h"
 #include "Vroom/Render/Camera/OrthographicCamera.h"
+#include "Vroom/Render/RenderViewport.h"
 
 namespace vrm::render
 {
@@ -17,7 +18,6 @@ namespace vrm
 
   class MeshRegistry;
   class CameraBasic;
-  class RenderViewport;
   class OrthographicCamera;
   class RenderMesh;
 
@@ -45,7 +45,7 @@ namespace vrm
 
     void resetDepthMapsAndFramebuffers();
 
-    void renderMeshes(const CameraBasic& camera, const RenderViewport& viewport) const;
+    void renderMeshes(const CameraBasic& camera, const render::Viewport& viewport) const;
 
     OrthographicCamera constructViewProjFromDirLight(const CameraBasic& renderCamera, const glm::vec3& direction);
 

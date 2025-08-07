@@ -5,6 +5,8 @@
 
 namespace vrm
 {
+
+  using NormalizedViewport = render::ViewportBase<float>;
   
   class RenderView
   {
@@ -12,8 +14,12 @@ namespace vrm
 
     RenderView() = delete;
 
-    RenderView(const CameraBasic* camera, const RenderViewport& viewport)
+    RenderView(const CameraBasic* camera, const NormalizedViewport& viewport)
       : m_camera(camera), m_viewport(viewport)
+    {}
+
+    RenderView(const CameraBasic* camera)
+      : RenderView(camera, NormalizedViewport({ 0.f, 0.f }, { 1.f, 1.f }))
     {}
 
     RenderView& operator=(const RenderView& other) = default;
@@ -23,15 +29,15 @@ namespace vrm
     RenderView(RenderView&& other) = default;
 
     inline const CameraBasic* getCamera() const { return m_camera; }
-    inline const RenderViewport& getViewport() const { return m_viewport; }
+    inline const NormalizedViewport& getViewport() const { return m_viewport; }
 
     inline void setCamera(const CameraBasic* camera) { m_camera = camera; }
-    inline void setViewport(const RenderViewport& viewport) { m_viewport = viewport; }
+    inline void setViewport(const NormalizedViewport& viewport) { m_viewport = viewport; }
 
   private:
 
     const CameraBasic* m_camera;
-    RenderViewport m_viewport;
+    NormalizedViewport m_viewport;
 
   };
 

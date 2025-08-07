@@ -9,7 +9,6 @@
 #include "Vroom/Render/Frustum.h"
 #include "Vroom/Render/AutoBuffer.h"
 
-#include "Vroom/Render/RenderViewport.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
 #include "Vroom/Render/Clustering/LightRegistry.h"
 #include "Vroom/Render/MeshRegistry.h"
@@ -104,7 +103,7 @@ void ShadowMappingPass::onRender(const RenderPassContext& ctx) const
     framebuffer.bind();
     framebuffer.clearDepth();
 
-    renderMeshes(m_dirLightCameras.at(i), RenderViewport({ 0u, 0u }, { resolution, resolution }));
+    renderMeshes(m_dirLightCameras.at(i), render::Viewport({ 0u, 0u }, { resolution, resolution }));
   }
 
   if (debugDirLights)
@@ -208,7 +207,7 @@ void ShadowMappingPass::resetDepthMapsAndFramebuffers()
   }
 }
 
-void ShadowMappingPass::renderMeshes(const CameraBasic& camera, const RenderViewport& viewport) const
+void ShadowMappingPass::renderMeshes(const CameraBasic& camera, const render::Viewport& viewport) const
 {
   glViewport(viewport.getOrigin().x, viewport.getOrigin().y, viewport.getSize().x, viewport.getSize().y);
 

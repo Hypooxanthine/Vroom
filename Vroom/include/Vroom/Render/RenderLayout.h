@@ -19,6 +19,12 @@ namespace vrm
     RenderLayout();
     ~RenderLayout();
 
+    /**
+     * @brief Viewport sizes will be 1 / slices by default. Can be changed with setWidths and setHeights.
+     * 
+     * @param xSlices Number of columns
+     * @param ySlices Number of rows
+     */
     RenderLayout(size_t xSlices, size_t ySlices);
 
     RenderLayout& operator=(const RenderLayout& other) = default;
@@ -43,14 +49,13 @@ namespace vrm
 
     static RelativeSizes NormalizedRelativeSizes(const RelativeSizes& sizesIn);
 
-    inline RenderView& getView(size_t xSlice, size_t ySlice) { return m_views.at(getViewIndex(xSlice, ySlice)); }
+    inline RenderView& _getView(size_t xSlice, size_t ySlice) { return m_views.at(getViewIndex(xSlice, ySlice)); }
 
     inline size_t getViewIndex(size_t xSlice, size_t ySlice) const
     {
       return getXTiles() * ySlice + xSlice;
     }
 
-    template <bool updateWidths, bool updateHeights>
     inline void updateViewports();
 
   private:
@@ -60,31 +65,31 @@ namespace vrm
 
   };
 
-  template <bool updateWidths, bool updateHeights>
   inline void RenderLayout::updateViewports()
   {
-    if constexpr (!updateWidths && !updateHeights)
+    float cumulHeight = 0.f;
+
+    for (size_t j = 0; j < getYTiles(); ++j)
     {
-      return;
-    }
+      const float height = m_heights.at(j);
+      float cumulWidth = 0.f;
 
-    for (size_t i = 0; i < m_views.size(); ++i)
-    {
-      RenderView& view = m_views[i];
-
-      RenderViewport vp = view.getViewport();
-
-      if constexpr (updateWidths)
+      for (size_t i = 0; i < getXTiles(); ++i)
       {
-        const size_t xSlice = i % getXTiles();
-        vp.setWidth(m_widths.at(xSlice));
+        const float width = m_widths.at(i);
+
+        RenderView& view = _getView(i, j);
+
+        NormalizedViewport vp = view.getViewport();
+
+        vp.setOrigin({ cumulWidth, cumulHeight });
+        vp.setSize({ width, height });
+        view.setViewport(vp);
+
+        cumulWidth += width;
       }
 
-      if constexpr (updateHeights)
-      {
-        const size_t ySlice = i / getXTiles();
-        vp.setHeight(m_heights.at(ySlice));
-      }
+      cumulHeight += height;
     }
   }
 

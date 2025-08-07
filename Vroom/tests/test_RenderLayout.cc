@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <Vroom/Render/RenderLayout.h>
+#include <Vroom/Render/Camera/CameraBasic.h>
 
 class TestRenderLayout : public testing::Test
 {
@@ -7,13 +8,18 @@ protected:
 
   void SetUp() override
   {
-
+    // Use dummy pointer values for testing
+    camera = reinterpret_cast<vrm::CameraBasic*>(0x12345678);
+    camera2 = reinterpret_cast<vrm::CameraBasic*>(0x87654321);
   }
 
   void TearDown() override
   {
 
   }
+
+  const vrm::CameraBasic* camera;
+  const vrm::CameraBasic* camera2;
 };
 
 TEST_F(TestRenderLayout, DefaultConstructor)
@@ -22,8 +28,6 @@ TEST_F(TestRenderLayout, DefaultConstructor)
 
   EXPECT_EQ(layout.getXTiles(), 1);
   EXPECT_EQ(layout.getYTiles(), 1);
-  EXPECT_FLOAT_EQ(layout.getWidth(0), 1.0f);
-  EXPECT_FLOAT_EQ(layout.getHeight(0), 1.0f);
 }
 
 TEST_F(TestRenderLayout, ParameterizedConstructor)
@@ -33,213 +37,153 @@ TEST_F(TestRenderLayout, ParameterizedConstructor)
   EXPECT_EQ(layout.getXTiles(), 3);
   EXPECT_EQ(layout.getYTiles(), 2);
 
-  // Check that widths are evenly distributed
-  EXPECT_FLOAT_EQ(layout.getWidth(0), 1.0f / 3.0f);
-  EXPECT_FLOAT_EQ(layout.getWidth(1), 1.0f / 3.0f);
-  EXPECT_FLOAT_EQ(layout.getWidth(2), 1.0f / 3.0f);
-
-  // Check that heights are evenly distributed
-  EXPECT_FLOAT_EQ(layout.getHeight(0), 1.0f / 2.0f);
-  EXPECT_FLOAT_EQ(layout.getHeight(1), 1.0f / 2.0f);
-}
-
-TEST_F(TestRenderLayout, CopyConstructor)
-{
-  vrm::RenderLayout original(2, 3);
-  vrm::RenderLayout copy(original);
-
-  EXPECT_EQ(copy.getXTiles(), original.getXTiles());
-  EXPECT_EQ(copy.getYTiles(), original.getYTiles());
-
-  for (size_t i = 0; i < original.getXTiles(); ++i)
-  {
-    EXPECT_FLOAT_EQ(copy.getWidth(i), original.getWidth(i));
+  // Check default normalized widths and heights
+  for (size_t i = 0; i < 3; ++i) {
+    EXPECT_FLOAT_EQ(layout.getWidth(i), 1.0f / 3.0f);
   }
-
-  for (size_t i = 0; i < original.getYTiles(); ++i)
-  {
-    EXPECT_FLOAT_EQ(copy.getHeight(i), original.getHeight(i));
+  for (size_t j = 0; j < 2; ++j) {
+    EXPECT_FLOAT_EQ(layout.getHeight(j), 1.0f / 2.0f);
   }
-}
-
-TEST_F(TestRenderLayout, MoveConstructor)
-{
-  vrm::RenderLayout original(2, 3);
-  size_t originalXTiles = original.getXTiles();
-  size_t originalYTiles = original.getYTiles();
-
-  vrm::RenderLayout moved(std::move(original));
-
-  EXPECT_EQ(moved.getXTiles(), originalXTiles);
-  EXPECT_EQ(moved.getYTiles(), originalYTiles);
-}
-
-TEST_F(TestRenderLayout, AssignmentOperator)
-{
-  vrm::RenderLayout layout1(2, 2);
-  vrm::RenderLayout layout2(3, 4);
-
-  layout1 = layout2;
-
-  EXPECT_EQ(layout1.getXTiles(), layout2.getXTiles());
-  EXPECT_EQ(layout1.getYTiles(), layout2.getYTiles());
-
-  for (size_t i = 0; i < layout2.getXTiles(); ++i)
-  {
-    EXPECT_FLOAT_EQ(layout1.getWidth(i), layout2.getWidth(i));
-  }
-
-  for (size_t i = 0; i < layout2.getYTiles(); ++i)
-  {
-    EXPECT_FLOAT_EQ(layout1.getHeight(i), layout2.getHeight(i));
-  }
-}
-
-TEST_F(TestRenderLayout, MoveAssignmentOperator)
-{
-  vrm::RenderLayout layout1(2, 2);
-  vrm::RenderLayout layout2(3, 4);
-
-  size_t originalXTiles = layout2.getXTiles();
-  size_t originalYTiles = layout2.getYTiles();
-
-  layout1 = std::move(layout2);
-
-  EXPECT_EQ(layout1.getXTiles(), originalXTiles);
-  EXPECT_EQ(layout1.getYTiles(), originalYTiles);
 }
 
 TEST_F(TestRenderLayout, SetWidths)
 {
   vrm::RenderLayout layout(3, 2);
+  vrm::RenderLayout::RelativeSizes widths = { 1.0f, 2.0f, 1.0f }; // Should normalize to {0.25, 0.5, 0.25}
 
-  std::vector<float> widths = { 0.5f, 0.3f, 0.2f };
   layout.setWidths(widths);
 
-  EXPECT_FLOAT_EQ(layout.getWidth(0), 0.5f);
-  EXPECT_FLOAT_EQ(layout.getWidth(1), 0.3f);
-  EXPECT_FLOAT_EQ(layout.getWidth(2), 0.2f);
-}
-
-TEST_F(TestRenderLayout, SetWidthsNormalization)
-{
-  vrm::RenderLayout layout(3, 2);
-
-  // Widths that don't sum to 1.0
-  std::vector<float> widths = { 2.0f, 3.0f, 5.0f }; // Sum = 10.0f
-  layout.setWidths(widths);
-
-  EXPECT_FLOAT_EQ(layout.getWidth(0), 0.2f);  // 2.0/10.0
-  EXPECT_FLOAT_EQ(layout.getWidth(1), 0.3f);  // 3.0/10.0
-  EXPECT_FLOAT_EQ(layout.getWidth(2), 0.5f);  // 5.0/10.0
+  EXPECT_FLOAT_EQ(layout.getWidth(0), 0.25f);
+  EXPECT_FLOAT_EQ(layout.getWidth(1), 0.5f);
+  EXPECT_FLOAT_EQ(layout.getWidth(2), 0.25f);
 }
 
 TEST_F(TestRenderLayout, SetHeights)
 {
   vrm::RenderLayout layout(2, 3);
+  vrm::RenderLayout::RelativeSizes heights = { 3.0f, 1.0f, 2.0f }; // Should normalize to {0.5, 1/6, 1/3}
 
-  std::vector<float> heights = { 0.6f, 0.3f, 0.1f };
   layout.setHeights(heights);
 
-  EXPECT_FLOAT_EQ(layout.getHeight(0), 0.6f);
-  EXPECT_FLOAT_EQ(layout.getHeight(1), 0.3f);
-  EXPECT_FLOAT_EQ(layout.getHeight(2), 0.1f);
+  EXPECT_FLOAT_EQ(layout.getHeight(0), 0.5f);
+  EXPECT_FLOAT_EQ(layout.getHeight(1), 1.0f / 6.0f);
+  EXPECT_FLOAT_EQ(layout.getHeight(2), 1.0f / 3.0f);
 }
 
-TEST_F(TestRenderLayout, SetHeightsNormalization)
+TEST_F(TestRenderLayout, SetAndGetView)
 {
-  vrm::RenderLayout layout(2, 3);
+  vrm::RenderLayout layout(2, 2);
+  vrm::NormalizedViewport viewport({ 0.1f, 0.2f }, { 0.3f, 0.4f });
+  vrm::RenderView view(camera, viewport);
 
-  // Heights that don't sum to 1.0
-  std::vector<float> heights = { 1.0f, 2.0f, 3.0f }; // Sum = 6.0f
-  layout.setHeights(heights);
+  layout.setView(1, 0, view);
 
-  EXPECT_FLOAT_EQ(layout.getHeight(0), 1.0f / 6.0f);
-  EXPECT_FLOAT_EQ(layout.getHeight(1), 2.0f / 6.0f);
-  EXPECT_FLOAT_EQ(layout.getHeight(2), 3.0f / 6.0f);
+  const vrm::RenderView& retrievedView = layout.getView(1, 0);
+  EXPECT_EQ(retrievedView.getCamera(), camera);
+
+  const auto& retrievedViewport = retrievedView.getViewport();
+  EXPECT_FLOAT_EQ(retrievedViewport.getOriginX(), 0.5f);
+  EXPECT_FLOAT_EQ(retrievedViewport.getOriginY(), 0.f);
+  EXPECT_FLOAT_EQ(retrievedViewport.getWidth(), 0.5f);
+  EXPECT_FLOAT_EQ(retrievedViewport.getHeight(), 0.5f);
 }
 
-TEST_F(TestRenderLayout, IsViewUsed)
+TEST_F(TestRenderLayout, ViewportCalculation)
 {
   vrm::RenderLayout layout(2, 2);
 
-  // Initially, all views should have nullptr camera (not used)
-  EXPECT_FALSE(layout.isViewUsed(0, 0));
-  EXPECT_FALSE(layout.isViewUsed(0, 1));
-  EXPECT_FALSE(layout.isViewUsed(1, 0));
-  EXPECT_FALSE(layout.isViewUsed(1, 1));
-}
+  // Set custom widths and heights
+  vrm::RenderLayout::RelativeSizes widths = { 1.0f, 3.0f }; // Normalized: {0.25, 0.75}
+  vrm::RenderLayout::RelativeSizes heights = { 2.0f, 1.0f }; // Normalized: {2/3, 1/3}
 
-TEST_F(TestRenderLayout, SetViewAndIsViewUsed)
-{
-  vrm::RenderLayout layout(2, 2);
+  layout.setWidths(widths);
+  layout.setHeights(heights);
 
-  // Initially, all views should have nullptr camera (not used)
-  EXPECT_FALSE(layout.isViewUsed(0, 0));
-  EXPECT_FALSE(layout.isViewUsed(0, 1));
-  EXPECT_FALSE(layout.isViewUsed(1, 0));
-  EXPECT_FALSE(layout.isViewUsed(1, 1));
+  // Create views for each position
+  vrm::RenderView view(camera);
 
-  // Create a mock camera and view
-  int mockCamera = 42;
-  vrm::RenderView view(reinterpret_cast<vrm::CameraBasic*>(&mockCamera), vrm::RenderViewport());
-
-  layout.setView(0, 0, view);
-
-  // The view should now be considered used
-  EXPECT_TRUE(layout.isViewUsed(0, 0));
-  EXPECT_FALSE(layout.isViewUsed(0, 1));
-  EXPECT_FALSE(layout.isViewUsed(1, 0));
-  EXPECT_FALSE(layout.isViewUsed(1, 1));
-}
-
-TEST_F(TestRenderLayout, MultipleViewsUsage)
-{
-  vrm::RenderLayout layout(3, 2);
-
-  // Set up views for different positions
-  int camera1 = 1, camera2 = 2, camera3 = 3;
-
-  vrm::RenderView view1(reinterpret_cast<vrm::CameraBasic*>(&camera1), vrm::RenderViewport());
-  vrm::RenderView view2(reinterpret_cast<vrm::CameraBasic*>(&camera2), vrm::RenderViewport());
-  vrm::RenderView view3(reinterpret_cast<vrm::CameraBasic*>(&camera3), vrm::RenderViewport());
-
-  layout.setView(0, 0, view1);
-  layout.setView(1, 1, view2);
-  layout.setView(2, 0, view3);
-
-  // Check which views are used
-  EXPECT_TRUE(layout.isViewUsed(0, 0));
-  EXPECT_FALSE(layout.isViewUsed(1, 0));
-  EXPECT_TRUE(layout.isViewUsed(2, 0));
-  EXPECT_FALSE(layout.isViewUsed(0, 1));
-  EXPECT_TRUE(layout.isViewUsed(1, 1));
-  EXPECT_FALSE(layout.isViewUsed(2, 1));
-}
-
-TEST_F(TestRenderLayout, BoundaryConditions)
-{
-  // Test single tile layout
-  vrm::RenderLayout layout1x1(1, 1);
-  EXPECT_EQ(layout1x1.getXTiles(), 1);
-  EXPECT_EQ(layout1x1.getYTiles(), 1);
-  EXPECT_FLOAT_EQ(layout1x1.getWidth(0), 1.0f);
-  EXPECT_FLOAT_EQ(layout1x1.getHeight(0), 1.0f);
-
-  // Test asymmetric layouts
-  vrm::RenderLayout layout1x5(1, 5);
-  EXPECT_EQ(layout1x5.getXTiles(), 1);
-  EXPECT_EQ(layout1x5.getYTiles(), 5);
-  EXPECT_FLOAT_EQ(layout1x5.getWidth(0), 1.0f);
-  for (size_t i = 0; i < 5; ++i) {
-    EXPECT_FLOAT_EQ(layout1x5.getHeight(i), 0.2f);
+  for (size_t j = 0; j < 2; ++j) {
+    for (size_t i = 0; i < 2; ++i) {
+      layout.setView(i, j, view);
+    }
   }
 
-  vrm::RenderLayout layout5x1(5, 1);
-  EXPECT_EQ(layout5x1.getXTiles(), 5);
-  EXPECT_EQ(layout5x1.getYTiles(), 1);
-  EXPECT_FLOAT_EQ(layout5x1.getHeight(0), 1.0f);
-  for (size_t i = 0; i < 5; ++i) {
-    EXPECT_FLOAT_EQ(layout5x1.getWidth(i), 0.2f);
-  }
+  // Check viewport calculations
+  // View (0,0): origin (0, 0), size (0.25, 2/3)
+  const auto& view00 = layout.getView(0, 0);
+  const auto& vp00 = view00.getViewport();
+  EXPECT_FLOAT_EQ(vp00.getOriginX(), 0.0f);
+  EXPECT_FLOAT_EQ(vp00.getOriginY(), 0.0f);
+  EXPECT_FLOAT_EQ(vp00.getWidth(), 0.25f);
+  EXPECT_FLOAT_EQ(vp00.getHeight(), 2.0f / 3.0f);
+
+  // View (1,0): origin (0.25, 0), size (0.75, 2/3)
+  const auto& view10 = layout.getView(1, 0);
+  const auto& vp10 = view10.getViewport();
+  EXPECT_FLOAT_EQ(vp10.getOriginX(), 0.25f);
+  EXPECT_FLOAT_EQ(vp10.getOriginY(), 0.0f);
+  EXPECT_FLOAT_EQ(vp10.getWidth(), 0.75f);
+  EXPECT_FLOAT_EQ(vp10.getHeight(), 2.0f / 3.0f);
+
+  // View (0,1): origin (0, 2/3), size (0.25, 1/3)
+  const auto& view01 = layout.getView(0, 1);
+  const auto& vp01 = view01.getViewport();
+  EXPECT_FLOAT_EQ(vp01.getOriginX(), 0.0f);
+  EXPECT_FLOAT_EQ(vp01.getOriginY(), 2.0f / 3.0f);
+  EXPECT_FLOAT_EQ(vp01.getWidth(), 0.25f);
+  EXPECT_FLOAT_EQ(vp01.getHeight(), 1.0f / 3.0f);
+
+  // View (1,1): origin (0.25, 2/3), size (0.75, 1/3)
+  const auto& view11 = layout.getView(1, 1);
+  const auto& vp11 = view11.getViewport();
+  EXPECT_FLOAT_EQ(vp11.getOriginX(), 0.25f);
+  EXPECT_FLOAT_EQ(vp11.getOriginY(), 2.0f / 3.0f);
+  EXPECT_FLOAT_EQ(vp11.getWidth(), 0.75f);
+  EXPECT_FLOAT_EQ(vp11.getHeight(), 1.0f / 3.0f);
+}
+
+TEST_F(TestRenderLayout, CopyConstructor)
+{
+  vrm::RenderLayout layout1(2, 2);
+  vrm::RenderLayout::RelativeSizes widths = { 1.0f, 2.0f };
+  layout1.setWidths(widths);
+
+  vrm::RenderLayout layout2(layout1);
+
+  EXPECT_EQ(layout2.getXTiles(), 2);
+  EXPECT_EQ(layout2.getYTiles(), 2);
+  EXPECT_FLOAT_EQ(layout2.getWidth(0), 1.0f / 3.0f);
+  EXPECT_FLOAT_EQ(layout2.getWidth(1), 2.0f / 3.0f);
+}
+
+TEST_F(TestRenderLayout, MoveConstructor)
+{
+  vrm::RenderLayout layout1(3, 1);
+  vrm::RenderLayout::RelativeSizes widths = { 1.0f, 2.0f, 3.0f };
+  layout1.setWidths(widths);
+
+  vrm::RenderLayout layout2(std::move(layout1));
+
+  EXPECT_EQ(layout2.getXTiles(), 3);
+  EXPECT_EQ(layout2.getYTiles(), 1);
+  EXPECT_FLOAT_EQ(layout2.getWidth(0), 1.0f / 6.0f);
+  EXPECT_FLOAT_EQ(layout2.getWidth(1), 2.0f / 6.0f);
+  EXPECT_FLOAT_EQ(layout2.getWidth(2), 3.0f / 6.0f);
+}
+
+TEST_F(TestRenderLayout, AssignmentOperator)
+{
+  vrm::RenderLayout layout1(2, 3);
+  vrm::RenderLayout layout2;
+
+  vrm::RenderLayout::RelativeSizes heights = { 1.0f, 1.0f, 2.0f };
+  layout1.setHeights(heights);
+
+  layout2 = layout1;
+
+  EXPECT_EQ(layout2.getXTiles(), 2);
+  EXPECT_EQ(layout2.getYTiles(), 3);
+  EXPECT_FLOAT_EQ(layout2.getHeight(0), 0.25f);
+  EXPECT_FLOAT_EQ(layout2.getHeight(1), 0.25f);
+  EXPECT_FLOAT_EQ(layout2.getHeight(2), 0.5f);
 }

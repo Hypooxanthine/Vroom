@@ -23,8 +23,8 @@ RenderLayout::RenderLayout(size_t xSlices, size_t ySlices)
 
   m_widths.assign(xSlices, 1.f / static_cast<float>(xSlices));
   m_heights.assign(ySlices, 1.f / static_cast<float>(ySlices));
-  m_views.resize(xSlices * ySlices, RenderView(nullptr, RenderViewport()));
-  updateViewports<true, true>();
+  m_views.resize(xSlices * ySlices, RenderView(nullptr, NormalizedViewport()));
+  updateViewports();
 }
 
 bool RenderLayout::isViewUsed(size_t xSlice, size_t ySlice) const
@@ -36,22 +36,23 @@ void RenderLayout::setWidths(const RelativeSizes& widths)
 {
   VRM_ASSERT_MSG(widths.size() == getXTiles(), "{} relative sizes were given, but {} were expected", widths.size(), getXTiles());
   m_widths = NormalizedRelativeSizes(widths);
-  updateViewports<true, false>();
+  updateViewports();
 }
 
 void RenderLayout::setHeights(const RelativeSizes& heights)
 {
   VRM_ASSERT_MSG(heights.size() == getYTiles(), "{} relative sizes were given, but {} were expected", heights.size(), getYTiles());
   m_heights = NormalizedRelativeSizes(heights);
-  updateViewports<false, true>();
+  updateViewports();
 }
 
 void RenderLayout::setView(size_t xSlice, size_t ySlice, const RenderView& view)
 {
-  RenderViewport viewport = view.getViewport();
-  auto& storedView = getView(xSlice, ySlice);
+  NormalizedViewport viewport = view.getViewport();
+  auto& storedView = _getView(xSlice, ySlice);
   storedView = view;
   storedView.setViewport(viewport);
+  updateViewports();
 }
 
 RenderLayout::RelativeSizes RenderLayout::NormalizedRelativeSizes(const RelativeSizes& sizesIn)

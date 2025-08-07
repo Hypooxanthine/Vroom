@@ -148,7 +148,7 @@ namespace vrm
     RenderSettings m_renderSettings;
     DynamicRenderSettings m_dynamicSettings;
 
-    RenderViewport m_viewport = { { 0, 0 }, { 1, 1} };
+    render::Viewport m_viewport = { { 0, 0 }, { 1, 1} };
 
     const CameraBasic* m_Camera = nullptr;
 

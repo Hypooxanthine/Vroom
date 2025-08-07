@@ -46,7 +46,7 @@ void RenderPass::applyCameraUniforms(const gl::Shader& shader, const CameraBasic
   shader.setUniform1f("u_Far", camera.getFar());
 }
 
-void RenderPass::applyViewportUniforms(const gl::Shader& shader, const RenderViewport& viewport)
+void RenderPass::applyViewportUniforms(const gl::Shader& shader, const render::Viewport& viewport)
 {
   shader.setUniform2ui("u_ViewportOrigin", viewport.getOrigin().x, viewport.getOrigin().y);
   shader.setUniform2ui("u_ViewportSize", viewport.getSize().x, viewport.getSize().y);

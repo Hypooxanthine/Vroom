@@ -2,36 +2,49 @@
 
 #include <glm/glm.hpp>
 
-namespace vrm
+namespace vrm::render
 {
-  
-  class RenderViewport
+
+  template <typename T>
+  class ViewportBase
   {
   public:
 
-    inline RenderViewport() = default;
+    using SizeType = glm::vec<2, T>;
 
-    inline RenderViewport(const glm::uvec2& origin, const glm::uvec2& size)
+  public:
+
+    inline ViewportBase() = default;
+
+    inline ViewportBase(const SizeType& origin, const SizeType& size)
       : m_origin(origin), m_size(size)
     {}
 
-    RenderViewport& operator=(const RenderViewport& other) = default;
-    RenderViewport(const RenderViewport& other) = default;
+    ViewportBase& operator=(const ViewportBase& other) = default;
+    ViewportBase(const ViewportBase& other) = default;
 
-    RenderViewport& operator=(RenderViewport&& other) = default;
-    RenderViewport(RenderViewport&& other) = default;
+    ViewportBase& operator=(ViewportBase&& other) = default;
+    ViewportBase(ViewportBase&& other) = default;
 
-    inline const glm::uvec2& getOrigin() const { return m_origin; }
-    inline const glm::uvec2& getSize() const { return m_size; }
+    inline const SizeType& getOrigin() const { return m_origin; }
+    inline T getOriginX() const { return m_origin.x; }
+    inline T getOriginY() const { return m_origin.y; }
+    inline const SizeType& getSize() const { return m_size; }
+    inline T getWidth() const { return m_size.x; }
+    inline T getHeight() const { return m_size.y; }
 
-    inline void setOrigin(const glm::uvec2& origin) { m_origin = origin; }
-    inline void setSize(const glm::uvec2& size) { m_size = size; }
-    inline void setWidth(float width) { m_size.x = width; }
-    inline void setHeight(float height) { m_size.y = height; }
+    inline void setOrigin(const SizeType& origin) { m_origin = origin; }
+    inline void setOriginX(T x) { m_origin.x = x; }
+    inline void setOriginY(T y) { m_origin.y = y; }
+    inline void setSize(const SizeType& size) { m_size = size; }
+    inline void setWidth(T width) { m_size.x = width; }
+    inline void setHeight(T height) { m_size.y = height; }
 
   private:
-    glm::uvec2 m_origin;
-    glm::uvec2 m_size;
+    SizeType m_origin;
+    SizeType m_size;
   };
 
-} // namespace vrm
+  using Viewport = ViewportBase<glm::uint>;
+
+} // namespace vrm::render
