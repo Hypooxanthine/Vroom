@@ -298,11 +298,6 @@ void EditorLayer::onViewportResize(int newWidth, int newHeight)
   gameLayer.setShouldHandleEvents(true);
   gameLayer.submitEvent(e);
   gameLayer.setShouldHandleEvents(handledEvents);
-
-  m_EditorCamera.setViewportSize(
-    static_cast<float>(newWidth),
-    static_cast<float>(newHeight)
-  );
 }
 
 void EditorLayer::_loadScriptsRuntimeLibrary()

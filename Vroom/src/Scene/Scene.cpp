@@ -39,18 +39,7 @@ Scene::~Scene()
 
 void Scene::init()
 {
-  Application::Get().getGameLayer()
-    .getCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
-    .bindCallback(
-      [this](const vrm::Event &e)
-      {
-        getCamera()->setViewportSize(static_cast<float>(e.newWidth), static_cast<float>(e.newHeight));
-      });
-
   onInit();
-
-  const auto &viewportSize = Renderer::Get().getFrameSize();
-  getCamera()->setViewportSize(static_cast<float>(viewportSize.x), static_cast<float>(viewportSize.y));
 }
 
 void Scene::update(const DeltaTime& dt)

@@ -11,4 +11,8 @@ View::View(const NormalizedView& view, const glm::uvec2& frameSize)
   glm::vec2 sizeFloat = view.getViewport().getSize() * frameSizeFloat;
 
   setViewport(Viewport(glm::uvec2(originFloat), glm::uvec2(sizeFloat)));
+  if (getCamera())
+  {
+    getCamera()->setViewportSize(sizeFloat.x, sizeFloat.y);
+  }
 }

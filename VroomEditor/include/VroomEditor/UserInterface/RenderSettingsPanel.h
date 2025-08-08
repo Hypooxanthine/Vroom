@@ -26,9 +26,9 @@ namespace vrm
 
     std::array<FirstPersonCamera, 3> m_dummyCameras =
     {
-      FirstPersonCamera(0.01f, 100.f, 90.f, 1.f, glm::vec3(10.f, 0.f, 0.f), glm::vec3(0.f, glm::radians(180.f), 0.f)),
-      FirstPersonCamera(0.01f, 100.f, 90.f, 1.f, glm::vec3(0.f, 0.f, 10.f), glm::vec3(0.f, glm::radians(90.f), 0.f)),
-      FirstPersonCamera(0.01f, 100.f, 90.f, 1.f, glm::vec3(-10.f, 0.f, 0.f), glm::vec3(0.f, glm::radians(0.f), 0.f)),
+      FirstPersonCamera(0.01f, 100.f, 90.f, 1.f, glm::vec3(10.f, 0.f, 0.f), glm::vec3(0.f, glm::radians(-90.f), 0.f)),
+      FirstPersonCamera(0.01f, 100.f, 90.f, 1.f, glm::vec3(0.f, 0.f, 10.f), glm::vec3(0.f, glm::radians(0.f), 0.f)),
+      FirstPersonCamera(0.01f, 100.f, 90.f, 1.f, glm::vec3(-10.f, 0.f, 0.f), glm::vec3(0.f, glm::radians(90.f), 0.f)),
     };
 
   };

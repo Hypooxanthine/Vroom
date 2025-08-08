@@ -167,9 +167,9 @@ bool RenderSettingsPanel::onImgui()
       scene.setSplitScreenGridSize(1, 1); // First removing all cameras
       scene.setSplitScreenGridSize(layoutBorder, layoutBorder);
 
-      for (int i = 1; i < m_dummyCameraUsed + 1; ++i)
+      for (int i = 0; i < m_dummyCameraUsed; ++i)
       {
-        scene.setCamera(&m_dummyCameras.at(i - 1), i / 2, i % 2);
+        scene.setCamera(&m_dummyCameras.at(i), (i + 1) / 2, (i + 1) % 2);
       }
     }
 
