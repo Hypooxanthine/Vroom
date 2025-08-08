@@ -5,6 +5,7 @@
 
 #include <Vroom/Core/Application.h>
 #include <Vroom/Core/GameLayer.h>
+#include <Vroom/Scene/Scene.h>
 #include <Vroom/Render/Renderer.h>
 
 using namespace vrm;
@@ -156,6 +157,20 @@ bool RenderSettingsPanel::onImgui()
       }
 
       ImGui::EndCombo();
+    }
+
+    if (ImGui::SliderInt("Dummy cameras", &m_dummyCameraUsed, 0, 3, "%d", ImGuiSliderFlags_AlwaysClamp))
+    {
+      int layoutBorder = 1 + (m_dummyCameraUsed > 0 ? 1 : 0);
+      
+      Scene& scene = Application::Get().getGameLayer().getScene();
+      scene.setSplitScreenGridSize(1, 1); // First removing all cameras
+      scene.setSplitScreenGridSize(layoutBorder, layoutBorder);
+
+      for (int i = 1; i < m_dummyCameraUsed + 1; ++i)
+      {
+        scene.setCamera(&m_dummyCameras.at(i - 1), i / 2, i % 2);
+      }
     }
 
     if (ImGui::Checkbox("Show light complexity", &settings.showLightComplexity))

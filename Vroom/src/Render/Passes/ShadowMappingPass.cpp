@@ -314,7 +314,7 @@ OrthographicCamera ShadowMappingPass::constructViewProjFromDirLight(const glm::v
 
 void ShadowMappingPass::renderDirLightsFrustums(const RenderPassContext& ctx) const
 {
-  const render::Viewport& vp = ctx.views[0].getViewport();
+  const render::Viewport& vp = ctx.views.back().getViewport();
   glViewport(vp.getOrigin().x, vp.getOrigin().y, vp.getSize().x, vp.getSize().y);
   
   for (const auto& mesh : m_debugDirLights)
@@ -323,7 +323,7 @@ void ShadowMappingPass::renderDirLightsFrustums(const RenderPassContext& ctx) co
     const auto& shader = getPassMaterial(material, nullptr).getShader();
     shader.bind();
     shader.setUniformMat4f("u_Model", glm::mat4(1.f));
-    applyCameraUniforms(shader, *ctx.views[0].getCamera());
+    applyCameraUniforms(shader, *ctx.views.back().getCamera());
     applyViewportUniforms(shader, vp);
     material->applyUniforms(shader);
 

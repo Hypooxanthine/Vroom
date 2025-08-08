@@ -34,7 +34,7 @@ void DrawSceneRenderPass::onRender(const RenderPassContext& ctx) const
 {
   VRM_ASSERT_MSG(framebufferTarget != nullptr, "Invalid framebuffer");
   VRM_ASSERT_MSG(framebufferTarget->isCreated(), "Framebuffer is not created");
-  VRM_ASSERT(ctx.views[0].getCamera() != nullptr);
+  VRM_ASSERT(ctx.views.back().getCamera() != nullptr);
 
   framebufferTarget->bind();
 
@@ -93,7 +93,7 @@ void DrawSceneRenderPass::setupFaceCulling() const
 
 void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
 {
-  const render::Viewport& vp = ctx.views[0].getViewport();
+  const render::Viewport& vp = ctx.views.back().getViewport();
   glViewport(vp.getOrigin().x, vp.getOrigin().y, vp.getSize().x, vp.getSize().y);
 
   for (const auto &[id, queuedMesh] : *meshRegistry)
@@ -123,8 +123,8 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
         shader.setUniform1f("u_bloomThreshold", ctx.dynamicSettings->bloom.threshold);
       }
 
-      applyCameraUniforms(shader, *ctx.views[0].getCamera());
-      applyViewportUniforms(shader, ctx.views[0].getViewport());
+      applyCameraUniforms(shader, *ctx.views.back().getCamera());
+      applyViewportUniforms(shader, ctx.views.back().getViewport());
       applyStorageBufferParameters(shader);
     
     queuedMesh.material->applyUniforms(shader);
