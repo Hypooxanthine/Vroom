@@ -14,43 +14,49 @@ RenderPassManager::~RenderPassManager()
 
 void RenderPassManager::reset()
 {
-  m_passes.clear();
+  for (auto& passes : m_passContainers)
+    passes.clear();
   m_materials.clear();
   m_initialized = false;
+  m_passCount = 0;
 }
 
 void RenderPassManager::init()
 {
   VRM_ASSERT_MSG(m_initialized == false, "RenderPassManager has already been initialized");
 
-  for (auto& p : m_passes)
-  {
-    p->init();
-  }
+  for (auto& passes : m_passContainers)
+    for (auto& pass : passes)
+    {
+      pass->init();
+    }
 
   m_initialized = true;
 }
 
 void RenderPassManager::setup(const RenderPassContext& ctx)
 {
-  for (auto& p : m_passes)
-  {
-    p->setup(ctx);
-  }
+  for (auto& passes : m_passContainers)
+    for (auto& pass : passes)
+    {
+      pass->setup(ctx);
+    }
 }
 
 void RenderPassManager::render(const RenderPassContext& ctx) const
 {
-  for (const auto& p : m_passes)
-  {
-    p->render(ctx);
-  }
+  for (auto& passes : m_passContainers)
+    for (auto& pass : passes)
+    {
+      pass->render(ctx);
+    }
 }
 
 void RenderPassManager::cleanup(const RenderPassContext& ctx)
 {
-  for (auto& p : m_passes)
-  {
-    p->cleanup(ctx);
-  }
+  for (auto& passes : m_passContainers)
+    for (auto& pass : passes)
+    {
+      pass->cleanup(ctx);
+    }
 }

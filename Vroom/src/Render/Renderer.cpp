@@ -159,7 +159,7 @@ void Renderer::createRenderPasses()
   // Clearing render framebuffer
   // Useful to do it before everything because we could draw things at any pass
   {
-    auto& pass = m_passManager.pushPass<ClearFrameBufferPass>();
+    auto& pass = m_passManager.pushPreCameraPass<ClearFrameBufferPass>();
 
     pass.framebuffer = m_renderFrameBuffer;
   }
@@ -169,7 +169,7 @@ void Renderer::createRenderPasses()
   {
     auto& maps = *m_resources.genTexture("DirLightsShadowMaps");
 
-    auto& pass = m_passManager.pushPass<ShadowMappingPass>();
+    auto& pass = m_passManager.pushPreCameraPass<ShadowMappingPass>();
 
     pass.lights = &m_LightRegistry;
     pass.meshRegistry = &m_meshRegistry;
@@ -181,7 +181,7 @@ void Renderer::createRenderPasses()
   // Light clustering
   if (m_renderSettings.clusteredShading)
   {
-    auto& pass = m_passManager.pushPass<LightClusteringPass>();
+    auto& pass = m_passManager.pushCameraPass<LightClusteringPass>();
     pass.camera = &m_Camera;
     pass.clusterCount = m_renderSettings.clusterCount;
     pass.lightsStorageBuffer = &m_LightRegistry.getPointLightsStorageBuffer();
@@ -190,7 +190,7 @@ void Renderer::createRenderPasses()
 
   // Main scene rendering
   {
-    auto& pass = m_passManager.pushPass<DrawSceneRenderPass>();
+    auto& pass = m_passManager.pushCameraPass<DrawSceneRenderPass>();
     pass.meshTags.set(EMeshTag::eVisible);
     pass.meshRegistry = &m_meshRegistry;
     pass.framebufferTarget = m_renderFrameBuffer;
@@ -235,7 +235,7 @@ void Renderer::createRenderPasses()
   }
 
   {
-    auto& pass = m_passManager.pushPass<RenderSkyboxPass>();
+    auto& pass = m_passManager.pushCameraPass<RenderSkyboxPass>();
 
     pass.skybox = &m_skybox;
     pass.framebuffer = m_renderFrameBuffer;
@@ -269,12 +269,12 @@ void Renderer::createRenderPasses()
     VRM_ASSERT_MSG(fb.validate(), "Could not build picking framebuffer");
 
     {
-      auto& pass = m_passManager.pushPass<ClearFrameBufferPass>();
+      auto& pass = m_passManager.pushPreCameraPass<ClearFrameBufferPass>();
       pass.framebuffer = &fb;
     }
 
     {
-      auto& pass = m_passManager.pushPass<DrawSceneRenderPass>();
+      auto& pass = m_passManager.pushCameraPass<DrawSceneRenderPass>();
       pass.addDefine("VRM_ENTITY_PICKING");
       pass.meshTags.set(EMeshTag::eVisible);
       pass.meshRegistry = &m_meshRegistry;
@@ -337,7 +337,7 @@ void Renderer::createRenderPasses()
 
     VRM_ASSERT_MSG(resolvedFb.validate(), "Could not build MSAA resolved framebuffer");
 
-    auto& pass = m_passManager.pushPass<BlitFrameBufferPass>();
+    auto& pass = m_passManager.pushPostCameraPass<BlitFrameBufferPass>();
     pass.source = m_renderFrameBuffer;
     pass.destination = &resolvedFb;
   }
@@ -373,7 +373,7 @@ void Renderer::createRenderPasses()
     framebufferB.setColorAttachment(0, *bloomBrightnessTextureNoMsaa);
     VRM_ASSERT_MSG(framebufferB.validate(), "Could not validate GaussianBlurFramebufferB");
 
-    GaussianBlurPass& pass = m_passManager.pushPass<GaussianBlurPass>();
+    GaussianBlurPass& pass = m_passManager.pushPostCameraPass<GaussianBlurPass>();
     pass.framebufferA = &framebufferA;
     pass.framebufferB = &framebufferB;
     pass.texture = bloomBrightnessTextureNoMsaa; // Will store the final blurred texture.
@@ -402,7 +402,7 @@ void Renderer::createRenderPasses()
     fb.setColorAttachment(0, *rgbFlatTexture);
     VRM_ASSERT_MSG(fb.validate(), "Could not build hdrResolveFrameBuffer");
 
-    ToneMappingPass& pass = m_passManager.pushPass<ToneMappingPass>();
+    ToneMappingPass& pass = m_passManager.pushPostCameraPass<ToneMappingPass>();
 
     pass.hdrTex = hdrFlatTexture;
     pass.framebufferTarget = &fb;
