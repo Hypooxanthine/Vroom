@@ -8,6 +8,7 @@
 #include "Vroom/Render/Aabb.h"
 #include "Vroom/Render/Frustum.h"
 #include "Vroom/Render/AutoBuffer.h"
+#include "Vroom/Render/RenderView.h"
 
 #include "Vroom/Render/Camera/CameraBasic.h"
 #include "Vroom/Render/Clustering/LightRegistry.h"
@@ -313,7 +314,8 @@ OrthographicCamera ShadowMappingPass::constructViewProjFromDirLight(const glm::v
 
 void ShadowMappingPass::renderDirLightsFrustums(const RenderPassContext& ctx) const
 {
-  glViewport(ctx.viewport.getOrigin().x, ctx.viewport.getOrigin().y, ctx.viewport.getSize().x, ctx.viewport.getSize().y);
+  const render::Viewport& vp = ctx.views[0].getViewport();
+  glViewport(vp.getOrigin().x, vp.getOrigin().y, vp.getSize().x, vp.getSize().y);
   
   for (const auto& mesh : m_debugDirLights)
   {
@@ -321,8 +323,8 @@ void ShadowMappingPass::renderDirLightsFrustums(const RenderPassContext& ctx) co
     const auto& shader = getPassMaterial(material, nullptr).getShader();
     shader.bind();
     shader.setUniformMat4f("u_Model", glm::mat4(1.f));
-    applyCameraUniforms(shader, *ctx.mainCamera);
-    applyViewportUniforms(shader, ctx.viewport);
+    applyCameraUniforms(shader, *ctx.views[0].getCamera());
+    applyViewportUniforms(shader, vp);
     material->applyUniforms(shader);
 
     gl::VertexArray::Bind(mesh.getVertexArray());

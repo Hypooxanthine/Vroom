@@ -159,7 +159,7 @@ void Renderer::createRenderPasses()
   // Clearing render framebuffer
   // Useful to do it before everything because we could draw things at any pass
   {
-    auto& pass = m_passManager.pushPreCameraPass<ClearFrameBufferPass>();
+    auto& pass = m_passManager.pushPass<ClearFrameBufferPass>();
 
     pass.framebuffer = m_renderFrameBuffer;
   }
@@ -169,7 +169,7 @@ void Renderer::createRenderPasses()
   {
     auto& maps = *m_resources.genTexture("DirLightsShadowMaps");
 
-    auto& pass = m_passManager.pushPreCameraPass<ShadowMappingPass>();
+    auto& pass = m_passManager.pushPass<ShadowMappingPass>();
 
     pass.lights = &m_LightRegistry;
     pass.meshRegistry = &m_meshRegistry;
@@ -181,7 +181,7 @@ void Renderer::createRenderPasses()
   // Light clustering
   if (m_renderSettings.clusteredShading)
   {
-    auto& pass = m_passManager.pushCameraPass<LightClusteringPass>();
+    auto& pass = m_passManager.pushPass<LightClusteringPass>();
     pass.clusterCount = m_renderSettings.clusterCount;
     pass.lightsStorageBuffer = &m_LightRegistry.getPointLightsStorageBuffer();
     pass.clusteredLights = &m_ClusteredLights;
@@ -189,7 +189,7 @@ void Renderer::createRenderPasses()
 
   // Main scene rendering
   {
-    auto& pass = m_passManager.pushCameraPass<DrawSceneRenderPass>();
+    auto& pass = m_passManager.pushPass<DrawSceneRenderPass>();
     pass.meshTags.set(EMeshTag::eVisible);
     pass.meshRegistry = &m_meshRegistry;
     pass.framebufferTarget = m_renderFrameBuffer;
@@ -233,7 +233,7 @@ void Renderer::createRenderPasses()
   }
 
   {
-    auto& pass = m_passManager.pushCameraPass<RenderSkyboxPass>();
+    auto& pass = m_passManager.pushPass<RenderSkyboxPass>();
 
     pass.skybox = &m_skybox;
     pass.framebuffer = m_renderFrameBuffer;
@@ -267,12 +267,12 @@ void Renderer::createRenderPasses()
     VRM_ASSERT_MSG(fb.validate(), "Could not build picking framebuffer");
 
     {
-      auto& pass = m_passManager.pushPreCameraPass<ClearFrameBufferPass>();
+      auto& pass = m_passManager.pushPass<ClearFrameBufferPass>();
       pass.framebuffer = &fb;
     }
 
     {
-      auto& pass = m_passManager.pushCameraPass<DrawSceneRenderPass>();
+      auto& pass = m_passManager.pushPass<DrawSceneRenderPass>();
       pass.addDefine("VRM_ENTITY_PICKING");
       pass.meshTags.set(EMeshTag::eVisible);
       pass.meshRegistry = &m_meshRegistry;
@@ -334,7 +334,7 @@ void Renderer::createRenderPasses()
 
     VRM_ASSERT_MSG(resolvedFb.validate(), "Could not build MSAA resolved framebuffer");
 
-    auto& pass = m_passManager.pushPostCameraPass<BlitFrameBufferPass>();
+    auto& pass = m_passManager.pushPass<BlitFrameBufferPass>();
     pass.source = m_renderFrameBuffer;
     pass.destination = &resolvedFb;
   }
@@ -370,7 +370,7 @@ void Renderer::createRenderPasses()
     framebufferB.setColorAttachment(0, *bloomBrightnessTextureNoMsaa);
     VRM_ASSERT_MSG(framebufferB.validate(), "Could not validate GaussianBlurFramebufferB");
 
-    GaussianBlurPass& pass = m_passManager.pushPostCameraPass<GaussianBlurPass>();
+    GaussianBlurPass& pass = m_passManager.pushPass<GaussianBlurPass>();
     pass.framebufferA = &framebufferA;
     pass.framebufferB = &framebufferB;
     pass.texture = bloomBrightnessTextureNoMsaa; // Will store the final blurred texture.
@@ -399,7 +399,7 @@ void Renderer::createRenderPasses()
     fb.setColorAttachment(0, *rgbFlatTexture);
     VRM_ASSERT_MSG(fb.validate(), "Could not build hdrResolveFrameBuffer");
 
-    ToneMappingPass& pass = m_passManager.pushPostCameraPass<ToneMappingPass>();
+    ToneMappingPass& pass = m_passManager.pushPass<ToneMappingPass>();
 
     pass.hdrTex = hdrFlatTexture;
     pass.framebufferTarget = &fb;
@@ -441,13 +441,17 @@ void Renderer::endScene()
   renderContext.dynamicSettings = &m_dynamicSettings;
   renderContext.frameBufferTarget = m_renderFrameBuffer;
   renderContext.framebufferSize = m_frameSize;
+  for (size_t row = 0; row < m_renderLayout->getRows(); ++row)
+    for (size_t col = 0; col < m_renderLayout->getCols(); ++col)
+      if (m_renderLayout->isViewUsed(row, col))
+        renderContext.views.emplace_back(m_renderLayout->getView(row, col), m_frameSize);
 
   // RenderPass setup stage
-  m_passManager.setup(renderContext, *m_renderLayout);
+  m_passManager.setup(renderContext);
 
   // RenderPass render/cleanup stages
-  m_passManager.render(renderContext, *m_renderLayout);
-  m_passManager.cleanup(renderContext, *m_renderLayout);
+  m_passManager.render(renderContext);
+  m_passManager.cleanup(renderContext);
 
   // Clearing data for next frame
   m_renderLayout = nullptr;

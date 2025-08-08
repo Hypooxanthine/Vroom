@@ -3,6 +3,7 @@
 #include "Vroom/Core/Assert.h"
 
 #include "Vroom/Render/Camera/CameraBasic.h"
+#include "Vroom/Render/RenderView.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
 #include "Vroom/Render/Abstraction/Buffer.h"
 #include "Vroom/Render/Abstraction/Shader.h"
@@ -33,7 +34,7 @@ void DrawSceneRenderPass::onRender(const RenderPassContext& ctx) const
 {
   VRM_ASSERT_MSG(framebufferTarget != nullptr, "Invalid framebuffer");
   VRM_ASSERT_MSG(framebufferTarget->isCreated(), "Framebuffer is not created");
-  VRM_ASSERT(ctx.mainCamera != nullptr);
+  VRM_ASSERT(ctx.views[0].getCamera() != nullptr);
 
   framebufferTarget->bind();
 
@@ -92,7 +93,8 @@ void DrawSceneRenderPass::setupFaceCulling() const
 
 void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
 {
-  glViewport(ctx.viewport.getOrigin().x, ctx.viewport.getOrigin().y, ctx.viewport.getSize().x, ctx.viewport.getSize().y);
+  const render::Viewport& vp = ctx.views[0].getViewport();
+  glViewport(vp.getOrigin().x, vp.getOrigin().y, vp.getSize().x, vp.getSize().y);
 
   for (const auto &[id, queuedMesh] : *meshRegistry)
   {
@@ -121,8 +123,8 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
         shader.setUniform1f("u_bloomThreshold", ctx.dynamicSettings->bloom.threshold);
       }
 
-      applyCameraUniforms(shader, *ctx.mainCamera);
-      applyViewportUniforms(shader, ctx.viewport);
+      applyCameraUniforms(shader, *ctx.views[0].getCamera());
+      applyViewportUniforms(shader, ctx.views[0].getViewport());
       applyStorageBufferParameters(shader);
     
     queuedMesh.material->applyUniforms(shader);

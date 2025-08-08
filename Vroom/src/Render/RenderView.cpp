@@ -1,13 +1,14 @@
 #include "Vroom/Render/RenderView.h"
 
-using namespace vrm;
+using namespace vrm::render;
 
-render::Viewport RenderView::getViewport(const glm::uvec2& frameSizePx) const
+View::View(const NormalizedView& view, const glm::uvec2& frameSize)
+  : ViewBase(view.getCamera())
 {
-  glm::vec2 frameSizeFloat = glm::vec2(frameSizePx);
+  glm::vec2 frameSizeFloat = glm::vec2(frameSize);
 
-  glm::vec2 originFloat = m_viewport.getOrigin() * frameSizeFloat;
-  glm::vec2 sizeFloat = m_viewport.getSize() * frameSizeFloat;
+  glm::vec2 originFloat = view.getViewport().getOrigin() * frameSizeFloat;
+  glm::vec2 sizeFloat = view.getViewport().getSize() * frameSizeFloat;
 
-  return render::Viewport(glm::uvec2(originFloat), glm::uvec2(sizeFloat));
+  setViewport(Viewport(glm::uvec2(originFloat), glm::uvec2(sizeFloat)));
 }

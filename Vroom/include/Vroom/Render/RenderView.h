@@ -3,43 +3,73 @@
 #include "Vroom/Render/Camera/CameraBasic.h"
 #include "Vroom/Render/RenderViewport.h"
 
-namespace vrm
+namespace vrm::render
 {
 
-  using NormalizedViewport = render::ViewportBase<float>;
-  
-  class RenderView
+  using NormalizedViewport = ViewportBase<float>;
+
+  template <typename T>
+  class ViewBase
   {
   public:
+  
+    using ViewportType = ViewportBase<T>;
 
-    RenderView() = delete;
+  public:
 
-    RenderView(CameraBasic* camera, const NormalizedViewport& viewport)
+    ViewBase() = delete;
+
+    ViewBase(CameraBasic* camera, const ViewportType& viewport)
       : m_camera(camera), m_viewport(viewport)
     {}
 
-    RenderView(CameraBasic* camera)
-      : RenderView(camera, NormalizedViewport({ 0.f, 0.f }, { 1.f, 1.f }))
+    ViewBase(CameraBasic* camera)
+      : ViewBase(camera, ViewportType({ 0.f, 0.f }, { 1.f, 1.f }))
     {}
 
-    RenderView& operator=(const RenderView& other) = default;
-    RenderView(const RenderView& other) = default;
+    ViewBase& operator=(const ViewBase& other) = default;
+    ViewBase(const ViewBase& other) = default;
 
-    RenderView& operator=(RenderView&& other) = default;
-    RenderView(RenderView&& other) = default;
+    ViewBase& operator=(ViewBase&& other) = default;
+    ViewBase(ViewBase&& other) = default;
 
     inline CameraBasic* getCamera() const { return m_camera; }
-    inline const NormalizedViewport& getNormalizedViewport() const { return m_viewport; }
-    render::Viewport getViewport(const glm::uvec2& frameSizePx) const;
+    ViewportType getViewport() const { return m_viewport; }
 
     inline void setCamera(CameraBasic* camera) { m_camera = camera; }
-    inline void setViewport(const NormalizedViewport& viewport) { m_viewport = viewport; }
+    inline void setViewport(const ViewportType& viewport) { m_viewport = viewport; }
 
   private:
 
     CameraBasic* m_camera;
-    NormalizedViewport m_viewport;
+    ViewportType m_viewport;
+  };
+  
+  using NormalizedView = ViewBase<float>;
 
+  class View : public ViewBase<glm::uint>
+  {
+  public:
+
+    View() = delete;
+
+    View(CameraBasic* camera, const ViewportType& viewport)
+      : ViewBase(camera, viewport)
+    {}
+
+    View(CameraBasic* camera)
+      : ViewBase(camera)
+    {}
+
+    View(const NormalizedView& view, const glm::uvec2& frameSize);
+
+    View& operator=(const View& other) = default;
+    View(const View& other) = default;
+
+    View& operator=(View&& other) = default;
+    View(View&& other) = default;
+
+    
   };
 
 } // namespace vrm

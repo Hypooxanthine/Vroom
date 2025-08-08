@@ -5,6 +5,7 @@
 
 #include "Vroom/Render/RenderObject/RenderSkybox.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
+#include "Vroom/Render/RenderView.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
 
 using namespace vrm;
@@ -122,8 +123,8 @@ void RenderSkyboxPass::onRender(const RenderPassContext& ctx) const
   const auto& shader = m_material->getShader();
   shader.bind();
   shader.setTexture("u_cubemap", skybox->getCubemap()->getGpuTexture(), 0);
-  shader.setUniformMat4f("u_view", glm::mat4(glm::mat3(ctx.mainCamera->getView())));
-  shader.setUniformMat4f("u_projection", ctx.mainCamera->getProjection());
+  shader.setUniformMat4f("u_view", glm::mat4(glm::mat3(ctx.views[0].getCamera()->getView())));
+  shader.setUniformMat4f("u_projection", ctx.views[0].getCamera()->getProjection());
 
   gl::VertexArray::Bind(m_vao);
   glDrawArrays(GL_TRIANGLES, 0, 36);

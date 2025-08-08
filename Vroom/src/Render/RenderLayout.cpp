@@ -23,7 +23,7 @@ RenderLayout::RenderLayout(size_t rows, size_t cols)
 
   m_heights.assign(rows, 1.f / static_cast<float>(rows));
   m_widths.assign(cols, 1.f / static_cast<float>(cols));
-  m_views.resize(rows * cols, RenderView(nullptr, NormalizedViewport()));
+  m_views.resize(rows * cols, render::NormalizedView(nullptr, render::NormalizedViewport()));
   updateViewports();
 }
 
@@ -46,9 +46,9 @@ void RenderLayout::setHeights(const RelativeSizes& heights)
   updateViewports();
 }
 
-void RenderLayout::setView(size_t row, size_t col, const RenderView& view)
+void RenderLayout::setView(size_t row, size_t col, const render::NormalizedView& view)
 {
-  NormalizedViewport viewport = view.getNormalizedViewport();
+  render::NormalizedViewport viewport = view.getViewport();
   auto& storedView = _getView(row, col);
   storedView = view;
   storedView.setViewport(viewport);

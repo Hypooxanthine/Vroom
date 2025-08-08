@@ -37,17 +37,17 @@ namespace vrm
 
     inline float getWidth(size_t col) const { return m_widths.at(col); }
     inline float getHeight(size_t row) const { return m_heights.at(row); }
-    inline const RenderView& getView(size_t row, size_t col) const { return m_views.at(getViewIndex(row, col)); }
+    inline const render::NormalizedView& getView(size_t row, size_t col) const { return m_views.at(getViewIndex(row, col)); }
 
     void setWidths(const RelativeSizes& widths);
     void setHeights(const RelativeSizes& heights);
-    void setView(size_t row, size_t col, const RenderView& view);
+    void setView(size_t row, size_t col, const render::NormalizedView& view);
 
   private:
 
     static RelativeSizes NormalizedRelativeSizes(const RelativeSizes& sizesIn);
 
-    inline RenderView& _getView(size_t row, size_t col) { return m_views.at(getViewIndex(row, col)); }
+    inline render::NormalizedView& _getView(size_t row, size_t col) { return m_views.at(getViewIndex(row, col)); }
 
     inline size_t getViewIndex(size_t row, size_t col) const
     {
@@ -59,7 +59,7 @@ namespace vrm
   private:
 
     std::vector<float> m_widths, m_heights;
-    std::vector<RenderView> m_views;
+    std::vector<render::NormalizedView> m_views;
 
   };
 
@@ -76,9 +76,9 @@ namespace vrm
       {
         const float width = getWidth(i);
 
-        RenderView& view = _getView(j, i);
+        render::NormalizedView& view = _getView(j, i);
 
-        NormalizedViewport vp = view.getNormalizedViewport();
+        render::NormalizedViewport vp = view.getViewport();
 
         vp.setOrigin({ cumulWidth, cumulHeight });
         vp.setSize({ width, height });

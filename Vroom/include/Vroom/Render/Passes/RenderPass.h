@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "Vroom/Render/RenderViewport.h"
 #include "Vroom/Render/MaterialDefines.h"
 #include "Vroom/Render/PassMaterials.h"
@@ -9,6 +11,11 @@ namespace vrm::gl
 {
   class Shader;
   class FrameBuffer;
+}
+
+namespace vrm::render
+{
+  class View;
 }
 
 namespace vrm
@@ -113,10 +120,9 @@ namespace vrm
   struct RenderPassContext
   {
     DynamicRenderSettings* dynamicSettings;
-    const CameraBasic* mainCamera = nullptr;
+    std::vector<render::View> views;
     const gl::FrameBuffer* frameBufferTarget = nullptr;
     glm::uvec2 framebufferSize;
-    render::Viewport viewport;
   };
 
 } // namespace vrm
