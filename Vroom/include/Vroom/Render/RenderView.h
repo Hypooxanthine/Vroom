@@ -29,7 +29,8 @@ namespace vrm
     RenderView(RenderView&& other) = default;
 
     inline CameraBasic* getCamera() const { return m_camera; }
-    inline const NormalizedViewport& getViewport() const { return m_viewport; }
+    inline const NormalizedViewport& getNormalizedViewport() const { return m_viewport; }
+    render::Viewport getViewport(const glm::uvec2& frameSizePx) const;
 
     inline void setCamera(CameraBasic* camera) { m_camera = camera; }
     inline void setViewport(const NormalizedViewport& viewport) { m_viewport = viewport; }

@@ -20,8 +20,8 @@ void LightClusteringPass::onRender(const RenderPassContext& ctx) const
 {
   VRM_ASSERT_MSG(clusteredLights != nullptr, "Invalid clustered lights");
   VRM_ASSERT_MSG(lightsStorageBuffer != nullptr, "Invalid lightsStorageBuffer");
-  VRM_ASSERT_MSG(camera != nullptr && *camera != nullptr, "Invalid camera");
+  VRM_ASSERT_MSG(ctx.mainCamera, "Invalid camera");
 
-  clusteredLights->setupClusters(clusterCount, **camera);
-  clusteredLights->processLights(**camera, *lightsStorageBuffer);
+  clusteredLights->setupClusters(clusterCount, *ctx.mainCamera);
+  clusteredLights->processLights(*ctx.mainCamera, *lightsStorageBuffer);
 }

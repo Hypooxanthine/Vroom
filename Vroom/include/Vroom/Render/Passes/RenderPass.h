@@ -115,6 +115,7 @@ namespace vrm
     DynamicRenderSettings* dynamicSettings;
     const CameraBasic* mainCamera = nullptr;
     const gl::FrameBuffer* frameBufferTarget = nullptr;
+    glm::uvec2 framebufferSize;
     render::Viewport viewport;
   };
 

@@ -81,7 +81,7 @@ TEST_F(TestRenderLayout, SetAndGetView)
   const vrm::RenderView& retrievedView = layout.getView(0, 1);
   EXPECT_EQ(retrievedView.getCamera(), camera);
 
-  const auto& retrievedViewport = retrievedView.getViewport();
+  const auto& retrievedViewport = retrievedView.getNormalizedViewport();
   EXPECT_FLOAT_EQ(retrievedViewport.getOriginX(), 0.5f);
   EXPECT_FLOAT_EQ(retrievedViewport.getOriginY(), 0.f);
   EXPECT_FLOAT_EQ(retrievedViewport.getWidth(), 0.5f);
@@ -111,7 +111,7 @@ TEST_F(TestRenderLayout, ViewportCalculation)
   // Check viewport calculations
   // View (0,0): origin (0, 0), size (0.25, 2/3)
   const auto& view00 = layout.getView(0, 0);
-  const auto& vp00 = view00.getViewport();
+  const auto& vp00 = view00.getNormalizedViewport();
   EXPECT_FLOAT_EQ(vp00.getOriginX(), 0.0f);
   EXPECT_FLOAT_EQ(vp00.getOriginY(), 0.0f);
   EXPECT_FLOAT_EQ(vp00.getWidth(), 0.25f);
@@ -119,7 +119,7 @@ TEST_F(TestRenderLayout, ViewportCalculation)
 
   // View (0,1): origin (0.25, 0), size (0.75, 2/3)
   const auto& view01 = layout.getView(0, 1);
-  const auto& vp01 = view01.getViewport();
+  const auto& vp01 = view01.getNormalizedViewport();
   EXPECT_FLOAT_EQ(vp01.getOriginX(), 0.25f);
   EXPECT_FLOAT_EQ(vp01.getOriginY(), 0.0f);
   EXPECT_FLOAT_EQ(vp01.getWidth(), 0.75f);
@@ -127,7 +127,7 @@ TEST_F(TestRenderLayout, ViewportCalculation)
 
   // View (1,0): origin (0, 2/3), size (0.25, 1/3)
   const auto& view10 = layout.getView(1, 0);
-  const auto& vp10 = view10.getViewport();
+  const auto& vp10 = view10.getNormalizedViewport();
   EXPECT_FLOAT_EQ(vp10.getOriginX(), 0.0f);
   EXPECT_FLOAT_EQ(vp10.getOriginY(), 2.0f / 3.0f);
   EXPECT_FLOAT_EQ(vp10.getWidth(), 0.25f);
@@ -135,7 +135,7 @@ TEST_F(TestRenderLayout, ViewportCalculation)
 
   // View (1,1): origin (0.25, 2/3), size (0.75, 1/3)
   const auto& view11 = layout.getView(1, 1);
-  const auto& vp11 = view11.getViewport();
+  const auto& vp11 = view11.getNormalizedViewport();
   EXPECT_FLOAT_EQ(vp11.getOriginX(), 0.25f);
   EXPECT_FLOAT_EQ(vp11.getOriginY(), 2.0f / 3.0f);
   EXPECT_FLOAT_EQ(vp11.getWidth(), 0.75f);

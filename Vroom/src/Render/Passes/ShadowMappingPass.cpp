@@ -55,7 +55,7 @@ void ShadowMappingPass::onSetup(const RenderPassContext& ctx)
   {
     size_t shadowCasterId = m_dirLightShadowCasters.at(i);
     const auto& dirLight = lights->getDirectionalLights().at(shadowCasterId);
-    m_dirLightCameras.emplace_back(constructViewProjFromDirLight(*ctx.mainCamera, dirLight.direction));
+    m_dirLightCameras.emplace_back(constructViewProjFromDirLight(dirLight.direction));
     // VRM_LOG_TRACE("Light direction: {}", glm::to_string(dirLight.direction));
     m_debugDirLights.emplace_back(m_dirLightCameras.back().generateViewVolumeMesh());
 
@@ -84,8 +84,6 @@ void ShadowMappingPass::onRender(const RenderPassContext& ctx) const
   {
     return;
   }
-  
-  VRM_ASSERT(ctx.mainCamera != nullptr);
 
   bool debugDirLights = false;
 
@@ -234,7 +232,7 @@ void ShadowMappingPass::renderMeshes(const CameraBasic& camera, const render::Vi
 
 }
 
-OrthographicCamera ShadowMappingPass::constructViewProjFromDirLight(const CameraBasic& renderCamera, const glm::vec3& direction)
+OrthographicCamera ShadowMappingPass::constructViewProjFromDirLight(const glm::vec3& direction)
 {
   // {
   //   const float width = 10.f, height = 10.f, depth = 100.f;
@@ -252,7 +250,7 @@ OrthographicCamera ShadowMappingPass::constructViewProjFromDirLight(const Camera
 
   // if (false)
   {
-    glm::vec3 viewPos = renderCamera.getPosition();
+    glm::vec3 viewPos = { 0.f, 0.f, 0.f };
 
     float width = 50.f, height = width, depth = 100.f;
     float near = 0.1f;
@@ -267,50 +265,50 @@ OrthographicCamera ShadowMappingPass::constructViewProjFromDirLight(const Camera
 
   /* Trying the algorithm "view frustum always inside light frustum". Couldnt make it work for now :) */
 
-  const glm::mat4& viewProjInv = glm::inverse(renderCamera.getViewProjection());
+  // const glm::mat4& viewProjInv = glm::inverse(renderCamera.getViewProjection());
 
-  Frustum frustum_world = Frustum::CreateFromAabb(Aabb::GetNDC(), true);
+  // Frustum frustum_world = Frustum::CreateFromAabb(Aabb::GetNDC(), true);
 
-  frustum_world.transform(viewProjInv);
+  // frustum_world.transform(viewProjInv);
 
-  glm::vec3 origin = { 0.f, 0.f, 0.f };
-  glm::vec3 up = { 0.f, 1.f, 0.f };
+  // glm::vec3 origin = { 0.f, 0.f, 0.f };
+  // glm::vec3 up = { 0.f, 1.f, 0.f };
 
-  glm::vec3 lightPos_world_space; // Computing this position.
-  {
-    glm::mat4 world_to_light = glm::lookAt(origin, direction, up); // Origin is taken instead of real position
-    glm::mat4 light_to_world = glm::inverse(world_to_light);
+  // glm::vec3 lightPos_world_space; // Computing this position.
+  // {
+  //   glm::mat4 world_to_light = glm::lookAt(origin, direction, up); // Origin is taken instead of real position
+  //   glm::mat4 light_to_world = glm::inverse(world_to_light);
 
-    Frustum frustum_light_space = frustum_world;
-    frustum_light_space.transform(world_to_light);
+  //   Frustum frustum_light_space = frustum_world;
+  //   frustum_light_space.transform(world_to_light);
 
-    Aabb light_aabb = Aabb::CreateFromFrustum(frustum_light_space);
-    glm::vec3 light_aabb_center = light_aabb.calcCenter();
+  //   Aabb light_aabb = Aabb::CreateFromFrustum(frustum_light_space);
+  //   glm::vec3 light_aabb_center = light_aabb.calcCenter();
 
-    glm::vec3 lightPos_light_space = { light_aabb_center.x, light_aabb_center.y, light_aabb.getMin().z };
-    lightPos_world_space = light_to_world * glm::vec4(lightPos_light_space, 1.f);
-  }
+  //   glm::vec3 lightPos_light_space = { light_aabb_center.x, light_aabb_center.y, light_aabb.getMin().z };
+  //   lightPos_world_space = light_to_world * glm::vec4(lightPos_light_space, 1.f);
+  // }
 
-  Aabb finalAabb;
-  // Computing the real bounding box with the real origin
-  {
-    glm::mat4 world_to_light = glm::lookAt(lightPos_world_space, lightPos_world_space + direction, up); // Now we know the real light position
+  // Aabb finalAabb;
+  // // Computing the real bounding box with the real origin
+  // {
+  //   glm::mat4 world_to_light = glm::lookAt(lightPos_world_space, lightPos_world_space + direction, up); // Now we know the real light position
 
-    Frustum frustum_light_space = frustum_world;
-    frustum_light_space.transform(world_to_light);
+  //   Frustum frustum_light_space = frustum_world;
+  //   frustum_light_space.transform(world_to_light);
 
-    finalAabb = Aabb::CreateFromFrustum(frustum_light_space);
-  }
+  //   finalAabb = Aabb::CreateFromFrustum(frustum_light_space);
+  // }
 
-  const float width = finalAabb.calcWidth(), height = finalAabb.calcHeight(), depth = finalAabb.calcDepth();
-  const float near = 0.1f;
-  const float far = near + depth;
+  // const float width = finalAabb.calcWidth(), height = finalAabb.calcHeight(), depth = finalAabb.calcDepth();
+  // const float near = 0.1f;
+  // const float far = near + depth;
 
-  OrthographicCamera out(width, height, near, far);
-  out.setWorldPosition(lightPos_world_space);
-  out.setViewDir(-direction);
+  // OrthographicCamera out(width, height, near, far);
+  // out.setWorldPosition(lightPos_world_space);
+  // out.setViewDir(-direction);
 
-  return out;
+  // return out;
 }
 
 void ShadowMappingPass::renderDirLightsFrustums(const RenderPassContext& ctx) const

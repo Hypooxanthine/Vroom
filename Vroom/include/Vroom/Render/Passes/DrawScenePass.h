@@ -44,7 +44,6 @@ namespace vrm
 
     const MeshRegistry* meshRegistry = nullptr;
     gl::FrameBuffer* framebufferTarget = nullptr;
-    const render::Viewport* viewport = nullptr;
     const gl::Texture* dirLightShadowMaps = nullptr;
     EFaceCulling faceCulling = EFaceCulling::eNone;
     EFrontFace frontFace = EFrontFace::eCCW;

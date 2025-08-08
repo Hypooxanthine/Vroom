@@ -47,7 +47,7 @@ namespace vrm
 
     void renderMeshes(const CameraBasic& camera, const render::Viewport& viewport) const;
 
-    OrthographicCamera constructViewProjFromDirLight(const CameraBasic& renderCamera, const glm::vec3& direction);
+    OrthographicCamera constructViewProjFromDirLight(const glm::vec3& direction);
 
     void renderDirLightsFrustums(const RenderPassContext& ctx) const;
 

@@ -33,7 +33,7 @@ Application::Application(int argc, char** argv)
   AssetManager::Init();
 
   Renderer::Init();
-  Renderer::Get().setViewport({ 0, 0 }, { m_Window->getWidth(), m_Window->getHeight() });
+  Renderer::Get().setFrameSize({ m_Window->getWidth(), m_Window->getHeight() });
 
   // Pushing the game layer and storing it in a pointer (GameLayer is a special layer that can always be accessed)
   /// @todo Make sure the game layer is never deleted.

@@ -49,7 +49,7 @@ void Scene::init()
 
   onInit();
 
-  const auto &viewportSize = Renderer::Get().getViewportSize();
+  const auto &viewportSize = Renderer::Get().getFrameSize();
   getCamera()->setViewportSize(static_cast<float>(viewportSize.x), static_cast<float>(viewportSize.y));
 }
 
@@ -71,7 +71,7 @@ void Scene::render()
 
   Application &app = Application::Get();
   Renderer &renderer = Renderer::Get();
-  renderer.beginScene(*getCamera());
+  renderer.beginScene(&m_renderLayout);
 
   auto viewDirLights = m_Registry.view<DirectionalLightComponent, TransformComponent>();
   for (auto&& [e, dl, t] : viewDirLights.each())

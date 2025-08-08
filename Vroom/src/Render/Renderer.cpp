@@ -98,13 +98,13 @@ void Renderer::createRenderPasses()
   // Render frame buffer
   {
     auto& fb = *m_resources.genFramebuffer("RenderFramebuffer");
-    fb.create(m_viewport.getSize().x, m_viewport.getSize().y, aa);
+    fb.create(m_frameSize.x, m_frameSize.y, aa);
 
     gl::Texture::Desc texDesc;
     {
       texDesc.dimension = 2;
-      texDesc.width = m_viewport.getSize().x;
-      texDesc.height = m_viewport.getSize().y;
+      texDesc.width = m_frameSize.x;
+      texDesc.height = m_frameSize.y;
       texDesc.sampleCount = aa;
     }
 
@@ -182,7 +182,6 @@ void Renderer::createRenderPasses()
   if (m_renderSettings.clusteredShading)
   {
     auto& pass = m_passManager.pushCameraPass<LightClusteringPass>();
-    pass.camera = &m_Camera;
     pass.clusterCount = m_renderSettings.clusterCount;
     pass.lightsStorageBuffer = &m_LightRegistry.getPointLightsStorageBuffer();
     pass.clusteredLights = &m_ClusteredLights;
@@ -194,7 +193,6 @@ void Renderer::createRenderPasses()
     pass.meshTags.set(EMeshTag::eVisible);
     pass.meshRegistry = &m_meshRegistry;
     pass.framebufferTarget = m_renderFrameBuffer;
-    pass.viewport = &m_viewport;
     pass.faceCulling = DrawSceneRenderPass::EFaceCulling::eCullBack;
     pass.frontFace = DrawSceneRenderPass::EFrontFace::eCCW;
     pass.storageBufferParameters["PointLightBlock"] = &m_LightRegistry.getPointLightsStorageBuffer();
@@ -225,7 +223,7 @@ void Renderer::createRenderPasses()
 
     if (m_renderSettings.showLightComplexity)
       pass.addDefine("VRM_LIGHT_COMPLEXITY");
-    
+
     pass.shadowsEnable = m_renderSettings.shadowsEnable;
     if (m_renderSettings.shadowsEnable)
     {
@@ -247,22 +245,22 @@ void Renderer::createRenderPasses()
     gl::Texture::Desc desc;
     {
       desc.dimension = 2;
-      desc.width = m_viewport.getSize().x;
-      desc.height = m_viewport.getSize().y;
+      desc.width = m_frameSize.x;
+      desc.height = m_frameSize.y;
       desc.internalFormat = GL_R32UI;
       desc.format = GL_UNSIGNED_INT;
     }
     tex.create(desc);
-    
+
     auto& depth = *m_resources.genTexture("PickingDepthTexture");
     {
       desc.internalFormat = GL_DEPTH_COMPONENT24;
       desc.format = GL_DEPTH_COMPONENT;
     }
     depth.create(desc);
-    
+
     auto& fb = *m_resources.genFramebuffer("PickingFrameBuffer");
-    fb.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
+    fb.create(m_frameSize.x, m_frameSize.y, 1);
     fb.setColorAttachment(0, tex);
     fb.setDepthAttachment(depth);
 
@@ -279,7 +277,6 @@ void Renderer::createRenderPasses()
       pass.meshTags.set(EMeshTag::eVisible);
       pass.meshRegistry = &m_meshRegistry;
       pass.framebufferTarget = &fb;
-      pass.viewport = &m_viewport;
       pass.faceCulling = DrawSceneRenderPass::EFaceCulling::eCullBack;
       pass.frontFace = DrawSceneRenderPass::EFrontFace::eCCW;
       pass.shadowsEnable = false;
@@ -292,13 +289,13 @@ void Renderer::createRenderPasses()
     // We must resolve AA by blitting the render framebuffer
     // into another one
     auto& resolvedFb = *m_resources.genFramebuffer("MsaaResolvedFramebuffer");
-    resolvedFb.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
+    resolvedFb.create(m_frameSize.x, m_frameSize.y, 1);
 
     gl::Texture::Desc texDesc;
     {
       texDesc.dimension = 2;
-      texDesc.width = m_viewport.getSize().x;
-      texDesc.height = m_viewport.getSize().y;
+      texDesc.width = m_frameSize.x;
+      texDesc.height = m_frameSize.y;
       texDesc.sampleCount = 1;
     }
 
@@ -348,8 +345,8 @@ void Renderer::createRenderPasses()
     gl::Texture::Desc texDesc;
     {
       texDesc.dimension = 2;
-      texDesc.width = m_viewport.getSize().x;
-      texDesc.height = m_viewport.getSize().y;
+      texDesc.width = m_frameSize.x;
+      texDesc.height = m_frameSize.y;
       texDesc.sampleCount = 1;
       texDesc.format = GL_RGBA;
       texDesc.internalFormat = GL_RGBA16F;
@@ -364,12 +361,12 @@ void Renderer::createRenderPasses()
     glTexParameteri(interColorBuffer.getDefaultTarget(), GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     gl::FrameBuffer& framebufferA = *m_resources.genFramebuffer("GaussianBlurFramebufferA");
-    framebufferA.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
+    framebufferA.create(m_frameSize.x, m_frameSize.y, 1);
     framebufferA.setColorAttachment(0, interColorBuffer);
     VRM_ASSERT_MSG(framebufferA.validate(), "Could not validate GaussianBlurframebufferA");
 
     gl::FrameBuffer& framebufferB = *m_resources.genFramebuffer("GaussianBlurFramebufferB");
-    framebufferB.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
+    framebufferB.create(m_frameSize.x, m_frameSize.y, 1);
     framebufferB.setColorAttachment(0, *bloomBrightnessTextureNoMsaa);
     VRM_ASSERT_MSG(framebufferB.validate(), "Could not validate GaussianBlurFramebufferB");
 
@@ -387,8 +384,8 @@ void Renderer::createRenderPasses()
     gl::Texture::Desc texDesc;
     {
       texDesc.dimension = 2;
-      texDesc.width = m_viewport.getSize().x;
-      texDesc.height = m_viewport.getSize().y;
+      texDesc.width = m_frameSize.x;
+      texDesc.height = m_frameSize.y;
       texDesc.sampleCount = 1;
       texDesc.format = GL_RGBA;
       texDesc.internalFormat = GL_SRGB8_ALPHA8;
@@ -398,7 +395,7 @@ void Renderer::createRenderPasses()
     rgbFlatTexture->create(texDesc);
 
     gl::FrameBuffer& fb = *m_resources.genFramebuffer("hdrResolveFrameBuffer");
-    fb.create(m_viewport.getSize().x, m_viewport.getSize().y, 1);
+    fb.create(m_frameSize.x, m_frameSize.y, 1);
     fb.setColorAttachment(0, *rgbFlatTexture);
     VRM_ASSERT_MSG(fb.validate(), "Could not build hdrResolveFrameBuffer");
 
@@ -420,7 +417,7 @@ void Renderer::createRenderPasses()
   m_passManagerDirty = false;
 }
 
-void Renderer::beginScene(const CameraBasic& camera)
+void Renderer::beginScene(const RenderLayout* layout)
 {
   if (m_passManagerDirty)
   {
@@ -428,7 +425,7 @@ void Renderer::beginScene(const CameraBasic& camera)
     createRenderPasses();
   }
 
-  m_Camera = &camera;
+  m_renderLayout = layout;
 
   m_meshRegistry.startRegistering();
   m_LightRegistry.startRegistering();
@@ -442,19 +439,18 @@ void Renderer::endScene()
 
   RenderPassContext renderContext;
   renderContext.dynamicSettings = &m_dynamicSettings;
-  renderContext.mainCamera = m_Camera;
   renderContext.frameBufferTarget = m_renderFrameBuffer;
-  renderContext.viewport = m_viewport;
+  renderContext.framebufferSize = m_frameSize;
 
   // RenderPass setup stage
-  m_passManager.setup(renderContext);
+  m_passManager.setup(renderContext, *m_renderLayout);
 
   // RenderPass render/cleanup stages
-  m_passManager.render(renderContext);
-  m_passManager.cleanup(renderContext);
+  m_passManager.render(renderContext, *m_renderLayout);
+  m_passManager.cleanup(renderContext, *m_renderLayout);
 
   // Clearing data for next frame
-  m_Camera = nullptr;
+  m_renderLayout = nullptr;
 }
 
 void Renderer::submitMesh(uint32_t id, const MeshComponent& meshComponent, const glm::mat4* model)
@@ -492,30 +488,9 @@ void Renderer::submitDirectionalLight(size_t id, const DirectionalLightComponent
   m_LightRegistry.submitLight(dirLight, direction, id);
 }
 
-const glm::uvec2& Renderer::getViewportOrigin() const
+void Renderer::setFrameSize(const glm::uvec2& s)
 {
-  return m_viewport.getOrigin();
-}
-
-const glm::uvec2& Renderer::getViewportSize() const
-{
-  return m_viewport.getSize();
-}
-
-void Renderer::setViewport(const glm::uvec2& o, const glm::uvec2& s)
-{
-  setViewportOrigin(o);
-  setViewportSize(s);
-}
-
-void Renderer::setViewportOrigin(const glm::uvec2& o)
-{
-  m_viewport.setOrigin(o);
-}
-
-void Renderer::setViewportSize(const glm::uvec2& s)
-{
-  m_viewport.setSize(s);
+  m_frameSize = s;
   m_passManagerDirty = true;
 }
 
@@ -558,7 +533,7 @@ uint32_t Renderer::getEntityIndexOnPixel(const glm::ivec2& px) const
   {
     return 0;
   }
-  
+
   fb->bind();
   glReadBuffer(GL_COLOR_ATTACHMENT0);
   uint32_t pixel;

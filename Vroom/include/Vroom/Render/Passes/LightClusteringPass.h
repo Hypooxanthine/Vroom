@@ -27,7 +27,6 @@ namespace vrm
   public:
   
     glm::uvec3 clusterCount = { 1, 1, 1 };
-    const CameraBasic** camera = nullptr;
     const gl::Buffer* lightsStorageBuffer = nullptr;
     ClusteredLights* clusteredLights = nullptr;
 

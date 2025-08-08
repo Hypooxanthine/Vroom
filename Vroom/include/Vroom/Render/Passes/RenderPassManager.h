@@ -10,6 +10,8 @@
 
 namespace vrm
 {
+
+  class RenderLayout;
   
   class RenderPassManager
   {
@@ -44,11 +46,11 @@ namespace vrm
 
     void init();
 
-    void setup(const RenderPassContext& ctx);
+    void setup(RenderPassContext& ctx, const RenderLayout& renderLayout);
 
-    void render(const RenderPassContext& ctx) const;
+    void render(RenderPassContext& ctx, const RenderLayout& renderLayout) const;
 
-    void cleanup(const RenderPassContext& ctx);
+    void cleanup(RenderPassContext& ctx, const RenderLayout& renderLayout);
 
   private:
 

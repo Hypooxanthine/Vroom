@@ -26,7 +26,7 @@ namespace vrm
   struct DirectionalLightComponent;
   class MeshComponent;
   class SkyboxComponent;
-  class CameraBasic;
+  class RenderLayout;
 
   namespace gl
   {
@@ -78,7 +78,7 @@ namespace vrm
      * @brief Has to be called before any rendering of current frame.
      *
      */
-    void beginScene(const CameraBasic& camera);
+    void beginScene(const RenderLayout* layout);
 
     /**
      * @brief Has to be called after any rendering scene.
@@ -95,36 +95,8 @@ namespace vrm
 
     void submitDirectionalLight(size_t id, const DirectionalLightComponent& dirLight, const glm::vec3& direction);
 
-    /**
-     * @brief Gets the viewport origin.
-     * @return The viewport origin.
-     */
-    const glm::uvec2& getViewportOrigin() const;
-
-    /**
-     * @brief Gets the viewport size.
-     * @return The viewport size.
-     */
-    const glm::uvec2& getViewportSize() const;
-
-    /**
-     * @brief Sets viewport settings.
-     * @param o New viewport origin.
-     * @param s New viewport size.
-     */
-    void setViewport(const glm::uvec2& o, const glm::uvec2& s);
-
-    /**
-     * @brief Sets viewport origin.
-     * @param o New viewport origin.
-     */
-    void setViewportOrigin(const glm::uvec2& o);
-
-    /**
-     * @brief Sets viewport size.
-     * @param s New viewport size.
-     */
-    void setViewportSize(const glm::uvec2& s);
+    inline const glm::uvec2& getFrameSize() const { return m_frameSize; }
+    void setFrameSize(const glm::uvec2& s);
 
     const gl::Texture* getRenderedTexture() const { return m_finalTexture; }
     const std::vector<std::string>& getExposedTextureNames() const { return m_resources.getExposedTextures(); }
@@ -148,9 +120,9 @@ namespace vrm
     RenderSettings m_renderSettings;
     DynamicRenderSettings m_dynamicSettings;
 
-    render::Viewport m_viewport = { { 0, 0 }, { 1, 1} };
+    glm::uvec2 m_frameSize = { 1, 1 };
 
-    const CameraBasic* m_Camera = nullptr;
+    const RenderLayout* m_renderLayout = nullptr;
 
     bool m_passManagerDirty = false;
     RenderPassManager m_passManager;

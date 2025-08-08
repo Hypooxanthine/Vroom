@@ -78,7 +78,7 @@ namespace vrm
 
         RenderView& view = _getView(j, i);
 
-        NormalizedViewport vp = view.getViewport();
+        NormalizedViewport vp = view.getNormalizedViewport();
 
         vp.setOrigin({ cumulWidth, cumulHeight });
         vp.setSize({ width, height });

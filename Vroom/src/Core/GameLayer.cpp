@@ -25,7 +25,7 @@ GameLayer::GameLayer()
 
   m_CustomEventManager
       .bindPermanentCallback("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE", [&renderer](const vrm::Event &e)
-                             { renderer.setViewport({0.f, 0.f}, {static_cast<float>(e.newWidth), static_cast<float>(e.newHeight)}); })
+                             { renderer.setFrameSize({ static_cast<float>(e.newWidth), static_cast<float>(e.newHeight)}); })
   ;
 }
 

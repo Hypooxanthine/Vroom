@@ -48,7 +48,7 @@ void RenderLayout::setHeights(const RelativeSizes& heights)
 
 void RenderLayout::setView(size_t row, size_t col, const RenderView& view)
 {
-  NormalizedViewport viewport = view.getViewport();
+  NormalizedViewport viewport = view.getNormalizedViewport();
   auto& storedView = _getView(row, col);
   storedView = view;
   storedView.setViewport(viewport);
