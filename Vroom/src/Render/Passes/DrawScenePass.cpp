@@ -32,9 +32,13 @@ void DrawSceneRenderPass::onSetup(const RenderPassContext& ctx)
 
 void DrawSceneRenderPass::onRender(const RenderPassContext& ctx) const
 {
+  if (ctx.views.empty())
+  {
+    return;
+  }
+  
   VRM_ASSERT_MSG(framebufferTarget != nullptr, "Invalid framebuffer");
   VRM_ASSERT_MSG(framebufferTarget->isCreated(), "Framebuffer is not created");
-  VRM_ASSERT(ctx.views.back().getCamera() != nullptr);
 
   framebufferTarget->bind();
 
@@ -93,9 +97,6 @@ void DrawSceneRenderPass::setupFaceCulling() const
 
 void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
 {
-  const render::Viewport& vp = ctx.views.back().getViewport();
-  glViewport(vp.getOrigin().x, vp.getOrigin().y, vp.getSize().x, vp.getSize().y);
-
   for (const auto &[id, queuedMesh] : *meshRegistry)
   {
     if (!queuedMesh.material.isValid() || (queuedMesh.tags & meshTags).none())
@@ -107,34 +108,40 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
 
     const PassMaterial& passMat = getPassMaterial(queuedMesh.material);
     const auto& shader = passMat.getShader();
-      shader.bind();
-      shader.setUniformMat4f("u_Model", *queuedMesh.model);
-      shader.setUniform1ui("u_EntityId", queuedMesh.entityId);
-      
-      if (shadowsEnable)
-      {
-        VRM_ASSERT(dirLightShadowMaps);
-        shader.setTexture("u_DirectionalShadowMaps", *dirLightShadowMaps, textOffset++);
-        shader.setUniform1ui("u_SoftShadowKernelRadius", ctx.dynamicSettings->shadows.softShadowKernelRadius);
-      }
-
-      if (bloomEnable)
-      {
-        shader.setUniform1f("u_bloomThreshold", ctx.dynamicSettings->bloom.threshold);
-      }
-
-      applyCameraUniforms(shader, *ctx.views.back().getCamera());
-      applyViewportUniforms(shader, ctx.views.back().getViewport());
-      applyStorageBufferParameters(shader);
+    shader.bind();
+    shader.setUniformMat4f("u_Model", *queuedMesh.model);
+    shader.setUniform1ui("u_EntityId", queuedMesh.entityId);
     
+    if (shadowsEnable)
+    {
+      VRM_ASSERT(dirLightShadowMaps);
+      shader.setTexture("u_DirectionalShadowMaps", *dirLightShadowMaps, textOffset++);
+      shader.setUniform1ui("u_SoftShadowKernelRadius", ctx.dynamicSettings->shadows.softShadowKernelRadius);
+    }
+
+    if (bloomEnable)
+    {
+      shader.setUniform1f("u_bloomThreshold", ctx.dynamicSettings->bloom.threshold);
+    }
+
+    applyStorageBufferParameters(shader);
     queuedMesh.material->applyUniforms(shader);
 
     const auto& mesh = *queuedMesh.mesh;
 
     gl::VertexArray::Bind(mesh.getVertexArray());
     gl::Buffer::Bind(mesh.getIndexBuffer(), GL_ELEMENT_ARRAY_BUFFER);
+    
+    for (const render::View& view : ctx.views)
+    {
+      const render::Viewport& vp = view.getViewport();
+      glViewport(vp.getOrigin().x, vp.getOrigin().y, vp.getSize().x, vp.getSize().y);
+      
+      applyCameraUniforms(shader, *view.getCamera());
+      applyViewportUniforms(shader, view.getViewport());
 
-    glDrawElements(GL_TRIANGLES, (GLsizei)mesh.getIndexCount(), GL_UNSIGNED_INT, nullptr);
+      glDrawElements(GL_TRIANGLES, (GLsizei)mesh.getIndexCount(), GL_UNSIGNED_INT, nullptr);
+    }
   }
 
 }

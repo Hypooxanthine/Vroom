@@ -11,6 +11,7 @@
 namespace vrm::render
 {
   class AutoBuffer;
+  class View;
 }
 
 namespace vrm
@@ -49,7 +50,7 @@ namespace vrm
 
     OrthographicCamera constructViewProjFromDirLight(const glm::vec3& direction);
 
-    void renderDirLightsFrustums(const RenderPassContext& ctx) const;
+    void renderDirLightsFrustums(const render::View& view) const;
 
   private:
 

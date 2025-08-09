@@ -109,7 +109,7 @@ void RenderSkyboxPass::onSetup(const RenderPassContext& ctx)
 
 void RenderSkyboxPass::onRender(const RenderPassContext& ctx) const
 {
-  if (!m_material || !skybox->getCubemap().isValid())
+  if (!m_material || !skybox->getCubemap().isValid() || ctx.views.empty())
     return;
 
   framebuffer->bind();
@@ -120,14 +120,22 @@ void RenderSkyboxPass::onRender(const RenderPassContext& ctx) const
   glCullFace(GL_BACK);
   glDepthFunc(GL_LEQUAL);
   
+  gl::VertexArray::Bind(m_vao);
+
   const auto& shader = m_material->getShader();
   shader.bind();
   shader.setTexture("u_cubemap", skybox->getCubemap()->getGpuTexture(), 0);
-  shader.setUniformMat4f("u_view", glm::mat4(glm::mat3(ctx.views.back().getCamera()->getView())));
-  shader.setUniformMat4f("u_projection", ctx.views.back().getCamera()->getProjection());
 
-  gl::VertexArray::Bind(m_vao);
-  glDrawArrays(GL_TRIANGLES, 0, 36);
+  for (const render::View& view : ctx.views)
+  {
+    const render::Viewport& vp = view.getViewport();
+    glViewport(vp.getOrigin().x, vp.getOrigin().y, vp.getSize().x, vp.getSize().y);
+
+    shader.setUniformMat4f("u_view", glm::mat4(glm::mat3(view.getCamera()->getView())));
+    shader.setUniformMat4f("u_projection", view.getCamera()->getProjection());
+
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+  }
 
   glDepthMask(GL_TRUE);
   glDepthFunc(GL_LESS);

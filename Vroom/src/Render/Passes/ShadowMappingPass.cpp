@@ -111,7 +111,8 @@ void ShadowMappingPass::onRender(const RenderPassContext& ctx) const
     ctx.frameBufferTarget->bind();
     glDisable(GL_CULL_FACE);
 
-    renderDirLightsFrustums(ctx);
+    for (const render::View& view : ctx.views)
+      renderDirLightsFrustums(view);
   }
 }
 
@@ -312,9 +313,9 @@ OrthographicCamera ShadowMappingPass::constructViewProjFromDirLight(const glm::v
   // return out;
 }
 
-void ShadowMappingPass::renderDirLightsFrustums(const RenderPassContext& ctx) const
+void ShadowMappingPass::renderDirLightsFrustums(const render::View& view) const
 {
-  const render::Viewport& vp = ctx.views.back().getViewport();
+  const render::Viewport& vp = view.getViewport();
   glViewport(vp.getOrigin().x, vp.getOrigin().y, vp.getSize().x, vp.getSize().y);
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   glLineWidth(2.f);
@@ -325,7 +326,7 @@ void ShadowMappingPass::renderDirLightsFrustums(const RenderPassContext& ctx) co
     const auto& shader = getPassMaterial(material).getShader();
     shader.bind();
     shader.setUniformMat4f("u_Model", glm::mat4(1.f));
-    applyCameraUniforms(shader, *ctx.views.back().getCamera());
+    applyCameraUniforms(shader, *view.getCamera());
     applyViewportUniforms(shader, vp);
     material->applyUniforms(shader);
 
