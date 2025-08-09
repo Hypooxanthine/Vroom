@@ -86,7 +86,7 @@ void ShadowMappingPass::onRender(const RenderPassContext& ctx) const
     return;
   }
 
-  bool debugDirLights = true;
+  bool debugDirLights = false;
 
   glEnable(GL_CULL_FACE);
   glFrontFace(GL_CCW);
