@@ -161,15 +161,24 @@ bool RenderSettingsPanel::onImgui()
 
     if (ImGui::SliderInt("Dummy cameras", &m_dummyCameraUsed, 0, 3, "%d", ImGuiSliderFlags_AlwaysClamp))
     {
-      int layoutBorder = 1 + (m_dummyCameraUsed > 0 ? 1 : 0);
-      
       Scene& scene = Application::Get().getGameLayer().getScene();
       scene.setSplitScreenGridSize(1, 1); // First removing all cameras
-      scene.setSplitScreenGridSize(layoutBorder, layoutBorder);
 
-      for (int i = 0; i < m_dummyCameraUsed; ++i)
+      if (m_dummyCameraUsed == 1)
       {
-        scene.setCamera(&m_dummyCameras.at(i), (i + 1) / 2, (i + 1) % 2);
+        // Two cameras
+        scene.setSplitScreenGridSize(2, 1);
+        scene.setCamera(&m_dummyCameras.at(0), 1, 0);
+      }
+      else if (m_dummyCameraUsed > 1)
+      {
+        // 3 or 4 cameras
+        scene.setSplitScreenGridSize(2, 2);
+
+        for (int i = 0; i < m_dummyCameraUsed; ++i)
+        {
+          scene.setCamera(&m_dummyCameras.at(i), (i + 1) / 2, (i + 1) % 2);
+        }
       }
     }
 
