@@ -7,15 +7,5 @@
         "Value": "3.14159265358979323846"
       }
     ]
-  },
-  "Vertex": {
-    "Sources": [
-      "Resources/Engine/Shader/MaterialBase_Vertex.glsl"
-    ]
-  },
-  "Fragment": {
-    "Sources": [
-      "Resources/Engine/Shader/MaterialBase_Fragment.glsl"
-    ]
   }
 }

@@ -30,7 +30,7 @@ namespace vrm
 
     void setupClusters(const glm::uvec3& clusterCount, const CameraBasic& camera);
 
-    void processLights(const CameraBasic& camera, const gl::Buffer& lights);
+    void processLights(const CameraBasic& camera, const gl::Buffer& lights) const;
 
     inline const gl::Buffer& getClustersShaderStorage() const { return m_clustersBuffer.getBuffer(); }
 

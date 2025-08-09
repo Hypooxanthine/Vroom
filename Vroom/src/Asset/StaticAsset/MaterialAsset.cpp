@@ -155,7 +155,7 @@ bool MaterialAsset::loadImpl(const std::string &filePath)
     m_materialShaderData.absorb(shadingModel->getData());
     m_materialShaderData.addDefine(ShaderData::EShaderType::eAll, { "VRM_SHADING_MODEL", "1" });
   }
-  // Psot process material
+  // Post process material
   else if (m_data.getType() == MaterialData::EType::ePostProcess)
   {
     // Base post process data

@@ -178,13 +178,16 @@ void Renderer::createRenderPasses()
     pass.lightMatricesBuffer = m_resources.genAutoBuffer("LightMatricesStorageBuffer");
   }
 
+  LightClusteringPass* lightClusteringPass = nullptr;
+
   // Light clustering
   if (m_renderSettings.clusteredShading)
   {
     auto& pass = m_passManager.pushPass<LightClusteringPass>();
     pass.clusterCount = m_renderSettings.clusterCount;
     pass.lightsStorageBuffer = &m_LightRegistry.getPointLightsStorageBuffer();
-    pass.clusteredLights = &m_ClusteredLights;
+
+    lightClusteringPass = &pass;
   }
 
   // Main scene rendering
@@ -218,7 +221,7 @@ void Renderer::createRenderPasses()
     if (m_renderSettings.clusteredShading)
     {
       pass.addDefine("VRM_CLUSTERED_RENDERING");
-      pass.storageBufferParameters["ClusterInfoBlock"] = &m_ClusteredLights.getClustersShaderStorage();
+      pass.storageBufferParameters["ClusterInfoBlock"] = &lightClusteringPass->getClustersBuffer();
     }
 
     if (m_renderSettings.showLightComplexity)

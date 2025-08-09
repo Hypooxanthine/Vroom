@@ -88,7 +88,10 @@ void ClusteredLights::setupClusters(const glm::uvec3 &clusterCount, const Camera
   // m_SSBOClusterInfoSSBO.setData(m_SSBOClusterInfoData.getVariableData(), m_SSBOClusterInfoData.getVariableSize(), m_SSBOClusterInfoData.getConstantSize());
 
   m_clustersBuffer.unmap();
+}
 
+void ClusteredLights::processLights(const CameraBasic &camera, const gl::Buffer& lights) const
+{
   glm::mat4 invProjectionMatrix = glm::inverse(camera.getProjection()); // Only needed for clusters setup.
 
   m_ClustersBuilder.bind();
@@ -98,10 +101,7 @@ void ClusteredLights::setupClusters(const glm::uvec3 &clusterCount, const Camera
   m_ClustersBuilder.setUniformMat4f("u_InvProjection", invProjectionMatrix);
   GLCall(glDispatchCompute(m_ClusterCount.x, m_ClusterCount.y, m_ClusterCount.z));
   GLCall(glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT));
-}
 
-void ClusteredLights::processLights(const CameraBasic &camera, const gl::Buffer& lights)
-{
   m_LightsCuller.bind();
   m_LightsCuller.setStorageBuffer("PointLightBlock", lights);
   m_LightsCuller.setStorageBuffer("ClusterInfoBlock", m_clustersBuffer.getBuffer());

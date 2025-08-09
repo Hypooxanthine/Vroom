@@ -33,12 +33,26 @@ bool PassMaterial::prepare(const MaterialDefines &defines)
   }
 
   ShaderData::FullShader rawShaderData = shaderData.combine();
-  VRM_CHECK_RET_FALSE_MSG(
-      m_gpuShader.addShaderStage(gl::Shader::EShaderType::eVertex, rawShaderData.vertex.sourceCode, true),
-      "With shader:\n{}\n\nCould not compile material vertex shader. Error log:\n{}", rawShaderData.vertex.sourceCode, m_gpuShader.getError());
-  VRM_CHECK_RET_FALSE_MSG(
-      m_gpuShader.addShaderStage(gl::Shader::EShaderType::eFragment, rawShaderData.fragment.sourceCode, true),
-      "With shader:\n{}\n\nCould not compile material fragment shader. Error log:\n{}", rawShaderData.fragment.sourceCode, m_gpuShader.getError());
+
+  static const std::unordered_map<ShaderData::EShaderType, gl::Shader::EShaderType> s_convertTable =
+  {
+    { ShaderData::EShaderType::eVertex, gl::Shader::EShaderType::eVertex },
+    { ShaderData::EShaderType::eGeometry, gl::Shader::EShaderType::eGeometry },
+    { ShaderData::EShaderType::eFragment, gl::Shader::EShaderType::eFragment },
+    { ShaderData::EShaderType::eCompute, gl::Shader::EShaderType::eCompute },
+  };
+
+  for (size_t i = 0; i < (size_t)ShaderData::EShaderType::eCount; ++i)
+  {
+    auto stage = ShaderData::EShaderType(i);
+    const std::string& src = rawShaderData[stage];
+    if (src.size() > 0)
+    {
+      VRM_CHECK_RET_FALSE_MSG(
+        m_gpuShader.addShaderStage(s_convertTable.at(stage), src, true),
+        "With shader:\n{}\n\nCould not compile material shader. Error log:\n{}", src, m_gpuShader.getError());
+    }
+  }
 
   VRM_ASSERT_MSG(
       m_gpuShader.validate(true),

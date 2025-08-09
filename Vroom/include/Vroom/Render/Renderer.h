@@ -15,7 +15,6 @@
 #include "Vroom/Render/Abstraction/OwningFrameBuffer.h"
 #include "Vroom/Render/Abstraction/Buffer.h"
 #include "Vroom/Render/Clustering/LightRegistry.h"
-#include "Vroom/Render/Clustering/ClusteredLights.h"
 
 namespace vrm
 {
@@ -135,7 +134,6 @@ namespace vrm
     RenderSkybox m_skybox;
 
     LightRegistry m_LightRegistry;
-    ClusteredLights m_ClusteredLights;
 
     RenderResources m_resources;
   };

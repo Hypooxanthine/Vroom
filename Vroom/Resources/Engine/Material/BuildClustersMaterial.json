@@ -1,0 +1,4 @@
+{
+  "Type": "CustomShader",
+  "CustomShader": "Resources/Engine/Shader/ClusteredRendering/BuildClusters_Shader.json"
+}
