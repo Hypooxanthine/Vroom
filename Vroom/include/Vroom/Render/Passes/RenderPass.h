@@ -122,7 +122,6 @@ namespace vrm
     DynamicRenderSettings* dynamicSettings;
     std::vector<render::View> views;
     const gl::FrameBuffer* frameBufferTarget = nullptr;
-    glm::uvec2 framebufferSize;
   };
 
 } // namespace vrm

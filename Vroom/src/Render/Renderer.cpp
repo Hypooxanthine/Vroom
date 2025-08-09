@@ -440,7 +440,6 @@ void Renderer::endScene()
   RenderPassContext renderContext;
   renderContext.dynamicSettings = &m_dynamicSettings;
   renderContext.frameBufferTarget = m_renderFrameBuffer;
-  renderContext.framebufferSize = m_frameSize;
   for (size_t row = 0; row < m_renderLayout->getRows(); ++row)
     for (size_t col = 0; col < m_renderLayout->getCols(); ++col)
       if (m_renderLayout->isViewUsed(row, col))

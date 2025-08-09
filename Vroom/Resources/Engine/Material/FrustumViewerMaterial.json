@@ -1,26 +1,4 @@
 {
-  "Type": "ShadingModel",
-  "ShadingModel": "Phong",
-  "Parameters": {
-    "u_diffuse": {
-      "Type": "vec3",
-      "Value": [
-        1.0,
-        0.0,
-        0.0
-      ]
-    },
-    "u_specular": {
-      "Type": "vec3",
-      "Value": [
-        0.0,
-        0.0,
-        0.0
-      ]
-    },
-    "u_shininess": {
-      "Type": "float",
-      "Value": 1.0
-    }
-  }
+  "Type": "CustomShader",
+  "CustomShader": "Resources/Engine/Shader/Custom/FrustumViewer_Shader.json"
 }

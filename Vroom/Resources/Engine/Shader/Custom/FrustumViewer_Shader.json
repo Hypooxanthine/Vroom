@@ -1,0 +1,54 @@
+{
+  "Global": {},
+  "Vertex": {
+    "Sources": [
+      "Resources/Engine/Shader/Custom/FrustumViewer_vertex.glsl"
+    ],
+    "VertexAttributes": [
+      {
+        "Name": "position",
+        "Type": "vec3",
+        "Layout": "location = 0"
+      }
+    ],
+    "Uniforms": [
+      {
+        "Name": "u_Model",
+        "Type": "mat4"
+      },
+      {
+        "Name": "u_View",
+        "Type": "mat4"
+      },
+      {
+        "Name": "u_Projection",
+        "Type": "mat4"
+      },
+      {
+        "Name": "u_ViewProjection",
+        "Type": "mat4"
+      },
+      {
+        "Name": "u_ViewPosition",
+        "Type": "vec3"
+      },
+      {
+        "Name": "u_Near",
+        "Type": "float"
+      },
+      {
+        "Name": "u_Far",
+        "Type": "float"
+      },
+      {
+        "Name": "u_ViewportSize",
+        "Type": "uvec2"
+      }
+    ]
+  },
+  "Fragment": {
+    "Sources": [
+      "Resources/Engine/Shader/Custom/FrustumViewer_fragment.glsl"
+    ]
+  }
+}

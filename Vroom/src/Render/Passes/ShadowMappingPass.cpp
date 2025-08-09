@@ -86,7 +86,7 @@ void ShadowMappingPass::onRender(const RenderPassContext& ctx) const
     return;
   }
 
-  bool debugDirLights = false;
+  bool debugDirLights = true;
 
   glEnable(GL_CULL_FACE);
   glFrontFace(GL_CCW);
@@ -316,11 +316,13 @@ void ShadowMappingPass::renderDirLightsFrustums(const RenderPassContext& ctx) co
 {
   const render::Viewport& vp = ctx.views.back().getViewport();
   glViewport(vp.getOrigin().x, vp.getOrigin().y, vp.getSize().x, vp.getSize().y);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glLineWidth(2.f);
   
   for (const auto& mesh : m_debugDirLights)
   {
     auto material = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/FrustumViewerMaterial.json");
-    const auto& shader = getPassMaterial(material, nullptr).getShader();
+    const auto& shader = getPassMaterial(material).getShader();
     shader.bind();
     shader.setUniformMat4f("u_Model", glm::mat4(1.f));
     applyCameraUniforms(shader, *ctx.views.back().getCamera());
@@ -332,4 +334,6 @@ void ShadowMappingPass::renderDirLightsFrustums(const RenderPassContext& ctx) co
 
     glDrawElements(GL_TRIANGLES, (GLsizei)mesh.getIndexCount(), GL_UNSIGNED_INT, nullptr);
   }
+
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
