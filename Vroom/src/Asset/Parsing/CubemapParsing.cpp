@@ -1,5 +1,7 @@
 #include "Vroom/Asset/Parsing/CubemapParsing.h"
 
+#include "Vroom/Core/Assert.h"
+
 using namespace vrm;
 
 namespace nlohmann

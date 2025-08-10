@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include <glm/vec2.hpp>
 
 namespace vrm

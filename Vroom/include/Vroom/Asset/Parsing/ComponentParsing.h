@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vroom/Asset/Parsing/Json.h"
+#include "Vroom/Api.h"
 
 #include "Vroom/Asset/AssetData/ComponentData.h"
 

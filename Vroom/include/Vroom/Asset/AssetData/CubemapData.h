@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Vroom/Api.h"
-#include "Vroom/Render/Abstraction/Texture.h"
+#include "Vroom/Asset/AssetData/TextureData.h"
 
 namespace vrm
 {

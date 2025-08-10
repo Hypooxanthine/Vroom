@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <string>
 
-#include "Vroom/Asset/AssetData/ComponentData.h"
 #include "Vroom/Asset/AssetData/ComponentDataMap.h"
 
 namespace vrm

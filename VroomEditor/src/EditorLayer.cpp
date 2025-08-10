@@ -6,13 +6,12 @@
 #include <Vroom/Render/Renderer.h>
 #include <Vroom/Asset/Parsing/SceneParsing.h>
 #include <fstream>
-#include <future>
 
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 #include "VroomEditor/UserInterface/SceneGraph.h"
 #include "VroomEditor/UserInterface/Viewport.h"
 
-#include "VroomEditor/EditorScene.h"
+#include "Vroom/Scene/Scene.h"
 
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/SceneAsset.h"

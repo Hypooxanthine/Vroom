@@ -1,10 +1,10 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <unordered_set>
 #include <array>
-#include <filesystem>
 
 namespace vrm
 {

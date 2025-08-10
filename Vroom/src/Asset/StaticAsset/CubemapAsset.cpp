@@ -1,7 +1,7 @@
 #include "Vroom/Asset/StaticAsset/CubemapAsset.h"
 
 #include "Vroom/Asset/Parsing/CubemapParsing.h"
-#include "Vroom/Asset/AssetManager.h"
+#include "Vroom/Asset/Parsing/Json.h"
 
 #include <fstream>
 

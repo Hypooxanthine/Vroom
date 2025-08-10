@@ -1,6 +1,5 @@
 #include "VroomEditor/UserInterface/RenderSettingsPanel.h"
 
-#include <numeric>
 #include <imgui.h>
 
 #include <Vroom/Core/Application.h>

@@ -1,6 +1,5 @@
 #include "Vroom/Render/Renderer.h"
 
-#include <array>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Vroom/Core/Application.h"
@@ -11,21 +10,15 @@
 #include "Vroom/Render/Passes/ClearFrameBufferPass.h"
 #include "Vroom/Render/Passes/LightClusteringPass.h"
 #include "Vroom/Render/Passes/ShadowMappingPass.h"
-#include "Vroom/Render/Passes/ClearTexturePass.h"
 #include "Vroom/Render/Passes/ToneMappingPass.h"
 #include "Vroom/Render/Passes/GaussianBlurPass.h"
 #include "Vroom/Render/Passes/RenderSkyboxPass.h"
 
 #include "Vroom/Render/Abstraction/GLCall.h"
-#include "Vroom/Render/Abstraction/VertexArray.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
-#include "Vroom/Render/Camera/CameraBasic.h"
 
-#include "Vroom/Asset/AssetManager.h"
-#include "Vroom/Asset/StaticAsset/ShaderAsset.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
-#include "Vroom/Asset/StaticAsset/TextureAsset.h"
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 
 #include "Vroom/Scene/Components/PointLightComponent.h"

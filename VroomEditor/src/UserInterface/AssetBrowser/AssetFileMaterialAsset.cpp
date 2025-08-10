@@ -1,7 +1,5 @@
 #include "VroomEditor/UserInterface/AssetBrowser/AssetFileMaterialAsset.h"
 
-#include "Vroom/Core/Log.h"
-
 using namespace vrm;
 
 

@@ -11,7 +11,6 @@
 #include "Vroom/Asset/Parsing/Json.h"
 #include "Vroom/Asset/AssetData/MaterialData.h"
 
-#include "Vroom/Core/Assert.h"
 #include "VroomEditor/UserInterface/AssetBrowser/AssetUtils.h"
 
 using namespace vrm;

@@ -1,9 +1,8 @@
 #pragma once
 
-#include <typeindex>
+#include "nlohmann/json_fwd.hpp"
 #include <glm/glm.hpp>
 
-#include "Vroom/Asset/Parsing/Json.h"
 
 namespace vrm
 {

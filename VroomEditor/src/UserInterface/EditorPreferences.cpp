@@ -1,8 +1,5 @@
 #include "VroomEditor/UserInterface/EditorPreferences.h"
 
-#include <array>
-#include <map>
-
 using namespace vrm;
 
 EditorPreferences::EditorPreferences()

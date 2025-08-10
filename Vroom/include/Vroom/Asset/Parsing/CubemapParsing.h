@@ -1,7 +1,7 @@
 #pragma once
 
+#include <nlohmann/json.hpp>
 #include "Vroom/Api.h"
-#include "Vroom/Asset/Parsing/Json.h"
 #include "Vroom/Asset/AssetData/CubemapData.h"
 
 namespace nlohmann

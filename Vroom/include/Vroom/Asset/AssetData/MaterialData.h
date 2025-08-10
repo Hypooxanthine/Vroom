@@ -1,11 +1,13 @@
 #pragma once
 
+#include "Vroom/Api.h"
+
+#include <nlohmann/json.hpp>
+
 #include <glm/glm.hpp>
 #include <string>
 #include <variant>
 #include <unordered_map>
-
-#include "Vroom/Asset/Parsing/Json.h"
 
 namespace vrm
 {

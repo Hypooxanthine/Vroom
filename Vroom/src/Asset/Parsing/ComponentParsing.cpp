@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include "Vroom/Asset/AssetManager.h"
+#include "Vroom/Asset/Parsing/Json.h"
 
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Scene/Components/TransformComponent.h"

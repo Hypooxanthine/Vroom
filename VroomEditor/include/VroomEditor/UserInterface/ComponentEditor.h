@@ -1,8 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-
 #include <Vroom/Scene/Entity.h>
 
 namespace vrm

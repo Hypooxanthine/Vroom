@@ -1,6 +1,5 @@
 #include "VroomEditor/UserInterface/StatisticsPanel.h"
 
-#include <numeric>
 #include <imgui.h>
 
 #include <Vroom/Core/Application.h>

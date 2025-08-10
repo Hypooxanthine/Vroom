@@ -3,6 +3,7 @@
 #include "Vroom/Api.h"
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
 #include "Vroom/Asset/AssetData/CubemapData.h"
+#include "Vroom/Render/Abstraction/Texture.h"
 
 namespace vrm
 {

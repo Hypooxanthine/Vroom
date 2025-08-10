@@ -3,8 +3,6 @@
 #include "VroomEditor/EditorLayer.h"
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 
-#include "imgui.h"
-
 using namespace vrm;
 
 int main(int argc, char **argv)
