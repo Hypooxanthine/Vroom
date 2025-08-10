@@ -1,20 +1,17 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <unordered_map>
 #include <string>
 
 #include "Vroom/Render/Passes/RenderPass.h"
-#include "Vroom/Render/RenderViewport.h"
 #include "Vroom/Render/MeshRegistry.h"
-#include "Vroom/Render/PassMaterials.h"
 #include "Vroom/Render/MeshTag.h"
+#include "Vroom/Render/Abstraction/Buffer.h"
 
 namespace vrm::gl
 {
   class Shader;
   class FrameBuffer;
-  class Buffer;
   class Texture;
 }
 
@@ -35,6 +32,21 @@ namespace vrm
       eCW = 0, eCCW
     };
 
+    struct StorageBufferParameter
+    {
+      std::string name;
+      const gl::Buffer* buffer;
+      size_t offset = 0, size = 0;
+
+      StorageBufferParameter(const std::string& name, const gl::Buffer* buffer)
+        : StorageBufferParameter(name, buffer, 0, 0)
+      {}
+
+      StorageBufferParameter(const std::string& name, const gl::Buffer* buffer, size_t offset, size_t size)
+        : name(name), buffer(buffer), offset(offset), size(size)
+      {}
+    };
+
   public:
     
     DrawSceneRenderPass();
@@ -51,7 +63,9 @@ namespace vrm
     bool bloomEnable = false;
     MeshTags meshTags;
 
-    std::unordered_map<std::string, const gl::Buffer*> storageBufferParameters;
+    const gl::Buffer* clusteredLightsBuffer = nullptr;
+    size_t clusteredLightPerViewSize = 0;
+    std::vector<StorageBufferParameter> storageBufferParameters;
 
   protected:
 

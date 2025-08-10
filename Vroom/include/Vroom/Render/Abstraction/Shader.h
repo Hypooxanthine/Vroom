@@ -144,6 +144,8 @@ namespace vrm::gl
 
     void setStorageBuffer(const GLString &name, const gl::Buffer &ssbo) const;
 
+    void setStorageBuffer(const GLString &name, const gl::Buffer &ssbo, GLintptr offset, GLintptr size) const;
+
     /**
      * @brief Gets OpenGL ID from this shader.
      * @return OpenGL ID.

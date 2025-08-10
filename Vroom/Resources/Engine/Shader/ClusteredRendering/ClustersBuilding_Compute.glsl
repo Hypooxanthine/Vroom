@@ -6,7 +6,7 @@
  * Thanks to https://github.com/DaveH355/clustered-shading for his tutorial on cluster shading.
  */
 
-layout(local_size_x = LOCAL_SIZE_X, local_size_y = LOCAL_SIZE_Y, local_size_z = LOCAL_SIZE_Z) in;
+layout(local_size_x = BUILDER_LOCAL_SIZE_X, local_size_y = BUILDER_LOCAL_SIZE_Y, local_size_z = BUILDER_LOCAL_SIZE_Z) in;
 
 vec3 intersectionLineAndZPerpendicularPlane(vec3 linePoint, vec3 lineDirection, float depth);
 
@@ -17,6 +17,9 @@ void main()
   uint zCount = g_clusterHeader.zCount;
 
   uint x = gl_GlobalInvocationID.x, y = gl_GlobalInvocationID.y, z = gl_GlobalInvocationID.z;
+  if (x >= xCount || y >= yCount || z >= zCount)
+    return;
+    
   uint clusterIndex = x + y * xCount + z * xCount * yCount;
 
   vec2 clusterSize_NDC_xy = { 2.0 / xCount, 2.0 / yCount };

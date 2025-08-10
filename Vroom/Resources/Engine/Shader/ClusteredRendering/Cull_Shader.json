@@ -10,20 +10,6 @@
     "Sources": [
       "Resources/Engine/Shader/ClusteredRendering/Culling_Compute.glsl"
     ],
-    "Defines": [
-      {
-        "Name": "LOCAL_SIZE_X",
-        "Value": "128"
-      },
-      {
-        "Name": "LOCAL_SIZE_Y",
-        "Value": "1"
-      },
-      {
-        "Name": "LOCAL_SIZE_Z",
-        "Value": "1"
-      }
-    ],
     "Uniforms": [
       {
         "Name": "u_View",

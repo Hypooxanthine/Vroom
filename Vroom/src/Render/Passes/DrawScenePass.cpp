@@ -2,7 +2,6 @@
 
 #include "Vroom/Core/Assert.h"
 
-#include "Vroom/Render/Camera/CameraBasic.h"
 #include "Vroom/Render/RenderView.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
 #include "Vroom/Render/Abstraction/Buffer.h"
@@ -132,13 +131,16 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
     gl::VertexArray::Bind(mesh.getVertexArray());
     gl::Buffer::Bind(mesh.getIndexBuffer(), GL_ELEMENT_ARRAY_BUFFER);
     
-    for (const render::View& view : ctx.views)
+    for (size_t i = 0; i < ctx.views.size(); ++i)
     {
+      const render::View& view = ctx.views.at(i);
       const render::Viewport& vp = view.getViewport();
       glViewport(vp.getOrigin().x, vp.getOrigin().y, vp.getSize().x, vp.getSize().y);
       
       applyCameraUniforms(shader, *view.getCamera());
       applyViewportUniforms(shader, view.getViewport());
+      if (clusteredLightsBuffer)
+        shader.setStorageBuffer("ClusterInfoBlock", *clusteredLightsBuffer, clusteredLightPerViewSize * i, clusteredLightPerViewSize);
 
       glDrawElements(GL_TRIANGLES, (GLsizei)mesh.getIndexCount(), GL_UNSIGNED_INT, nullptr);
     }
@@ -148,8 +150,11 @@ void DrawSceneRenderPass::renderMeshes(const RenderPassContext& ctx) const
 
 void DrawSceneRenderPass::applyStorageBufferParameters(const gl::Shader& shader) const
 {
-  for (const auto& [name, storageBuffer] : storageBufferParameters)
+  for (const auto& param : storageBufferParameters)
   {
-    shader.setStorageBuffer(name, *storageBuffer);
+    if (param.size > 0)
+      shader.setStorageBuffer(param.name, *param.buffer, param.offset, param.size);
+    else
+      shader.setStorageBuffer(param.name, *param.buffer);
   }
 }

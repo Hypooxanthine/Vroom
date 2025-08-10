@@ -1,8 +1,5 @@
 #include "Vroom/Render/Abstraction/Shader.h"
 
-#include <iostream>
-#include <fstream>
-
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Core/Log.h"
 
@@ -239,5 +236,16 @@ void Shader::setStorageBuffer(const GLString& name, const gl::Buffer& ssbo) cons
   {
     Buffer::Bind(ssbo, GL_SHADER_STORAGE_BUFFER);
     GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, loc, ssbo.getRenderId()));
+  }
+}
+
+void Shader::setStorageBuffer(const GLString &name, const gl::Buffer &ssbo, GLintptr offset, GLintptr size) const
+{
+  GLuint loc = getStorageBufferLocation(name);
+  if (loc != -1)
+  {
+    Buffer::Bind(ssbo, GL_SHADER_STORAGE_BUFFER);
+    GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, loc, ssbo.getRenderId()));
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, loc, ssbo.getRenderId(), offset, size);
   }
 }

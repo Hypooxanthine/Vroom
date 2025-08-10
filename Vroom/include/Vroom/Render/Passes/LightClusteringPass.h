@@ -25,6 +25,7 @@ namespace vrm
     virtual ~LightClusteringPass();
 
     const gl::Buffer& getClustersBuffer() const { return m_clustersBuffer.getBuffer(); }
+    size_t getPerViewSize() const;
 
   public:
   
@@ -41,11 +42,14 @@ namespace vrm
 
   private:
 
+    static constexpr glm::uvec3 s_setupClustersLocalSize = { 4, 4, 8 };
+    size_t m_lastViewCount = 0;
+
     const PassMaterial* m_setupClustersMat = nullptr;
     const PassMaterial* m_cullLightsMat = nullptr;
 
     render::AutoBuffer m_clustersBuffer;
-    unsigned int m_totalClusters;
+    unsigned int m_totalClusters = 0;
   };
 
 } // namespace vrm

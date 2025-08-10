@@ -191,8 +191,8 @@ void Renderer::createRenderPasses()
     pass.framebufferTarget = m_renderFrameBuffer;
     pass.faceCulling = DrawSceneRenderPass::EFaceCulling::eCullBack;
     pass.frontFace = DrawSceneRenderPass::EFrontFace::eCCW;
-    pass.storageBufferParameters["PointLightBlock"] = &m_LightRegistry.getPointLightsStorageBuffer();
-    pass.storageBufferParameters["DirLightBlock"] = &m_LightRegistry.getDirLightsStorageBuffer();
+    pass.storageBufferParameters.emplace_back("PointLightBlock", &m_LightRegistry.getPointLightsStorageBuffer());
+    pass.storageBufferParameters.emplace_back("DirLightBlock", &m_LightRegistry.getDirLightsStorageBuffer());
     pass.addDefine("VRM_MAIN_RENDER_PASS");
 
     if (m_renderSettings.normalMapping.activated)
@@ -214,7 +214,8 @@ void Renderer::createRenderPasses()
     if (m_renderSettings.clusteredShading)
     {
       pass.addDefine("VRM_CLUSTERED_RENDERING");
-      pass.storageBufferParameters["ClusterInfoBlock"] = &lightClusteringPass->getClustersBuffer();
+      pass.clusteredLightsBuffer = &lightClusteringPass->getClustersBuffer();
+      pass.clusteredLightPerViewSize = lightClusteringPass->getPerViewSize();
     }
 
     if (m_renderSettings.showLightComplexity)
@@ -224,7 +225,7 @@ void Renderer::createRenderPasses()
     if (m_renderSettings.shadowsEnable)
     {
       pass.dirLightShadowMaps = m_resources.tryGetTexture("DirLightsShadowMaps");
-      pass.storageBufferParameters["LightMatricesBlock"] = &m_resources.tryGetAutoBuffer("LightMatricesStorageBuffer")->getBuffer();
+      pass.storageBufferParameters.emplace_back("LightMatricesBlock", &m_resources.tryGetAutoBuffer("LightMatricesStorageBuffer")->getBuffer());
     }
   }
 

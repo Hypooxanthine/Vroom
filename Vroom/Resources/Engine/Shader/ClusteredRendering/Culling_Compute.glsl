@@ -6,19 +6,21 @@
  * Thanks to https://github.com/DaveH355/clustered-shading for his tutorial on cluster shading.
  */
 
-layout(local_size_x = LOCAL_SIZE_X, local_size_y = LOCAL_SIZE_Y, local_size_z = LOCAL_SIZE_Z) in;
+layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 
 bool testSphereAABB(uint i, Cluster c);
 
-// each invocation of main() is a thread processing a cluster
 void main()
 {
   uint xCount = g_clusterHeader.xCount;
   uint yCount = g_clusterHeader.yCount;
   uint zCount = g_clusterHeader.zCount;
 
-  uint x = gl_GlobalInvocationID.x, y = gl_GlobalInvocationID.y, z = gl_GlobalInvocationID.z;
-  uint clusterIndex = x + y * xCount + z * xCount * yCount;
+  uint clusterIndex = gl_GlobalInvocationID.x;
+
+  if (clusterIndex > xCount * yCount * zCount)
+    return;
+
   Cluster cluster = g_clusters[clusterIndex];
 
   // we need to reset count because culling runs every frame.
