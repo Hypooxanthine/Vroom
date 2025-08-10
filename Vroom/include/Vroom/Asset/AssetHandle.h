@@ -22,13 +22,19 @@ namespace vrm
       notifyNew();
     }
 
+    inline AssetHandle(const T* asset)
+      : m_assetRef(asset)
+    {
+      notifyNew();
+    }
+
     inline ~AssetHandle()
     {
       notifyDelete();
     }
 
     inline AssetHandle(const AssetHandle& other)
-      : AssetHandle(*other.m_assetRef)
+      : AssetHandle(other.m_assetRef)
     {
 
     }
