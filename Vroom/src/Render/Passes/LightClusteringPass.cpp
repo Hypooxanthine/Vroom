@@ -2,8 +2,7 @@
 
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
-#include "Vroom/Render/RenderView.h"
-#include "Vroom/Render/Clustering/LightRegistry.h"
+#include "Vroom/Render/Camera/CameraBasic.h"
 
 using namespace vrm;
 

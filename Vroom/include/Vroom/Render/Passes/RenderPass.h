@@ -6,16 +6,12 @@
 #include "Vroom/Render/MaterialDefines.h"
 #include "Vroom/Render/PassMaterials.h"
 #include "Vroom/Render/DynamicRenderSettings.h"
+#include "Vroom/Render/RenderView.h"
 
 namespace vrm::gl
 {
   class Shader;
   class FrameBuffer;
-}
-
-namespace vrm::render
-{
-  class View;
 }
 
 namespace vrm
