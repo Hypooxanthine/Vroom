@@ -44,6 +44,10 @@
 .vscode/
 .vscode/*
 
+# Clang
+.cache
+compile_commands.json
+
 # Output folders
 out/
 out/*
