@@ -8,6 +8,7 @@
 #include <fstream>
 
 #include "Vroom/Render/DynamicRenderSettings.h"
+#include "Vroom/Render/RenderPipeline.h"
 #include "Vroom/Render/RenderSettings.h"
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 #include "VroomEditor/UserInterface/SceneGraph.h"
@@ -56,12 +57,15 @@ void EditorLayer::loadScene(const std::string& name, std::unique_ptr<Scene>&& sc
   // Using the same settings
   if (gameLayer.isSceneLoaded())
   {
-    RenderSettings settings = gameLayer.getScene().getRenderer().getRenderSettings();
-    DynamicRenderSettings dynSettings = gameLayer.getScene().getRenderer().getDynamicRenderSettings();
-    scene->getRenderer().setRenderSettings(settings);
-    scene->getRenderer().setDynamicRenderSettings(dynSettings);
-    
+    RenderPipeline& oldPipeline = gameLayer.getScene().getRenderer().getRenderPipeline();
+    RenderSettings settings = oldPipeline.getRenderSettings();
+    DynamicRenderSettings dynSettings = oldPipeline.getDynamicRenderSettings();
+
     scene->getRenderer().setFrameSize({ m_lastViewportInfos.width, m_lastViewportInfos.height });
+    RenderPipeline& newPipeline = scene->getRenderer().getRenderPipeline();
+    newPipeline.setRenderSettings(settings);
+    newPipeline.setDynamicRenderSettings(dynSettings);
+    
   }
 
   scene->setCamera(&m_EditorCamera);

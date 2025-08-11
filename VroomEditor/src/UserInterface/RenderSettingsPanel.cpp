@@ -26,9 +26,9 @@ RenderSettingsPanel::~RenderSettingsPanel()
 bool RenderSettingsPanel::onImgui()
 {
   bool ret = false;
-  auto& renderer = Application::Get().getMainSceneRenderer();
-  auto settings = renderer.getRenderSettings();
-  auto dynSettings = renderer.getDynamicRenderSettings();
+  auto& pipeline = Application::Get().getMainSceneRenderer().getRenderPipeline();
+  auto settings = pipeline.getRenderSettings();
+  auto dynSettings = pipeline.getDynamicRenderSettings();
   bool settingsChanged = false;
   bool dynSettingsChanged = false;
 
@@ -136,22 +136,22 @@ bool RenderSettingsPanel::onImgui()
 
     ImGui::SeparatorText("Render tools");
 
-    const std::string& watchedTexture = renderer.getWatchedTexture();
+    const std::string& watchedTexture = pipeline.getWatchedTexture();
 
     if (ImGui::BeginCombo("Watch texture", watchedTexture.empty() ? "Default" : watchedTexture.c_str()))
     {
       bool selected = (watchedTexture == "");
       if (ImGui::Selectable("Default", selected))
       {
-        renderer.watchExposedTexture("");
+        pipeline.watchExposedTexture("");
       }
 
-      for (const std::string& texName : Application::Get().getMainSceneRenderer().getExposedTextureNames())
+      for (const std::string& texName : pipeline.getExposedTextureNames())
       {
         selected = (watchedTexture == texName);
         if (ImGui::Selectable(texName.c_str(), selected))
         {
-          renderer.watchExposedTexture(texName);
+          pipeline.watchExposedTexture(texName);
         }
       }
 
@@ -190,12 +190,12 @@ bool RenderSettingsPanel::onImgui()
 
   if (settingsChanged)
   {
-    Application::Get().getMainSceneRenderer().setRenderSettings(settings);
+    pipeline.setRenderSettings(settings);
   }
 
   if (dynSettingsChanged)
   {
-    Application::Get().getMainSceneRenderer().setDynamicRenderSettings(dynSettings);
+    pipeline.setDynamicRenderSettings(dynSettings);
   }
 
   return ret;

@@ -87,8 +87,8 @@ namespace vrm
     PassMaterials& operator=(const PassMaterials& other) = delete;
     PassMaterials(const PassMaterials& other) = delete;
 
-    PassMaterials& operator=(PassMaterials&& other) = delete;
-    PassMaterials(PassMaterials&& other) = delete;
+    PassMaterials& operator=(PassMaterials&& other) = default;
+    PassMaterials(PassMaterials&& other) = default;
 
     const PassMaterial& getMaterial(const Key& key);
 

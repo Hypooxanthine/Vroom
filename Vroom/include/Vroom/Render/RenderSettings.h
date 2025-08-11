@@ -9,6 +9,7 @@ namespace vrm
   struct RenderSettings
   {
     uint16_t frameRateLimit = 0; // 0 for unlimited
+    glm::uvec2 frameSize = { 512, 512 };
     uint8_t antiAliasingLevel = 1;
     bool shadowsEnable = true;
 

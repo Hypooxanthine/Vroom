@@ -3,11 +3,9 @@
 #include <glm/glm.hpp>
 
 #include "Vroom/Api.h"
-#include "Vroom/Render/RenderResources.h"
 
 #include "Vroom/Render/GPURuntimeFeatures.h"
-#include "Vroom/Render/RenderSettings.h"
-#include "Vroom/Render/Passes/RenderPassManager.h"
+#include "Vroom/Render/RenderPipeline.h"
 #include "Vroom/Render/MeshRegistry.h"
 #include "Vroom/Render/RenderObject/RenderSkybox.h"
 #include "Vroom/Render/Clustering/LightRegistry.h"
@@ -49,12 +47,6 @@ namespace vrm
 
     inline const GPURuntimeFeatures& getGPUFeatures() const { return s_gpuFeatures; }
 
-    void setRenderSettings(const RenderSettings& settings);
-    inline const RenderSettings& getRenderSettings() const { return m_renderSettings; }
-
-    void setDynamicRenderSettings(const DynamicRenderSettings& settings);
-    inline const DynamicRenderSettings& getDynamicRenderSettings() const { return m_dynamicSettings; }
-
     /**
      * @brief Has to be called before any rendering of current frame.
      *
@@ -79,40 +71,24 @@ namespace vrm
     inline const glm::uvec2& getFrameSize() const { return m_frameSize; }
     void setFrameSize(const glm::uvec2& s);
 
-    const gl::Texture* getRenderedTexture() const { return m_finalTexture; }
-    const std::vector<std::string>& getExposedTextureNames() const { return m_resources.getExposedTextures(); }
-    void watchExposedTexture(const std::string& name);
-    const std::string& getWatchedTexture() const { return m_watchedTexture; }
-
-    uint32_t getEntityIndexOnPixel(const glm::ivec2& px) const;
+    inline RenderPipeline& getRenderPipeline() { return m_pipeline; }
 
   private:
-    void createRenderPasses();
     void updateFinalTextureWithWatched();
 
   private:
     static GPURuntimeFeatures s_gpuFeatures;
 
-    RenderSettings m_renderSettings;
-    DynamicRenderSettings m_dynamicSettings;
-
     glm::uvec2 m_frameSize = { 1, 1 };
 
     const RenderLayout* m_renderLayout = nullptr;
 
-    bool m_passManagerDirty = false;
-    RenderPassManager m_passManager;
-
-    gl::FrameBuffer* m_renderFrameBuffer = nullptr;
-    gl::Texture* m_finalTexture = nullptr;
-    std::string m_watchedTexture = "";
+    RenderPipeline m_pipeline;
 
     MeshRegistry m_meshRegistry;
+    LightRegistry m_LightRegistry;
     RenderSkybox m_skybox;
 
-    LightRegistry m_LightRegistry;
-
-    RenderResources m_resources;
   };
 
 } // namespace vrm

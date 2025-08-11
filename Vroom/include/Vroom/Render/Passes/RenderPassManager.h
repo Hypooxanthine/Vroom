@@ -16,6 +16,12 @@ namespace vrm
 
     RenderPassManager();
     ~RenderPassManager();
+    
+    RenderPassManager& operator=(const RenderPassManager& other) = delete;
+    RenderPassManager(const RenderPassManager& other) = delete;
+    
+    RenderPassManager& operator=(RenderPassManager&& other) = default;
+    RenderPassManager(RenderPassManager&& other) = default;
 
     template <typename PassType, typename... Args>
     inline PassType& pushPass(Args&&... args)

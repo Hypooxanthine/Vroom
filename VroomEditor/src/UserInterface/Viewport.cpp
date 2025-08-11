@@ -149,7 +149,7 @@ void Viewport::_leftClick(const glm::ivec2& pos)
 {
   if (pos.x > -1 && pos.y > -1)
   {
-    uint32_t rawId = Application::Get().getMainSceneRenderer().getEntityIndexOnPixel(pos);
+    uint32_t rawId = Application::Get().getMainSceneRenderer().getRenderPipeline().getEntityIndexOnPixel(pos);
     UserInterfaceLayer::Get().pushRoutine(Layer::EFrameLocation::ePreEndFrame, [=](Layer& l)
     {
       auto& scene = Application::Get().getGameLayer().getScene();
@@ -182,7 +182,7 @@ void Viewport::_rightClick(const glm::ivec2& pos)
 
     if (pos.x > -1 && pos.y > -1)
     {
-      uint32_t rawId = Application::Get().getMainSceneRenderer().getEntityIndexOnPixel(pos);
+      uint32_t rawId = Application::Get().getMainSceneRenderer().getRenderPipeline().getEntityIndexOnPixel(pos);
       auto& scene = Application::Get().getGameLayer().getScene();
 
       if (scene.entityExists(entt::entity(rawId)))
