@@ -22,6 +22,8 @@ class VRM_API CustomEventBinder
 {
 public:
 
+    CustomEventBinder() = default;
+
     /**
      * @brief Construct a new Custom Event Binder object
      * 
@@ -40,6 +42,8 @@ public:
      * @param other CustomEventBinder to move.
      */
     CustomEventBinder(CustomEventBinder&& other);
+
+    CustomEventBinder& operator=(CustomEventBinder&& other);
 
     /**
      * @brief Bind an input to the custom event. Since no code is provided, all inputs of the given type will trigger the custom event, regardless of their code.
@@ -114,8 +118,8 @@ public:
     CustomEventBinder& bindCallback(const CustomEventCallback& cb);
 
 private:
-    CustomEventManager* m_Manager;
-    std::string m_CustomEventName;
+    CustomEventManager* m_Manager = nullptr;
+    std::string m_CustomEventName = "";
 };
 
 } // namespace vrm

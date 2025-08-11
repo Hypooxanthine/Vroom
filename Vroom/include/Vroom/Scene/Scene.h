@@ -5,6 +5,7 @@
 #include <entt/entt.hpp>
 
 #include "Vroom/Api.h"
+#include "Vroom/Event/CustomEvent/CustomEventBinder.h"
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Render/Camera/FirstPersonCamera.h"
 #include "Vroom/Render/RenderLayout.h"
@@ -20,6 +21,7 @@ namespace vrm
   class SceneData;
   struct PointLightComponent;
   class DeltaTime;
+  class Renderer;
 
   class VRM_API Scene
   {
@@ -73,6 +75,8 @@ namespace vrm
     bool loadFromAsset(const SceneAsset::Handle& sceneAsset);
 
     SceneData getSceneData() const;
+
+    inline Renderer& getRenderer() { return *m_renderer; }
 
     void setSplitScreenGridSize(size_t rows, size_t columns);
 
@@ -251,12 +255,15 @@ namespace vrm
     void addNodeComponents(const Entity& e, SceneNodeData& data) const;
 
   private:
+    CustomEventBinder m_windowResizeBinder;
+
     entt::registry m_Registry;
     size_t m_EntityCounter = 0;
     std::unordered_map<std::string, Entity> m_EntitiesByName;
 
     bool m_spawned = false;
 
+    std::unique_ptr<Renderer> m_renderer;
     static FirstPersonCamera s_DefaultCamera;
     RenderLayout m_renderLayout;
 

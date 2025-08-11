@@ -3,9 +3,8 @@
 #include <glm/gtx/euler_angles.hpp>
 
 #include "Vroom/Core/Application.h"
+#include "Vroom/Core/Window.h"
 #include "Vroom/Core/GameLayer.h"
-
-#include "Vroom/Asset/Asset.h"
 
 #include "Vroom/Render/Renderer.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
@@ -26,6 +25,8 @@ using namespace vrm;
 
 Scene::Scene()
 {
+  m_renderer.reset(new Renderer());
+
   m_Root = createRoot();
   getRoot().getComponentInternal<HierarchyComponent>().parent = Entity();
 
@@ -39,6 +40,15 @@ Scene::~Scene()
 
 void Scene::init()
 {
+  const Window& window = Application::Get().getWindow();
+
+  m_windowResizeBinder = Application::Get().getGameLayer().getCustomEvent(
+      "VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE");
+
+  m_windowResizeBinder.bindCallback([this](const Event &e) {
+    m_renderer->setFrameSize( { e.newWidth, e.newHeight });
+  });
+
   onInit();
 }
 
@@ -59,7 +69,7 @@ void Scene::render()
   _updateGlobalTransforms();
 
   Application &app = Application::Get();
-  Renderer &renderer = Renderer::Get();
+  Renderer &renderer = *m_renderer;
   renderer.beginScene(&m_renderLayout);
 
   auto viewDirLights = m_Registry.view<DirectionalLightComponent, TransformComponent>();
@@ -99,6 +109,7 @@ void Scene::end()
   onEnd();
 
   m_Registry.clear(); // So that entities are destroyed properly
+  m_renderer.reset();
 }
 
 void Scene::spawn()

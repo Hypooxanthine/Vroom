@@ -1,7 +1,5 @@
 #include "Vroom/Core/Application.h"
 
-#include <thread>
-
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Event/GLFWEventsConverter.h"
 #include "Vroom/Core/Window.h"
@@ -32,9 +30,6 @@ Application::Application(int argc, char** argv)
 
   AssetManager::Init();
 
-  Renderer::Init();
-  Renderer::Get().setFrameSize({ m_Window->getWidth(), m_Window->getHeight() });
-
   // Pushing the game layer and storing it in a pointer (GameLayer is a special layer that can always be accessed)
   /// @todo Make sure the game layer is never deleted.
   m_GameLayer = &pushLayer<GameLayer>();
@@ -48,10 +43,9 @@ Application::~Application()
     it->end();
   m_LayerStack.clear(); // Layer destructors called before shutting down the rendering context.
 
-  Renderer::Shutdown();
   AssetManager::Shutdown();
   m_Window->destroy();
-  m_Window.release();
+  m_Window.reset();
 
   glfwTerminate();
 
@@ -141,4 +135,14 @@ void Application::setFrameRateLimit(uint16_t framerate)
   m_frameRateLimit = framerate;
   m_minFrameTimeNanoseconds = static_cast<uint64_t>(1.0e9 / static_cast<double>(framerate));
   m_timeSinceLastFrame = 0.f;
+}
+
+Scene& Application::getMainScene()
+{
+  return getGameLayer().getScene();
+}
+
+Renderer& Application::getMainSceneRenderer()
+{
+  return getMainScene().getRenderer();
 }

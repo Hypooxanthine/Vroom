@@ -5,7 +5,6 @@
 #include "Vroom/Api.h"
 #include "Vroom/Core/Layer.h"
 
-#include "Vroom/Render/Abstraction/FrameBuffer.h"
 #include "Vroom/Event/Trigger/TriggerManager.h"
 #include "Vroom/Event/CustomEvent/CustomEventManager.h"
 
@@ -44,6 +43,8 @@ public:
   {
     loadScene_Internal(std::move(scene));
   }
+
+  inline bool isSceneLoaded() const { return m_CurrentScene.get() != nullptr; }
 
   /**
    * @brief Get the loaded scene.

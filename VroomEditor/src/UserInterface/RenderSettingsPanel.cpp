@@ -11,7 +11,7 @@ using namespace vrm;
 
 RenderSettingsPanel::RenderSettingsPanel()
 {
-  const auto& features = Renderer::Get().getGPUFeatures();
+  const auto& features = Application::Get().getMainSceneRenderer().getGPUFeatures();
 
   for (uint8_t i = 1; i <= features.maxMSAA; i = i * 2)
   {
@@ -26,7 +26,7 @@ RenderSettingsPanel::~RenderSettingsPanel()
 bool RenderSettingsPanel::onImgui()
 {
   bool ret = false;
-  auto& renderer = Renderer::Get();
+  auto& renderer = Application::Get().getMainSceneRenderer();
   auto settings = renderer.getRenderSettings();
   auto dynSettings = renderer.getDynamicRenderSettings();
   bool settingsChanged = false;
@@ -146,7 +146,7 @@ bool RenderSettingsPanel::onImgui()
         renderer.watchExposedTexture("");
       }
 
-      for (const std::string& texName : Renderer::Get().getExposedTextureNames())
+      for (const std::string& texName : Application::Get().getMainSceneRenderer().getExposedTextureNames())
       {
         selected = (watchedTexture == texName);
         if (ImGui::Selectable(texName.c_str(), selected))
@@ -190,12 +190,12 @@ bool RenderSettingsPanel::onImgui()
 
   if (settingsChanged)
   {
-    Renderer::Get().setRenderSettings(settings);
+    Application::Get().getMainSceneRenderer().setRenderSettings(settings);
   }
 
   if (dynSettingsChanged)
   {
-    Renderer::Get().setDynamicRenderSettings(dynSettings);
+    Application::Get().getMainSceneRenderer().setDynamicRenderSettings(dynSettings);
   }
 
   return ret;

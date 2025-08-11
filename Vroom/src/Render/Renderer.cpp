@@ -32,7 +32,6 @@
 using namespace vrm;
 using namespace vrm::gl;
 
-std::unique_ptr<Renderer> Renderer::s_Instance = nullptr;
 GPURuntimeFeatures Renderer::s_gpuFeatures;
 
 Renderer::Renderer()
@@ -57,23 +56,6 @@ void Renderer::setRenderSettings(const RenderSettings& settings)
 void Renderer::setDynamicRenderSettings(const DynamicRenderSettings& settings)
 {
   m_dynamicSettings = settings;
-}
-
-void Renderer::Init()
-{
-  VRM_ASSERT_MSG(s_Instance == nullptr, "Renderer already initialized.");
-  s_Instance.reset(new Renderer());
-}
-
-void Renderer::Shutdown()
-{
-  s_Instance.reset();
-}
-
-Renderer& Renderer::Get()
-{
-  VRM_ASSERT_MSG(s_Instance != nullptr, "Renderer not initialized.");
-  return *s_Instance;
 }
 
 void Renderer::createRenderPasses()

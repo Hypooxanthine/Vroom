@@ -11,22 +11,8 @@ using namespace vrm;
 GameLayer::GameLayer()
     : m_CurrentScene(nullptr), m_NextScene(nullptr)
 {
-  Renderer &renderer = Renderer::Get();
-
-  // m_FrameBuffer.create(static_cast<GLuint>(renderer.getViewportSize().x), static_cast<GLuint>(renderer.getViewportSize().y), 1);
-  // m_FrameBuffer.bind();
-  // m_FrameBuffer.addColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });
-  // m_FrameBuffer.attachRenderBuffer();
-  // VRM_ASSERT_MSG(m_FrameBuffer.validate(), "Could not build GameLayer framebuffer");
-
-
   m_CustomEventManager.createCustomEvent("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE")
       .bindInput(Event::Type::WindowsResized);
-
-  m_CustomEventManager
-      .bindPermanentCallback("VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE", [&renderer](const vrm::Event &e)
-                             { renderer.setFrameSize({ static_cast<float>(e.newWidth), static_cast<float>(e.newHeight)}); })
-  ;
 }
 
 GameLayer::~GameLayer()
@@ -35,7 +21,7 @@ GameLayer::~GameLayer()
 
 // void GameLayer::setAntialiasingLevel(uint8_t aa)
 // {
-//   Renderer &renderer = Renderer::Get();
+//   Renderer &renderer = Application::Get().getMainSceneRenderer();
 //   m_FrameBuffer.create(static_cast<GLuint>(renderer.getViewportSize().x), static_cast<GLuint>(renderer.getViewportSize().y), aa);
 //   m_FrameBuffer.bind();
 //   m_FrameBuffer.addColorAttachment(0, 4, glm::vec4{ 0.1f, 0.1f, 0.1f, 1.f });

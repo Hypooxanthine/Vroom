@@ -7,6 +7,8 @@
 #include <Vroom/Asset/Parsing/SceneParsing.h>
 #include <fstream>
 
+#include "Vroom/Render/DynamicRenderSettings.h"
+#include "Vroom/Render/RenderSettings.h"
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 #include "VroomEditor/UserInterface/SceneGraph.h"
 #include "VroomEditor/UserInterface/Viewport.h"
@@ -49,8 +51,21 @@ EditorLayer& EditorLayer::Get()
 
 void EditorLayer::loadScene(const std::string& name, std::unique_ptr<Scene>&& scene)
 {
-  scene->setCamera(&m_EditorCamera);
   auto& gameLayer = Application::Get().getGameLayer();
+
+  // Using the same settings
+  if (gameLayer.isSceneLoaded())
+  {
+    RenderSettings settings = gameLayer.getScene().getRenderer().getRenderSettings();
+    DynamicRenderSettings dynSettings = gameLayer.getScene().getRenderer().getDynamicRenderSettings();
+    scene->getRenderer().setRenderSettings(settings);
+    scene->getRenderer().setDynamicRenderSettings(dynSettings);
+    
+    scene->getRenderer().setFrameSize({ m_lastViewportInfos.width, m_lastViewportInfos.height });
+  }
+
+  scene->setCamera(&m_EditorCamera);
+
   gameLayer.loadScene(std::move(scene));
   m_loadedScene = name;
 }

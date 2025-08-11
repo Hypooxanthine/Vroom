@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <glm/glm.hpp>
 
 #include "Vroom/Api.h"
@@ -36,22 +35,8 @@ namespace vrm
   class VRM_API Renderer
   {
   public:
-    /**
-     * @brief Initializes the renderer.
-     */
-    static void Init();
 
-    /**
-     * @brief Shuts down the renderer.
-     */
-    static void Shutdown();
-
-    /**
-     * @brief Gets the renderer instance.
-     * @return The renderer instance.
-     */
-    static Renderer& Get();
-
+    Renderer();
     Renderer(const Renderer&) = delete;
     Renderer(Renderer&&) = delete;
     Renderer& operator=(const Renderer&) = delete;
@@ -102,15 +87,10 @@ namespace vrm
     uint32_t getEntityIndexOnPixel(const glm::ivec2& px) const;
 
   private:
-
-    Renderer();
-
-  private:
     void createRenderPasses();
     void updateFinalTextureWithWatched();
 
   private:
-    static std::unique_ptr<Renderer> s_Instance;
     static GPURuntimeFeatures s_gpuFeatures;
 
     RenderSettings m_renderSettings;

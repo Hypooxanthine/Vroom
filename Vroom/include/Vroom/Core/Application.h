@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <chrono>
-#include <stack>
 
 #include <GL/glew.h>
 
@@ -16,6 +15,8 @@ namespace vrm
 class Window;
 class Layer;
 class GameLayer;
+class Scene;
+class Renderer;
 
 /**
  * @short The core class of the engine.
@@ -92,6 +93,10 @@ public:
      * @return GameLayer& The game layer object.
      */
     inline const GameLayer& getGameLayer() const { return *m_GameLayer; }
+
+    Scene& getMainScene();
+
+    Renderer& getMainSceneRenderer();
 
     /**
      * @brief Get the window.
