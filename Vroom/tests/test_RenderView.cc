@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include <Vroom/Render/RenderView.h>
 #include <Vroom/Render/Camera/CameraBasic.h>
+#include <Vroom/Render/Camera/FirstPersonCamera.h>
 
 class TestRenderView : public testing::Test
 {
@@ -9,8 +10,6 @@ protected:
 
   void SetUp() override
   {
-    camera = reinterpret_cast<vrm::CameraBasic*>(0x12345678);
-    camera2 = reinterpret_cast<vrm::CameraBasic*>(0x87654321);
   }
 
   void TearDown() override
@@ -18,8 +17,10 @@ protected:
 
   }
 
-  vrm::CameraBasic* camera;
-  vrm::CameraBasic* camera2;
+  vrm::FirstPersonCamera fpc1 = vrm::FirstPersonCamera(0.1f, 100.f, 90.f, 1.f, glm::vec3(), glm::vec3());
+  vrm::FirstPersonCamera fpc2 = vrm::FirstPersonCamera(0.1f, 100.f, 90.f, 1.f, glm::vec3(), glm::vec3());
+  vrm::CameraBasic* camera = &fpc1;
+  vrm::CameraBasic* camera2 = &fpc2;
 };
 
 // Test ViewBase template class with float type (NormalizedView)
@@ -209,7 +210,8 @@ TEST_F(TestRenderView, ViewFromNormalizedView)
   vrm::render::View view(normalizedView, frameSize);
   
   EXPECT_EQ(view.getCamera(), camera);
-  // The viewport should be converted from normalized to pixel coordinates
+  EXPECT_EQ(view.getViewport().getSize(), glm::uvec2(glm::vec2(frameSize) * glm::vec2(0.8f, 0.6f)));
+  EXPECT_EQ(view.getViewport().getOrigin(), glm::uvec2(glm::vec2(frameSize) * glm::vec2(0.1f, 0.2f)));
 }
 
 // Test basic functionality that we know works
