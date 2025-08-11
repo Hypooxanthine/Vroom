@@ -4,6 +4,7 @@
 
 #include "Vroom/Core/Application.h"
 
+#include "Vroom/Render/GPURuntimeFeatures.h"
 #include "Vroom/Render/Passes/RenderPass.h"
 #include "Vroom/Render/Passes/DrawScenePass.h"
 #include "Vroom/Render/Passes/BlitFrameBufferPass.h"
@@ -32,11 +33,12 @@ using namespace vrm;
 using namespace vrm::gl;
 
 std::unique_ptr<Renderer> Renderer::s_Instance = nullptr;
+GPURuntimeFeatures Renderer::s_gpuFeatures;
 
 Renderer::Renderer()
 {
-  if (!m_gpuFeatures.wasQueried())
-    m_gpuFeatures.query();
+  if (!s_gpuFeatures.wasQueried())
+    s_gpuFeatures.query();
 }
 
 Renderer::~Renderer()

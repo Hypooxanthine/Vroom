@@ -62,7 +62,7 @@ namespace vrm
      */
     ~Renderer();
 
-    inline const GPURuntimeFeatures& getGPUFeatures() const { return m_gpuFeatures; }
+    inline const GPURuntimeFeatures& getGPUFeatures() const { return s_gpuFeatures; }
 
     void setRenderSettings(const RenderSettings& settings);
     inline const RenderSettings& getRenderSettings() const { return m_renderSettings; }
@@ -111,7 +111,7 @@ namespace vrm
 
   private:
     static std::unique_ptr<Renderer> s_Instance;
-    static GPURuntimeFeatures m_gpuFeatures;
+    static GPURuntimeFeatures s_gpuFeatures;
 
     RenderSettings m_renderSettings;
     DynamicRenderSettings m_dynamicSettings;
