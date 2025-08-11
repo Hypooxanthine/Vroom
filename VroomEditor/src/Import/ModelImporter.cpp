@@ -85,6 +85,10 @@ bool ModelImporter::import(const std::filesystem::path& inPath, const std::files
   for (unsigned int i = 0; i < IMPL.ctx.scene->mNumMaterials; ++i)
   {
     aiMaterial* mat = IMPL.ctx.scene->mMaterials[i];
+
+    if (mat == nullptr)
+      continue;
+
     aiShadingMode shadingModel;
     mat->Get(AI_MATKEY_SHADING_MODEL, shadingModel);
 
@@ -304,7 +308,7 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
   else
   {
     float col;
-    material->Get(AI_MATKEY_COLOR_DIFFUSE, col);
+    material->Get(AI_MATKEY_COLOR_SPECULAR, col);
     p.type = MaterialData::Parameter::eFloat;
     p.setValue(col);
     data.addParameter(p);
