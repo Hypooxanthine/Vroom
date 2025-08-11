@@ -35,7 +35,8 @@ std::unique_ptr<Renderer> Renderer::s_Instance = nullptr;
 
 Renderer::Renderer()
 {
-  m_gpuFeatures.query();
+  if (!m_gpuFeatures.wasQueried())
+    m_gpuFeatures.query();
 }
 
 Renderer::~Renderer()

@@ -111,8 +111,8 @@ namespace vrm
 
   private:
     static std::unique_ptr<Renderer> s_Instance;
+    static GPURuntimeFeatures m_gpuFeatures;
 
-    GPURuntimeFeatures m_gpuFeatures;
     RenderSettings m_renderSettings;
     DynamicRenderSettings m_dynamicSettings;
 

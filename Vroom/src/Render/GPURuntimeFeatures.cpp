@@ -15,4 +15,6 @@ void GPURuntimeFeatures::query()
   
   glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &integerv);
   CAST_SET(maxArrayTextureLayers, integerv);
+
+  m_queried = true;
 }
