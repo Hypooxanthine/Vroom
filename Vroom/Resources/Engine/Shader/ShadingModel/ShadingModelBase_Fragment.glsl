@@ -105,12 +105,13 @@ vec4 ComputeFragmentColor()
 
     float lightVisibility = 1.f;
 
-    if (lightDotNormal > 0 && dirLight.castsShadows > 0)
-    {
-      lightVisibility = (1.f - ComputeDirectionalShadowFactor(shadowCasterId, lightDotNormal));
-      ++shadowCasterId;
-    }
-
+    #if defined(VRM_DIR_LIGHTS_SHADOWS)
+      if (lightDotNormal > 0 && dirLight.castsShadows > 0)
+      {
+        lightVisibility = (1.f - ComputeDirectionalShadowFactor(shadowCasterId, lightDotNormal));
+        ++shadowCasterId;
+      }
+    #endif
     
     lightDir = normalize(lightDir);
 

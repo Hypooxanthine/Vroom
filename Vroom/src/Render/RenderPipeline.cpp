@@ -180,6 +180,7 @@ void RenderPipeline::generate()
     pass.shadowsEnable = m_renderSettings.shadowsEnable;
     if (m_renderSettings.shadowsEnable)
     {
+      pass.addDefine("VRM_DIR_LIGHTS_SHADOWS");
       pass.dirLightShadowMaps = m_resources.tryGetTexture("DirLightsShadowMaps");
       pass.storageBufferParameters.emplace_back("LightMatricesBlock", &m_resources.tryGetAutoBuffer("LightMatricesStorageBuffer")->getBuffer());
     }

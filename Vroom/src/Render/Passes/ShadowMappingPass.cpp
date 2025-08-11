@@ -19,7 +19,6 @@ using namespace vrm;
 
 ShadowMappingPass::ShadowMappingPass()
 {
-  addDefine("VRM_SHADOW_PASS");
 }
 
 ShadowMappingPass::~ShadowMappingPass()
@@ -31,6 +30,7 @@ void ShadowMappingPass::onInit()
 {
   VRM_ASSERT(lights != nullptr);
   VRM_ASSERT(lightMatricesBuffer != nullptr);
+  addDefine("VRM_SHADOW_PASS");
 }
 
 void ShadowMappingPass::onSetup(const RenderPassContext& ctx)
