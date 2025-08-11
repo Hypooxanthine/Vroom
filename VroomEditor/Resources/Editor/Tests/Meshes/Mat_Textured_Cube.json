@@ -4,7 +4,10 @@
   "Parameters": {
     "u_diffuse": {
       "Type": "sampler2D",
-      "Value": "Resources/Editor/Tests/Textures/Texture_Textured_Cube.png"
+      "Value": {
+        "resourceName": "Resources/Editor/Tests/Textures/Texture_Textured_Cube.png",
+        "wrappingMode": "Clamp"
+      }
     },
     "u_specular": {
       "Type": "vec3",

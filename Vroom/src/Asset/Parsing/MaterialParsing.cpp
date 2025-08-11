@@ -99,7 +99,7 @@ namespace nlohmann
       case vrm::MaterialData::Parameter::eSampler2D:
       {
         MaterialData::TextureData texData;
-        texData.resourceName = value;
+        texData = value;
         e.setValue(texData);
         break;
       }
