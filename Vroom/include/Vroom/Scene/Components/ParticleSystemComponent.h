@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vroom/Api.h"
+#include "Vroom/Asset/StaticAsset/ParticleSystemAsset.h"
 
 namespace vrm
 {
@@ -10,7 +11,10 @@ namespace vrm
   public:
 
     ParticleSystemComponent();
+    ParticleSystemComponent(ParticleSystemAsset::Handle asset);
     ~ParticleSystemComponent();
+
+    void setParticleSystem(ParticleSystemAsset::Handle asset);
 
     ParticleSystemComponent(const ParticleSystemComponent&) = delete;
     ParticleSystemComponent& operator=(const ParticleSystemComponent&) = delete;
@@ -19,6 +23,8 @@ namespace vrm
     ParticleSystemComponent& operator=(ParticleSystemComponent&&) = delete;
 
   private:
+
+    ParticleSystemAsset::Handle m_asset = {};
 
   };
   

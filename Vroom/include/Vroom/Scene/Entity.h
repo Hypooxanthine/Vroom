@@ -68,7 +68,7 @@ namespace vrm
     ~Entity() = default;
 
     /**
-     * @brief This is NOT tagged const, because the newly created Entity instance will access to the same data (components for instance).
+     * @brief Clones an entity.
      *
      * @return Entity
      */

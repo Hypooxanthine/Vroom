@@ -97,6 +97,11 @@ bool MainMenuBar::onImgui()
       {
         ui.setElementVisible(elem, !ui.isElementVisible(elem));
       }
+      elem = EInterfaceElement::eParticleSystemEditor;
+      if (ImGui::MenuItem("Particle system editor", nullptr, ui.isElementVisible(elem)))
+      {
+        ui.setElementVisible(elem, !ui.isElementVisible(elem));
+      }
       elem = EInterfaceElement::eEditorPreferences;
       if (ImGui::MenuItem("Editor preferences", nullptr, ui.isElementVisible(elem)))
       {

@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+#include "VroomEditor/UserInterface/ParticleSystemEditor.h"
 #include "imgui.h"
 #include "ImGuizmo.h"
 #include "backends/imgui_impl_glfw.h"
@@ -77,6 +78,7 @@ void UserInterfaceLayer::onInit()
   emplaceImGuiElement<SceneGraph>(EInterfaceElement::eSceneGraph);
   emplaceImGuiElement<EditorPreferences>(EInterfaceElement::eEditorPreferences, false);
   emplaceImGuiElement<EntityEditor>(EInterfaceElement::eEntityEditor);
+  emplaceImGuiElement<ParticleSystemEditor>(EInterfaceElement::eParticleSystemEditor, false);
 
   m_CustomEventManager.createCustomEvent("OSFileDrop").bindInput(Event::Type::FileDrop);
   m_CustomEventManager.bindPermanentCallback("OSFileDrop", [this](const Event& e) { this->fileDropCallback(e); e.handled = true; });

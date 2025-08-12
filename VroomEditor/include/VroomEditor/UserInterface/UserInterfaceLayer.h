@@ -39,6 +39,7 @@ namespace vrm
       eAssetBrowser,
       eEntityEditor,
       eEditorPreferences,
+      eParticleSystemEditor,
       eElementCount
     };
   };
