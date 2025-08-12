@@ -3,7 +3,6 @@
 #include <glm/gtx/euler_angles.hpp>
 
 #include "Vroom/Core/Application.h"
-#include "Vroom/Core/Window.h"
 #include "Vroom/Core/GameLayer.h"
 
 #include "Vroom/Render/Renderer.h"
@@ -40,8 +39,6 @@ Scene::~Scene()
 
 void Scene::init()
 {
-  const Window& window = Application::Get().getWindow();
-
   m_windowResizeBinder = Application::Get().getGameLayer().getCustomEvent(
       "VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE");
 
@@ -68,7 +65,6 @@ void Scene::render()
 {
   _updateGlobalTransforms();
 
-  Application &app = Application::Get();
   Renderer &renderer = *m_renderer;
   renderer.beginScene(&m_renderLayout);
 

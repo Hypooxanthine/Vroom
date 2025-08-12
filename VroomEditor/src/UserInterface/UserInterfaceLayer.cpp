@@ -110,10 +110,22 @@ void UserInterfaceLayer::onUpdate(const DeltaTime& dt)
   m_fileDrop.clear();
   auto& viewport = VRM_EDITOR_UI_ELEMENT(Viewport);
   viewport.setRenderTexture(Application::Get().getMainSceneRenderer().getRenderPipeline().getRenderedTexture());
+  
+  for (auto& element : m_elements)
+  {
+    if (element)
+      element->update(dt);
+  }
 }
 
 void UserInterfaceLayer::onRender()
 {
+  for (auto& element : m_elements)
+  {
+    if (element)
+      element->render();
+  }
+  
   gl::FrameBuffer::GetDefaultFrameBuffer().bind();
   renderImgui();
 }

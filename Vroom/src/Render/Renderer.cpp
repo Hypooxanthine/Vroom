@@ -66,7 +66,8 @@ void Renderer::endScene()
       if (m_renderLayout->isViewUsed(row, col))
         renderContext.views.emplace_back(m_renderLayout->getView(row, col), m_frameSize);
 
-  m_pipeline.execute(renderContext);
+  if (renderContext.views.size() > 0)
+    m_pipeline.execute(renderContext);
 
   // Clearing data for next frame
   m_renderLayout = nullptr;
@@ -109,6 +110,9 @@ void Renderer::submitDirectionalLight(size_t id, const DirectionalLightComponent
 
 void Renderer::setFrameSize(const glm::uvec2& s)
 {
-  m_frameSize = s;
-  m_pipeline.getRendererAttorney().setFrameSize(s);
+  if (m_frameSize != s)
+  {
+    m_frameSize = s;
+    m_pipeline.getRendererAttorney().setFrameSize(s);
+  }
 }

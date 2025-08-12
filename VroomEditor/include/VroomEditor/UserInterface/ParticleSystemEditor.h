@@ -24,9 +24,13 @@ namespace vrm
     void open(ParticleSystemAsset::Handle asset);
     void close();
 
+  protected:
+
+    void onUpdate(const DeltaTime &dt) override;
+    void onRender() override;
     bool onImgui() override;
 
-  protected:
+  private:
 
   private:
 
