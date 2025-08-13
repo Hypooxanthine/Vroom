@@ -20,6 +20,10 @@ namespace vrm::render
       : m_origin(origin), m_size(size)
     {}
 
+    inline ViewportBase(float xOrigin, float yOrigin, float width, float height)
+      : ViewportBase(SizeType(xOrigin, yOrigin), SizeType(width, height))
+    {}
+
     ViewportBase& operator=(const ViewportBase& other) = default;
     ViewportBase(const ViewportBase& other) = default;
 

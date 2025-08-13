@@ -7,6 +7,7 @@
 #include <glm/fwd.hpp>
 
 #include <Vroom/Scene/Entity.h>
+#include "VroomEditor/UserInterface/ViewportModule.h"
 
 namespace vrm
 {
@@ -18,12 +19,22 @@ namespace vrm
 
   class Viewport : public ImGuiElement
   {
+  private:
+
+    class MyViewportModule : public ViewportModule
+    {
+    protected:
+      void onPopupImgui(const ImVec2& texturePx) override;
+      void onLeftClick(const ImVec2& texturePx) override;
+      void onResize(const ImVec2& size) override;
+
+    private:
+      Entity m_cachedPopupEntity;
+    };
+
   public:
     Viewport();
     ~Viewport();
-
-    inline const ImVec2 &getLastViewportSize() const { return m_LastViewportSize; }
-    inline bool didSizeChangeLastFrame() const { return m_DidSizeChangeLastFrame; }
 
     inline void setIdle()
     {
@@ -35,36 +46,23 @@ namespace vrm
     inline bool isSimulating() const { return m_Simulating; }
     inline bool isPaused() const { return m_Paused; }
     inline bool isIdle() const { return !m_Playing && !m_Simulating; }
-    inline bool isActive() const { return m_Active; }
 
-    inline void setRenderTexture(const gl::Texture *tex) { m_renderTexture = tex; }
+    inline void setRenderTexture(const gl::Texture *tex) { m_viewportModule.setTexture(tex); }
 
-    inline void allowActivation() { m_clicking = false; } // Clicking state blocks viewport activation
+    inline void allowActivation() { m_viewportModule.allowDraggingIfMousePressed(); }
 
   protected:
     void onImgui() override;
 
-  private:
-    
-    void _leftClick(const glm::ivec2& pos);
-    void _rightClick(const glm::ivec2& pos);
-
   private: // ImGui related variables
-    const gl::Texture *m_renderTexture;
 
-    bool m_Active = false;
     bool m_Playing = false;
     bool m_Simulating = false;
     bool m_Paused = false;
     bool m_localSpace = false;
 
-    bool m_clicking = false;
-
-    Entity m_cachedPopupEntity;
-
   private:
-    bool m_DidSizeChangeLastFrame = false;
-    ImVec2 m_LastViewportSize;
+    MyViewportModule m_viewportModule;
   };
 
 } // namespace vrm

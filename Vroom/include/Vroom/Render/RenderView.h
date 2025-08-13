@@ -24,7 +24,7 @@ namespace vrm::render
     {}
 
     ViewBase(CameraBasic* camera)
-      : ViewBase(camera, ViewportType({ 0.f, 0.f }, { 1.f, 1.f }))
+      : ViewBase(camera, ViewportType({ T(0), T(0) }, { T(1), T(1) }))
     {}
 
     ViewBase& operator=(const ViewBase& other) = default;
