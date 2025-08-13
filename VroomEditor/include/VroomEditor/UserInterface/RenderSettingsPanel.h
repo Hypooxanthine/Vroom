@@ -17,7 +17,7 @@ namespace vrm
     ~RenderSettingsPanel();
 
   protected:
-    bool onImgui() override;
+    void onImgui() override;
 
   private:
     std::vector<uint8_t> m_msaaPossibleValues;

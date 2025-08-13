@@ -32,7 +32,7 @@ public:
 protected:
   inline static consteval std::string_view GetDefaultPictoAssetName() { return "Resources/Editor/Picto/unknown.png"; }
 
-  virtual bool onImgui() override;
+  virtual void onImgui() override;
   virtual void onDrawPicto();
   virtual TextureAsset::Handle getPicto() const;
   virtual std::string getPictoAssetName() const;

@@ -23,9 +23,8 @@ RenderSettingsPanel::~RenderSettingsPanel()
 {
 }
 
-bool RenderSettingsPanel::onImgui()
+void RenderSettingsPanel::onImgui()
 {
-  bool ret = false;
   auto& pipeline = Application::Get().getMainSceneRenderer().getRenderPipeline();
   auto settings = pipeline.getRenderSettings();
   auto dynSettings = pipeline.getDynamicRenderSettings();
@@ -197,6 +196,4 @@ bool RenderSettingsPanel::onImgui()
   {
     pipeline.setDynamicRenderSettings(dynSettings);
   }
-
-  return ret;
 }

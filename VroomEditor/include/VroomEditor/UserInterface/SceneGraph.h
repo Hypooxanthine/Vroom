@@ -19,7 +19,7 @@ public:
 
 protected:
 
-  virtual bool onImgui() override;
+  virtual void onImgui() override;
 
   void renderEntityEntryRecursive(Entity& e);
   void clickBehaviour(Entity& e);

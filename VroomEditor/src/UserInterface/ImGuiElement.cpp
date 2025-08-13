@@ -17,17 +17,15 @@ ImGuiElement::~ImGuiElement()
 {
 }
 
-bool ImGuiElement::renderImgui()
+void ImGuiElement::renderImgui()
 {
   if (m_open == nullptr || *m_open == true)
-    return onImgui();
-  else
-    return false;
+    onImgui();
 }
 
 void ImGuiElement::notImplemented()
 {
-    VRM_LOG_WARN("Not implemented");
+  VRM_LOG_WARN("Not implemented");
 }
 
 } // namespace vrm

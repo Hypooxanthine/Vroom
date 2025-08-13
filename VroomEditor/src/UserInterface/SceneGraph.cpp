@@ -24,10 +24,8 @@ SceneGraph::~SceneGraph()
 
 }
 
-bool SceneGraph::onImgui()
+void SceneGraph::onImgui()
 {
-  bool ret = false;
-
   setupFrameContext();
 
   auto& scene = *m_frameContext.activeScene;
@@ -44,8 +42,6 @@ bool SceneGraph::onImgui()
   ImGui::End();
 
   handleFrameContext();
-
-  return ret;
 }
 
 void SceneGraph::renderEntityEntryRecursive(Entity& e)

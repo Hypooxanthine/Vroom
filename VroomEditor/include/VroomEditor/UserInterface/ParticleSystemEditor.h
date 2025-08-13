@@ -28,7 +28,7 @@ namespace vrm
 
     void onUpdate(const DeltaTime &dt) override;
     void onRender() override;
-    bool onImgui() override;
+    void onImgui() override;
 
   private:
 

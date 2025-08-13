@@ -24,9 +24,8 @@ Viewport::~Viewport()
 {
 }
 
-bool Viewport::onImgui()
+void Viewport::onImgui()
 {
-  bool ret = false;
   m_DidSizeChangeLastFrame = false;
   UserInterfaceLayer::ViewportInfos& infos = UserInterfaceLayer::Get().getViewportInfo();
 
@@ -140,8 +139,6 @@ bool Viewport::onImgui()
   infos.simulating = m_Simulating;
   infos.playing = m_Playing;
   infos.localSpace = m_localSpace;
-
-  return ret;
 }
 
 

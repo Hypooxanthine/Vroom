@@ -199,10 +199,8 @@ void AssetBrowser::unselectElement(const AssetElement* element)
   }
 }
 
-bool AssetBrowser::onImgui()
+void AssetBrowser::onImgui()
 {
-  bool ret = false;
-
   if (ImGui::Begin("Asset browser", m_open))
   {
     static constexpr char sep = std::filesystem::path::preferred_separator;
@@ -278,8 +276,6 @@ bool AssetBrowser::onImgui()
   }
 
   ImGui::End();
-  
-  return ret;
 }
 
 void AssetBrowser::_handleFileDrop(const OSFileDrop& dropData)

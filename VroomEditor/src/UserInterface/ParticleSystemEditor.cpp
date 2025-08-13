@@ -61,7 +61,7 @@ void ParticleSystemEditor::onRender()
   m_scene.render();
 }
 
-bool ParticleSystemEditor::onImgui()
+void ParticleSystemEditor::onImgui()
 {
   if (ImGui::Begin("Particle System", m_open))
   {
@@ -89,6 +89,4 @@ bool ParticleSystemEditor::onImgui()
     ImGui::EndChild();
   }
   ImGui::End();
-
-  return true;
 }

@@ -12,7 +12,7 @@ EditorPreferences::~EditorPreferences()
 
 }
 
-bool EditorPreferences::onImgui()
+void EditorPreferences::onImgui()
 {
   if (ImGui::Begin("Preferences", m_open))
   {
@@ -29,8 +29,6 @@ bool EditorPreferences::onImgui()
     }
   }
   ImGui::End();
-
-  return false;
 }
 
 void EditorPreferences::_editImguiStyle()

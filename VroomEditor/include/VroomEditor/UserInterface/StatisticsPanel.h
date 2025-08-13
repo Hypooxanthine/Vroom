@@ -8,11 +8,11 @@ namespace vrm
 class StatisticsPanel : public ImGuiElement
 {
 public:
-    StatisticsPanel();
-    ~StatisticsPanel();
+  StatisticsPanel();
+  ~StatisticsPanel();
 
 protected:
-    bool onImgui() override;
+  void onImgui() override;
 
 public: // Public ImGui related variables
 

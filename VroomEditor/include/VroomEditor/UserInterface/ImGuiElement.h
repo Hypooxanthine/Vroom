@@ -13,7 +13,7 @@ public:
   inline void update(const DeltaTime& dt) { onUpdate(dt); }
   inline void render() { onRender(); }
 
-  bool renderImgui();
+  void renderImgui();
 
   inline void setOpenBoolean(bool* open) { m_open = open; }
   inline void resetOpenBoolean() { setOpenBoolean(nullptr); }
@@ -21,7 +21,7 @@ public:
 protected:
   virtual void onUpdate(const DeltaTime& dt) {}
   virtual void onRender() {}
-  virtual bool onImgui() = 0;
+  virtual void onImgui() = 0;
   void notImplemented();
 
   bool* m_open = nullptr;

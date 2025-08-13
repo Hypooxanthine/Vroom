@@ -42,7 +42,7 @@ namespace vrm
     inline void allowActivation() { m_clicking = false; } // Clicking state blocks viewport activation
 
   protected:
-    bool onImgui() override;
+    void onImgui() override;
 
   private:
     

@@ -17,10 +17,8 @@ StatisticsPanel::~StatisticsPanel()
 {
 }
 
-bool StatisticsPanel::onImgui()
+void StatisticsPanel::onImgui()
 {
-  bool ret = false;
-
   if (ImGui::Begin("Statistics", m_open))
   {
     const DeltaTime& dt = Application::Get().getDeltaTime();
@@ -46,6 +44,4 @@ bool StatisticsPanel::onImgui()
     ImGui::Text("Frame rate: %.0f FPS", meanFps);
   }
   ImGui::End();
-
-  return ret;
 }

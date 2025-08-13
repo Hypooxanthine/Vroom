@@ -89,15 +89,13 @@ bool EntityEditor::isEditingEntity(const Entity& e) const
   return m_entity == e;
 }
 
-bool EntityEditor::onImgui()
+void EntityEditor::onImgui()
 {
   if (!m_entity.isValid())
     close();
 
   if (!m_open)
-    return false;
-
-  bool ret = false;
+    return;
 
   constexpr auto flags = ImGuiWindowFlags_None
     ;
@@ -111,6 +109,4 @@ bool EntityEditor::onImgui()
   // User requested close
   if (!m_open)
     close();
-
-  return ret;
 }

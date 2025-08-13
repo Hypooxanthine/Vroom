@@ -33,7 +33,7 @@ namespace vrm
     void unselectElement(const AssetElement* element); // Only unselect if the currently selected element is "element"
 
   protected:
-    bool onImgui() override;
+    void onImgui() override;
 
   private:
     

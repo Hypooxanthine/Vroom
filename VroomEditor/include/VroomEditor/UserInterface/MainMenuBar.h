@@ -8,11 +8,11 @@ namespace vrm
 class MainMenuBar : public ImGuiElement
 {
 public:
-    MainMenuBar();
-    ~MainMenuBar();
+  MainMenuBar();
+  ~MainMenuBar();
 
 protected:
-    bool onImgui() override;
+  void onImgui() override;
 
 };
 

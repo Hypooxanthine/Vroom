@@ -16,10 +16,8 @@ MainMenuBar::~MainMenuBar()
 {
 }
 
-bool MainMenuBar::onImgui()
+void MainMenuBar::onImgui()
 {
-  bool ret = false;
-
   auto& ui = UserInterfaceLayer::Get();
 
   if (ImGui::BeginMainMenuBar())
@@ -160,6 +158,4 @@ bool MainMenuBar::onImgui()
     ImGui::Text("This feature is not implemented yet.");
     ImGui::EndPopup();
   }
-
-  return ret;
 }

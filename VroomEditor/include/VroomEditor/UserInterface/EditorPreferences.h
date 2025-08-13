@@ -14,7 +14,7 @@ namespace vrm
     ~EditorPreferences();
 
   protected:
-    bool onImgui() override;
+    void onImgui() override;
 
     void _editImguiStyle();
 

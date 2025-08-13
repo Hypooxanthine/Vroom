@@ -25,10 +25,8 @@ AssetElement::~AssetElement()
 {
 }
 
-bool AssetElement::onImgui()
+void AssetElement::onImgui()
 {
-  bool ret = false;
-
   if (m_selected)
   {
     ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyle().Colors[ImGuiCol_FrameBg]);
@@ -115,8 +113,6 @@ bool AssetElement::onImgui()
       setRenaming();
     }
   }
-
-  return ret;
 }
 
 

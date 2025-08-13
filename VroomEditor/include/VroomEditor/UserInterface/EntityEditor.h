@@ -29,7 +29,7 @@ namespace vrm
 
   protected:
 
-    virtual bool onImgui() override;
+    virtual void onImgui() override;
 
   private:
     bool m_open = false;
