@@ -7,7 +7,6 @@
 
 #include "Vroom/Render/Renderer.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
-#include "Vroom/Render/Camera/FirstPersonCamera.h"
 
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Scene/Components/NameComponent.h"
@@ -17,8 +16,6 @@
 #include "Vroom/Scene/Components/PointLightComponent.h"
 #include "Vroom/Scene/Components/DirectionalLightComponent.h"
 #include "Vroom/Scene/Components/HierarchyComponent.h"
-
-vrm::FirstPersonCamera vrm::Scene::s_DefaultCamera = {0.1f, 100.f, glm::radians(90.f), 0.f, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f)};
 
 using namespace vrm;
 
@@ -30,7 +27,7 @@ Scene::Scene()
   getRoot().getComponentInternal<HierarchyComponent>().parent = Entity();
 
   // Setting a default camera
-  setCamera(&s_DefaultCamera);
+  setCamera(&m_defaultCamera);
 }
 
 Scene::~Scene()

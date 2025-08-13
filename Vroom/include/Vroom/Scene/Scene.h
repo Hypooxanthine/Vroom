@@ -269,7 +269,7 @@ namespace vrm
     bool m_spawned = false;
 
     std::unique_ptr<Renderer> m_renderer;
-    static FirstPersonCamera s_DefaultCamera;
+    FirstPersonCamera m_defaultCamera = {0.1f, 100.f, glm::radians(90.f), 0.f, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f)};
     RenderLayout m_renderLayout;
 
     Entity m_Root;
