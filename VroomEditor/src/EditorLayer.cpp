@@ -304,18 +304,7 @@ void EditorLayer::onEvent(vrm::Event& e)
 
 void EditorLayer::onViewportResize(int newWidth, int newHeight)
 {
-  Event e;
-  e.type = Event::Type::WindowsResized;
-  e.newWidth = newWidth;
-  e.newHeight = newHeight;
-  auto& gameLayer = Application::Get().getGameLayer();
-
-  // We trick the game layer to handle resize event even if it is not handling events
-  // because we want the viewport to be smooth on resize, even when the game isn't playing.
-  bool handledEvents = gameLayer.isHandlingEvents();
-  gameLayer.setShouldHandleEvents(true);
-  gameLayer.submitEvent(e);
-  gameLayer.setShouldHandleEvents(handledEvents);
+  Application::Get().getMainScene().onWindowResized({ newWidth, newHeight });
 }
 
 void EditorLayer::_loadScriptsRuntimeLibrary()

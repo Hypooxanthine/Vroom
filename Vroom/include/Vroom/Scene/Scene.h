@@ -59,6 +59,11 @@ namespace vrm
      */
     void end();
 
+    void onWindowResized(const glm::uvec2& size);
+
+    // If true, the scene will register to the window resize event
+    void setResizesWithWindow(bool resizesWithWindow);
+
     /**
      * @brief Notify the scene it has spawned. Will notify all entities as well.
      *

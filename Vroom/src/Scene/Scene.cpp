@@ -39,13 +39,6 @@ Scene::~Scene()
 
 void Scene::init()
 {
-  m_windowResizeBinder = Application::Get().getGameLayer().getCustomEvent(
-      "VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE");
-
-  m_windowResizeBinder.bindCallback([this](const Event &e) {
-    m_renderer->setFrameSize( { e.newWidth, e.newHeight });
-  });
-
   onInit();
 }
 
@@ -106,6 +99,24 @@ void Scene::end()
 
   m_Registry.clear(); // So that entities are destroyed properly
   m_renderer.reset();
+}
+
+void Scene::onWindowResized(const glm::uvec2& size)
+{
+  m_renderer->setFrameSize(size);
+}
+
+void Scene::setResizesWithWindow(bool resizesWithWindow)
+{
+  m_windowResizeBinder = Application::Get().getGameLayer().getCustomEvent(
+      "VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE");
+
+  if (resizesWithWindow)
+  {
+    m_windowResizeBinder.bindCallback([this](const Event &e) {
+      onWindowResized( { e.newWidth, e.newHeight });
+    });
+  }
 }
 
 void Scene::spawn()

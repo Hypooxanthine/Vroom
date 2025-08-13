@@ -4,12 +4,26 @@
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Scene/Scene.h"
 #include "VroomEditor/UserInterface/ImGuiElement.h"
+#include "VroomEditor/UserInterface/ViewportModule.h"
+#include <functional>
 
 namespace vrm
 {
 
   class ParticleSystemEditor : public ImGuiElement
   {
+  private:
+
+    struct MyViewportModule : public ViewportModule
+    {
+      std::function<void(const glm::uvec2&)> resizeCb;
+
+    protected:
+      void onPopupImgui(const ImVec2& texturePx) override;
+      void onLeftClick(const ImVec2& texturePx) override;
+      void onResize(const ImVec2& size) override;
+    };
+
   public:
 
     ParticleSystemEditor();
@@ -33,6 +47,8 @@ namespace vrm
   private:
 
   private:
+
+    MyViewportModule m_viewport;
 
     ParticleSystemAsset::Handle m_particlesAsset;
     Scene m_scene;
