@@ -4,6 +4,7 @@
 #include "Vroom/Render/Passes/DrawScenePass.h"
 #include "Vroom/Render/Passes/GaussianBlurPass.h"
 #include "Vroom/Render/Passes/LightClusteringPass.h"
+#include "Vroom/Render/Passes/RenderParticlesPass.h"
 #include "Vroom/Render/Passes/RenderSkyboxPass.h"
 #include "Vroom/Render/Passes/ShadowMappingPass.h"
 #include "Vroom/Render/Passes/ToneMappingPass.h"
@@ -186,11 +187,17 @@ void RenderPipeline::generate()
     }
   }
 
+  // Skybox
   {
     auto& pass = m_passManager.pushPass<RenderSkyboxPass>();
 
     pass.skybox = m_context.skybox;
     pass.framebuffer = m_renderFrameBuffer;
+  }
+
+  // Particles
+  {
+    auto& pass = m_passManager.pushPass<RenderParticlesPass>();
   }
 
   // Entity picking
