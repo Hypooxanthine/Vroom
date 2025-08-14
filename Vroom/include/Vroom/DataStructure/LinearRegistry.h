@@ -3,7 +3,6 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
-#include <map>
 #include <set>
 
 #include "Vroom/Core/Assert.h"
@@ -20,6 +19,7 @@ namespace vrm
     using KeySet = std::unordered_set<IdType>;
     using ElementType = T;
     using KeyType = IdType;
+    using const_iterator = ContainerType::const_iterator;
 
   public:
 
@@ -153,70 +153,11 @@ namespace vrm
 
   public:
 
-    class const_iterator
-    {
-    public:
-      using iterator_category = std::forward_iterator_tag;
-      using value_type = std::pair<const IdType&, const T&>;
-      using difference_type = std::ptrdiff_t;
-      using pointer = void;
-      using reference = value_type;
+    const_iterator begin() const { return m_data.begin(); }
+    const_iterator end() const { return m_data.end(); }
 
-      const_iterator(size_t index, const LinearRegistry* registry)
-        : m_index(index), m_registry(registry)
-      {
-      }
-
-      const_iterator& operator=(const const_iterator& other)
-      {
-        if (this != &other)
-        {
-          m_registry = other.m_registry;
-          m_index = other.m_index;
-        }
-
-        return *this;
-      }
-
-      const_iterator& operator++()
-      {
-        ++m_index;
-        return *this;
-      }
-
-      const_iterator& operator+=(size_t count)
-      {
-        m_index += count;
-        return *this;
-      }
-
-      bool operator==(const const_iterator& other) const
-      {
-        return m_index == other.m_index;
-      }
-
-      bool operator!=(const const_iterator& other) const
-      {
-        return m_index != other.m_index;
-      }
-
-      value_type operator*() const
-      {
-        const auto& id = m_registry->m_idMap.at(m_index);
-        const auto& element = m_registry->m_data.at(m_index);
-        return { id, element };
-      }
-
-    private:
-      size_t m_index;
-      const LinearRegistry* m_registry;
-    };
-
-    const_iterator begin() const { return const_iterator(0, this); }
-    const_iterator end() const { return const_iterator(m_data.size(), this); }
-
-    const_iterator cbegin() const { return const_iterator(0, this); }
-    const_iterator cend() const { return const_iterator(m_data.size(), this); }
+    const_iterator cbegin() const { return m_data.cbegin(); }
+    const_iterator cend() const { return m_data.cend(); }
 
   private:
     ContainerType m_data;

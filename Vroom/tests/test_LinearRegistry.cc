@@ -12,8 +12,7 @@ TEST(test_LinearRegistry, TestAddElement)
   registry.endRegistering();
 
   const auto& element = registry.begin();
-  EXPECT_EQ((*element).first, 1);
-  EXPECT_EQ((*element).second, 42);
+  EXPECT_EQ((*element), 42);
 }
 
 TEST(test_LinearRegistry, TestContains)
@@ -64,11 +63,9 @@ TEST(test_LinearRegistry, TestConstIterator)
 
   // Utilisation de l'itérateur constant
   auto it = registry.begin();
-  EXPECT_EQ((*it).first, 1);
-  EXPECT_EQ((*it).second, 42);
+  EXPECT_EQ((*it), 42);
   ++it;
-  EXPECT_EQ((*it).first, 4);
-  EXPECT_EQ((*it).second, 3);
+  EXPECT_EQ((*it), 3);
 }
 
 TEST(test_LinearRegistry, TestMultipleSubmissions)
@@ -83,14 +80,11 @@ TEST(test_LinearRegistry, TestMultipleSubmissions)
 
   // Vérification que les éléments ont été insérés
   auto it = registry.begin();
-  EXPECT_EQ((*it).first, 1);
-  EXPECT_EQ((*it).second, 42);
+  EXPECT_EQ((*it), 42);
   ++it;
-  EXPECT_EQ((*it).first, 2);
-  EXPECT_EQ((*it).second, 43);
+  EXPECT_EQ((*it), 43);
   ++it;
-  EXPECT_EQ((*it).first, 3);
-  EXPECT_EQ((*it).second, 44);
+  EXPECT_EQ((*it), 44);
 }
 
 TEST(test_LinearRegistry, TestDoubleStartRegistering)
@@ -110,16 +104,14 @@ TEST(test_LinearRegistry, TestElementReplacement)
   registry.endRegistering();
 
   auto it = registry.begin();
-  EXPECT_EQ((*it).first, 1);
-  EXPECT_EQ((*it).second, 42);
+  EXPECT_EQ((*it), 42);
 
   registry.startRegistering();
   registry.submit(1, 100);
   registry.endRegistering();
 
   it = registry.begin();
-  EXPECT_EQ((*it).first, 1);
-  EXPECT_EQ((*it).second, 100);
+  EXPECT_EQ((*it), 100);
 }
 
 TEST(test_LinearRegistry, TestContainsAfterDeletion)
@@ -174,7 +166,7 @@ TEST(test_LinearRegistry, BigTest)
     EXPECT_TRUE(registry.contains(i));
     EXPECT_TRUE(registry.getRegisteredKeys().contains(i));
     EXPECT_TRUE(!registry.getJustRemovedKeys().contains(i));
-    EXPECT_TRUE(std::find(registry.begin(), registry.end(), std::make_pair(i, 10 * i + i % 10)) != registry.end());
+    EXPECT_TRUE(std::find(registry.begin(), registry.end(), 10 * i + i % 10) != registry.end());
   }
 
   registry.startRegistering();
@@ -194,7 +186,7 @@ TEST(test_LinearRegistry, BigTest)
     EXPECT_TRUE(registry.contains(i));
     EXPECT_TRUE(registry.getRegisteredKeys().contains(i));
     EXPECT_TRUE(!registry.getJustRemovedKeys().contains(i));
-    EXPECT_TRUE(std::find(registry.begin(), registry.end(), std::make_pair(i, 10 * i + i % 10)) != registry.end());
+    EXPECT_TRUE(std::find(registry.begin(), registry.end(), 10 * i + i % 10) != registry.end());
   }
 
   for (int i = 1; i < itemCount; i += 2)
@@ -202,6 +194,6 @@ TEST(test_LinearRegistry, BigTest)
     EXPECT_TRUE(!registry.contains(i));
     EXPECT_TRUE(!registry.getRegisteredKeys().contains(i));
     EXPECT_TRUE(registry.getJustRemovedKeys().contains(i));
-    EXPECT_TRUE(std::find(registry.begin(), registry.end(), std::make_pair(i, 10 * i + i % 10)) == registry.end());
+    EXPECT_TRUE(std::find(registry.begin(), registry.end(), 10 * i + i % 10) == registry.end());
   }
 }
