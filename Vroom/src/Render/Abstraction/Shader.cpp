@@ -18,6 +18,11 @@ Shader::~Shader()
   unload();
 }
 
+glm::uvec3 Shader::ComputeDispatchSize(const glm::uvec3& localSize, const glm::uvec3& desiredMinInvocations)
+{
+  return (desiredMinInvocations + localSize - glm::uvec3(1)) / localSize;
+}
+
 bool Shader::addShaderStage(const EShaderType& type, const GLString& source, bool checkErrors)
 {
   if (m_RendererID == 0)

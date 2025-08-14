@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/AutoBuffer.h"
 #include "Vroom/Render/ParticleEmitter.h"
 #include "Vroom/Render/ParticleEmitterRegistry.h"
@@ -45,8 +46,12 @@ namespace vrm
 
     void _updateEmittersData();
     void _updateParticleStates();
+    void _bindEmittersData(const gl::Shader& shader) const;
+    void _bindParticleStates(const gl::Shader& shader) const;
 
   private:
+
+    constexpr static glm::uvec3 s_updaterGroupSize = { 64, 1, 1 };
 
     render::AutoBuffer m_emittersDataBuffer;
     render::AutoBuffer m_particleStatesBuffer;

@@ -1,0 +1,34 @@
+#ifndef PARTICLE_TYPES_GLSL
+#define PARTICLE_TYPES_GLSL
+
+struct ParticleEmitterSpecs
+{
+  float lifeTime;
+  float emitRate;
+
+  vec3 color;
+
+  vec3 initialPosition;
+  vec3 initialVelocity;
+  vec3 acceleration;
+
+  vec3 initialScale;
+  vec3 scaleOverTime;
+};
+
+struct ParticleStates
+{
+  vec3 position;
+  vec3 velocity;
+  vec3 acceleration;
+  bool alive;
+  float ellapsedLifeTime;
+  float maxLifeTime;
+};
+
+struct ParticleInstanceData
+{
+  mat4 modelMatrix;
+};
+
+#endif // PARTICLE_TYPES_GLSL

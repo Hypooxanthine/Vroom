@@ -4,11 +4,66 @@
   },
   "Compute": {
     "EarlySources": [
+      "Resources/Engine/Shader/Custom/ParticleTypes.glsl"
     ],
     "Sources": [
       "Resources/Engine/Shader/Custom/UpdateParticles_compute.glsl"
     ],
     "Uniforms": [
+      {
+        "Name": "u_maxParticleCount",
+        "Type": "uint"
+      },
+      {
+        "Name": "u_deltaTime",
+        "Type": "float"
+      }
+    ],
+    "StorageBuffers": [
+      {
+        "Name": "EmittersDataBlock",
+        "Layout": "std430",
+        "Qualifiers": [
+          "restrict",
+          "coherent",
+          "readonly"
+        ],
+        "Variables": [
+          {
+            "Name": "g_emitters[]",
+            "Type": "ParticleEmitterSpecs"
+          }
+        ]
+      },
+      {
+        "Name": "ParticleStatesBlock",
+        "Layout": "std430",
+        "Qualifiers": [
+          "restrict",
+          "coherent"
+        ],
+        "Variables": [
+          {
+            "Name": "g_particles[]",
+            "Type": "ParticleStates"
+          }
+        ]
+      },
+      {
+        "Name": "ParticleInstanceDataBlock",
+        "Layout": "std430",
+        "Qualifiers": [
+          "restrict",
+          "coherent",
+          "writeonly"
+        ],
+        "Variables": [
+          {
+            "Name": "g_particleInstanceData[]",
+            "Type": "ParticleInstanceData"
+          }
+        ]
+      }
     ]
   }
 }

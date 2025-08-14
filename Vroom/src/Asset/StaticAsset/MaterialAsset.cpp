@@ -177,6 +177,8 @@ bool MaterialAsset::loadImpl(const std::string &filePath)
   else if (m_data.getType() == MaterialData::EType::eCustomShader)
   {
     ShaderAsset::Handle shader = manager.tryGetAsset<ShaderAsset>(m_data.getCustomShader());
+    VRM_CHECK_RET_FALSE_MSG(shader.isValid(), "Could not load custom material implementation {}", m_data.getCustomShader());
+    
     m_materialShaderData.absorb(shader->getShaderData());
     m_materialShaderData.addDefine(ShaderData::EShaderType::eAll, { "VRM_CUSTOM_SHADER", "1" });
   }

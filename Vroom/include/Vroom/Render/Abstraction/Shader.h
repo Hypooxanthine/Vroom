@@ -38,6 +38,8 @@ namespace vrm::gl
      */
     virtual ~Shader();
 
+    static glm::uvec3 ComputeDispatchSize(const glm::uvec3& localSize, const glm::uvec3& desiredMinInvocations);
+
     bool addShaderStage(const EShaderType &type, const GLString &source, bool checkErrors);
     bool validate(bool checkErrors);
 
