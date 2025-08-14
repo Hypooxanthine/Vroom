@@ -5,6 +5,7 @@
 #include "Vroom/Core/Application.h"
 
 #include "Vroom/Render/GPURuntimeFeatures.h"
+#include "Vroom/Render/ParticleEmitter.h"
 #include "Vroom/Render/Passes/RenderPass.h"
 #include "Vroom/Render/Passes/LightClusteringPass.h"
 #include "Vroom/Render/Passes/ShadowMappingPass.h"
@@ -15,6 +16,7 @@
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 
 #include "Vroom/Render/RenderPipeline.h"
+#include "Vroom/Scene/Components/ParticleSystemComponent.h"
 #include "Vroom/Scene/Components/PointLightComponent.h"
 #include "Vroom/Scene/Components/DirectionalLightComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
@@ -36,6 +38,7 @@ Renderer::Renderer()
   ctx.lights = &m_LightRegistry;
   ctx.meshes = &m_meshRegistry;
   ctx.skybox = &m_skybox;
+  ctx.particleEmitters = &m_particleEmitterRegistry;
 
   m_pipeline.setContext(ctx);
 }
@@ -52,6 +55,7 @@ void Renderer::beginScene(const RenderLayout* layout)
 
   m_meshRegistry.startRegistering();
   m_LightRegistry.startRegistering();
+  m_particleEmitterRegistry.startRegistering();
   m_skybox.clear();
 }
 
@@ -59,6 +63,7 @@ void Renderer::endScene()
 {
   m_meshRegistry.endRegistering();
   m_LightRegistry.endRegistering();
+  m_particleEmitterRegistry.endRegistering();
 
   RenderPassContext renderContext;
   for (size_t row = 0; row < m_renderLayout->getRows(); ++row)
@@ -106,6 +111,18 @@ void Renderer::submitPointLight(size_t id, const PointLightComponent& pointLight
 void Renderer::submitDirectionalLight(size_t id, const DirectionalLightComponent& dirLight, const glm::vec3& direction)
 {
   m_LightRegistry.submitLight(dirLight, direction, id);
+}
+
+void Renderer::submitParticleSystem(uint32_t entityId, const ParticleSystemComponent& system)
+{
+  const auto& emitters = system.getEmitters();
+
+  for (size_t i = 0; i < emitters.size(); ++i)
+  {
+    const ParticleEmitter* emitter = &emitters[i];
+    size_t id =  ((size_t)id << 32) | i;
+    m_particleEmitterRegistry.submit(id, emitter);
+  }
 }
 
 void Renderer::setFrameSize(const glm::uvec2& s)

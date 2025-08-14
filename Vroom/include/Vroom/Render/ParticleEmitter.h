@@ -7,12 +7,17 @@ namespace vrm
 
   struct ParticleEmitterSpecs
   {
-    float lifetTime = 10.f;
+    float lifeTime = 10.f;
     float emitRate = 1.f;
+
     glm::vec3 color = { 0.f, 0.f, 0.f };
+
     glm::vec3 initialPosition = { 0.f, 0.f, 0.f };
     glm::vec3 initialVelocity = { 0.f, 1.f, 0.f };
     glm::vec3 acceleration = { 0.f, 0.f, 0.f };
+
+    glm::vec3 initialScale = { 1.f, 1.f, 1.f };
+    glm::vec3 scaleOverTime = { 1.f, 1.f, 1.f };
   };
 
   class ParticleEmitter
@@ -25,8 +30,8 @@ namespace vrm
     ParticleEmitter& operator=(const ParticleEmitter& other) = delete;
     ParticleEmitter(const ParticleEmitter& other) = delete;
 
-    ParticleEmitter& operator=(ParticleEmitter&& other) = delete;
-    ParticleEmitter(ParticleEmitter&& other) = delete;
+    ParticleEmitter& operator=(ParticleEmitter&& other) = default;
+    ParticleEmitter(ParticleEmitter&& other) = default;
     
     inline void setSpecs(const ParticleEmitterSpecs& specs) { m_specs = specs; m_specsDirty = true; }
 

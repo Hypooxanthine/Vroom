@@ -2,6 +2,9 @@
 
 #include "Vroom/Api.h"
 #include "Vroom/Asset/StaticAsset/ParticleSystemAsset.h"
+#include "Vroom/Render/ParticleEmitter.h"
+#include <span>
+#include <vector>
 
 namespace vrm
 {
@@ -16,6 +19,10 @@ namespace vrm
 
     void setParticleSystem(ParticleSystemAsset::Handle asset);
 
+    void addEmitter(ParticleEmitter&& emitter);
+
+    std::span<ParticleEmitter const> getEmitters() const { return std::span{ m_emitters }; }
+
     ParticleSystemComponent(const ParticleSystemComponent&) = delete;
     ParticleSystemComponent& operator=(const ParticleSystemComponent&) = delete;
 
@@ -25,6 +32,8 @@ namespace vrm
   private:
 
     ParticleSystemAsset::Handle m_asset = {};
+
+    std::vector<ParticleEmitter> m_emitters;
 
   };
   

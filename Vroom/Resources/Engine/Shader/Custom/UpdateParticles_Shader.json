@@ -1,0 +1,14 @@
+{
+  "Global": {
+    "Version": "460 core"
+  },
+  "Compute": {
+    "EarlySources": [
+    ],
+    "Sources": [
+      "Resources/Engine/Shader/Custom/UpdateParticles_compute.glsl"
+    ],
+    "Uniforms": [
+    ]
+  }
+}

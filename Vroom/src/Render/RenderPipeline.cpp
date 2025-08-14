@@ -198,6 +198,7 @@ void RenderPipeline::generate()
   // Particles
   {
     auto& pass = m_passManager.pushPass<RenderParticlesPass>();
+    pass.emitters = m_context.particleEmitters;
   }
 
   // Entity picking

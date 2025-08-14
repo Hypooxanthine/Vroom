@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vroom/Api.h"
+#include "Vroom/Render/ParticleEmitterRegistry.h"
 #include "Vroom/Render/Passes/RenderPassManager.h"
 #include "Vroom/Render/RenderResources.h"
 #include "Vroom/Render/DynamicRenderSettings.h"
@@ -20,6 +21,7 @@ namespace vrm
     MeshRegistry* meshes = nullptr;
     LightRegistry* lights = nullptr;
     RenderSkybox* skybox = nullptr;
+    ParticleEmitterRegistry* particleEmitters = nullptr;
   };
 
   class VRM_API RenderPipeline

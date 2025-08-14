@@ -22,3 +22,10 @@ void ParticleSystemComponent::setParticleSystem(ParticleSystemAsset::Handle asse
 {
   m_asset = asset;
 }
+
+void ParticleSystemComponent::addEmitter(ParticleEmitter&& emitter)
+{
+  m_emitters.emplace_back(std::move(emitter));
+}
+
+

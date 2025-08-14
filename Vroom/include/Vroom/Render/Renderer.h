@@ -5,6 +5,7 @@
 #include "Vroom/Api.h"
 
 #include "Vroom/Render/GPURuntimeFeatures.h"
+#include "Vroom/Render/ParticleEmitterRegistry.h"
 #include "Vroom/Render/RenderPipeline.h"
 #include "Vroom/Render/MeshRegistry.h"
 #include "Vroom/Render/RenderObject/RenderSkybox.h"
@@ -20,6 +21,7 @@ namespace vrm
   class MeshComponent;
   class SkyboxComponent;
   class RenderLayout;
+  class ParticleSystemComponent;
 
   namespace gl
   {
@@ -68,6 +70,8 @@ namespace vrm
 
     void submitDirectionalLight(size_t id, const DirectionalLightComponent& dirLight, const glm::vec3& direction);
 
+    void submitParticleSystem(uint32_t id, const ParticleSystemComponent& system);
+
     inline const glm::uvec2& getFrameSize() const { return m_frameSize; }
     void setFrameSize(const glm::uvec2& s);
 
@@ -88,6 +92,7 @@ namespace vrm
     MeshRegistry m_meshRegistry;
     LightRegistry m_LightRegistry;
     RenderSkybox m_skybox;
+    ParticleEmitterRegistry m_particleEmitterRegistry;
 
   };
 
