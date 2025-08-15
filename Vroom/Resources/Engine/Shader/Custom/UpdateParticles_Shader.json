@@ -4,7 +4,8 @@
   },
   "Compute": {
     "EarlySources": [
-      "Resources/Engine/Shader/Custom/ParticleTypes.glsl"
+      "Resources/Engine/Shader/Custom/ParticleTypes.glsl",
+      "Resources/Engine/Shader/Custom/IndirectTypes.glsl"
     ],
     "Sources": [
       "Resources/Engine/Shader/Custom/UpdateParticles_compute.glsl"
@@ -31,7 +32,21 @@
         "Variables": [
           {
             "Name": "g_emitters[]",
-            "Type": "ParticleEmitterSpecs"
+            "Type": "EmitterData"
+          }
+        ]
+      },
+      {
+        "Name": "SpawnCountersBlock",
+        "Layout": "std430",
+        "Qualifiers": [
+          "restrict",
+          "coherent"
+        ],
+        "Variables": [
+          {
+            "Name": "g_counters[]",
+            "Type": "uint"
           }
         ]
       },
@@ -46,6 +61,20 @@
           {
             "Name": "g_particles[]",
             "Type": "ParticleStates"
+          }
+        ]
+      },
+      {
+        "Name": "IndirectCommandsBlock",
+        "Layout": "std430",
+        "Qualifiers": [
+          "restrict",
+          "coherent"
+        ],
+        "Variables": [
+          {
+            "Name": "g_indirectCommands[]",
+            "Type": "DrawElementsIndirectCommand"
           }
         ]
       },

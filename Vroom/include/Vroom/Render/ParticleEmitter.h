@@ -5,6 +5,8 @@
 namespace vrm
 {
 
+  class DeltaTime;
+
   struct ParticleEmitterSpecs
   {
     float lifeTime = 10.f;
@@ -32,16 +34,26 @@ namespace vrm
 
     ParticleEmitter& operator=(ParticleEmitter&& other) = default;
     ParticleEmitter(ParticleEmitter&& other) = default;
+
+    void update(const DeltaTime& dt);
     
-    inline void setSpecs(const ParticleEmitterSpecs& specs) { m_specs = specs; m_specsDirty = true; }
+    inline void setSpecs(const ParticleEmitterSpecs& specs) { m_specs = specs; }
 
     inline const ParticleEmitterSpecs& getSpecs() const { return m_specs; }
-    inline ParticleEmitterSpecs& getSpecs() { m_specsDirty = true; return m_specs; }
+    inline ParticleEmitterSpecs& getSpecs() { return m_specs; }
+
+    inline float getTimeSinceStart() const { return m_timeAlive; }
+    inline unsigned int getNextParticleCountToSpawn() const { return m_nextParticlesToSpawn; }
+    inline float getNextParticleToSpawnStartingLifetime() const { return m_nextParticleSpawnLifetime; }
 
   private:
 
     ParticleEmitterSpecs m_specs;
-    bool m_specsDirty = true;
+    float m_timeAlive = 0.f;
+    float m_lastSpawnedParticleStamp = 0.f;
+
+    float m_nextParticleSpawnLifetime = 0.f;
+    unsigned int m_nextParticlesToSpawn = 0;
   };
 
 }

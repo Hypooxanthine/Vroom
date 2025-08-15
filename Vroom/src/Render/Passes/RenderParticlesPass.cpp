@@ -8,20 +8,33 @@
 #include "Vroom/Render/ParticleEmitter.h"
 #include "Vroom/Render/Passes/RenderPass.h"
 #include "glm/fwd.hpp"
+#include <vector>
 
 using namespace vrm;
 
 namespace
 {
 
+  struct RawEmitterData
+  {
+    glm::uint particlesToSpawn;
+    float firstParticleStamp;
+    ParticleEmitterSpecs specs;
+  };
+
   struct RawParticleStates
   {
     glm::vec3 position;
     glm::vec3 velocity;
     glm::vec3 acceleration;
-    bool alive;
+    glm::uint alive;
     float ellapsedLifeTime;
     float maxLifeTime;
+  };
+
+  struct RawInstanceData
+  {
+    glm::mat4 modelMatrix;
   };
 
 }
@@ -60,6 +73,8 @@ void RenderParticlesPass::onSetup(const RenderPassContext &ctx)
     _updateEmittersData();
     _updateParticleStates();
   }
+
+  _uploadIndirectCommandsData();
 }
 
 void RenderParticlesPass::onRender(const RenderPassContext &ctx) const
@@ -72,7 +87,9 @@ void RenderParticlesPass::onRender(const RenderPassContext &ctx) const
   const gl::Shader& updaterShader = m_updaterMaterial->getShader();
   updaterShader.bind();
   _bindEmittersData(updaterShader);
+  _bindIndirectCommands(updaterShader);
   _bindParticleStates(updaterShader);
+  _bindParticleInstanceData(updaterShader);
   updaterShader.setUniform1ui("u_maxParticleCount", m_maxParticleCount);
   updaterShader.setUniform1f("u_deltaTime", Application::Get().getDeltaTime().seconds());
 
@@ -82,7 +99,15 @@ void RenderParticlesPass::onRender(const RenderPassContext &ctx) const
 
 void RenderParticlesPass::_updateEmittersData()
 {
-  m_emittersDataBuffer.ensureCapacity(sizeof(ParticleEmitterSpecs) * emitters->getElementCount());
+  m_emittersDataBuffer.ensureCapacity(sizeof(RawEmitterData) * emitters->getElementCount());
+  m_indirectCommandsBuffer.ensureCapacity(sizeof(RawDrawElementsIndirectCommand) * emitters->getElementCount());
+
+  m_indirectCommands.resize(emitters->getElementCount());
+
+  for (RawDrawElementsIndirectCommand& cmd : m_indirectCommands)
+  {
+    // Assign command data... (no mesh has been setup for now)
+  }
 }
 
 void RenderParticlesPass::_updateParticleStates()
@@ -97,6 +122,7 @@ void RenderParticlesPass::_updateParticleStates()
   }
 
   m_particleStatesBuffer.ensureCapacity(sizeof(RawParticleStates) * maxParticleCount, true);
+  m_instanceDataBuffer.ensureCapacity(sizeof(RawInstanceData) * maxParticleCount, false);
 
   if (maxParticleCount > m_maxParticleCount)
   {
@@ -110,7 +136,7 @@ void RenderParticlesPass::_updateParticleStates()
 
     for (RawParticleStates& states : mapped)
     {
-      states.alive = false; // So it can be spawned
+      states.alive = 0; // So it can be spawned
       // The rest of the data is irrelevant since the particle is not alive
     }
 
@@ -125,7 +151,37 @@ void RenderParticlesPass::_bindEmittersData(const gl::Shader& shader) const
   shader.setStorageBuffer("EmittersDataBlock", m_emittersDataBuffer.getBuffer());
 }
 
+void RenderParticlesPass::_bindSpawnCounters(const gl::Shader& shader) const
+{
+  shader.setStorageBuffer("SpawnCountersBlock", m_emittersDataBuffer.getBuffer());
+}
+
+void RenderParticlesPass::_bindIndirectCommands(const gl::Shader& shader) const
+{
+  shader.setStorageBuffer("IndirectCommandsBlock", m_indirectCommandsBuffer.getBuffer());
+}
+
 void RenderParticlesPass::_bindParticleStates(const gl::Shader& shader) const
 {
   shader.setStorageBuffer("ParticleStatesBlock", m_particleStatesBuffer.getBuffer());
+}
+
+void RenderParticlesPass::_bindParticleInstanceData(const gl::Shader& shader) const
+{
+  shader.setStorageBuffer("ParticleInstanceDataBlock", m_instanceDataBuffer.getBuffer());
+}
+
+void RenderParticlesPass::_uploadIndirectCommandsData() const
+{
+  if (m_indirectCommands.size() > 0)
+  {
+    GLCall(
+      glNamedBufferData(
+        m_indirectCommandsBuffer.getBuffer().getRenderId(),
+        m_indirectCommands.size() * sizeof(RawDrawElementsIndirectCommand),
+        m_indirectCommands.data(),
+        GL_DYNAMIC_DRAW  
+      )
+    );
+  }
 }

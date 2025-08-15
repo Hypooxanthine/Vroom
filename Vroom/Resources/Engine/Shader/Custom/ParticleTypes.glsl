@@ -16,12 +16,19 @@ struct ParticleEmitterSpecs
   vec3 scaleOverTime;
 };
 
+struct EmitterData
+{
+  uint particlesToSpawn;
+  float firstParticleStamp;
+  ParticleEmitterSpecs specs;
+};
+
 struct ParticleStates
 {
   vec3 position;
   vec3 velocity;
   vec3 acceleration;
-  bool alive;
+  uint alive;
   float ellapsedLifeTime;
   float maxLifeTime;
 };
