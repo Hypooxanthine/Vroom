@@ -8,6 +8,7 @@
 #include "Vroom/Render/Renderer.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
 
+#include "Vroom/Scene/Components/ParticleSystemComponent.h"
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Scene/Components/NameComponent.h"
 #include "Vroom/Scene/Components/TransformComponent.h"
@@ -42,6 +43,13 @@ void Scene::init()
 void Scene::update(const DeltaTime& dt)
 {
   onUpdate(dt);
+
+  auto viewParticles = m_Registry.view<ParticleSystemComponent>();
+  for (auto entity : viewParticles)
+  {
+    auto& particleSystem = viewParticles.get<ParticleSystemComponent>(entity);
+    particleSystem.update(dt);
+  }
 
   auto viewScripts = m_Registry.view<ScriptHandler>();
   for (auto entity : viewScripts)

@@ -28,4 +28,12 @@ void ParticleSystemComponent::addEmitter(ParticleEmitter&& emitter)
   m_emitters.emplace_back(std::move(emitter));
 }
 
+void ParticleSystemComponent::update(const DeltaTime& dt)
+{
+  for (auto& emitter : m_emitters)
+  {
+    emitter.update(dt);
+  }
+}
+
 

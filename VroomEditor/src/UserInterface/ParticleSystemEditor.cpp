@@ -1,5 +1,6 @@
 #include "VroomEditor/UserInterface/ParticleSystemEditor.h"
 #include "Vroom/Core/Application.h"
+#include "Vroom/Render/ParticleEmitter.h"
 #include "Vroom/Render/Renderer.h"
 #include "Vroom/Scene/Components/ParticleSystemComponent.h"
 #include "Vroom/Scene/Components/SkyboxComponent.h"
@@ -28,7 +29,11 @@ ParticleSystemEditor::ParticleSystemEditor()
 {
   m_scene.init();
   m_entity = m_scene.createEntity("Particles");
-  m_entity.addComponent<ParticleSystemComponent>();
+  auto& psc = m_entity.addComponent<ParticleSystemComponent>();
+  ParticleEmitterSpecs specs;
+  ParticleEmitter emitter;
+  emitter.setSpecs(specs);
+  psc.addEmitter(std::move(emitter));
 
   m_scene.createEntity("Skybox").addComponent<SkyboxComponent>();
 

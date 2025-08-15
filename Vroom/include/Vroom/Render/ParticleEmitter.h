@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Vroom/Api.h"
+
 #include <glm/glm.hpp>
 
 namespace vrm
@@ -7,7 +9,7 @@ namespace vrm
 
   class DeltaTime;
 
-  struct ParticleEmitterSpecs
+  struct VRM_API ParticleEmitterSpecs
   {
     float lifeTime = 10.f;
     float emitRate = 1.f;
@@ -22,7 +24,7 @@ namespace vrm
     glm::vec3 scaleOverTime = { 1.f, 1.f, 1.f };
   };
 
-  class ParticleEmitter
+  class VRM_API ParticleEmitter
   {
   public:
 

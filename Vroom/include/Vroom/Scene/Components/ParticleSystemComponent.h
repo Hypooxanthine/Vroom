@@ -8,6 +8,8 @@
 
 namespace vrm
 {
+
+  class DeltaTime;
   
   class VRM_API ParticleSystemComponent
   {
@@ -20,6 +22,8 @@ namespace vrm
     void setParticleSystem(ParticleSystemAsset::Handle asset);
 
     void addEmitter(ParticleEmitter&& emitter);
+
+    void update(const DeltaTime& dt);
 
     std::span<ParticleEmitter const> getEmitters() const { return std::span{ m_emitters }; }
 
