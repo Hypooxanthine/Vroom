@@ -32,12 +32,12 @@
         "Variables": [
           {
             "Name": "g_emitters[]",
-            "Type": "EmitterData"
+            "Type": "ParticleEmitterSpecs"
           }
         ]
       },
       {
-        "Name": "SpawnCountersBlock",
+        "Name": "EmitterSpawnDataBlock",
         "Layout": "std430",
         "Qualifiers": [
           "restrict",
@@ -45,8 +45,8 @@
         ],
         "Variables": [
           {
-            "Name": "g_counters[]",
-            "Type": "uint"
+            "Name": "g_spawnData[]",
+            "Type": "EmitterSpawnData"
           }
         ]
       },

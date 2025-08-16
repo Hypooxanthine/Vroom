@@ -33,7 +33,7 @@ void ParticleEmitter::update(const DeltaTime& dt)
   
   if (m_lastSpawnedParticleStamp + timePerParticle < m_timeAlive)
   {
-    m_nextParticleSpawnLifetime = m_lastSpawnedParticleStamp + timePerParticle;
+    m_nextParticleSpawnLifetime = std::fmod(m_lastSpawnedParticleStamp + timePerParticle, timePerParticle);
 
     // We need to spawn the correct amount of particles since last update
     while (m_lastSpawnedParticleStamp + timePerParticle < m_timeAlive)

@@ -42,12 +42,16 @@ namespace vrm
     ParticleEmitter(ParticleEmitter&& other) = default;
 
     void update(const DeltaTime& dt);
+
+    inline bool isDirty() const { return m_dirty; }
+    inline void undirtify() const { m_dirty = false; }
     
-    inline void setSpecs(const ParticleEmitterSpecs& specs) { m_specs = specs; }
+    inline void setSpecs(const ParticleEmitterSpecs& specs) { m_specs = specs; m_dirty = true; }
     inline void setMesh(MeshAsset::Handle meshAsset) { m_mesh = meshAsset; }
     inline void setMaterial(MaterialAsset::Handle materialAsset) { m_material = materialAsset; }
 
     inline const ParticleEmitterSpecs& getSpecs() const { return m_specs; }
+    inline ParticleEmitterSpecs& getSpecs() { m_dirty = true; return m_specs; }
     inline MeshAsset::Handle getMesh() const { return m_mesh; }
     inline MaterialAsset::Handle getMaterial() const { return m_material; }
 
@@ -58,6 +62,7 @@ namespace vrm
   private:
 
     ParticleEmitterSpecs m_specs;
+    mutable bool m_dirty = true;
     MeshAsset::Handle m_mesh;
     MaterialAsset::Handle m_material;
     

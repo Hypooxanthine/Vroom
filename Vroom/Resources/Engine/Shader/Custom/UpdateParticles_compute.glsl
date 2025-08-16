@@ -16,7 +16,8 @@ void main()
 
   const uint particleIndex = thread;
   
-  EmitterData emitterData = g_emitters[0];
+  ParticleEmitterSpecs emitterSpecs = g_emitters[0];
+  EmitterSpawnData emitterSpawnData = g_spawnData[0];
   ParticleStates states = g_particles[particleIndex];
   float updateDeltaTime = 0.f;
 
@@ -28,13 +29,13 @@ void main()
   {
     // Particle is not alive
     // Or will be dead after addind delta time
-    const uint spawnIndex = atomicAdd(g_counters[0], 1);
+    const uint spawnIndex = atomicAdd(g_spawnData[0].atomicCounter, 1);
     
-    if (spawnIndex < emitterData.particlesToSpawn)
+    if (spawnIndex < emitterSpawnData.particlesToSpawn)
     {
-      SpawnParticle(states, emitterData.specs);
-      const float timePerSpawn = 1.f / emitterData.specs.emitRate;
-      updateDeltaTime = emitterData.firstParticleStamp + float(spawnIndex) * timePerSpawn;
+      SpawnParticle(states, emitterSpecs);
+      const float timePerSpawn = 1.f / emitterSpecs.emitRate;
+      updateDeltaTime = emitterSpawnData.firstParticleStamp + float(spawnIndex) * timePerSpawn;
     }
     else
     {
@@ -44,7 +45,7 @@ void main()
 
   if (updateDeltaTime > 0.f)
   {
-    UpdateParticleStates(states, emitterData.specs, updateDeltaTime);
+    UpdateParticleStates(states, emitterSpecs, updateDeltaTime);
   }
 
   g_particles[particleIndex] = states;
@@ -55,14 +56,11 @@ void UpdateParticleStates(inout ParticleStates states, in ParticleEmitterSpecs s
   states.ellapsedLifeTime += dt;
   states.velocity += states.acceleration * dt;
   states.position += states.velocity * dt;
-  states.color = specs.color;
 
   uint instanceIndex = atomicAdd(g_indirectCommands[0].instanceCount, 1);
 
-  mat4 model = mat4(1.f);
-  model[3].xyz = states.position;
-
-  g_particleInstanceData[instanceIndex].modelMatrix = model;
+  g_particleInstanceData[instanceIndex].modelMatrix = mat4(1.f);
+  g_particleInstanceData[instanceIndex].modelMatrix[3].xyz = states.position;
   g_particleInstanceData[instanceIndex].color = states.color;
 }
 
@@ -73,5 +71,6 @@ void SpawnParticle(inout ParticleStates states, in ParticleEmitterSpecs emitterS
   states.velocity = emitterSpecs.initialVelocity;
   states.acceleration = emitterSpecs.acceleration;
   states.maxLifeTime = emitterSpecs.lifeTime;
+  states.color = emitterSpecs.color;
   states.ellapsedLifeTime = 0.f;
 }

@@ -12,6 +12,7 @@
 #include "Vroom/Render/Passes/RenderPass.h"
 #include "Vroom/Render/RenderObject/RenderMesh.h"
 #include "Vroom/Render/RenderView.h"
+#include "Vroom/Render/ParticleEmitter.h"
 #include "glm/fwd.hpp"
 #include <cstring>
 #include <vector>
@@ -21,27 +22,32 @@ using namespace vrm;
 namespace
 {
 
-  struct RawEmitterData
-  {
-    glm::uint particlesToSpawn;
-    float firstParticleStamp;
-    ParticleEmitterSpecs specs;
-  };
-
   struct RawParticleStates
   {
     glm::vec3 position;
-    glm::vec3 velocity;
-    glm::vec3 acceleration;
-    glm::vec4 color;
-    glm::uint alive;
     float ellapsedLifeTime;
+
+    glm::vec3 velocity;
     float maxLifeTime;
+
+    glm::vec3 acceleration;
+    glm::uint alive;
+
+    glm::vec4 color;
   };
 
   struct RawInstanceData
   {
     glm::mat4 modelMatrix;
+    glm::vec4 color;
+  };
+
+
+  struct RawEmitterSpawnData
+  {
+    glm::uint particlesToSpawn;
+    float firstParticleStamp;
+    glm::uint atomicCounter;
   };
 
 }
@@ -75,11 +81,8 @@ void RenderParticlesPass::onSetup(const RenderPassContext &ctx)
     return;
   }
 
-  if (emitters->wasJustModified())
-  {
-    _updateEmittersData();
-    _updateParticleStates();
-  }
+  _updateParticleStates();
+  _updateEmittersData();
 
   // Every frame to reset instance counts to zero
   _uploadIndirectCommandsData();
@@ -98,6 +101,7 @@ void RenderParticlesPass::onRender(const RenderPassContext &ctx) const
   _bindIndirectCommands(updaterShader);
   _bindParticleStates(updaterShader);
   _bindParticleInstanceData(updaterShader);
+  _bindSpawnData(updaterShader);
   updaterShader.setUniform1ui("u_maxParticleCount", m_maxParticleCount);
   updaterShader.setUniform1f("u_deltaTime", Application::Get().getDeltaTime().seconds());
 
@@ -137,32 +141,97 @@ void RenderParticlesPass::onRender(const RenderPassContext &ctx) const
 
 void RenderParticlesPass::_updateEmittersData()
 {
-  m_emittersDataBuffer.ensureCapacity(sizeof(RawEmitterData) * emitters->getElementCount());
-  m_indirectCommandsBuffer.ensureCapacity(sizeof(RawDrawElementsIndirectCommand) * emitters->getElementCount());
+  if (emitters->wasJustModified())
+  {
+    m_emittersDataBuffer.ensureCapacity(sizeof(RawParticleEmitterSpecs) * emitters->getElementCount());
+    m_spawnCountersBuffer.ensureCapacity(sizeof(RawEmitterSpawnData) * emitters->getElementCount());
+    m_indirectCommandsBuffer.ensureCapacity(sizeof(RawDrawElementsIndirectCommand) * emitters->getElementCount());
 
-  m_indirectCommands.resize(emitters->getElementCount());
-  m_particleMaterials.resize(emitters->getElementCount(), nullptr);
+    m_indirectCommands.resize(emitters->getElementCount());
+    m_particleMaterials.resize(emitters->getElementCount(), nullptr);
+    m_emittersData.resize(emitters->getElementCount());
+
+    for (size_t i = 0; i < emitters->getElementCount(); ++i)
+    {
+      const ParticleEmitter& emitter = *emitters->at(i);
+      RawDrawElementsIndirectCommand& cmd = m_indirectCommands.at(i);
+      const RenderMesh& mesh = emitter.getMesh()->getSubMeshes().at(0).renderMesh;
+
+      cmd.count = mesh.getIndexCount();
+      cmd.firstIndex = 0;
+      cmd.baseVertex = 0;
+      cmd.baseInstance = 0;
+      cmd.instanceCount = 0;
+
+      m_particleMaterials.at(i) = &getPassMaterial(emitter.getMaterial());
+    }
+  }
+
+  bool shouldReuploadEmitterSpecs = false;
 
   for (size_t i = 0; i < emitters->getElementCount(); ++i)
   {
-    const ParticleEmitter& emitter = *emitters->at(i);
-    RawDrawElementsIndirectCommand& cmd = m_indirectCommands.at(i);
-    const RenderMesh& mesh = emitter.getMesh()->getSubMeshes().at(0).renderMesh;
+    if (!emitters->at(i)->isDirty() && !emitters->wasJustModified())
+      continue;
 
-    cmd.count = mesh.getIndexCount();
-    cmd.firstIndex = 0;
-    cmd.baseVertex = 0;
-    cmd.baseInstance = 0;
-    cmd.instanceCount = 0;
+    RawParticleEmitterSpecs& rawSpecs = m_emittersData.at(i);
+    const ParticleEmitterSpecs& specs = emitters->at(i)->getSpecs();
 
-    m_particleMaterials.at(i) = &getPassMaterial(emitter.getMaterial());
+    rawSpecs.lifeTime = specs.lifeTime;
+    rawSpecs.emitRate = specs.emitRate;
+    rawSpecs.color = specs.color;
+    rawSpecs.initialPosition = specs.initialPosition;
+    rawSpecs.initialVelocity = specs.initialVelocity;
+    rawSpecs.acceleration = specs.acceleration;
+    rawSpecs.initialScale = specs.initialScale;
+    rawSpecs.scaleOverTime = specs.scaleOverTime;
+
+    shouldReuploadEmitterSpecs = true;
+
+    emitters->at(i)->undirtify();
+  }
+
+  // Updating spawn data
+  {
+    std::span<RawEmitterSpawnData> mapped = m_spawnCountersBuffer.mapWriteOnly<RawEmitterSpawnData>(
+      0,
+      sizeof(RawEmitterSpawnData) * emitters->getElementCount(),
+      true
+    );
+
+    for (size_t i = 0; i < emitters->getElementCount(); ++i)
+    {
+      RawEmitterSpawnData& rawData = mapped[i];
+      const ParticleEmitter& emitter = *emitters->at(i);
+
+      rawData.firstParticleStamp = emitter.getNextParticleToSpawnStartingLifetime();
+      rawData.particlesToSpawn = emitter.getNextParticleCountToSpawn();
+      rawData.atomicCounter = 0;
+    }
+
+    m_spawnCountersBuffer.unmap();
+  }
+
+  if (shouldReuploadEmitterSpecs)
+  {
+    std::span<RawParticleEmitterSpecs> mapped = m_emittersDataBuffer.mapWriteOnly<RawParticleEmitterSpecs>(
+      0,
+      sizeof(RawParticleEmitterSpecs) * emitters->getElementCount(),
+      true
+    );
+
+    std::memcpy(mapped.data(), m_emittersData.data(), sizeof(RawParticleEmitterSpecs) * m_emittersData.size());
+
+    m_emittersDataBuffer.unmap();
   }
 }
 
 void RenderParticlesPass::_updateParticleStates()
 {
+  if (!emitters->wasJustModified())
+    return;
+  
   glm::uint maxParticleCount = 0;
-
 
   for (const ParticleEmitter* emitter : *emitters)
   {
@@ -200,9 +269,9 @@ void RenderParticlesPass::_bindEmittersData(const gl::Shader& shader) const
   shader.setStorageBuffer("EmittersDataBlock", m_emittersDataBuffer.getBuffer());
 }
 
-void RenderParticlesPass::_bindSpawnCounters(const gl::Shader& shader) const
+void RenderParticlesPass::_bindSpawnData(const gl::Shader& shader) const
 {
-  shader.setStorageBuffer("SpawnCountersBlock", m_emittersDataBuffer.getBuffer());
+  shader.setStorageBuffer("EmitterSpawnDataBlock", m_spawnCountersBuffer.getBuffer());
 }
 
 void RenderParticlesPass::_bindIndirectCommands(const gl::Shader& shader) const
@@ -234,4 +303,9 @@ void RenderParticlesPass::_uploadIndirectCommandsData() const
 
     m_indirectCommandsBuffer.unmap();
   }
+}
+
+void RenderParticlesPass::_uploadEmitterData() const
+{
+
 }

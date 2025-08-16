@@ -22,7 +22,6 @@ namespace vrm::render
     
     void ensureCapacity(size_t capacity, bool keepData = false);
 
-    // Count = number of elements of type T to map
     template <typename T = uint8_t>
     std::span<T> mapWriteOnly(uint32_t offset, uint32_t sizeBytes, bool discardData = true) const
     {

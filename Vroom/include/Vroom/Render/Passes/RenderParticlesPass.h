@@ -39,14 +39,35 @@ namespace vrm
     void _updateEmittersData();
     void _updateParticleStates();
     void _bindEmittersData(const gl::Shader& shader) const;
-    void _bindSpawnCounters(const gl::Shader& shader) const;
+    void _bindSpawnData(const gl::Shader& shader) const;
     void _bindIndirectCommands(const gl::Shader& shader) const;
     void _bindParticleStates(const gl::Shader& shader) const;
     void _bindParticleInstanceData(const gl::Shader& shader) const;
 
     void _uploadIndirectCommandsData() const;
+    void _uploadEmitterData() const;
 
   private:
+
+    struct RawParticleEmitterSpecs
+    {
+      glm::vec4 color;
+
+      glm::vec3 initialPosition;
+      float lifeTime;
+
+      glm::vec3 initialVelocity;
+      float emitRate;
+      
+      glm::vec3 acceleration;
+      float _pad0;
+
+      glm::vec3 initialScale;
+      float _pad1;
+
+      glm::vec3 scaleOverTime;
+      float _pad2;
+    };
 
     struct RawDrawElementsIndirectCommand
     {
@@ -63,6 +84,7 @@ namespace vrm
 
     std::vector<RawDrawElementsIndirectCommand> m_indirectCommands;
     std::vector<PassMaterial const*> m_particleMaterials;
+    std::vector<RawParticleEmitterSpecs> m_emittersData;
 
     render::AutoBuffer m_emittersDataBuffer;
     render::AutoBuffer m_spawnCountersBuffer;

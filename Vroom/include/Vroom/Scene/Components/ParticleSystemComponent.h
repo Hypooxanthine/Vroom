@@ -26,6 +26,7 @@ namespace vrm
     void update(const DeltaTime& dt);
 
     std::span<ParticleEmitter const> getEmitters() const { return std::span{ m_emitters }; }
+    std::span<ParticleEmitter> getEmitters() { return std::span{ m_emitters }; }
 
     ParticleSystemComponent(const ParticleSystemComponent&) = delete;
     ParticleSystemComponent& operator=(const ParticleSystemComponent&) = delete;

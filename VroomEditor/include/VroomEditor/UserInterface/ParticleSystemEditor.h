@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vroom/Asset/StaticAsset/ParticleSystemAsset.h"
+#include "Vroom/Render/Camera/FirstPersonCamera.h"
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Scene/Scene.h"
 #include "VroomEditor/UserInterface/ImGuiElement.h"
@@ -46,12 +47,15 @@ namespace vrm
 
   private:
 
+    void _showSettings();
+
   private:
 
     MyViewportModule m_viewport;
 
     ParticleSystemAsset::Handle m_particlesAsset;
     Scene m_scene;
+    FirstPersonCamera m_camera;
     Entity m_entity;
 
   };

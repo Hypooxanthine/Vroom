@@ -3,35 +3,37 @@
 
 struct ParticleEmitterSpecs
 {
-  float lifeTime;
-  float emitRate;
-
   vec4 color;
 
   vec3 initialPosition;
+  float lifeTime;
   vec3 initialVelocity;
-  vec3 acceleration;
+  float emitRate;
 
+  vec3 acceleration;
   vec3 initialScale;
   vec3 scaleOverTime;
 };
 
-struct EmitterData
+struct EmitterSpawnData
 {
   uint particlesToSpawn;
   float firstParticleStamp;
-  ParticleEmitterSpecs specs;
+  uint atomicCounter;
 };
 
 struct ParticleStates
 {
   vec3 position;
-  vec3 velocity;
-  vec3 acceleration;
-  vec4 color;
-  uint alive;
   float ellapsedLifeTime;
+  
+  vec3 velocity;
   float maxLifeTime;
+
+  vec3 acceleration;
+  uint alive;
+
+  vec4 color;
 };
 
 struct ParticleInstanceData

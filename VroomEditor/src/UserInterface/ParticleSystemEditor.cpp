@@ -25,15 +25,28 @@ void ParticleSystemEditor::MyViewportModule::onResize(const ImVec2& size)
 }
 
 ParticleSystemEditor::ParticleSystemEditor()
-  : ImGuiElement()
+  : ImGuiElement(), m_camera(0.1f, 100.f, 90.f, 1.f, glm::vec3(0.f, 0.f, 10.f), glm::vec3(0.f))
 {
   m_scene.init();
   m_entity = m_scene.createEntity("Particles");
   auto& psc = m_entity.addComponent<ParticleSystemComponent>();
-  ParticleEmitterSpecs specs;
-  ParticleEmitter emitter;
-  emitter.setSpecs(specs);
-  psc.addEmitter(std::move(emitter));
+  {
+    ParticleEmitterSpecs specs;
+    specs.emitRate = 1.f;
+    specs.lifeTime = 10.f;
+    specs.color = glm::vec4(1.f, 0.f, 0.f, 1.f);
+    specs.acceleration = glm::vec3(0.f, -.5f, 0.f);
+    specs.initialPosition = glm::vec3(0.f);
+    specs.initialVelocity = glm::vec3(0.f, 3.f, 0.f);
+    specs.scaleOverTime = glm::vec3(0.f);
+    specs.initialScale = glm::vec3(1.f);
+
+    ParticleEmitter emitter;
+    emitter.setSpecs(specs);
+    psc.addEmitter(std::move(emitter));
+  }
+
+  m_scene.setCamera(&m_camera);
 
   m_scene.createEntity("Skybox").addComponent<SkyboxComponent>();
 
@@ -98,7 +111,67 @@ void ParticleSystemEditor::onImgui()
 {
   if (ImGui::Begin("Particle System", m_open))
   {
-    m_viewport.renderImgui();
+    if (ImGui::BeginTable("Table", 2))
+    {
+      ImGui::TableNextRow();
+
+      if (ImGui::TableNextColumn())
+      {
+        m_viewport.renderImgui();
+      }
+
+      if (ImGui::TableNextColumn())
+      {
+        _showSettings();
+      }
+
+      ImGui::EndTable();
+    }
   }
   ImGui::End();
+}
+
+void ParticleSystemEditor::_showSettings()
+{
+  if (ImGui::BeginChild("Settings"))
+  {
+    ParticleEmitterSpecs specs = m_entity.getComponent<ParticleSystemComponent>().getEmitters()[0].getSpecs();
+    auto updateSpecs = [this, &specs]() { m_entity.getComponent<ParticleSystemComponent>().getEmitters()[0].setSpecs(specs); };
+
+    ImGuiSliderFlags sliderFlags = 0
+      | ImGuiSliderFlags_AlwaysClamp
+      | ImGuiSliderFlags_Logarithmic
+    ;
+
+    if (ImGui::SliderFloat("Lifetime", &specs.lifeTime, 0.01f, 15.f, "%.2f", sliderFlags))
+    {
+      updateSpecs();
+    }
+
+    if (ImGui::SliderFloat("Emit rate", &specs.emitRate, 0.1f, 100.f, "%.2f", sliderFlags))
+    {
+      updateSpecs();
+    }
+
+    if (ImGui::ColorPicker4("Color", &specs.color[0]))
+    {
+      updateSpecs();
+    }
+
+    if (ImGui::SliderFloat3("Initial position", &specs.initialPosition[0], -5.f, 5.f))
+    {
+      updateSpecs();
+    }
+
+    if (ImGui::SliderFloat3("Initial velocity", &specs.initialVelocity[0], -5.f, 5.f))
+    {
+      updateSpecs();
+    }
+
+    if (ImGui::SliderFloat3("Acceleration", &specs.acceleration[0], -5.f, 5.f))
+    {
+      updateSpecs();
+    }
+  }
+  ImGui::EndChild();
 }
