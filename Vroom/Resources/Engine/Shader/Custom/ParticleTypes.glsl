@@ -33,6 +33,8 @@ struct ParticleStates
   vec3 acceleration;
   uint alive;
 
+  vec3 scale;
+
   vec4 color;
 };
 

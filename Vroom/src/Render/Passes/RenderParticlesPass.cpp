@@ -33,6 +33,9 @@ namespace
     glm::vec3 acceleration;
     glm::uint alive;
 
+    glm::vec3 scale;
+    float _pad0;
+
     glm::vec4 color;
   };
 
@@ -114,6 +117,9 @@ void RenderParticlesPass::onRender(const RenderPassContext &ctx) const
 
   gl::Buffer::Bind(m_indirectCommandsBuffer.getBuffer(), GL_DRAW_INDIRECT_BUFFER);
 
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   for (size_t i = 0; i < emitters->getElementCount(); ++i)
   {
     const ParticleEmitter& emitter = *emitters->at(i);
@@ -137,6 +143,8 @@ void RenderParticlesPass::onRender(const RenderPassContext &ctx) const
       );
     }
   }
+
+  glDisable(GL_BLEND);
 }
 
 void RenderParticlesPass::_updateEmittersData()

@@ -56,11 +56,17 @@ void UpdateParticleStates(inout ParticleStates states, in ParticleEmitterSpecs s
   states.ellapsedLifeTime += dt;
   states.velocity += states.acceleration * dt;
   states.position += states.velocity * dt;
-
+  states.scale *= (1.0 + specs.scaleOverTime * dt);
+  
   uint instanceIndex = atomicAdd(g_indirectCommands[0].instanceCount, 1);
 
-  g_particleInstanceData[instanceIndex].modelMatrix = mat4(1.f);
-  g_particleInstanceData[instanceIndex].modelMatrix[3].xyz = states.position;
+  mat4 M = mat4(1.f);
+  for (int i = 0; i < 3; ++i) M[i][i] = states.scale[i];
+
+  M[3].xyz = states.position;
+
+  g_particleInstanceData[instanceIndex].modelMatrix = M;
+  // g_particleInstanceData[instanceIndex].modelMatrix[3].xyz = states.position;
   g_particleInstanceData[instanceIndex].color = states.color;
 }
 
@@ -71,6 +77,7 @@ void SpawnParticle(inout ParticleStates states, in ParticleEmitterSpecs emitterS
   states.velocity = emitterSpecs.initialVelocity;
   states.acceleration = emitterSpecs.acceleration;
   states.maxLifeTime = emitterSpecs.lifeTime;
+  states.scale = emitterSpecs.initialScale;
   states.color = emitterSpecs.color;
   states.ellapsedLifeTime = 0.f;
 }

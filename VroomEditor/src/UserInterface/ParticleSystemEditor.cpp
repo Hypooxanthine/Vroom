@@ -111,7 +111,7 @@ void ParticleSystemEditor::onImgui()
 {
   if (ImGui::Begin("Particle System", m_open))
   {
-    if (ImGui::BeginTable("Table", 2))
+    if (ImGui::BeginTable("Table", 2, ImGuiTableFlags_Resizable))
     {
       ImGui::TableNextRow();
 
@@ -169,6 +169,16 @@ void ParticleSystemEditor::_showSettings()
     }
 
     if (ImGui::SliderFloat3("Acceleration", &specs.acceleration[0], -5.f, 5.f))
+    {
+      updateSpecs();
+    }
+
+    if (ImGui::SliderFloat3("Initial scale", &specs.initialScale[0], 0.01f, 5.f))
+    {
+      updateSpecs();
+    }
+
+    if (ImGui::SliderFloat3("Scale over time", &specs.scaleOverTime[0], -5.f, 5.f))
     {
       updateSpecs();
     }
