@@ -69,7 +69,7 @@ void* AutoBuffer::_mapWriteOnly(uint32_t offset, uint32_t size, bool discardData
   return ptr;
 }
 
-void AutoBuffer::unmap()
+void AutoBuffer::unmap() const
 {
   glUnmapNamedBuffer(m_buffer.getRenderId());
 }

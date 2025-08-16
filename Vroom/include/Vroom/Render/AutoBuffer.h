@@ -35,7 +35,7 @@ namespace vrm::render
       return mapWriteOnly(0, m_buffer.getCapacity(), discardData);
     }
 
-    void unmap();
+    void unmap() const;
 
     const gl::Buffer& getBuffer() const { return m_buffer; }
 

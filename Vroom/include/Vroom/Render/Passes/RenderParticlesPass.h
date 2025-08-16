@@ -6,6 +6,7 @@
 #include "Vroom/Render/PassMaterials.h"
 #include "Vroom/Render/Passes/RenderPass.h"
 #include "glm/fwd.hpp"
+#include <vector>
 
 namespace vrm
 {
@@ -61,6 +62,7 @@ namespace vrm
     constexpr static glm::uvec3 s_updaterGroupSize = { 64, 1, 1 };
 
     std::vector<RawDrawElementsIndirectCommand> m_indirectCommands;
+    std::vector<PassMaterial const*> m_particleMaterials;
 
     render::AutoBuffer m_emittersDataBuffer;
     render::AutoBuffer m_spawnCountersBuffer;

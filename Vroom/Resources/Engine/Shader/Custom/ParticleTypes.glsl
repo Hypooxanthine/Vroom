@@ -6,7 +6,7 @@ struct ParticleEmitterSpecs
   float lifeTime;
   float emitRate;
 
-  vec3 color;
+  vec4 color;
 
   vec3 initialPosition;
   vec3 initialVelocity;
@@ -28,6 +28,7 @@ struct ParticleStates
   vec3 position;
   vec3 velocity;
   vec3 acceleration;
+  vec4 color;
   uint alive;
   float ellapsedLifeTime;
   float maxLifeTime;
@@ -36,6 +37,7 @@ struct ParticleStates
 struct ParticleInstanceData
 {
   mat4 modelMatrix;
+  vec4 color;
 };
 
 #endif // PARTICLE_TYPES_GLSL

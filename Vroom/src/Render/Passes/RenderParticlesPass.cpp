@@ -3,11 +3,17 @@
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Core/Application.h"
 #include "Vroom/Core/Assert.h"
+#include "Vroom/Render/Abstraction/Buffer.h"
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Render/Abstraction/Shader.h"
+#include "Vroom/Render/Abstraction/VertexArray.h"
+#include "Vroom/Render/Camera/CameraBasic.h"
 #include "Vroom/Render/ParticleEmitter.h"
 #include "Vroom/Render/Passes/RenderPass.h"
+#include "Vroom/Render/RenderObject/RenderMesh.h"
+#include "Vroom/Render/RenderView.h"
 #include "glm/fwd.hpp"
+#include <cstring>
 #include <vector>
 
 using namespace vrm;
@@ -27,6 +33,7 @@ namespace
     glm::vec3 position;
     glm::vec3 velocity;
     glm::vec3 acceleration;
+    glm::vec4 color;
     glm::uint alive;
     float ellapsedLifeTime;
     float maxLifeTime;
@@ -63,7 +70,7 @@ void RenderParticlesPass::onInit()
 
 void RenderParticlesPass::onSetup(const RenderPassContext &ctx)
 {
-  if (!m_updaterMaterial)
+  if (!m_updaterMaterial || emitters->getElementCount() == 0)
   {
     return;
   }
@@ -74,12 +81,13 @@ void RenderParticlesPass::onSetup(const RenderPassContext &ctx)
     _updateParticleStates();
   }
 
+  // Every frame to reset instance counts to zero
   _uploadIndirectCommandsData();
 }
 
 void RenderParticlesPass::onRender(const RenderPassContext &ctx) const
 {
-  if (!m_updaterMaterial)
+  if (!m_updaterMaterial || emitters->getElementCount() == 0)
   {
     return;
   }
@@ -93,8 +101,38 @@ void RenderParticlesPass::onRender(const RenderPassContext &ctx) const
   updaterShader.setUniform1ui("u_maxParticleCount", m_maxParticleCount);
   updaterShader.setUniform1f("u_deltaTime", Application::Get().getDeltaTime().seconds());
 
+  glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
   glm::uvec3 dispatch = gl::Shader::ComputeDispatchSize(s_updaterGroupSize, glm::uvec3(m_maxParticleCount, 1, 1));
   GLCall(glDispatchCompute(dispatch.x, dispatch.y, dispatch.z));
+
+  glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+  gl::Buffer::Bind(m_indirectCommandsBuffer.getBuffer(), GL_DRAW_INDIRECT_BUFFER);
+
+  for (size_t i = 0; i < emitters->getElementCount(); ++i)
+  {
+    const ParticleEmitter& emitter = *emitters->at(i);
+    const RenderMesh& mesh = emitter.getMesh()->getSubMeshes().at(0).renderMesh;
+    const gl::Shader& shader = m_particleMaterials.at(i)->getShader();
+
+    gl::VertexArray::Bind(mesh.getVertexArray());
+    gl::Buffer::Bind(mesh.getIndexBuffer(), GL_ELEMENT_ARRAY_BUFFER);
+    shader.bind();
+    _bindParticleInstanceData(shader);
+
+    for (const render::View& view : ctx.views)
+    {
+      const auto& vpOrigin = view.getViewport().getOrigin();
+      const auto& vpSize = view.getViewport().getSize();
+      glViewport(vpOrigin.x, vpOrigin.y, vpSize.x, vpSize.y);
+      shader.setUniformMat4f("u_viewProj", view.getCamera()->getViewProjection());
+
+      GLCall(
+        glDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr)
+      );
+    }
+  }
 }
 
 void RenderParticlesPass::_updateEmittersData()
@@ -103,10 +141,21 @@ void RenderParticlesPass::_updateEmittersData()
   m_indirectCommandsBuffer.ensureCapacity(sizeof(RawDrawElementsIndirectCommand) * emitters->getElementCount());
 
   m_indirectCommands.resize(emitters->getElementCount());
+  m_particleMaterials.resize(emitters->getElementCount(), nullptr);
 
-  for (RawDrawElementsIndirectCommand& cmd : m_indirectCommands)
+  for (size_t i = 0; i < emitters->getElementCount(); ++i)
   {
-    // Assign command data... (no mesh has been setup for now)
+    const ParticleEmitter& emitter = *emitters->at(i);
+    RawDrawElementsIndirectCommand& cmd = m_indirectCommands.at(i);
+    const RenderMesh& mesh = emitter.getMesh()->getSubMeshes().at(0).renderMesh;
+
+    cmd.count = mesh.getIndexCount();
+    cmd.firstIndex = 0;
+    cmd.baseVertex = 0;
+    cmd.baseInstance = 0;
+    cmd.instanceCount = 0;
+
+    m_particleMaterials.at(i) = &getPassMaterial(emitter.getMaterial());
   }
 }
 
@@ -175,13 +224,14 @@ void RenderParticlesPass::_uploadIndirectCommandsData() const
 {
   if (m_indirectCommands.size() > 0)
   {
-    GLCall(
-      glNamedBufferData(
-        m_indirectCommandsBuffer.getBuffer().getRenderId(),
-        m_indirectCommands.size() * sizeof(RawDrawElementsIndirectCommand),
-        m_indirectCommands.data(),
-        GL_DYNAMIC_DRAW  
-      )
+    std::span<RawDrawElementsIndirectCommand> mapped = m_indirectCommandsBuffer.mapWriteOnly<RawDrawElementsIndirectCommand>(
+      0,
+      m_indirectCommands.size() * sizeof(RawDrawElementsIndirectCommand),
+      true // No cpu stall if resource is used
     );
+
+    std::memcpy(mapped.data(), m_indirectCommands.data(), m_indirectCommands.size() * sizeof(RawDrawElementsIndirectCommand));
+
+    m_indirectCommandsBuffer.unmap();
   }
 }

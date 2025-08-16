@@ -2,7 +2,7 @@
 
 layout (local_size_x = VRM_UPDATER_GROUP_SIZE) in;
 
-void UpdateParticleStates(inout ParticleStates states, float dt);
+void UpdateParticleStates(inout ParticleStates states, in ParticleEmitterSpecs specs, float dt);
 void SpawnParticle(inout ParticleStates states, in ParticleEmitterSpecs emitterSpecs);
 
 void main()
@@ -44,19 +44,26 @@ void main()
 
   if (updateDeltaTime > 0.f)
   {
-    UpdateParticleStates(states, updateDeltaTime);
+    UpdateParticleStates(states, emitterData.specs, updateDeltaTime);
   }
 
   g_particles[particleIndex] = states;
 }
 
-void UpdateParticleStates(inout ParticleStates states, float dt)
+void UpdateParticleStates(inout ParticleStates states, in ParticleEmitterSpecs specs, float dt)
 {
   states.ellapsedLifeTime += dt;
   states.velocity += states.acceleration * dt;
   states.position += states.velocity * dt;
+  states.color = specs.color;
 
-  atomicAdd(g_indirectCommands[0].instanceCount, 1);
+  uint instanceIndex = atomicAdd(g_indirectCommands[0].instanceCount, 1);
+
+  mat4 model = mat4(1.f);
+  model[3].xyz = states.position;
+
+  g_particleInstanceData[instanceIndex].modelMatrix = model;
+  g_particleInstanceData[instanceIndex].color = states.color;
 }
 
 void SpawnParticle(inout ParticleStates states, in ParticleEmitterSpecs emitterSpecs)

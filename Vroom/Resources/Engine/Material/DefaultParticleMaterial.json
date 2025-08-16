@@ -1,0 +1,4 @@
+{
+  "Type": "CustomShader",
+  "CustomShader": "Resources/Engine/Shader/Custom/DefaultParticle_Shader.json"
+}

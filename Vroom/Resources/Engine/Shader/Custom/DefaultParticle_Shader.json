@@ -1,0 +1,54 @@
+{
+  "Global": {
+    "Version": "460 core"
+  },
+  "Vertex": {
+    "EarlySources": [
+      "Resources/Engine/Shader/Custom/ParticleTypes.glsl"
+    ],
+    "Sources": [
+      "Resources/Engine/Shader/Custom/DefaultParticle_vertex.glsl"
+    ],
+    "VertexAttributes": [
+      {
+        "Name": "position",
+        "Type": "vec3",
+        "Layout": "location = 0"
+      }
+    ],
+    "StorageBuffers": [
+      {
+        "Name": "ParticleInstanceDataBlock",
+        "Layout": "std430",
+        "Qualifiers": [
+          "restrict",
+          "coherent",
+          "readonly"
+        ],
+        "Variables": [
+          {
+            "Name": "g_particleInstanceData[]",
+            "Type": "ParticleInstanceData"
+          }
+        ]
+      }
+    ],
+    "Uniforms": [
+      {
+        "Name": "u_viewProj",
+        "Type": "mat4"
+      }
+    ]
+  },
+  "Fragment": {
+    "Sources": [
+      "Resources/Engine/Shader/Custom/DefaultParticle_fragment.glsl"
+    ]
+  },
+  "Varyings": [
+    {
+      "Name": "v_color",
+      "Type": "vec4"
+    }
+  ]
+}
