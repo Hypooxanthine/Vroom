@@ -5,8 +5,10 @@
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Scene/Scene.h"
 #include "VroomEditor/UserInterface/ImGuiElement.h"
+#include "VroomEditor/UserInterface/ParticleSystem/ParticleAttribute.h"
 #include "VroomEditor/UserInterface/ViewportModule.h"
 #include <functional>
+#include <vector>
 
 namespace vrm
 {
@@ -48,6 +50,8 @@ namespace vrm
   private:
 
     void _showSettings();
+    void _initAttributes();
+    void _addAttribute(const ParticleAttribute::Specs& specs, const std::string& name);
 
   private:
 
@@ -57,6 +61,8 @@ namespace vrm
     Scene m_scene;
     FirstPersonCamera m_camera;
     Entity m_entity;
+
+    std::vector<ParticleAttribute> m_attributes;
 
   };
 

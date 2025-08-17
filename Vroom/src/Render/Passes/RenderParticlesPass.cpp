@@ -24,19 +24,9 @@ namespace
 
   struct RawParticleStates
   {
-    glm::vec3 position;
-    float ellapsedLifeTime;
-
-    glm::vec3 velocity;
-    float maxLifeTime;
-
-    glm::vec3 acceleration;
     glm::uint alive;
-
-    glm::vec3 scale;
-    float _pad0;
-
-    glm::vec4 color;
+    float ellapsedLifeTime;
+    float maxLifeTime;
   };
 
   struct RawInstanceData
@@ -183,16 +173,19 @@ void RenderParticlesPass::_updateEmittersData()
       continue;
 
     RawParticleEmitterSpecs& rawSpecs = m_emittersData.at(i);
-    const ParticleEmitterSpecs& specs = emitters->at(i)->getSpecs();
+    const ParticleEmitter::Specs& specs = emitters->at(i)->getSpecs();
 
     rawSpecs.lifeTime = specs.lifeTime;
     rawSpecs.emitRate = specs.emitRate;
-    rawSpecs.color = specs.color;
-    rawSpecs.initialPosition = specs.initialPosition;
-    rawSpecs.initialVelocity = specs.initialVelocity;
-    rawSpecs.acceleration = specs.acceleration;
-    rawSpecs.initialScale = specs.initialScale;
-    rawSpecs.scaleOverTime = specs.scaleOverTime;
+
+    rawSpecs.colorSpawn = specs.color.spawnValue;
+    rawSpecs.colorDeath = specs.color.deathValue;
+
+    rawSpecs.positionSpawn = specs.position.spawnValue;
+    rawSpecs.positionDeath = specs.position.deathValue;
+
+    rawSpecs.scaleSpawn = specs.scale.spawnValue;
+    rawSpecs.scaleDeath = specs.scale.deathValue;
 
     shouldReuploadEmitterSpecs = true;
 

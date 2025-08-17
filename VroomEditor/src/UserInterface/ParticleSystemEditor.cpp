@@ -4,6 +4,8 @@
 #include "Vroom/Render/Renderer.h"
 #include "Vroom/Scene/Components/ParticleSystemComponent.h"
 #include "Vroom/Scene/Components/SkyboxComponent.h"
+#include "VroomEditor/UserInterface/ParticleSystem/ParticleAttribute.h"
+#include "VroomEditor/UserInterface/ParticleSystem/ParticleField.h"
 #include "glm/fwd.hpp"
 #include "imgui.h"
 
@@ -31,15 +33,12 @@ ParticleSystemEditor::ParticleSystemEditor()
   m_entity = m_scene.createEntity("Particles");
   auto& psc = m_entity.addComponent<ParticleSystemComponent>();
   {
-    ParticleEmitterSpecs specs;
+    ParticleEmitter::Specs specs;
     specs.emitRate = 1.f;
-    specs.lifeTime = 10.f;
-    specs.color = glm::vec4(1.f, 0.f, 0.f, 1.f);
-    specs.acceleration = glm::vec3(0.f, -.5f, 0.f);
-    specs.initialPosition = glm::vec3(0.f);
-    specs.initialVelocity = glm::vec3(0.f, 3.f, 0.f);
-    specs.scaleOverTime = glm::vec3(0.f);
-    specs.initialScale = glm::vec3(1.f);
+    specs.lifeTime = 2.f;
+    specs.color = { glm::vec4(1.f, 0.f, 0.f, 1.f), glm::vec4(0.f, 1.f, 0.f, 1.f) };
+    specs.position = { glm::vec3(0.f), glm::vec3(0.f, 5.f, 0.f) };
+    specs.scale = { glm::vec3(1.f) };
 
     ParticleEmitter emitter;
     emitter.setSpecs(specs);
@@ -65,6 +64,8 @@ ParticleSystemEditor::ParticleSystemEditor()
   {
     m_scene.onWindowResized(size);
   };
+
+  _initAttributes();
 }
 
 ParticleSystemEditor::~ParticleSystemEditor()
@@ -135,53 +136,45 @@ void ParticleSystemEditor::_showSettings()
 {
   if (ImGui::BeginChild("Settings"))
   {
-    ParticleEmitterSpecs specs = m_entity.getComponent<ParticleSystemComponent>().getEmitters()[0].getSpecs();
-    auto updateSpecs = [this, &specs]() { m_entity.getComponent<ParticleSystemComponent>().getEmitters()[0].setSpecs(specs); };
-
-    ImGuiSliderFlags sliderFlags = 0
-      | ImGuiSliderFlags_AlwaysClamp
-      | ImGuiSliderFlags_Logarithmic
-    ;
-
-    if (ImGui::SliderFloat("Lifetime", &specs.lifeTime, 0.01f, 15.f, "%.2f", sliderFlags))
+    for (ParticleAttribute& attribute : m_attributes)
     {
-      updateSpecs();
+      attribute.renderImgui();
     }
 
-    if (ImGui::SliderFloat("Emit rate", &specs.emitRate, 0.1f, 100.f, "%.2f", sliderFlags))
+    ParticleEmitter::Specs specs = m_entity.getComponent<ParticleSystemComponent>().getEmitters()[0].getSpecs();
+    bool specsChanged = false;
+
+    for (const ParticleAttribute& attribute : m_attributes)
     {
-      updateSpecs();
+      specsChanged = specsChanged || attribute.updateEmitterSpecs(specs);
     }
 
-    if (ImGui::ColorPicker4("Color", &specs.color[0]))
+    if (specsChanged)
     {
-      updateSpecs();
-    }
-
-    if (ImGui::SliderFloat3("Initial position", &specs.initialPosition[0], -5.f, 5.f))
-    {
-      updateSpecs();
-    }
-
-    if (ImGui::SliderFloat3("Initial velocity", &specs.initialVelocity[0], -5.f, 5.f))
-    {
-      updateSpecs();
-    }
-
-    if (ImGui::SliderFloat3("Acceleration", &specs.acceleration[0], -5.f, 5.f))
-    {
-      updateSpecs();
-    }
-
-    if (ImGui::SliderFloat3("Initial scale", &specs.initialScale[0], 0.01f, 5.f))
-    {
-      updateSpecs();
-    }
-
-    if (ImGui::SliderFloat3("Scale over time", &specs.scaleOverTime[0], -5.f, 5.f))
-    {
-      updateSpecs();
+      m_entity.getComponent<ParticleSystemComponent>().getEmitters()[0].setSpecs(specs);
     }
   }
   ImGui::EndChild();
+}
+
+void ParticleSystemEditor::_initAttributes()
+{
+  ParticleAttribute::Specs specs;
+  specs.type = ParticleField::EType::eVec3;
+  specs.min = -10.f;
+  specs.max = 10.f;
+
+  _addAttribute(specs, "Position");
+  _addAttribute(specs, "Scale");
+
+  specs.type = ParticleField::EType::eColor4;
+  specs.min = 0.f;
+  specs.max = 1.f;
+  _addAttribute(specs, "Color");
+}
+
+void ParticleSystemEditor::_addAttribute(const ParticleAttribute::Specs& specs, const std::string& name)
+{
+  auto& attr = m_attributes.emplace_back(name);
+  attr.setSpecs(specs);
 }

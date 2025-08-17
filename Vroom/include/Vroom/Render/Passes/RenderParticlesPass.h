@@ -51,22 +51,18 @@ namespace vrm
 
     struct RawParticleEmitterSpecs
     {
-      glm::vec4 color;
+      glm::vec4 colorSpawn;
+      glm::vec4 colorDeath;
 
-      glm::vec3 initialPosition;
+      glm::vec3 positionSpawn;
       float lifeTime;
-
-      glm::vec3 initialVelocity;
+      glm::vec3 positionDeath;
       float emitRate;
-      
-      glm::vec3 acceleration;
+
+      glm::vec3 scaleSpawn;
       float _pad0;
-
-      glm::vec3 initialScale;
+      glm::vec3 scaleDeath;
       float _pad1;
-
-      glm::vec3 scaleOverTime;
-      float _pad2;
     };
 
     struct RawDrawElementsIndirectCommand
