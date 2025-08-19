@@ -24,9 +24,17 @@ namespace
 
   struct RawParticleStates
   {
+    glm::vec3 spawnPosition; float _pad0;
+    glm::vec3 deathPosition; float _pad1;
+    glm::vec4 spawnColor; float _pad2;
+    glm::vec4 deathColor; float _pad3;
+    glm::vec3 spawnScale; float _pad4;
+    glm::vec3 deathScale; float _pad5;
+
     glm::uint alive;
     float ellapsedLifeTime;
     float maxLifeTime;
+    float _pad6;
   };
 
   struct RawInstanceData

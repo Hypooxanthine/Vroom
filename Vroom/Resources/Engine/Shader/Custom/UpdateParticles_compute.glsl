@@ -2,7 +2,7 @@
 
 layout (local_size_x = VRM_UPDATER_GROUP_SIZE) in;
 
-void UpdateParticleStates(inout ParticleStates states, in ParticleEmitterSpecs specs, float dt);
+void UpdateParticleStates(inout ParticleStates states, float dt);
 void SpawnParticle(inout ParticleStates states, in ParticleEmitterSpecs emitterSpecs);
 
 void main()
@@ -45,20 +45,20 @@ void main()
 
   if (updateDeltaTime > 0.f)
   {
-    UpdateParticleStates(states, emitterSpecs, updateDeltaTime);
+    UpdateParticleStates(states, updateDeltaTime);
   }
 
   g_particles[particleIndex] = states;
 }
 
-void UpdateParticleStates(inout ParticleStates states, in ParticleEmitterSpecs specs, float dt)
+void UpdateParticleStates(inout ParticleStates states, float dt)
 {
   states.ellapsedLifeTime += dt;
   const float t = states.ellapsedLifeTime / states.maxLifeTime;
 
-  const vec3 position = mix(specs.positionSpawn, specs.positionDeath, t);
-  const vec3 scale = mix(specs.scaleSpawn, specs.scaleDeath, t);
-  const vec4 color = mix(specs.colorSpawn, specs.colorDeath, t);
+  const vec3 position = mix(states.spawnPosition, states.deathPosition, t);
+  const vec3 scale = mix(states.spawnScale, states.deathScale, t);
+  const vec4 color = mix(states.spawnColor, states.deathColor, t);
   
   uint instanceIndex = atomicAdd(g_indirectCommands[0].instanceCount, 1);
 
@@ -76,4 +76,13 @@ void SpawnParticle(inout ParticleStates states, in ParticleEmitterSpecs emitterS
   states.alive = 1;
   states.ellapsedLifeTime = 0.f;
   states.maxLifeTime = emitterSpecs.lifeTime;
+
+  states.spawnPosition = emitterSpecs.spawnPosition;
+  states.deathPosition = emitterSpecs.deathPosition;
+  
+  states.spawnColor = emitterSpecs.spawnColor;
+  states.deathColor = emitterSpecs.deathColor;
+
+  states.spawnScale = emitterSpecs.spawnScale;
+  states.deathScale = emitterSpecs.deathScale;
 }

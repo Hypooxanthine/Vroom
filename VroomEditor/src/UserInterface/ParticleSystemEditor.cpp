@@ -136,13 +136,17 @@ void ParticleSystemEditor::_showSettings()
 {
   if (ImGui::BeginChild("Settings"))
   {
+    bool specsChanged = false;
+
+    ParticleEmitter::Specs specs = m_entity.getComponent<ParticleSystemComponent>().getEmitters()[0].getSpecs();
+
+    specsChanged = specsChanged || ImGui::SliderFloat("Emit rate", &specs.emitRate, 0.1f, 20.f);
+    specsChanged = specsChanged || ImGui::SliderFloat("Life time", &specs.lifeTime, 0.1f, 10.f);
+
     for (ParticleAttribute& attribute : m_attributes)
     {
       attribute.renderImgui();
     }
-
-    ParticleEmitter::Specs specs = m_entity.getComponent<ParticleSystemComponent>().getEmitters()[0].getSpecs();
-    bool specsChanged = false;
 
     for (const ParticleAttribute& attribute : m_attributes)
     {
@@ -165,6 +169,9 @@ void ParticleSystemEditor::_initAttributes()
   specs.max = 10.f;
 
   _addAttribute(specs, "Position", ParticleEmitter::Specs::EAttributeName::ePosition);
+
+  specs.min = 0.f;
+  specs.max = 10.f;
   _addAttribute(specs, "Scale", ParticleEmitter::Specs::EAttributeName::eScale);
 
   specs.type = ParticleField::EType::eColor4;
