@@ -2,9 +2,30 @@
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
+#include "Vroom/Core/Assert.h"
 #include "Vroom/Core/DeltaTime.h"
 
 using namespace vrm;
+
+ParticleEmitterAttributeBase& ParticleEmitter::Specs::getAttribute(EAttributeName name)
+{
+  switch (name)
+  {
+  case EAttributeName::eColor:
+    return color;
+  case EAttributeName::ePosition:
+    return position;
+  case EAttributeName::eScale:
+    return scale;
+  default:
+    VRM_ASSERT_MSG(false, "Unsupported attribute type");
+  }
+}
+
+const ParticleEmitterAttributeBase& ParticleEmitter::Specs::getAttribute(EAttributeName name) const
+{
+  return const_cast<ParticleEmitter::Specs*>(this)->getAttribute(name);
+}
 
 ParticleEmitter::ParticleEmitter()
 {

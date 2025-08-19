@@ -164,17 +164,20 @@ void ParticleSystemEditor::_initAttributes()
   specs.min = -10.f;
   specs.max = 10.f;
 
-  _addAttribute(specs, "Position");
-  _addAttribute(specs, "Scale");
+  _addAttribute(specs, "Position", ParticleEmitter::Specs::EAttributeName::ePosition);
+  _addAttribute(specs, "Scale", ParticleEmitter::Specs::EAttributeName::eScale);
 
   specs.type = ParticleField::EType::eColor4;
   specs.min = 0.f;
   specs.max = 1.f;
-  _addAttribute(specs, "Color");
+  _addAttribute(specs, "Color", ParticleEmitter::Specs::EAttributeName::eColor);
 }
 
-void ParticleSystemEditor::_addAttribute(const ParticleAttribute::Specs& specs, const std::string& name)
+void ParticleSystemEditor::_addAttribute(const ParticleAttribute::Specs& specs,  const std::string& displayName, ParticleEmitter::Specs::EAttributeName name)
 {
-  auto& attr = m_attributes.emplace_back(name);
+  auto& attr = m_attributes.emplace_back(displayName, name);
   attr.setSpecs(specs);
+
+  const ParticleEmitter::Specs& emitterSpecs = m_entity.getComponent<ParticleSystemComponent>().getEmitters()[0].getSpecs();
+  attr.setValue(emitterSpecs.getAttribute(name));
 }

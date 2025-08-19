@@ -60,6 +60,15 @@ void ParticleField::setLockScale(bool lock)
   m_scaleLock = lock;
 }
 
+void ParticleField::setValue(std::span<float const> value)
+{
+  VRM_ASSERT_MSG(value.size() == m_dim, "Field dimension must match value size");
+  for (size_t i = 0; i < m_dim; ++i)
+  {
+    data[i] = value[i];
+  }
+}
+
 void ParticleField::setBounds(std::span<float const> min, std::span<float const> max)
 {
   VRM_ASSERT(min.size() == max.size() && min.size() == getDimension());
@@ -73,14 +82,28 @@ void ParticleField::setBounds(std::span<float const> min, std::span<float const>
 
 void ParticleField::onImgui()
 {
+  m_dataModified = false;
+
   ImGui::Text("%s:", m_name.c_str());
   ImGui::SameLine();
   onImguiEdit();
 }
 
+bool ParticleField::updateEmitterField(ParticleEmitterFieldBase& field) const
+{
+  if (m_dataModified)
+  {
+    onUpdateEmitterField(field);
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
 void ConstParticleField::onImguiEdit()
 {
-  std::array<float, 4> localData = data;
   static constexpr std::string_view widgetLabel = "##";
 
   if (isColorType())
@@ -88,7 +111,10 @@ void ConstParticleField::onImguiEdit()
     ImGuiColorEditFlags flags = 0
       | (getDimension() == 3 ? ImGuiColorEditFlags_NoAlpha : 0)
     ;
-    ImGui::ColorEdit4(widgetLabel.data(), localData.data(), flags);
+    if (ImGui::ColorEdit4(widgetLabel.data(), data.data(), flags))
+    {
+      markDataModified();
+    }
   }
   else
   {
@@ -96,55 +122,29 @@ void ConstParticleField::onImguiEdit()
       | ImGuiSliderFlags_ClampOnInput
     ;
 
-    ImGui::SliderScalarN(
-      widgetLabel.data(),
-      ImGuiDataType_Float,
-      localData.data(),
-      getDimension(),
-      getMin().data(),
-      getMax().data(),
-      nullptr,
-      flags
-    );
+    if (ImGui::SliderScalarN(
+          widgetLabel.data(),
+          ImGuiDataType_Float,
+          data.data(),
+          getDimension(),
+          getMin().data(),
+          getMax().data(),
+          nullptr,
+          flags)
+    )
+    {
+      markDataModified();
+    }
   }
+}
 
-  // const char* label = "";
-  // void* v = localData.data();
-  // int components = getDimension();
-  // auto data_type = ImGuiDataType_Float;
-  // const char* format = nullptr;
-  // const void* v_min = getMin().data();
-  // const void* v_max = getMax().data();
-  // ImGuiSliderFlags flags = 0;
+void ConstParticleField::onUpdateEmitterField(ParticleEmitterFieldBase& field) const
+{
+  std::span<float> emitterFieldData = field.getRawData();
+  VRM_ASSERT_MSG(emitterFieldData.size() <= data.size(), "Unexpected error: emitter field size is too big");
 
-  // ImGuiWindow* window = ImGui::GetCurrentWindow();
-  // if (window->SkipItems)
-  //     return;
-
-  // ImGuiContext& g = *GImGui;
-  // bool value_changed = false;
-  // ImGui::BeginGroup();
-  // ImGui::PushID(label);
-  // ImGui::PushMultiItemsWidths(components, ImGui::CalcItemWidth());
-  // size_t type_size = sizeof(float);
-  // for (int i = 0; i < components; i++)
-  // {
-  //   ImGui::PushID(i);
-  //   if (i > 0)
-  //     ImGui::SameLine(0, g.Style.ItemInnerSpacing.x);
-  //   value_changed |= ImGui::Sliderdata("", data_type, v, v_min, v_max, format, flags);
-  //   ImGui::PopID();
-  //   ImGui::PopItemWidth();
-  //   v = (void*)((char*)v + type_size);
-  // }
-  // ImGui::PopID();
-
-  // const char* label_end = ImGui::FindRenderedTextEnd(label);
-  // if (label != label_end)
-  // {
-  //   ImGui::SameLine(0, g.Style.ItemInnerSpacing.x);
-  //   ImGui::TextEx(label, label_end);
-  // }
-
-  // ImGui::EndGroup();
+  for (size_t i = 0; i < emitterFieldData.size(); ++i)
+  {
+    emitterFieldData[i] = data[i];
+  }
 }

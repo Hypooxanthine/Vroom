@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Vroom/Render/ParticleEmitterAttribute.h"
 #include "VroomEditor/UserInterface/ImGuiElement.h"
 #include <array>
 #include <span>
@@ -24,10 +25,13 @@ namespace vrm
     ParticleField();
     ~ParticleField();
 
+    bool updateEmitterField(ParticleEmitterFieldBase& field) const;
+
     void setName(const std::string& name);
     void setType(EType type);
     void setBounds(std::span<float const> min, std::span<float const> max);
     void setLockScale(bool lock);
+    void setValue(std::span<float const> value);
     
     inline EType getType() const { return m_type; }
     inline int getDimension() const { return m_dim; }
@@ -40,7 +44,10 @@ namespace vrm
 
     void onImgui() override;
     virtual void onImguiEdit() = 0;
+    virtual void onUpdateEmitterField(ParticleEmitterFieldBase& field) const = 0;
+
     inline bool isColorType() const { return m_type == EType::eColor3 || m_type == EType::eColor4; }
+    inline void markDataModified() { m_dataModified = true; }
 
   protected:
 
@@ -49,6 +56,7 @@ namespace vrm
   private:
 
     std::string m_name = "Field";
+    bool m_dataModified = false;
     EType m_type = EType::eScalar;
     int m_dim = 1;
     bool m_scaleLock = false;
@@ -64,6 +72,7 @@ namespace vrm
   protected:
 
     void onImguiEdit() override;
+    void onUpdateEmitterField(ParticleEmitterFieldBase& field) const override;
 
   private:
 

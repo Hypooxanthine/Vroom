@@ -4,9 +4,10 @@
 
 using namespace vrm;
 
-ParticleAttribute::ParticleAttribute(const std::string& name)
+ParticleAttribute::ParticleAttribute(const std::string& displayName, ParticleEmitter::Specs::EAttributeName name)
 {
-  setName(name);
+  m_name = name;
+  setName(displayName);
   m_spawnValue.setName("Spawn");
   m_deathValue.setName("Death");
 }
@@ -16,14 +17,21 @@ ParticleAttribute::~ParticleAttribute()
 
 }
 
+void ParticleAttribute::setValue(const ParticleEmitterAttributeBase& emitterAttribute)
+{
+  m_spawnValue.setValue(emitterAttribute.getSpawnFieldBase().getRawData());
+  m_deathValue.setValue(emitterAttribute.getDeathFieldBase().getRawData());
+}
+
 bool ParticleAttribute::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
 {
-  return false;
+  return m_spawnValue.updateEmitterField(specs.getAttribute(m_name).getSpawnFieldBase())
+  || m_deathValue.updateEmitterField(specs.getAttribute(m_name).getDeathFieldBase());
 }
 
 void ParticleAttribute::onImgui()
 {
-  if (ImGui::TreeNode(m_name.c_str()))
+  if (ImGui::TreeNode(m_displayName.c_str()))
   {
     ImGui::PushID("spawn");
     {
@@ -43,7 +51,7 @@ void ParticleAttribute::onImgui()
 
 void ParticleAttribute::setName(const std::string& name)
 {
-  m_name = name;
+  m_displayName = name;
 }
 
 void ParticleAttribute::setSpecs(const Specs& specs)

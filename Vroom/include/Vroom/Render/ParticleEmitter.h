@@ -3,6 +3,7 @@
 #include "Vroom/Api.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
+#include "Vroom/Render/ParticleEmitterAttribute.h"
 
 #include <glm/glm.hpp>
 
@@ -15,27 +16,23 @@ namespace vrm
   {
   public:
 
-    template <glm::length_t Dim>
-    struct Attribute
-    {
-      using VectorType = glm::vec<Dim, float>;
-
-      Attribute(const VectorType& singleValue) : spawnValue(singleValue), deathValue(singleValue) {}
-      Attribute(const VectorType& spawn, const VectorType& death) : spawnValue(spawn), deathValue(death) {}
-      Attribute() : Attribute(VectorType(0.f)) {}
-
-      VectorType spawnValue;
-      VectorType deathValue;
-    };
-
     struct Specs
     {
+      // For editor usage
+      enum class EAttributeName
+      {
+        eColor = 0, ePosition, eScale
+      };
+
       float lifeTime = 10.f;
       float emitRate = 1.f;
 
-      Attribute<4> color = { { 0.f, 0.f, 0.f, 1.f } };
-      Attribute<3> position = { { 0.f, 0.f, 0.f } };
-      Attribute<3> scale = { { 1.f, 1.f, 1.f } };
+      ParticleEmitterAttribute<4> color = { { 0.f, 0.f, 0.f, 1.f } };
+      ParticleEmitterAttribute<3> position = { { 0.f, 0.f, 0.f } };
+      ParticleEmitterAttribute<3> scale = { { 1.f, 1.f, 1.f } };
+
+      ParticleEmitterAttributeBase& getAttribute(EAttributeName name);
+      const ParticleEmitterAttributeBase& getAttribute(EAttributeName name) const;
     };
 
   public:

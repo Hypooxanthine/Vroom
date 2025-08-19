@@ -51,7 +51,7 @@ namespace vrm
 
     void _showSettings();
     void _initAttributes();
-    void _addAttribute(const ParticleAttribute::Specs& specs, const std::string& name);
+    void _addAttribute(const ParticleAttribute::Specs& specs, const std::string& displayName, ParticleEmitter::Specs::EAttributeName name);
 
   private:
 
