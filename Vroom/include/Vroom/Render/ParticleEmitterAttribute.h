@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <span>
+#include <type_traits>
 
 namespace vrm
 {
@@ -18,14 +19,21 @@ namespace vrm
   template <glm::length_t Dim>
   struct ParticleEmitterField : public ParticleEmitterFieldBase
   {
-    using VectorType = glm::vec<Dim, float>;
+    using VectorType = std::conditional_t<
+      Dim == 1,
+      float,
+      glm::vec<Dim, float>
+    >;
 
     inline ParticleEmitterField() = default;
     inline ParticleEmitterField(const VectorType& value) : value(value) {}
 
     std::span<float> getRawData() override
     {
-      return std::span{ &value[0], Dim };
+      if constexpr (Dim > 1)
+        return std::span{ &value[0], Dim };
+      else
+        return std::span{ &value, Dim };
     }
 
     inline operator VectorType() const { return value; }

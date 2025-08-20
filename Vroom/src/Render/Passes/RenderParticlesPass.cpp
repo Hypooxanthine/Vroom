@@ -24,17 +24,17 @@ namespace
 
   struct RawParticleStates
   {
-    glm::vec3 spawnPosition; float _pad0;
-    glm::vec3 deathPosition; float _pad1;
-    glm::vec4 spawnColor; float _pad2;
-    glm::vec4 deathColor; float _pad3;
-    glm::vec3 spawnScale; float _pad4;
-    glm::vec3 deathScale; float _pad5;
+    glm::vec4 spawnPosition;
+    glm::vec4 deathPosition;
+    glm::vec4 spawnColor; 
+    glm::vec4 deathColor; 
+    glm::vec4 spawnScale;
+    glm::vec4 deathScale;
 
     glm::uint alive;
     float ellapsedLifeTime;
     float maxLifeTime;
-    float _pad6;
+    float _pad;
   };
 
   struct RawInstanceData
@@ -245,7 +245,7 @@ void RenderParticlesPass::_updateParticleStates()
   for (const ParticleEmitter* emitter : *emitters)
   {
     const auto& specs = emitter->getSpecs();
-    maxParticleCount += static_cast<glm::uint>(specs.lifeTime * specs.emitRate * 1.5f) + 1u;
+    maxParticleCount += static_cast<glm::uint>(specs.lifeTime * specs.emitRate + 1.f) * 2u;
   }
 
   m_particleStatesBuffer.ensureCapacity(sizeof(RawParticleStates) * maxParticleCount, true);

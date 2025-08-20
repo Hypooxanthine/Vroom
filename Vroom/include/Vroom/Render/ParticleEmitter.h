@@ -24,7 +24,7 @@ namespace vrm
         eColor = 0, ePosition, eScale
       };
 
-      float lifeTime = 10.f;
+      ParticleEmitterField<1> lifeTime = 10.f;
       float emitRate = 1.f;
 
       ParticleEmitterAttribute<4> color = { { 0.f, 0.f, 0.f, 1.f } };
