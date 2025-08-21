@@ -24,9 +24,10 @@ void ParticleSystemComponent::setParticleSystem(ParticleSystemAsset::Handle asse
   m_asset = asset;
 }
 
-void ParticleSystemComponent::addEmitter(ParticleEmitter&& emitter)
+void ParticleSystemComponent::addEmitter(const ParticleEmitter::Specs& specs)
 {
-  m_emitters.emplace_back(std::move(emitter));
+  ParticleEmitter& emitter = m_emitters.emplace_back();
+  emitter.setSpecs(specs);
 }
 
 void ParticleSystemComponent::update(const DeltaTime& dt)

@@ -120,7 +120,7 @@ void Renderer::submitParticleSystem(uint32_t entityId, const ParticleSystemCompo
   for (size_t i = 0; i < emitters.size(); ++i)
   {
     const ParticleEmitter* emitter = &emitters[i];
-    size_t id =  ((size_t)id << 32) | i;
+    size_t id =  ((size_t)entityId << 32) | i;
     m_particleEmitterRegistry.submit(id, emitter);
   }
 }

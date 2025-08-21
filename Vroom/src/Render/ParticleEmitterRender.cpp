@@ -2,6 +2,7 @@
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Core/Application.h"
+#include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Render/MaterialDefines.h"
 #include "Vroom/Render/PassMaterials.h"
 #include "Vroom/Render/ParticleEmitter.h"

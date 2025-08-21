@@ -40,9 +40,7 @@ ParticleSystemEditor::ParticleSystemEditor()
     specs.position = { glm::vec3(0.f), glm::vec3(0.f, 5.f, 0.f) };
     specs.scale = { glm::vec3(1.f) };
 
-    ParticleEmitter emitter;
-    emitter.setSpecs(specs);
-    psc.addEmitter(std::move(emitter));
+    psc.addEmitter(specs);
   }
 
   m_scene.setCamera(&m_camera);
