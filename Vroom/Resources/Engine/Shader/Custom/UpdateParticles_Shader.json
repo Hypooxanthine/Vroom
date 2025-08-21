@@ -31,7 +31,7 @@
         ],
         "Variables": [
           {
-            "Name": "g_emitters[]",
+            "Name": "g_emitter",
             "Type": "ParticleEmitterSpecs"
           }
         ]
@@ -45,7 +45,7 @@
         ],
         "Variables": [
           {
-            "Name": "g_spawnData[]",
+            "Name": "g_spawnData",
             "Type": "EmitterSpawnData"
           }
         ]
@@ -73,7 +73,7 @@
         ],
         "Variables": [
           {
-            "Name": "g_indirectCommands[]",
+            "Name": "g_indirectCommand",
             "Type": "DrawElementsIndirectCommand"
           }
         ]

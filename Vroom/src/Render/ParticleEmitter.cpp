@@ -4,6 +4,7 @@
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Core/DeltaTime.h"
+#include "Vroom/Render/ParticleEmitterRender.h"
 
 using namespace vrm;
 
@@ -29,20 +30,15 @@ const ParticleEmitterAttributeBase& ParticleEmitter::Specs::getAttribute(EAttrib
 
 ParticleEmitter::ParticleEmitter()
 {
+  m_render.reset(new ParticleEmitterRender());
   AssetManager& manager = AssetManager::Get();
   setMesh(manager.getAsset<MeshAsset>("Resources/Engine/Meshes/default_cube.obj"));
-  setMaterial(manager.getAsset<MaterialAsset>("Resources/Engine/Material/DefaultParticleMaterial.json"));
+  m_render->setRenderMaterial(manager.getAsset<MaterialAsset>("Resources/Engine/Material/DefaultParticleMaterial.json"));
 }
 
 ParticleEmitter::~ParticleEmitter()
 {
   
-}
-
-ParticleEmitter::ParticleEmitter(MeshAsset::Handle meshAsset, MaterialAsset::Handle materialAsset)
-{
-  setMesh(meshAsset);
-  setMaterial(materialAsset);
 }
 
 void ParticleEmitter::update(const DeltaTime& dt)
@@ -63,4 +59,25 @@ void ParticleEmitter::update(const DeltaTime& dt)
       m_lastSpawnedParticleStamp += timePerParticle;
     }
   }
+}
+
+void ParticleEmitter::setupRender() const
+{
+  if (m_dirty)
+  {
+    m_render->updateResources(this);
+    m_dirty = false;
+  }
+  
+  m_render->prepareFrame(this);
+}
+
+void ParticleEmitter::executeRender(const RenderPassContext &ctx) const
+{
+  m_render->executeRender(ctx);
+}
+
+void ParticleEmitter::setMesh(MeshAsset::Handle meshAsset)
+{
+  m_render->setMesh(meshAsset);
 }

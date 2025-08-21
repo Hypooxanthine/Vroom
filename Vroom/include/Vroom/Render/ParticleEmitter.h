@@ -1,16 +1,18 @@
 #pragma once
 
 #include "Vroom/Api.h"
-#include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Render/ParticleEmitterAttribute.h"
 
 #include <glm/glm.hpp>
+#include <memory>
 
 namespace vrm
 {
 
   class DeltaTime;
+  class ParticleEmitterRender;
+  class RenderPassContext;
 
   class VRM_API ParticleEmitter
   {
@@ -40,8 +42,6 @@ namespace vrm
     ParticleEmitter();
     ~ParticleEmitter();
 
-    ParticleEmitter(MeshAsset::Handle meshAsset, MaterialAsset::Handle materialAsset);
-
     ParticleEmitter& operator=(const ParticleEmitter& other) = delete;
     ParticleEmitter(const ParticleEmitter& other) = delete;
 
@@ -49,18 +49,15 @@ namespace vrm
     ParticleEmitter(ParticleEmitter&& other) = default;
 
     void update(const DeltaTime& dt);
+    void setupRender() const;
+    void executeRender(const RenderPassContext &ctx) const;
 
     inline bool isDirty() const { return m_dirty; }
-    inline void undirtify() const { m_dirty = false; }
     
     inline void setSpecs(const Specs& specs) { m_specs = specs; m_dirty = true; }
-    inline void setMesh(MeshAsset::Handle meshAsset) { m_mesh = meshAsset; }
-    inline void setMaterial(MaterialAsset::Handle materialAsset) { m_material = materialAsset; }
+    void setMesh(MeshAsset::Handle meshAsset);
 
     inline const Specs& getSpecs() const { return m_specs; }
-    inline Specs& getSpecs() { m_dirty = true; return m_specs; }
-    inline MeshAsset::Handle getMesh() const { return m_mesh; }
-    inline MaterialAsset::Handle getMaterial() const { return m_material; }
 
     inline float getTimeSinceStart() const { return m_timeAlive; }
     inline unsigned int getNextParticleCountToSpawn() const { return m_nextParticlesToSpawn; }
@@ -68,10 +65,10 @@ namespace vrm
 
   private:
 
+    std::unique_ptr<ParticleEmitterRender> m_render;
+
     Specs m_specs;
     mutable bool m_dirty = true;
-    MeshAsset::Handle m_mesh;
-    MaterialAsset::Handle m_material;
     
     float m_timeAlive = 0.f;
     float m_lastSpawnedParticleStamp = 0.f;

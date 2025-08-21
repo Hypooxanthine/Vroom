@@ -1,5 +1,6 @@
 #include "Vroom/Scene/Components/ParticleSystemComponent.h"
 #include "Vroom/Asset/StaticAsset/ParticleSystemAsset.h"
+#include "Vroom/Render/ParticleEmitterRender.h"
 
 using namespace vrm;
 

@@ -19,8 +19,8 @@ namespace vrm
     PassMaterial& operator=(const PassMaterial& other) = delete;
     PassMaterial(const PassMaterial& other) = delete;
 
-    PassMaterial& operator=(PassMaterial&& other) = delete;
-    PassMaterial(PassMaterial&& other) = delete;
+    PassMaterial& operator=(PassMaterial&& other) = default;
+    PassMaterial(PassMaterial&& other) = default;
 
     void setMaterialAsset(MaterialAsset::Handle material);
     

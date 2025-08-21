@@ -1,12 +1,7 @@
 #pragma once
 
-#include "Vroom/Render/Abstraction/Shader.h"
-#include "Vroom/Render/AutoBuffer.h"
 #include "Vroom/Render/ParticleEmitterRegistry.h"
-#include "Vroom/Render/PassMaterials.h"
 #include "Vroom/Render/Passes/RenderPass.h"
-#include "glm/fwd.hpp"
-#include <vector>
 
 namespace vrm
 {
@@ -26,7 +21,7 @@ namespace vrm
 
   public:
 
-    const ParticleEmitterRegistry* emitters = nullptr;
+    ParticleEmitterRegistry* emitters = nullptr;
 
   protected:
 
@@ -35,61 +30,6 @@ namespace vrm
     void onRender(const RenderPassContext &ctx) const override;
 
   private:
-
-    void _updateEmittersData();
-    void _updateParticleStates();
-    void _bindEmittersData(const gl::Shader& shader) const;
-    void _bindSpawnData(const gl::Shader& shader) const;
-    void _bindIndirectCommands(const gl::Shader& shader) const;
-    void _bindParticleStates(const gl::Shader& shader) const;
-    void _bindParticleInstanceData(const gl::Shader& shader) const;
-
-    void _uploadIndirectCommandsData() const;
-    void _uploadEmitterData() const;
-
-  private:
-
-    struct RawParticleEmitterSpecs
-    {
-      glm::vec4 colorSpawn;
-      glm::vec4 colorDeath;
-
-      glm::vec3 positionSpawn;
-      float lifeTime;
-      glm::vec3 positionDeath;
-      float emitRate;
-
-      glm::vec3 scaleSpawn;
-      float _pad0;
-      glm::vec3 scaleDeath;
-      float _pad1;
-    };
-
-    struct RawDrawElementsIndirectCommand
-    {
-      glm::uint count;
-      glm::uint instanceCount = 0;
-      glm::uint firstIndex;
-      int       baseVertex;
-      glm::uint baseInstance;
-    };
-
-  private:
-
-    constexpr static glm::uvec3 s_updaterGroupSize = { 64, 1, 1 };
-
-    std::vector<RawDrawElementsIndirectCommand> m_indirectCommands;
-    std::vector<PassMaterial const*> m_particleMaterials;
-    std::vector<RawParticleEmitterSpecs> m_emittersData;
-
-    render::AutoBuffer m_emittersDataBuffer;
-    render::AutoBuffer m_spawnCountersBuffer;
-    render::AutoBuffer m_indirectCommandsBuffer;
-    render::AutoBuffer m_particleStatesBuffer;
-    render::AutoBuffer m_instanceDataBuffer;
-
-    size_t m_maxParticleCount = 0;
-    const PassMaterial* m_updaterMaterial = nullptr;
 
   };
 
