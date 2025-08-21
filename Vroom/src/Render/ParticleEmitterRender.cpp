@@ -21,12 +21,12 @@ namespace
     glm::vec4 spawnColor; 
     glm::vec4 deathColor; 
     glm::vec4 spawnScale;
-    glm::vec4 deathScale;
+    glm::vec3 deathScale;
 
     glm::uint alive;
     float ellapsedLifeTime;
     float maxLifeTime;
-    float _pad;
+    float _pad[2];
   };
 
   struct RawInstanceData
