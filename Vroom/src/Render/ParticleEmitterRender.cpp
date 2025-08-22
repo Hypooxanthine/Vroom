@@ -2,7 +2,10 @@
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Core/Application.h"
+#include "Vroom/Render/Abstraction/Buffer.h"
 #include "Vroom/Render/Abstraction/GLCall.h"
+#include "Vroom/Render/Abstraction/Shader.h"
+#include "Vroom/Render/Abstraction/VertexArray.h"
 #include "Vroom/Render/MaterialDefines.h"
 #include "Vroom/Render/PassMaterials.h"
 #include "Vroom/Render/ParticleEmitter.h"
@@ -138,7 +141,7 @@ void ParticleEmitterRender::_uploadIndirectCommandData() const
 void ParticleEmitterRender::_updateParticleStates(const ParticleEmitter* emitter)
 {
   const auto& specs = emitter->getSpecs();
-  glm::uint maxParticleCount = static_cast<glm::uint>(specs.lifeTime * specs.emitRate + 1.f) * 2u;
+  glm::uint maxParticleCount = static_cast<glm::uint>(specs.lifeTime * specs.emitRate * 1.5f + 1.f);
 
   m_particleStatesBuffer.ensureCapacity(sizeof(RawParticleStates) * maxParticleCount, true);
   m_instanceDataBuffer.ensureCapacity(sizeof(RawInstanceData) * maxParticleCount, false);
@@ -200,16 +203,12 @@ void ParticleEmitterRender::_executeUpdateParticles()
   updaterShader.setUniform1ui("u_maxParticleCount", m_maxParticleCount);
   updaterShader.setUniform1f("u_deltaTime", Application::Get().getDeltaTime().seconds());
 
-  glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
   glm::uvec3 dispatch = gl::Shader::ComputeDispatchSize(s_updaterGroupSize, glm::uvec3(m_maxParticleCount, 1, 1));
   GLCall(glDispatchCompute(dispatch.x, dispatch.y, dispatch.z));
 }
 
 void ParticleEmitterRender::_executeRenderParticles(const RenderPassContext& ctx)
 {
-  glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -221,6 +220,8 @@ void ParticleEmitterRender::_executeRenderParticles(const RenderPassContext& ctx
   gl::Buffer::Bind(mesh.getIndexBuffer(), GL_ELEMENT_ARRAY_BUFFER);
   shader.bind();
   _bindParticleInstanceData(shader);
+
+  glMemoryBarrier(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 
   for (const render::View& view : ctx.views)
   {
