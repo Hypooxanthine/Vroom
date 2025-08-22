@@ -138,8 +138,8 @@ void ParticleSystemEditor::_showSettings()
 
     ParticleEmitter::Specs specs = m_entity.getComponent<ParticleSystemComponent>().getEmitters()[0].getSpecs();
 
-    specsChanged = specsChanged || ImGui::SliderFloat("Emit rate", &specs.emitRate, 0.1f, 20.f);
-    specsChanged = specsChanged || ImGui::SliderFloat("Life time", specs.lifeTime.getRawData().data(), 0.1f, 10.f);
+    specsChanged = ImGui::SliderFloat("Emit rate", &specs.emitRate, 0.1f, 500.f) || specsChanged;
+    specsChanged = ImGui::SliderFloat("Life time", specs.lifeTime.getRawData().data(), 0.1f, 20.f) || specsChanged;
 
     for (ParticleAttribute& attribute : m_attributes)
     {
@@ -148,7 +148,7 @@ void ParticleSystemEditor::_showSettings()
 
     for (const ParticleAttribute& attribute : m_attributes)
     {
-      specsChanged = specsChanged || attribute.updateEmitterSpecs(specs);
+      specsChanged = attribute.updateEmitterSpecs(specs) || specsChanged;
     }
 
     if (specsChanged)
