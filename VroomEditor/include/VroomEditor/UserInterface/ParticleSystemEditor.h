@@ -2,6 +2,7 @@
 
 #include "Vroom/Asset/StaticAsset/ParticleSystemAsset.h"
 #include "Vroom/Render/Camera/FirstPersonCamera.h"
+#include "Vroom/Render/ParticleEmitter.h"
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Scene/Scene.h"
 #include "VroomEditor/UserInterface/ImGuiElement.h"
@@ -49,8 +50,8 @@ namespace vrm::editor
 
   private:
 
+    void _addEmitter(const ParticleEmitter::Specs& initSpecs);
     void _showSettings();
-    void _showEmitterContextualMenu();
 
   private:
 

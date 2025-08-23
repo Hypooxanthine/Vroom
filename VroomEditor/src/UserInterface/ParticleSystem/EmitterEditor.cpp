@@ -1,5 +1,6 @@
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterEditor.h"
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterAttributeEditor.h"
+#include "imgui.h"
 
 using namespace vrm::editor;
 
@@ -13,17 +14,22 @@ EmitterEditor::~EmitterEditor()
 
 }
 
-void EmitterEditor::onImgui()
+void EmitterEditor::setName(const std::string& name)
 {
-  for (EmitterAttributeEditor& attribute : m_attributes)
-  {
-    attribute.renderImgui();
-  }
+  m_name = name;
 }
 
 bool EmitterEditor::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
 {
-  bool changed = false;
+  bool changed = m_changed;
+
+  if (m_changed)
+  {
+    specs.emitRate = m_emitRate;
+    specs.lifeTime.getRawData()[0] = m_lifeTime;
+    
+    m_changed = false;
+  }
 
   for (const EmitterAttributeEditor& attribute : m_attributes)
   {
@@ -33,8 +39,37 @@ bool EmitterEditor::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
   return changed;
 }
 
+void EmitterEditor::onImgui()
+{
+  if (ImGui::TreeNode(m_name.c_str()))
+  {
+    ImGui::TreePush("Life cycle");
+    {
+      m_changed = ImGui::SliderFloat("Emit rate", &m_emitRate, 0.1f, 500.f);
+      m_changed = ImGui::SliderFloat("Life time", &m_lifeTime, 0.1f, 20.f);
+
+      ImGui::TreePop();
+    }
+
+    for (EmitterAttributeEditor& attribute : m_attributes)
+    {
+      attribute.renderImgui();
+    }
+
+    ImGui::TreePop();
+  }
+}
+
+void EmitterEditor::_showContextualMenu()
+{
+  
+}
+
 void EmitterEditor::_initAttributes(const ParticleEmitter::Specs& initSpecs)
 {
+  m_emitRate = initSpecs.emitRate;
+  m_lifeTime = initSpecs.lifeTime;
+
   EmitterAttributeEditor::Settings settings;
   settings.type = EmitterFieldEditor::EType::eVec3;
   settings.min = -10.f;

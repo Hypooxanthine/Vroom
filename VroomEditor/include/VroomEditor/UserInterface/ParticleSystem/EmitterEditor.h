@@ -2,6 +2,7 @@
 
 #include "VroomEditor/UserInterface/ImGuiElement.h"
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterAttributeEditor.h"
+#include <string>
 #include <vector>
 
 
@@ -16,6 +17,7 @@ namespace vrm::editor
     ~EmitterEditor();
 
     bool updateEmitterSpecs(ParticleEmitter::Specs& specs) const;
+    void setName(const std::string& name);
 
   protected:
 
@@ -24,6 +26,7 @@ namespace vrm::editor
   private:
 
     void _initAttributes(const ParticleEmitter::Specs& initSpecs);
+
     void _addAttribute(
       const ParticleEmitter::Specs& initSpecs,
       const EmitterAttributeEditor::Settings& settings,
@@ -31,10 +34,15 @@ namespace vrm::editor
       ParticleEmitter::Specs::EAttributeName name
     );
 
+    void _showContextualMenu();
+
   private:
 
+    mutable bool m_changed = false;
+    float m_emitRate;
+    float m_lifeTime;
+    std::string m_name = "Attribute";
     std::vector<EmitterAttributeEditor> m_attributes;
-
 
   };
 

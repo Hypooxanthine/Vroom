@@ -7,6 +7,7 @@
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterEditor.h"
 #include "glm/fwd.hpp"
 #include "imgui.h"
+#include <string>
 
 using namespace vrm::editor;
 
@@ -40,7 +41,7 @@ ParticleSystemEditor::ParticleSystemEditor()
     specs.scale = { glm::vec3(1.f) };
 
     psc.addEmitter(specs);
-    m_emitters.emplace_back(specs);
+    _addEmitter(specs);
   }
 
   m_scene.setCamera(&m_camera);
@@ -129,6 +130,12 @@ void ParticleSystemEditor::onImgui()
   ImGui::End();
 }
 
+void ParticleSystemEditor::_addEmitter(const ParticleEmitter::Specs& initSpecs)
+{
+  EmitterEditor& emitter = m_emitters.emplace_back(initSpecs);
+  emitter.setName("Emitter " + std::to_string(m_emitters.size() - 1)); 
+}
+
 void ParticleSystemEditor::_showSettings()
 {
   if (ImGui::BeginChild("Settings"))
@@ -136,9 +143,6 @@ void ParticleSystemEditor::_showSettings()
     bool specsChanged = false;
 
     ParticleEmitter::Specs specs = m_entity.getComponent<ParticleSystemComponent>().getEmitters()[0].getSpecs();
-
-    specsChanged = ImGui::SliderFloat("Emit rate", &specs.emitRate, 0.1f, 500.f) || specsChanged;
-    specsChanged = ImGui::SliderFloat("Life time", specs.lifeTime.getRawData().data(), 0.1f, 20.f) || specsChanged;
 
     for (EmitterEditor& emitter : m_emitters)
     {
@@ -156,9 +160,4 @@ void ParticleSystemEditor::_showSettings()
     }
   }
   ImGui::EndChild();
-}
-
-void ParticleSystemEditor::_showEmitterContextualMenu()
-{
-
 }
