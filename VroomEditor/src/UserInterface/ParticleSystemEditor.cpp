@@ -4,7 +4,7 @@
 #include "Vroom/Render/Renderer.h"
 #include "Vroom/Scene/Components/ParticleSystemComponent.h"
 #include "Vroom/Scene/Components/SkyboxComponent.h"
-#include "VroomEditor/UserInterface/ParticleSystem/EmitterFieldEditor.h"
+#include "VroomEditor/UserInterface/ParticleSystem/EmitterEditor.h"
 #include "glm/fwd.hpp"
 #include "imgui.h"
 
@@ -40,6 +40,7 @@ ParticleSystemEditor::ParticleSystemEditor()
     specs.scale = { glm::vec3(1.f) };
 
     psc.addEmitter(specs);
+    m_emitters.emplace_back(specs);
   }
 
   m_scene.setCamera(&m_camera);
@@ -57,12 +58,11 @@ ParticleSystemEditor::ParticleSystemEditor()
     m_scene.getRenderer().getRenderPipeline().setRenderSettings(settings);
   }
 
+  m_viewport.setSupportPopup(false);
   m_viewport.resizeCb = [this](const glm::uvec2& size)
   {
     m_scene.onWindowResized(size);
   };
-
-  _initAttributes();
 }
 
 ParticleSystemEditor::~ParticleSystemEditor()
@@ -140,14 +140,14 @@ void ParticleSystemEditor::_showSettings()
     specsChanged = ImGui::SliderFloat("Emit rate", &specs.emitRate, 0.1f, 500.f) || specsChanged;
     specsChanged = ImGui::SliderFloat("Life time", specs.lifeTime.getRawData().data(), 0.1f, 20.f) || specsChanged;
 
-    for (EmitterAttributeEditor& attribute : m_attributes)
+    for (EmitterEditor& emitter : m_emitters)
     {
-      attribute.renderImgui();
+      emitter.renderImgui();
     }
 
-    for (const EmitterAttributeEditor& attribute : m_attributes)
+    for (const EmitterEditor& emitter : m_emitters)
     {
-      specsChanged = attribute.updateEmitterSpecs(specs) || specsChanged;
+      specsChanged = emitter.updateEmitterSpecs(specs) || specsChanged;
     }
 
     if (specsChanged)
@@ -158,30 +158,7 @@ void ParticleSystemEditor::_showSettings()
   ImGui::EndChild();
 }
 
-void ParticleSystemEditor::_initAttributes()
+void ParticleSystemEditor::_showEmitterContextualMenu()
 {
-  EmitterAttributeEditor::Specs specs;
-  specs.type = EmitterFieldEditor::EType::eVec3;
-  specs.min = -10.f;
-  specs.max = 10.f;
 
-  _addAttribute(specs, "Position", ParticleEmitter::Specs::EAttributeName::ePosition);
-
-  specs.min = 0.f;
-  specs.max = 10.f;
-  _addAttribute(specs, "Scale", ParticleEmitter::Specs::EAttributeName::eScale);
-
-  specs.type = EmitterFieldEditor::EType::eColor4;
-  specs.min = 0.f;
-  specs.max = 1.f;
-  _addAttribute(specs, "Color", ParticleEmitter::Specs::EAttributeName::eColor);
-}
-
-void ParticleSystemEditor::_addAttribute(const EmitterAttributeEditor::Specs& specs,  const std::string& displayName, ParticleEmitter::Specs::EAttributeName name)
-{
-  auto& attr = m_attributes.emplace_back(displayName, name);
-  attr.setSpecs(specs);
-
-  const ParticleEmitter::Specs& emitterSpecs = m_entity.getComponent<ParticleSystemComponent>().getEmitters()[0].getSpecs();
-  attr.setValue(emitterSpecs.getAttribute(name));
 }

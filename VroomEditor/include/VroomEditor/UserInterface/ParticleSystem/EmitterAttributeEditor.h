@@ -12,7 +12,7 @@ namespace vrm::editor
   {
   public:
 
-    struct Specs
+    struct Settings
     {
       EmitterFieldEditor::EType type = EmitterFieldEditor::EType::eScalar;
       float min = -10.f, max = 10.f;
@@ -30,7 +30,7 @@ namespace vrm::editor
 
     void setName(const std::string& name);
     void setEmitterSpecsOffset(size_t offset);
-    void setSpecs(const Specs& specs);
+    void setSettings(const Settings& settings);
   
   protected:
 

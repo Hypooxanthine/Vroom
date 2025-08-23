@@ -25,8 +25,12 @@ void EmitterAttributeEditor::setValue(const ParticleEmitterAttributeBase& emitte
 
 bool EmitterAttributeEditor::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
 {
-  return m_spawnValue.updateEmitterField(specs.getAttribute(m_name).getSpawnFieldBase())
-  || m_deathValue.updateEmitterField(specs.getAttribute(m_name).getDeathFieldBase());
+  bool changed = false;
+  
+  changed = m_spawnValue.updateEmitterField(specs.getAttribute(m_name).getSpawnFieldBase()) || changed;
+  changed = m_deathValue.updateEmitterField(specs.getAttribute(m_name).getDeathFieldBase()) || changed;
+
+  return changed;
 }
 
 void EmitterAttributeEditor::onImgui()
@@ -54,13 +58,13 @@ void EmitterAttributeEditor::setName(const std::string& name)
   m_displayName = name;
 }
 
-void EmitterAttributeEditor::setSpecs(const Specs& specs)
+void EmitterAttributeEditor::setSettings(const Settings& settings)
 {
-  auto setup = [this, &specs](EmitterFieldEditor& field)
+  auto setup = [this, &settings](EmitterFieldEditor& field)
   {
-    field.setType(specs.type);
-    field.setBounds(std::vector(field.getDimension(), specs.min), std::vector(field.getDimension(), specs.max));
-    field.setLockScale(specs.scaleLocked);
+    field.setType(settings.type);
+    field.setBounds(std::vector(field.getDimension(), settings.min), std::vector(field.getDimension(), settings.max));
+    field.setLockScale(settings.scaleLocked);
   };
   
   setup(m_spawnValue);
