@@ -1,10 +1,10 @@
-#include "VroomEditor/UserInterface/ParticleSystem/ParticleAttribute.h"
-#include "VroomEditor/UserInterface/ParticleSystem/ParticleField.h"
+#include "VroomEditor/UserInterface/ParticleSystem/EmitterAttributeEditor.h"
+#include "VroomEditor/UserInterface/ParticleSystem/EmitterFieldEditor.h"
 #include "imgui.h"
 
-using namespace vrm;
+using namespace vrm::editor;
 
-ParticleAttribute::ParticleAttribute(const std::string& displayName, ParticleEmitter::Specs::EAttributeName name)
+EmitterAttributeEditor::EmitterAttributeEditor(const std::string& displayName, ParticleEmitter::Specs::EAttributeName name)
 {
   m_name = name;
   setName(displayName);
@@ -12,24 +12,24 @@ ParticleAttribute::ParticleAttribute(const std::string& displayName, ParticleEmi
   m_deathValue.setName("Death");
 }
 
-ParticleAttribute::~ParticleAttribute()
+EmitterAttributeEditor::~EmitterAttributeEditor()
 {
 
 }
 
-void ParticleAttribute::setValue(const ParticleEmitterAttributeBase& emitterAttribute)
+void EmitterAttributeEditor::setValue(const ParticleEmitterAttributeBase& emitterAttribute)
 {
   m_spawnValue.setValue(emitterAttribute.getSpawnFieldBase().getRawData());
   m_deathValue.setValue(emitterAttribute.getDeathFieldBase().getRawData());
 }
 
-bool ParticleAttribute::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
+bool EmitterAttributeEditor::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
 {
   return m_spawnValue.updateEmitterField(specs.getAttribute(m_name).getSpawnFieldBase())
   || m_deathValue.updateEmitterField(specs.getAttribute(m_name).getDeathFieldBase());
 }
 
-void ParticleAttribute::onImgui()
+void EmitterAttributeEditor::onImgui()
 {
   if (ImGui::TreeNode(m_displayName.c_str()))
   {
@@ -49,14 +49,14 @@ void ParticleAttribute::onImgui()
   }
 }
 
-void ParticleAttribute::setName(const std::string& name)
+void EmitterAttributeEditor::setName(const std::string& name)
 {
   m_displayName = name;
 }
 
-void ParticleAttribute::setSpecs(const Specs& specs)
+void EmitterAttributeEditor::setSpecs(const Specs& specs)
 {
-  auto setup = [this, &specs](ParticleField& field)
+  auto setup = [this, &specs](EmitterFieldEditor& field)
   {
     field.setType(specs.type);
     field.setBounds(std::vector(field.getDimension(), specs.min), std::vector(field.getDimension(), specs.max));

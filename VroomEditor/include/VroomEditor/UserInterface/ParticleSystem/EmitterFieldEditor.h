@@ -6,10 +6,10 @@
 #include <span>
 #include <string>
 
-namespace vrm
+namespace vrm::editor
 {
 
-  class ParticleField : public ImGuiElement
+  class EmitterFieldEditor : public ImGuiElement
   {
   public:
 
@@ -22,8 +22,8 @@ namespace vrm
 
   public:
 
-    ParticleField();
-    ~ParticleField();
+    EmitterFieldEditor();
+    ~EmitterFieldEditor();
 
     bool updateEmitterField(ParticleEmitterFieldBase& field) const;
 
@@ -65,7 +65,7 @@ namespace vrm
 
   };
 
-  class ConstParticleField : public ParticleField
+  class ConstParticleField : public EmitterFieldEditor
   {
   public:
 

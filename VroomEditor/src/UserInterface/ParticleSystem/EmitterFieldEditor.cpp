@@ -1,26 +1,26 @@
-#include "VroomEditor/UserInterface/ParticleSystem/ParticleField.h"
+#include "VroomEditor/UserInterface/ParticleSystem/EmitterFieldEditor.h"
 #include "Vroom/Core/Assert.h"
 #include "imgui.h"
 #include <string_view>
 
-using namespace vrm;
+using namespace vrm::editor;
 
-ParticleField::ParticleField()
+EmitterFieldEditor::EmitterFieldEditor()
 {
 
 }
 
-ParticleField::~ParticleField()
+EmitterFieldEditor::~EmitterFieldEditor()
 {
 
 }
 
-void ParticleField::setName(const std::string& name)
+void EmitterFieldEditor::setName(const std::string& name)
 {
   m_name = name;
 }
 
-void ParticleField::setType(EType type)
+void EmitterFieldEditor::setType(EType type)
 {
   switch(type)
   {
@@ -55,12 +55,12 @@ void ParticleField::setType(EType type)
   }
 }
 
-void ParticleField::setLockScale(bool lock)
+void EmitterFieldEditor::setLockScale(bool lock)
 {
   m_scaleLock = lock;
 }
 
-void ParticleField::setValue(std::span<float const> value)
+void EmitterFieldEditor::setValue(std::span<float const> value)
 {
   VRM_ASSERT_MSG(value.size() == m_dim, "Field dimension must match value size");
   for (size_t i = 0; i < m_dim; ++i)
@@ -69,7 +69,7 @@ void ParticleField::setValue(std::span<float const> value)
   }
 }
 
-void ParticleField::setBounds(std::span<float const> min, std::span<float const> max)
+void EmitterFieldEditor::setBounds(std::span<float const> min, std::span<float const> max)
 {
   VRM_ASSERT(min.size() == max.size() && min.size() == getDimension());
 
@@ -80,7 +80,7 @@ void ParticleField::setBounds(std::span<float const> min, std::span<float const>
   }
 }
 
-void ParticleField::onImgui()
+void EmitterFieldEditor::onImgui()
 {
   m_dataModified = false;
 
@@ -89,7 +89,7 @@ void ParticleField::onImgui()
   onImguiEdit();
 }
 
-bool ParticleField::updateEmitterField(ParticleEmitterFieldBase& field) const
+bool EmitterFieldEditor::updateEmitterField(ParticleEmitterFieldBase& field) const
 {
   if (m_dataModified)
   {

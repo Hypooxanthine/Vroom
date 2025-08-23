@@ -3,26 +3,26 @@
 #include "Vroom/Render/ParticleEmitter.h"
 #include "Vroom/Render/ParticleEmitterAttribute.h"
 #include "VroomEditor/UserInterface/ImGuiElement.h"
-#include "VroomEditor/UserInterface/ParticleSystem/ParticleField.h"
+#include "VroomEditor/UserInterface/ParticleSystem/EmitterFieldEditor.h"
 
-namespace vrm
+namespace vrm::editor
 {
 
-  class ParticleAttribute : public ImGuiElement
+  class EmitterAttributeEditor : public ImGuiElement
   {
   public:
 
     struct Specs
     {
-      ParticleField::EType type = ParticleField::EType::eScalar;
+      EmitterFieldEditor::EType type = EmitterFieldEditor::EType::eScalar;
       float min = -10.f, max = 10.f;
       bool scaleLocked = false;
     };
 
   public:
 
-    ParticleAttribute(const std::string& displayName, ParticleEmitter::Specs::EAttributeName name);
-    ~ParticleAttribute();
+    EmitterAttributeEditor(const std::string& displayName, ParticleEmitter::Specs::EAttributeName name);
+    ~EmitterAttributeEditor();
 
     bool updateEmitterSpecs(ParticleEmitter::Specs& specs) const;
     

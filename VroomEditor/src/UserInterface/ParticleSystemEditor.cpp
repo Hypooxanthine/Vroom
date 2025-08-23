@@ -4,12 +4,11 @@
 #include "Vroom/Render/Renderer.h"
 #include "Vroom/Scene/Components/ParticleSystemComponent.h"
 #include "Vroom/Scene/Components/SkyboxComponent.h"
-#include "VroomEditor/UserInterface/ParticleSystem/ParticleAttribute.h"
-#include "VroomEditor/UserInterface/ParticleSystem/ParticleField.h"
+#include "VroomEditor/UserInterface/ParticleSystem/EmitterFieldEditor.h"
 #include "glm/fwd.hpp"
 #include "imgui.h"
 
-using namespace vrm;
+using namespace vrm::editor;
 
 void ParticleSystemEditor::MyViewportModule::onPopupImgui(const ImVec2& texturePx)
 {
@@ -141,12 +140,12 @@ void ParticleSystemEditor::_showSettings()
     specsChanged = ImGui::SliderFloat("Emit rate", &specs.emitRate, 0.1f, 500.f) || specsChanged;
     specsChanged = ImGui::SliderFloat("Life time", specs.lifeTime.getRawData().data(), 0.1f, 20.f) || specsChanged;
 
-    for (ParticleAttribute& attribute : m_attributes)
+    for (EmitterAttributeEditor& attribute : m_attributes)
     {
       attribute.renderImgui();
     }
 
-    for (const ParticleAttribute& attribute : m_attributes)
+    for (const EmitterAttributeEditor& attribute : m_attributes)
     {
       specsChanged = attribute.updateEmitterSpecs(specs) || specsChanged;
     }
@@ -161,8 +160,8 @@ void ParticleSystemEditor::_showSettings()
 
 void ParticleSystemEditor::_initAttributes()
 {
-  ParticleAttribute::Specs specs;
-  specs.type = ParticleField::EType::eVec3;
+  EmitterAttributeEditor::Specs specs;
+  specs.type = EmitterFieldEditor::EType::eVec3;
   specs.min = -10.f;
   specs.max = 10.f;
 
@@ -172,13 +171,13 @@ void ParticleSystemEditor::_initAttributes()
   specs.max = 10.f;
   _addAttribute(specs, "Scale", ParticleEmitter::Specs::EAttributeName::eScale);
 
-  specs.type = ParticleField::EType::eColor4;
+  specs.type = EmitterFieldEditor::EType::eColor4;
   specs.min = 0.f;
   specs.max = 1.f;
   _addAttribute(specs, "Color", ParticleEmitter::Specs::EAttributeName::eColor);
 }
 
-void ParticleSystemEditor::_addAttribute(const ParticleAttribute::Specs& specs,  const std::string& displayName, ParticleEmitter::Specs::EAttributeName name)
+void ParticleSystemEditor::_addAttribute(const EmitterAttributeEditor::Specs& specs,  const std::string& displayName, ParticleEmitter::Specs::EAttributeName name)
 {
   auto& attr = m_attributes.emplace_back(displayName, name);
   attr.setSpecs(specs);

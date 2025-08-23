@@ -5,12 +5,12 @@
 #include "Vroom/Scene/Entity.h"
 #include "Vroom/Scene/Scene.h"
 #include "VroomEditor/UserInterface/ImGuiElement.h"
-#include "VroomEditor/UserInterface/ParticleSystem/ParticleAttribute.h"
+#include "VroomEditor/UserInterface/ParticleSystem/EmitterAttributeEditor.h"
 #include "VroomEditor/UserInterface/ViewportModule.h"
 #include <functional>
 #include <vector>
 
-namespace vrm
+namespace vrm::editor
 {
 
   class ParticleSystemEditor : public ImGuiElement
@@ -51,7 +51,7 @@ namespace vrm
 
     void _showSettings();
     void _initAttributes();
-    void _addAttribute(const ParticleAttribute::Specs& specs, const std::string& displayName, ParticleEmitter::Specs::EAttributeName name);
+    void _addAttribute(const EmitterAttributeEditor::Specs& specs, const std::string& displayName, ParticleEmitter::Specs::EAttributeName name);
 
   private:
 
@@ -62,7 +62,7 @@ namespace vrm
     FirstPersonCamera m_camera;
     Entity m_entity;
 
-    std::vector<ParticleAttribute> m_attributes;
+    std::vector<EmitterAttributeEditor> m_attributes;
 
   };
 
