@@ -16,6 +16,8 @@ namespace vrm::editor
     EmitterEditor(const ParticleEmitter::Specs& initSpecs);
     ~EmitterEditor();
 
+    bool requestedDelete() const { return m_requestDelete; }
+
     bool updateEmitterSpecs(ParticleEmitter::Specs& specs) const;
     void setName(const std::string& name);
 
@@ -39,6 +41,7 @@ namespace vrm::editor
   private:
 
     mutable bool m_changed = false;
+    bool m_requestDelete = false;
     float m_emitRate;
     float m_lifeTime;
     std::string m_name = "Attribute";

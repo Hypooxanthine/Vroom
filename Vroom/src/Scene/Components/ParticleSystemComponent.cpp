@@ -1,6 +1,8 @@
 #include "Vroom/Scene/Components/ParticleSystemComponent.h"
 #include "Vroom/Asset/StaticAsset/ParticleSystemAsset.h"
+#include "Vroom/Core/Log.h"
 #include "Vroom/Render/ParticleEmitterRender.h"
+#include <cstddef>
 
 using namespace vrm;
 
@@ -28,6 +30,14 @@ void ParticleSystemComponent::addEmitter(const ParticleEmitter::Specs& specs)
 {
   ParticleEmitter& emitter = m_emitters.emplace_back();
   emitter.setSpecs(specs);
+}
+
+void ParticleSystemComponent::removeEmitter(size_t id)
+{
+  if (id < m_emitters.size())
+    m_emitters.erase(m_emitters.begin() + id);
+  else
+    VRM_LOG_ERROR("Could not remove emitter:: id {} is out of range", id);
 }
 
 void ParticleSystemComponent::update(const DeltaTime& dt)

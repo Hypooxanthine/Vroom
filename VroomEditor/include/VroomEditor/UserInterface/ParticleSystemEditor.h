@@ -50,8 +50,11 @@ namespace vrm::editor
 
   private:
 
-    void _addEmitter(const ParticleEmitter::Specs& initSpecs);
+    void _addEmitter(const ParticleEmitter::Specs& specs);
     void _showSettings();
+
+    void _updateEmitterSpecs();
+    void _checkRemovedEmitter();
 
   private:
 

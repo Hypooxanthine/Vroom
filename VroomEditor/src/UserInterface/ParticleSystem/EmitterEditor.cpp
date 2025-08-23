@@ -41,12 +41,20 @@ bool EmitterEditor::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
 
 void EmitterEditor::onImgui()
 {
-  if (ImGui::TreeNode(m_name.c_str()))
+  bool open = ImGui::TreeNodeEx(m_name.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+
+  if (ImGui::BeginPopupContextItem("Contextual menu"))
+  {
+    _showContextualMenu();
+    ImGui::EndPopup();
+  }
+
+  if (open)
   {
     ImGui::TreePush("Life cycle");
     {
-      m_changed = ImGui::SliderFloat("Emit rate", &m_emitRate, 0.1f, 500.f);
-      m_changed = ImGui::SliderFloat("Life time", &m_lifeTime, 0.1f, 20.f);
+      m_changed = ImGui::SliderFloat("Emit rate", &m_emitRate, 0.1f, 500.f, "%.1f", ImGuiSliderFlags_Logarithmic) || m_changed;
+      m_changed = ImGui::SliderFloat("Life time", &m_lifeTime, 0.1f, 20.f) || m_changed;
 
       ImGui::TreePop();
     }
@@ -62,7 +70,7 @@ void EmitterEditor::onImgui()
 
 void EmitterEditor::_showContextualMenu()
 {
-  
+  m_requestDelete = ImGui::Selectable("Delete");
 }
 
 void EmitterEditor::_initAttributes(const ParticleEmitter::Specs& initSpecs)

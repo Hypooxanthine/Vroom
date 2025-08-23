@@ -22,6 +22,7 @@ namespace vrm
     void setParticleSystem(ParticleSystemAsset::Handle asset);
 
     void addEmitter(const ParticleEmitter::Specs& specs);
+    void removeEmitter(size_t id);
 
     void update(const DeltaTime& dt);
 

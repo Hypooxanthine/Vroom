@@ -31,7 +31,7 @@ ParticleSystemEditor::ParticleSystemEditor()
 {
   m_scene.init();
   m_entity = m_scene.createEntity("Particles");
-  auto& psc = m_entity.addComponent<ParticleSystemComponent>();
+  m_entity.addComponent<ParticleSystemComponent>();
   {
     ParticleEmitter::Specs specs;
     specs.emitRate = 1.f;
@@ -40,7 +40,6 @@ ParticleSystemEditor::ParticleSystemEditor()
     specs.position = { glm::vec3(0.f), glm::vec3(0.f, 5.f, 0.f) };
     specs.scale = { glm::vec3(1.f) };
 
-    psc.addEmitter(specs);
     _addEmitter(specs);
   }
 
@@ -94,6 +93,52 @@ void ParticleSystemEditor::onUpdate(const DeltaTime &dt)
   if (!m_open || *m_open)
   {
     m_scene.update(Application::Get().getDeltaTime());
+
+    _updateEmitterSpecs();
+    _checkRemovedEmitter();
+  }
+}
+
+void ParticleSystemEditor::_updateEmitterSpecs()
+{
+  for (size_t i = 0; i < m_emitters.size(); ++i)
+  {
+    bool specsChanged = false;
+    ParticleEmitter& emitter = m_entity.getComponent<ParticleSystemComponent>().getEmitters()[i];
+    ParticleEmitter::Specs specs = emitter.getSpecs();
+
+    for (const EmitterEditor& emitter : m_emitters)
+    {
+      specsChanged = emitter.updateEmitterSpecs(specs) || specsChanged;
+    }
+
+    if (specsChanged)
+    {
+      emitter.setSpecs(specs);
+    }
+  }
+}
+
+void ParticleSystemEditor::_checkRemovedEmitter()
+{
+  size_t i;
+
+  for (i = 0; i < m_emitters.size(); ++i)
+  {
+    auto& emitter = m_emitters.at(i);
+
+    if (emitter.requestedDelete())
+    {
+      m_emitters.erase(m_emitters.begin() + i);
+      m_entity.getComponent<ParticleSystemComponent>().removeEmitter(i);
+    
+      for (size_t i = 0; i < m_emitters.size(); ++i)
+      {
+        m_emitters.at(i).setName("Emitter " + std::to_string(i));
+      }
+
+      break;
+    }
   }
 }
 
@@ -130,9 +175,11 @@ void ParticleSystemEditor::onImgui()
   ImGui::End();
 }
 
-void ParticleSystemEditor::_addEmitter(const ParticleEmitter::Specs& initSpecs)
+void ParticleSystemEditor::_addEmitter(const ParticleEmitter::Specs& specs)
 {
-  EmitterEditor& emitter = m_emitters.emplace_back(initSpecs);
+  auto& psc = m_entity.getComponent<ParticleSystemComponent>();
+  psc.addEmitter(specs);
+  EmitterEditor& emitter = m_emitters.emplace_back(specs);
   emitter.setName("Emitter " + std::to_string(m_emitters.size() - 1)); 
 }
 
@@ -140,23 +187,9 @@ void ParticleSystemEditor::_showSettings()
 {
   if (ImGui::BeginChild("Settings"))
   {
-    bool specsChanged = false;
-
-    ParticleEmitter::Specs specs = m_entity.getComponent<ParticleSystemComponent>().getEmitters()[0].getSpecs();
-
     for (EmitterEditor& emitter : m_emitters)
     {
       emitter.renderImgui();
-    }
-
-    for (const EmitterEditor& emitter : m_emitters)
-    {
-      specsChanged = emitter.updateEmitterSpecs(specs) || specsChanged;
-    }
-
-    if (specsChanged)
-    {
-      m_entity.getComponent<ParticleSystemComponent>().getEmitters()[0].setSpecs(specs);
     }
   }
   ImGui::EndChild();
