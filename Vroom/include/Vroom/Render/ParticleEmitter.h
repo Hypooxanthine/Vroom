@@ -3,6 +3,7 @@
 #include "Vroom/Api.h"
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Render/ParticleEmitterAttribute.h"
+#include "Vroom/Render/ParticleEmitterRender.h"
 
 #include <glm/glm.hpp>
 #include <memory>
@@ -18,7 +19,7 @@ namespace vrm
   {
   public:
 
-    struct Specs
+    struct VRM_API Specs
     {
       // For editor usage
       enum class EAttributeName

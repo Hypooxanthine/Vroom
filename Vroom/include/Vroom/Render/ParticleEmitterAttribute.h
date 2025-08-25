@@ -28,7 +28,7 @@ namespace vrm
     inline ParticleEmitterField() = default;
     inline ParticleEmitterField(const VectorType& value) : value(value) {}
 
-    std::span<float> getRawData() override
+    inline std::span<float> getRawData() override
     {
       if constexpr (Dim > 1)
         return std::span{ &value[0], Dim };
@@ -64,16 +64,16 @@ namespace vrm
     using FieldType = ParticleEmitterField<Dim>;
     using VectorType = FieldType::VectorType;
 
-    ParticleEmitterAttribute(const VectorType& singleValue) : spawnValue(singleValue), deathValue(singleValue) {}
-    ParticleEmitterAttribute(const VectorType& spawn, const VectorType& death) : spawnValue(spawn), deathValue(death) {}
-    ParticleEmitterAttribute() : ParticleEmitterAttribute(VectorType(0.f)) {}
+    inline ParticleEmitterAttribute(const VectorType& singleValue) : spawnValue(singleValue), deathValue(singleValue) {}
+    inline ParticleEmitterAttribute(const VectorType& spawn, const VectorType& death) : spawnValue(spawn), deathValue(death) {}
+    inline ParticleEmitterAttribute() : ParticleEmitterAttribute(VectorType(0.f)) {}
 
-    ParticleEmitterFieldBase& getSpawnFieldBase() override
+    inline ParticleEmitterFieldBase& getSpawnFieldBase() override
     {
       return spawnValue;
     }
 
-    ParticleEmitterFieldBase& getDeathFieldBase() override
+    inline ParticleEmitterFieldBase& getDeathFieldBase() override
     {
       return deathValue;
     }

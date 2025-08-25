@@ -38,8 +38,8 @@ namespace vrm
     RenderPipeline& operator=(const RenderPipeline& other) = delete;
     RenderPipeline(const RenderPipeline& other) = delete;
     
-    RenderPipeline& operator=(RenderPipeline&& other) = default;
-    RenderPipeline(RenderPipeline&& other) = default;
+    RenderPipeline& operator=(RenderPipeline&& other) = delete;
+    RenderPipeline(RenderPipeline&& other) = delete;
 
     inline void setContext(const RenderPipelineContext& context) { m_context = context; }
     

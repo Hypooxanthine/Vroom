@@ -24,8 +24,8 @@ namespace vrm
     RenderResources& operator=(const RenderResources& other) = delete;
     RenderResources(const RenderResources& other) = delete;
 
-    RenderResources& operator=(RenderResources&& other) = default;
-    RenderResources(RenderResources&& other) = default;
+    RenderResources& operator=(RenderResources&& other) = delete;
+    RenderResources(RenderResources&& other) = delete;
 
     void clear();
     const std::vector<std::string>& getExposedTextures() const { return m_exposedTextures; }

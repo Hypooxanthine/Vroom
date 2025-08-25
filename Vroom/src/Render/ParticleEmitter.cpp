@@ -4,7 +4,6 @@
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Core/DeltaTime.h"
-#include "Vroom/Render/ParticleEmitterRender.h"
 
 using namespace vrm;
 
