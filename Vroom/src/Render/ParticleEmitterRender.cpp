@@ -200,12 +200,8 @@ void ParticleEmitterRender::_executeUpdateParticles(const ParticleEmitter* emitt
   updaterShader.setUniform1ui("u_particlesToSpawn", emitter->getNextParticleCountToSpawn());
   updaterShader.setUniform1f("u_firstParticleStamp", emitter->getNextParticleToSpawnStartingLifetime());
 
-  glMemoryBarrier(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
-
   glm::uvec3 dispatch = gl::Shader::ComputeDispatchSize(s_updaterGroupSize, glm::uvec3(m_maxParticleCount, 1, 1));
   GLCall(glDispatchCompute(dispatch.x, dispatch.y, dispatch.z));
-
-  glMemoryBarrier(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 void ParticleEmitterRender::_executeRenderParticles(const RenderPassContext& ctx)
