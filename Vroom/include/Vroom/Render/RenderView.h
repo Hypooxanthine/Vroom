@@ -34,7 +34,7 @@ namespace vrm::render
     ViewBase(ViewBase&& other) = default;
 
     inline CameraBasic* getCamera() const { return m_camera; }
-    ViewportType getViewport() const { return m_viewport; }
+    const ViewportType& getViewport() const { return m_viewport; }
 
     inline void setCamera(CameraBasic* camera) { m_camera = camera; }
     inline void setViewport(const ViewportType& viewport) { m_viewport = viewport; }

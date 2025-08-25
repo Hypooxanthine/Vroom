@@ -74,7 +74,7 @@ void ParticleEmitter::setupRender() const
 
 void ParticleEmitter::executeRender(const RenderPassContext &ctx) const
 {
-  m_render->executeRender(ctx);
+  m_render->executeRender(this, ctx);
 }
 
 void ParticleEmitter::setMesh(MeshAsset::Handle meshAsset)

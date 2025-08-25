@@ -32,17 +32,17 @@ namespace vrm
 
     void updateResources(const ParticleEmitter* emitter);
     void prepareFrame(const ParticleEmitter* emitter);
-    void executeRender(const RenderPassContext &ctx);
+    void executeRender(const ParticleEmitter* emitter, const RenderPassContext &ctx);
 
   private:
 
     struct RawDrawElementsIndirectCommand
     {
-      glm::uint count;
+      glm::uint count = 0;
       glm::uint instanceCount = 0;
-      glm::uint firstIndex;
-      int       baseVertex;
-      glm::uint baseInstance;
+      glm::uint firstIndex = 0;
+      int       baseVertex = 0;
+      glm::uint baseInstance = 0;
     };
 
     struct RawParticleEmitterSpecs
@@ -71,7 +71,7 @@ namespace vrm
     void _updateParticleStates(const ParticleEmitter* emitter);
     void _updateEmitterData(const ParticleEmitter* emitter);
 
-    void _executeUpdateParticles();
+    void _executeUpdateParticles(const ParticleEmitter* emitter);
     void _executeRenderParticles(const RenderPassContext& ctx);  
 
     void _bindUpdaterShaderData(const gl::Shader& shader) const;

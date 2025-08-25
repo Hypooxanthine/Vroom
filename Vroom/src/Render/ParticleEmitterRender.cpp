@@ -26,9 +26,9 @@ namespace
     glm::vec4 spawnScale;
     glm::vec3 deathScale;
 
-    glm::uint alive;
-    float ellapsedLifeTime;
-    float maxLifeTime;
+    glm::uint alive = 0;
+    float ellapsedLifeTime = 0.f;
+    float maxLifeTime = 0.f;
     float _pad[2];
   };
 
@@ -41,9 +41,7 @@ namespace
 
   struct RawEmitterSpawnData
   {
-    glm::uint particlesToSpawn;
-    float firstParticleStamp;
-    glm::uint atomicCounter;
+    glm::uint atomicCounter = 0;
   };
 
 }
@@ -90,9 +88,9 @@ void ParticleEmitterRender::prepareFrame(const ParticleEmitter* emitter)
   _uploadIndirectCommandData();
 }
 
-void ParticleEmitterRender::executeRender(const RenderPassContext &ctx)
+void ParticleEmitterRender::executeRender(const ParticleEmitter* emitter, const RenderPassContext &ctx)
 {
-  _executeUpdateParticles();
+  _executeUpdateParticles(emitter);
   _executeRenderParticles(ctx);
 }
 
@@ -117,9 +115,6 @@ void ParticleEmitterRender::_uploadSpawnData(const ParticleEmitter* emitter) con
   );
 
   RawEmitterSpawnData& rawData = mapped[0];
-
-  rawData.firstParticleStamp = emitter->getNextParticleToSpawnStartingLifetime();
-  rawData.particlesToSpawn = emitter->getNextParticleCountToSpawn();
   rawData.atomicCounter = 0;
 
   m_spawnDataBuffer.unmap();
@@ -195,16 +190,22 @@ void ParticleEmitterRender::_updateEmitterData(const ParticleEmitter* emitter)
 }
 
 
-void ParticleEmitterRender::_executeUpdateParticles()
+void ParticleEmitterRender::_executeUpdateParticles(const ParticleEmitter* emitter)
 {
   const gl::Shader& updaterShader = m_updaterMaterial.getShader();
   updaterShader.bind();
   _bindUpdaterShaderData(updaterShader);
   updaterShader.setUniform1ui("u_maxParticleCount", m_maxParticleCount);
   updaterShader.setUniform1f("u_deltaTime", Application::Get().getDeltaTime().seconds());
+  updaterShader.setUniform1ui("u_particlesToSpawn", emitter->getNextParticleCountToSpawn());
+  updaterShader.setUniform1f("u_firstParticleStamp", emitter->getNextParticleToSpawnStartingLifetime());
+
+  glMemoryBarrier(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 
   glm::uvec3 dispatch = gl::Shader::ComputeDispatchSize(s_updaterGroupSize, glm::uvec3(m_maxParticleCount, 1, 1));
   GLCall(glDispatchCompute(dispatch.x, dispatch.y, dispatch.z));
+
+  glMemoryBarrier(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 void ParticleEmitterRender::_executeRenderParticles(const RenderPassContext& ctx)
@@ -216,8 +217,8 @@ void ParticleEmitterRender::_executeRenderParticles(const RenderPassContext& ctx
   const gl::Shader& shader = m_renderMaterial.getShader();
 
   gl::VertexArray::Bind(mesh.getVertexArray());
-  gl::Buffer::Bind(m_indirectCommandsBuffer.getBuffer(), GL_DRAW_INDIRECT_BUFFER);
   gl::Buffer::Bind(mesh.getIndexBuffer(), GL_ELEMENT_ARRAY_BUFFER);
+  gl::Buffer::Bind(m_indirectCommandsBuffer.getBuffer(), GL_DRAW_INDIRECT_BUFFER);
   shader.bind();
   _bindParticleInstanceData(shader);
 

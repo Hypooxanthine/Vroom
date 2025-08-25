@@ -16,6 +16,14 @@
         "Type": "uint"
       },
       {
+        "Name": "u_particlesToSpawn",
+        "Type": "uint"
+      },
+      {
+        "Name": "u_firstParticleStamp",
+        "Type": "float"
+      },
+      {
         "Name": "u_deltaTime",
         "Type": "float"
       }

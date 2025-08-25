@@ -17,8 +17,6 @@ struct ParticleEmitterSpecs
 
 struct EmitterSpawnData
 {
-  uint particlesToSpawn;
-  float firstParticleStamp;
   uint atomicCounter;
 };
 

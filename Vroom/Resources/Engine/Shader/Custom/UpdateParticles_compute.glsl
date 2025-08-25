@@ -29,11 +29,11 @@ void main()
     // Or will be dead after addind delta time
     const uint spawnIndex = atomicAdd(g_spawnData.atomicCounter, 1);
     
-    if (spawnIndex < g_spawnData.particlesToSpawn)
+    if (spawnIndex < u_particlesToSpawn)
     {
       SpawnParticle(states);
       const float timePerSpawn = 1.f / g_emitter.emitRate;
-      updateDeltaTime = g_spawnData.firstParticleStamp + float(spawnIndex) * timePerSpawn;
+      updateDeltaTime = u_firstParticleStamp + float(spawnIndex) * timePerSpawn;
     }
     else
     {
