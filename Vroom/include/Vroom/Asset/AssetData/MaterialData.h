@@ -166,9 +166,6 @@ namespace nlohmann
 
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(vrm::MaterialData::TextureData, resourceName, wrappingMode);
 
-  void VRM_API to_json(json& j, const vrm::MaterialData::TextureData& e);
-  void VRM_API from_json(const json& j, vrm::MaterialData::TextureData& e);
-
   void VRM_API to_json(json& j, const vrm::MaterialData::Parameter& e);
   void VRM_API from_json(const json& j, vrm::MaterialData::Parameter& e);
 
