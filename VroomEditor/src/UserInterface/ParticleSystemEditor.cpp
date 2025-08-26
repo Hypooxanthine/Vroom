@@ -35,14 +35,7 @@ ParticleSystemEditor::ParticleSystemEditor()
   m_entity = m_scene.createEntity("Particles");
   m_entity.addComponent<ParticleSystemComponent>();
   {
-    ParticleEmitter::Specs specs;
-    specs.emitRate = 1.f;
-    specs.lifeTime = 2.f;
-    specs.color = { glm::vec4(1.f, 0.f, 0.f, 1.f), glm::vec4(0.f, 1.f, 0.f, 1.f) };
-    specs.position = { glm::vec3(0.f), glm::vec3(0.f, 5.f, 0.f) };
-    specs.scale = { glm::vec3(1.f) };
-
-    _addEmitter(specs);
+    _addEmitter();
   }
 
   m_scene.setCamera(&m_camera);
@@ -107,12 +100,10 @@ void ParticleSystemEditor::_updateEmitterSpecs()
   {
     bool specsChanged = false;
     ParticleEmitter& emitter = m_entity.getComponent<ParticleSystemComponent>().getEmitters()[i];
+    const EmitterEditor& editor = m_emitters.at(i);
     ParticleEmitter::Specs specs = emitter.getSpecs();
 
-    for (const EmitterEditor& emitter : m_emitters)
-    {
-      specsChanged = emitter.updateEmitterSpecs(specs) || specsChanged;
-    }
+    specsChanged = editor.updateEmitterSpecs(specs) || specsChanged;
 
     if (specsChanged)
     {
@@ -177,6 +168,18 @@ void ParticleSystemEditor::onImgui()
   ImGui::End();
 }
 
+void ParticleSystemEditor::_addEmitter()
+{
+  ParticleEmitter::Specs specs;
+  specs.emitRate = 1.f;
+  specs.lifeTime = 2.f;
+  specs.color = { glm::vec4(1.f, 0.f, 0.f, 1.f), glm::vec4(0.f, 1.f, 0.f, 1.f) };
+  specs.position = { glm::vec3(0.f), glm::vec3(0.f, 5.f, 0.f) };
+  specs.scale = { glm::vec3(1.f) };
+
+  _addEmitter(specs);
+}
+
 void ParticleSystemEditor::_addEmitter(const ParticleEmitter::Specs& specs)
 {
   auto& psc = m_entity.getComponent<ParticleSystemComponent>();
@@ -197,7 +200,7 @@ void ParticleSystemEditor::_showSettings()
     if (ImGui::Button("Add emitter"))
     {
       Application::Get().getGameLayer().pushFrameEndRoutine([this](Layer& layer) {
-        _addEmitter({});
+        _addEmitter();
       });
     }
   }
