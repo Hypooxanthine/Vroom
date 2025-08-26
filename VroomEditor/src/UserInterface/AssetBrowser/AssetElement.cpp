@@ -186,7 +186,7 @@ void AssetElement::onRenaming()
       newPath.remove_filename();
       newPath = newPath / fileName;
 
-      EditorLayer::Get().pushRoutine([this, newPath](auto& layer) {
+      EditorLayer::Get().pushFrameEndRoutine([this, newPath](auto& layer) {
         AssetUtils::RenameAssetElement(getPath(), newPath);
         getBrowser().updateDirectoryContent();
       });
@@ -212,7 +212,7 @@ void AssetElement::onClick()
   if (!m_isSelectable)
     return;
 
-  EditorLayer::Get().pushRoutine([this](auto& layer) {
+  EditorLayer::Get().pushFrameEndRoutine([this](auto& layer) {
     getBrowser().toggleSelectElement(this);
      });
 }
@@ -242,14 +242,14 @@ void AssetElement::contextualBehaviour()
 
 void AssetElement::requestSelectThis()
 {
-  EditorLayer::Get().pushRoutine([this](auto& layer) {
+  EditorLayer::Get().pushFrameEndRoutine([this](auto& layer) {
     getBrowser().selectElement(this);
     });
 }
 
 void AssetElement::requestDeleteThis()
 {
-  EditorLayer::Get().pushRoutine([this](auto& layer) {
+  EditorLayer::Get().pushFrameEndRoutine([this](auto& layer) {
     AssetUtils::DeleteAssetElement(getPath());
     getBrowser().updateDirectoryContent();
     });
@@ -259,7 +259,7 @@ void AssetElement::requestUnselectThis()
 {
   if (m_selected)
   {
-    EditorLayer::Get().pushRoutine([this](auto& layer) {
+    EditorLayer::Get().pushFrameEndRoutine([this](auto& layer) {
       getBrowser().unselectElement(this);
       });
   }

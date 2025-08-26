@@ -128,7 +128,7 @@ namespace vrm
 
     void pushRoutine(EFrameLocation::Type location, const DeferredRoutine& routine);
 
-    inline void pushRoutine(const DeferredRoutine& routine) { pushRoutine(EFrameLocation::ePostEndFrame, routine); }
+    inline void pushFrameEndRoutine(const DeferredRoutine& routine) { pushRoutine(EFrameLocation::ePostEndFrame, routine); }
 
   protected:
 

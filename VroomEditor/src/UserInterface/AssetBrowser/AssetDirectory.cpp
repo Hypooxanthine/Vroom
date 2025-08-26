@@ -25,7 +25,7 @@ std::string AssetDirectory::getPictoAssetName() const
 
 void AssetDirectory::onDoubleClick()
 {
-  EditorLayer::Get().pushRoutine([this](auto& layer){
+  EditorLayer::Get().pushFrameEndRoutine([this](auto& layer){
     getBrowser().setCurrentPath(getPath());
   });
 }

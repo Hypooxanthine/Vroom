@@ -240,7 +240,7 @@ void AssetBrowser::onImgui()
     {
       if (ImGui::Selectable("Create directory"))
       {
-        EditorLayer::Get().pushRoutine([this](auto& layer) {
+        EditorLayer::Get().pushFrameEndRoutine([this](auto& layer) {
           static const std::string newDirName = "NewDirectory";
           if (AssetUtils::CreateDirectory(m_CurrentPath / newDirName))
           {

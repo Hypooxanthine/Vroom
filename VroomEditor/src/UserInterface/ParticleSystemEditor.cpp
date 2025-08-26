@@ -196,7 +196,7 @@ void ParticleSystemEditor::_showSettings()
 
     if (ImGui::Button("Add emitter"))
     {
-      Application::Get().getGameLayer().pushRoutine(Layer::EFrameLocation::ePreEndFrame, [this](Layer& layer) {
+      Application::Get().getGameLayer().pushFrameEndRoutine([this](Layer& layer) {
         _addEmitter({});
       });
     }
