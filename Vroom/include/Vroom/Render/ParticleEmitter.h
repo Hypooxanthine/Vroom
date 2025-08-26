@@ -51,7 +51,7 @@ namespace vrm
 
     void update(const DeltaTime& dt);
     void setupRender() const;
-    void executeRender(const RenderPassContext &ctx) const;
+    void executeRender(const RenderPassContext &ctx, const glm::mat4* model) const;
 
     inline bool isDirty() const { return m_dirty; }
     

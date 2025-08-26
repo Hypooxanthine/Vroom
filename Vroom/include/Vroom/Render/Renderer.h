@@ -70,7 +70,7 @@ namespace vrm
 
     void submitDirectionalLight(size_t id, const DirectionalLightComponent& dirLight, const glm::vec3& direction);
 
-    void submitParticleSystem(uint32_t id, const ParticleSystemComponent& system);
+    void submitParticleSystem(uint32_t id, const ParticleSystemComponent& system, const glm::mat4* model);
 
     inline const glm::uvec2& getFrameSize() const { return m_frameSize; }
     void setFrameSize(const glm::uvec2& s);

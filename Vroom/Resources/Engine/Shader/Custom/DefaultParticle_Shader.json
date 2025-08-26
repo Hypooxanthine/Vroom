@@ -35,6 +35,10 @@
     ],
     "Uniforms": [
       {
+        "Name": "u_model",
+        "Type": "mat4"
+      },
+      {
         "Name": "u_viewProj",
         "Type": "mat4"
       }

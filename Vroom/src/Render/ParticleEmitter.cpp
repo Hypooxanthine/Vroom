@@ -71,9 +71,9 @@ void ParticleEmitter::setupRender() const
   m_render->prepareFrame(this);
 }
 
-void ParticleEmitter::executeRender(const RenderPassContext &ctx) const
+void ParticleEmitter::executeRender(const RenderPassContext &ctx, const glm::mat4* model) const
 {
-  m_render->executeRender(this, ctx);
+  m_render->executeRender(this, ctx, model);
 }
 
 void ParticleEmitter::setMesh(MeshAsset::Handle meshAsset)

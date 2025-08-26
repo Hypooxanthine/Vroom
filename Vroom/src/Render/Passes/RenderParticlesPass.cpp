@@ -22,16 +22,16 @@ void RenderParticlesPass::onInit()
 
 void RenderParticlesPass::onSetup(const RenderPassContext &ctx)
 {
-  for (const auto* emitter : *emitters)
+  for (const auto& emitterInfo : *emitters)
   {
-    emitter->setupRender();
+    emitterInfo.emitter->setupRender();
   }
 }
 
 void RenderParticlesPass::onRender(const RenderPassContext &ctx) const
 {
-  for (const auto* emitter : *emitters)
+  for (const auto& emitterInfo : *emitters)
   {
-    emitter->executeRender(ctx);
+    emitterInfo.emitter->executeRender(ctx, emitterInfo.model);
   }
 }

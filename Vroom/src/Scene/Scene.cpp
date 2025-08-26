@@ -93,10 +93,10 @@ void Scene::render()
     renderer.submitSkybox(skybox);
   }
 
-  auto viewParticles = m_Registry.view<ParticleSystemComponent>();
-  for (auto&& [e, particleSystem] : viewParticles.each())
+  auto viewParticles = m_Registry.view<ParticleSystemComponent, TransformComponent>();
+  for (auto&& [e, particleSystem, t] : viewParticles.each())
   {
-    renderer.submitParticleSystem(static_cast<uint32_t>(e), particleSystem);
+    renderer.submitParticleSystem(static_cast<uint32_t>(e), particleSystem, &t.getGlobalTransform());
   }
 
   onRender();

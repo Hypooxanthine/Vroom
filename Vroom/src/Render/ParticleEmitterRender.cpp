@@ -88,10 +88,10 @@ void ParticleEmitterRender::prepareFrame(const ParticleEmitter* emitter)
   _uploadIndirectCommandData();
 }
 
-void ParticleEmitterRender::executeRender(const ParticleEmitter* emitter, const RenderPassContext &ctx)
+void ParticleEmitterRender::executeRender(const ParticleEmitter* emitter, const RenderPassContext &ctx, const glm::mat4* model)
 {
   _executeUpdateParticles(emitter);
-  _executeRenderParticles(ctx);
+  _executeRenderParticles(ctx, model);
 }
 
 void ParticleEmitterRender::_setupUpdaterMaterial()
@@ -204,7 +204,7 @@ void ParticleEmitterRender::_executeUpdateParticles(const ParticleEmitter* emitt
   GLCall(glDispatchCompute(dispatch.x, dispatch.y, dispatch.z));
 }
 
-void ParticleEmitterRender::_executeRenderParticles(const RenderPassContext& ctx)
+void ParticleEmitterRender::_executeRenderParticles(const RenderPassContext& ctx, const glm::mat4* model)
 {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -225,6 +225,7 @@ void ParticleEmitterRender::_executeRenderParticles(const RenderPassContext& ctx
     const auto& vpOrigin = view.getViewport().getOrigin();
     const auto& vpSize = view.getViewport().getSize();
     glViewport(vpOrigin.x, vpOrigin.y, vpSize.x, vpSize.y);
+    shader.setUniformMat4f("u_model", *model);
     shader.setUniformMat4f("u_viewProj", view.getCamera()->getViewProjection());
 
     GLCall(

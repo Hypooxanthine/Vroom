@@ -32,7 +32,7 @@ namespace vrm
 
     void updateResources(const ParticleEmitter* emitter);
     void prepareFrame(const ParticleEmitter* emitter);
-    void executeRender(const ParticleEmitter* emitter, const RenderPassContext &ctx);
+    void executeRender(const ParticleEmitter* emitter, const RenderPassContext &ctx, const glm::mat4* model);
 
   private:
 
@@ -72,7 +72,7 @@ namespace vrm
     void _updateEmitterData(const ParticleEmitter* emitter);
 
     void _executeUpdateParticles(const ParticleEmitter* emitter);
-    void _executeRenderParticles(const RenderPassContext& ctx);  
+    void _executeRenderParticles(const RenderPassContext& ctx, const glm::mat4* model);  
 
     void _bindUpdaterShaderData(const gl::Shader& shader) const;
     void _bindRenderShaderData(const gl::Shader& shader) const;

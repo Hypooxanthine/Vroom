@@ -7,6 +7,12 @@
 namespace vrm
 {
 
-  using ParticleEmitterRegistry = LinearRegistry<const ParticleEmitter*, size_t>;
+  struct ParticleSystemRenderInfo
+  {
+    const ParticleEmitter* emitter;
+		const glm::mat4* model;
+  };
+
+  using ParticleEmitterRegistry = LinearRegistry<ParticleSystemRenderInfo, size_t>;
 
 }

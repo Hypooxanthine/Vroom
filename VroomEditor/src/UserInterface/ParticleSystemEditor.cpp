@@ -6,6 +6,7 @@
 #include "Vroom/Render/Renderer.h"
 #include "Vroom/Scene/Components/ParticleSystemComponent.h"
 #include "Vroom/Scene/Components/SkyboxComponent.h"
+#include "Vroom/Scene/Components/TransformComponent.h"
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterEditor.h"
 #include "glm/fwd.hpp"
 #include "imgui.h"

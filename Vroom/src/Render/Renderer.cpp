@@ -6,6 +6,7 @@
 
 #include "Vroom/Render/GPURuntimeFeatures.h"
 #include "Vroom/Render/ParticleEmitter.h"
+#include "Vroom/Render/ParticleEmitterRegistry.h"
 #include "Vroom/Render/Passes/RenderPass.h"
 #include "Vroom/Render/Passes/LightClusteringPass.h"
 #include "Vroom/Render/Passes/ShadowMappingPass.h"
@@ -113,7 +114,7 @@ void Renderer::submitDirectionalLight(size_t id, const DirectionalLightComponent
   m_LightRegistry.submitLight(dirLight, direction, id);
 }
 
-void Renderer::submitParticleSystem(uint32_t entityId, const ParticleSystemComponent& system)
+void Renderer::submitParticleSystem(uint32_t entityId, const ParticleSystemComponent& system, const glm::mat4* model)
 {
   const auto& emitters = system.getEmitters();
 
@@ -121,7 +122,11 @@ void Renderer::submitParticleSystem(uint32_t entityId, const ParticleSystemCompo
   {
     const ParticleEmitter* emitter = &emitters[i];
     size_t id =  ((size_t)entityId << 32) | i;
-    m_particleEmitterRegistry.submit(id, emitter);
+
+    ParticleSystemRenderInfo info;
+    info.emitter = emitter;
+    info.model = model;
+    m_particleEmitterRegistry.submit(id, info);
   }
 }
 
