@@ -1,5 +1,7 @@
 #include "VroomEditor/UserInterface/ParticleSystemEditor.h"
 #include "Vroom/Core/Application.h"
+#include "Vroom/Core/GameLayer.h"
+#include "Vroom/Core/Layer.h"
 #include "Vroom/Render/ParticleEmitter.h"
 #include "Vroom/Render/Renderer.h"
 #include "Vroom/Scene/Components/ParticleSystemComponent.h"
@@ -190,6 +192,13 @@ void ParticleSystemEditor::_showSettings()
     for (EmitterEditor& emitter : m_emitters)
     {
       emitter.renderImgui();
+    }
+
+    if (ImGui::Button("Add emitter"))
+    {
+      Application::Get().getGameLayer().pushRoutine(Layer::EFrameLocation::ePreEndFrame, [this](Layer& layer) {
+        _addEmitter({});
+      });
     }
   }
   ImGui::EndChild();
