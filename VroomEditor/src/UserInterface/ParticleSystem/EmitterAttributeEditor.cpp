@@ -88,8 +88,8 @@ EmitterScaleEditor::EmitterScaleEditor()
 {
   EmitterScalarEditor::Settings settings;
   settings.scalarType = EmitterScalarEditor::EScalarType::eVec3;
-  settings.minValue = { -10.f, -10.f, -10.f };
-  settings.maxValue = { 10.f, 10.f, 10.f };
+  settings.minValue = { 0.1f, 0.1f, 0.1f };
+  settings.maxValue = { 5.f, 5.f, 5.f };
   settings.scaleLocked = true;
 
   {

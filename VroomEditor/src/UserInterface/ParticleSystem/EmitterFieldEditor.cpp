@@ -32,8 +32,6 @@ bool EmitterFieldEditor::updateEmitterField(ParticleEmitterFieldBase& field) con
 
 void EmitterFieldEditor::onImgui()
 {
-  ImGui::Text("%s:", m_name.c_str());
-  ImGui::SameLine();
   onImguiEdit();
 }
 
@@ -41,6 +39,8 @@ void EmitterFieldEditor::onImgui()
 
 void ConstEmitterFieldEditor::onImguiEdit()
 {
+  ImGui::Text("%s:", getName().c_str());
+  ImGui::SameLine();
   m_scalarEditor.renderImgui();
 }
 
@@ -70,15 +70,44 @@ bool ConstEmitterFieldEditor::onUpdateEmitterField(ParticleEmitterFieldBase& fie
 
 void RandomRangeEmitterFieldEditor::onImguiEdit()
 {
-  
+  if (ImGui::TreeNode(getName().c_str()))
+  {
+    ImGui::PushID("MinRange");
+      ImGui::Text("%s:", "Min range");
+      ImGui::SameLine();
+      m_minRange.renderImgui();
+    ImGui::PopID();
+
+    ImGui::PushID("MaxRange");
+      ImGui::Text("%s:", "Max range");
+      ImGui::SameLine();
+      m_maxRange.renderImgui();
+    ImGui::PopID();
+
+    ImGui::TreePop();
+  }
 }
 
 void RandomRangeEmitterFieldEditor::onSetData(const ParticleEmitterFieldBase& field)
 {
-  
+  m_minRange.setData(field.getRawData());
 }
 
 bool RandomRangeEmitterFieldEditor::onUpdateEmitterField(ParticleEmitterFieldBase& field) const
 {
+  if (m_minRange.getModified())
+  {
+    std::span<float> emitterFieldData = field.getRawData();
+    std::span<float const> editorData = m_minRange.getData();
+    VRM_ASSERT_MSG(emitterFieldData.size() == editorData.size(), "Unexpected error: emitter field size mismatch");
+
+    for (size_t i = 0; i < emitterFieldData.size(); ++i)
+    {
+      emitterFieldData[i] = editorData[i];
+    }
+
+    return true;
+  }
+
   return false;
 }

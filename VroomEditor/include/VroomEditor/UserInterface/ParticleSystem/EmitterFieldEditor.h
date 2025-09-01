@@ -2,7 +2,6 @@
 
 #include "VroomEditor/UserInterface/ImGuiElement.h"
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterScalarEditor.h"
-#include <array>
 #include <string>
 
 namespace vrm
@@ -32,6 +31,7 @@ namespace vrm::editor
     bool updateEmitterField(ParticleEmitterFieldBase& field) const;
 
     void setName(const std::string& name);
+    inline const std::string& getName() const { return m_name; }
 
   protected:
 
@@ -67,6 +67,12 @@ namespace vrm::editor
   {
   public:
 
+    inline void setScalarSettings(const EmitterScalarEditor::Settings& settings)
+    {
+      m_minRange.setSettings(settings);
+      m_maxRange.setSettings(settings);
+    }
+
   protected:
 
     void onImguiEdit() override;
@@ -74,11 +80,8 @@ namespace vrm::editor
     bool onUpdateEmitterField(ParticleEmitterFieldBase& field) const override;
 
   private:
-
-    std::array<float, 4>
-      dataMin = { 0.f, 0.f, 0.f, 0.f },
-      dataMax = { 0.f, 0.f, 0.f, 0.f }
-    ;
+  
+    EmitterScalarEditor m_minRange, m_maxRange;
 
   };
 
