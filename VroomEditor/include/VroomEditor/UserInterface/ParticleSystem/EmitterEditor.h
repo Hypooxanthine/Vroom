@@ -16,6 +16,12 @@ namespace vrm::editor
     EmitterEditor(const ParticleEmitter::Specs& initSpecs);
     ~EmitterEditor();
 
+    EmitterEditor& operator=(const EmitterEditor& other) = delete;
+    EmitterEditor(const EmitterEditor& other) = delete;
+
+    EmitterEditor& operator=(EmitterEditor&& other) = default;
+    EmitterEditor(EmitterEditor&& other) = default;
+
     bool requestedDelete() const { return m_requestDelete; }
 
     bool updateEmitterSpecs(ParticleEmitter::Specs& specs) const;
@@ -29,13 +35,6 @@ namespace vrm::editor
 
     void _initAttributes(const ParticleEmitter::Specs& initSpecs);
 
-    void _addAttribute(
-      const ParticleEmitter::Specs& initSpecs,
-      const EmitterAttributeEditor::Settings& settings,
-      const std::string& displayName,
-      ParticleEmitter::Specs::EAttributeName name
-    );
-
     void _showContextualMenu();
 
   private:
@@ -45,7 +44,7 @@ namespace vrm::editor
     float m_emitRate;
     float m_lifeTime;
     std::string m_name = "Attribute";
-    std::vector<EmitterAttributeEditor> m_attributes;
+    std::vector<std::unique_ptr<EmitterAttributeEditor>> m_attributes;
 
   };
 

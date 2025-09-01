@@ -31,9 +31,9 @@ bool EmitterEditor::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
     m_changed = false;
   }
 
-  for (const EmitterAttributeEditor& attribute : m_attributes)
+  for (const std::unique_ptr<EmitterAttributeEditor>& attribute : m_attributes)
   {
-    changed = attribute.updateEmitterSpecs(specs) || changed;
+    changed = attribute->updateEmitterSpecs(specs) || changed;
   }
 
   return changed;
@@ -59,9 +59,9 @@ void EmitterEditor::onImgui()
       ImGui::TreePop();
     }
 
-    for (EmitterAttributeEditor& attribute : m_attributes)
+    for (std::unique_ptr<EmitterAttributeEditor>& attribute : m_attributes)
     {
-      attribute.renderImgui();
+      attribute->renderImgui();
     }
 
     ImGui::TreePop();
@@ -78,27 +78,7 @@ void EmitterEditor::_initAttributes(const ParticleEmitter::Specs& initSpecs)
   m_emitRate = initSpecs.emitRate;
   m_lifeTime = initSpecs.lifeTime;
 
-  EmitterAttributeEditor::Settings settings;
-  settings.type = EmitterFieldEditor::EType::eVec3;
-  settings.min = -10.f;
-  settings.max = 10.f;
-
-  _addAttribute(initSpecs, settings, "Position", ParticleEmitter::Specs::EAttributeName::ePosition);
-
-  settings.min = 0.f;
-  settings.max = 10.f;
-  _addAttribute(initSpecs, settings, "Scale", ParticleEmitter::Specs::EAttributeName::eScale);
-
-  settings.type = EmitterFieldEditor::EType::eColor4;
-  settings.min = 0.f;
-  settings.max = 1.f;
-  _addAttribute(initSpecs, settings, "Color", ParticleEmitter::Specs::EAttributeName::eColor);
-}
-
-void EmitterEditor::_addAttribute(const ParticleEmitter::Specs& initSpecs, const EmitterAttributeEditor::Settings& settings,  const std::string& displayName, ParticleEmitter::Specs::EAttributeName name)
-{
-  auto& attr = m_attributes.emplace_back(displayName, name);
-  attr.setSettings(settings);
-
-  attr.setValue(initSpecs.getAttribute(name));
+  m_attributes.emplace_back(new EmitterPositionEditor())->setValueFromSpecs(initSpecs);
+  m_attributes.emplace_back(new EmitterScaleEditor())->setValueFromSpecs(initSpecs);
+  m_attributes.emplace_back(new EmitterColorEditor())->setValueFromSpecs(initSpecs);
 }

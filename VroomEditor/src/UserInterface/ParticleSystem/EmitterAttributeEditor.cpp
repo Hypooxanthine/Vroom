@@ -1,15 +1,14 @@
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterAttributeEditor.h"
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterFieldEditor.h"
+#include "Vroom/Render/ParticleEmitterAttribute.h"
+#include "VroomEditor/UserInterface/ParticleSystem/EmitterScalarEditor.h"
 #include "imgui.h"
 
 using namespace vrm::editor;
 
 EmitterAttributeEditor::EmitterAttributeEditor(const std::string& displayName, ParticleEmitter::Specs::EAttributeName name)
+   : m_name(name), m_displayName(displayName)
 {
-  m_name = name;
-  setName(displayName);
-  m_spawnValue.setName("Spawn");
-  m_deathValue.setName("Death");
 }
 
 EmitterAttributeEditor::~EmitterAttributeEditor()
@@ -17,18 +16,18 @@ EmitterAttributeEditor::~EmitterAttributeEditor()
 
 }
 
-void EmitterAttributeEditor::setValue(const ParticleEmitterAttributeBase& emitterAttribute)
+void EmitterAttributeEditor::setValueFromSpecs(const ParticleEmitter::Specs& specs)
 {
-  m_spawnValue.setValue(emitterAttribute.getSpawnFieldBase().getRawData());
-  m_deathValue.setValue(emitterAttribute.getDeathFieldBase().getRawData());
+  m_spawnField->setData(specs.getAttribute(m_name).getSpawnFieldBase());
+  m_deathField->setData(specs.getAttribute(m_name).getDeathFieldBase());
 }
 
 bool EmitterAttributeEditor::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
 {
   bool changed = false;
   
-  changed = m_spawnValue.updateEmitterField(specs.getAttribute(m_name).getSpawnFieldBase()) || changed;
-  changed = m_deathValue.updateEmitterField(specs.getAttribute(m_name).getDeathFieldBase()) || changed;
+  changed = m_spawnField->updateEmitterField(specs.getAttribute(m_name).getSpawnFieldBase()) || changed;
+  changed = m_deathField->updateEmitterField(specs.getAttribute(m_name).getDeathFieldBase()) || changed;
 
   return changed;
 }
@@ -39,13 +38,13 @@ void EmitterAttributeEditor::onImgui()
   {
     ImGui::PushID("spawn");
     {
-      m_spawnValue.renderImgui();
+      m_spawnField->renderImgui();
       ImGui::PopID();
     }
 
     ImGui::PushID("death");
     {
-      m_deathValue.renderImgui();
+      m_deathField->renderImgui();
       ImGui::PopID();
     }
 
@@ -53,20 +52,95 @@ void EmitterAttributeEditor::onImgui()
   }
 }
 
-void EmitterAttributeEditor::setName(const std::string& name)
+EmitterPositionEditor::EmitterPositionEditor()
+  : EmitterAttributeEditor("Position", ParticleEmitter::Specs::EAttributeName::ePosition)
 {
-  m_displayName = name;
+  EmitterScalarEditor::Settings settings;
+  settings.scalarType = EmitterScalarEditor::EScalarType::eVec3;
+  settings.minValue = { -10.f, -10.f, -10.f };
+  settings.maxValue = { 10.f, 10.f, 10.f };
+  settings.scaleLocked = false;
+
+  {
+    auto* field = new ConstEmitterFieldEditor();
+    field->setName("Spawn");
+
+    field->setScalarSettings(settings);
+    m_spawnField.reset(field);
+  }
+
+  {
+    auto* field = new ConstEmitterFieldEditor();
+    field->setName("Death");
+
+    field->setScalarSettings(settings);
+    m_deathField.reset(field);
+  }
 }
 
-void EmitterAttributeEditor::setSettings(const Settings& settings)
+EmitterPositionEditor::~EmitterPositionEditor()
 {
-  auto setup = [this, &settings](EmitterFieldEditor& field)
+
+}
+
+EmitterScaleEditor::EmitterScaleEditor()
+  : EmitterAttributeEditor("Scale", ParticleEmitter::Specs::EAttributeName::eScale)
+{
+  EmitterScalarEditor::Settings settings;
+  settings.scalarType = EmitterScalarEditor::EScalarType::eVec3;
+  settings.minValue = { -10.f, -10.f, -10.f };
+  settings.maxValue = { 10.f, 10.f, 10.f };
+  settings.scaleLocked = true;
+
   {
-    field.setType(settings.type);
-    field.setBounds(std::vector(field.getDimension(), settings.min), std::vector(field.getDimension(), settings.max));
-    field.setLockScale(settings.scaleLocked);
-  };
+    auto* field = new ConstEmitterFieldEditor();
+    field->setName("Spawn");
+
+    field->setScalarSettings(settings);
+    m_spawnField.reset(field);
+  }
+
+  {
+    auto* field = new ConstEmitterFieldEditor();
+    field->setName("Death");
+
+    field->setScalarSettings(settings);
+    m_deathField.reset(field);
+  }
+}
+
+EmitterScaleEditor::~EmitterScaleEditor()
+{
   
-  setup(m_spawnValue);
-  setup(m_deathValue);
+}
+
+EmitterColorEditor::EmitterColorEditor()
+  : EmitterAttributeEditor("Color", ParticleEmitter::Specs::EAttributeName::eColor)
+{
+  EmitterScalarEditor::Settings settings;
+  settings.scalarType = EmitterScalarEditor::EScalarType::eColor4;
+  settings.minValue = { 0.f, 0.f, 0.f, 0.f };
+  settings.maxValue = { 1.f, 1.f, 1.f, 1.f };
+  settings.scaleLocked = false;
+
+  {
+    auto* field = new ConstEmitterFieldEditor();
+    field->setName("Spawn");
+
+    field->setScalarSettings(settings);
+    m_spawnField.reset(field);
+  }
+
+  {
+    auto* field = new ConstEmitterFieldEditor();
+    field->setName("Death");
+
+    field->setScalarSettings(settings);
+    m_deathField.reset(field);
+  }
+}
+
+EmitterColorEditor::~EmitterColorEditor()
+{
+  
 }
