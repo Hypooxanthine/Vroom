@@ -13,7 +13,7 @@ namespace vrm::editor
   {
   public:
 
-    EmitterEditor(const ParticleEmitter::Specs& initSpecs);
+    EmitterEditor();
     ~EmitterEditor();
 
     EmitterEditor& operator=(const EmitterEditor& other) = delete;
@@ -30,19 +30,18 @@ namespace vrm::editor
   protected:
 
     void onImgui() override;
+    void onUpdate(const DeltaTime &dt) override;
   
   private:
-
-    void _initAttributes(const ParticleEmitter::Specs& initSpecs);
 
     void _showContextualMenu();
 
   private:
 
-    mutable bool m_changed = false;
+    mutable bool m_changed = true;
     bool m_requestDelete = false;
-    float m_emitRate;
-    float m_lifeTime;
+    float m_emitRate = 1.f;
+    float m_lifeTime = 2.f;
     std::string m_name = "Attribute";
     std::vector<std::unique_ptr<EmitterAttributeEditor>> m_attributes;
 

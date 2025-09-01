@@ -20,7 +20,7 @@ namespace vrm::editor
     struct Settings
     {
       EScalarType scalarType = EScalarType::eScalar;
-      std::vector<float> minValue, maxValue;
+      std::vector<float> minValue, maxValue, defaultValue;
       bool scaleLocked = false;
     };
 
@@ -51,7 +51,7 @@ namespace vrm::editor
   private:
 
     EScalarType m_type = EScalarType::eScalar;
-    bool m_dataModified = false;
+    bool m_dataModified = true;
     size_t m_dim = 1;
     bool m_scaleLock = false;
     std::array<float, 4> m_min = { 0.f, 0.f, 0.f, 0.f};

@@ -1,8 +1,10 @@
 #pragma once
 
+#include "Vroom/Core/DeltaTime.h"
 #include "Vroom/Render/ParticleEmitter.h"
 #include "VroomEditor/UserInterface/ImGuiElement.h"
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterFieldEditor.h"
+#include "VroomEditor/UserInterface/ParticleSystem/EmitterScalarEditor.h"
 #include <memory>
 
 namespace vrm::editor
@@ -22,17 +24,30 @@ namespace vrm::editor
     EmitterAttributeEditor(EmitterAttributeEditor&& other) = default;
 
     bool updateEmitterSpecs(ParticleEmitter::Specs& specs) const;
-    
-    void setValueFromSpecs(const ParticleEmitter::Specs& specs);
   
   protected:
 
     void onImgui() override;
+    void onUpdate(const DeltaTime& dt) override;
+
+    void assignField(std::unique_ptr<EmitterFieldEditor>& field, EmitterFieldEditor* newField, const EmitterScalarEditor::Settings& settings);
+    inline void assignSpawnField(EmitterFieldEditor* emitterFieldEditor)
+    {
+      assignField(m_spawnField, emitterFieldEditor, m_spawnFieldSettings);
+      m_spawnField->setName("Spawn");
+    }
+
+    inline void assignDeathField(EmitterFieldEditor* emitterFieldEditor)
+    {
+      assignField(m_deathField, emitterFieldEditor, m_deathFieldSettings);
+      m_deathField->setName("Death");
+    }
 
   protected:
 
     std::unique_ptr<EmitterFieldEditor> m_spawnField;
     std::unique_ptr<EmitterFieldEditor> m_deathField;
+    EmitterScalarEditor::Settings m_spawnFieldSettings, m_deathFieldSettings;
 
   private:
 

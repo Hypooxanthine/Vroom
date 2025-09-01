@@ -47,6 +47,7 @@ void EmitterScalarEditor::setSettings(const Settings& settings)
   setScalarType(settings.scalarType);
   setBounds(settings.minValue, settings.maxValue);
   setLockScale(settings.scaleLocked);
+  setData(settings.defaultValue);
 }
 
 void EmitterScalarEditor::setBounds(std::span<float const> min, std::span<float const> max)

@@ -89,6 +89,11 @@ void ParticleSystemEditor::onUpdate(const DeltaTime &dt)
   {
     m_scene.update(Application::Get().getDeltaTime());
 
+    for (EmitterEditor& emitterEditor : m_emitters)
+    {
+      emitterEditor.update(dt);
+    }
+
     _updateEmitterSpecs();
     _checkRemovedEmitter();
   }
@@ -170,21 +175,9 @@ void ParticleSystemEditor::onImgui()
 
 void ParticleSystemEditor::_addEmitter()
 {
-  ParticleEmitter::Specs specs;
-  specs.emitRate = 1.f;
-  specs.lifeTime = 2.f;
-  specs.color = { glm::vec4(1.f, 0.f, 0.f, 1.f), glm::vec4(0.f, 1.f, 0.f, 1.f) };
-  specs.position = { glm::vec3(0.f), glm::vec3(0.f, 5.f, 0.f) };
-  specs.scale = { glm::vec3(1.f) };
-
-  _addEmitter(specs);
-}
-
-void ParticleSystemEditor::_addEmitter(const ParticleEmitter::Specs& specs)
-{
   auto& psc = m_entity.getComponent<ParticleSystemComponent>();
-  psc.addEmitter(specs);
-  EmitterEditor& emitter = m_emitters.emplace_back(specs);
+  psc.addEmitter({});
+  EmitterEditor& emitter = m_emitters.emplace_back();
   emitter.setName("Emitter " + std::to_string(m_emitters.size() - 1)); 
 }
 

@@ -16,12 +16,6 @@ EmitterAttributeEditor::~EmitterAttributeEditor()
 
 }
 
-void EmitterAttributeEditor::setValueFromSpecs(const ParticleEmitter::Specs& specs)
-{
-  m_spawnField->setData(specs.getAttribute(m_name).getSpawnFieldBase());
-  m_deathField->setData(specs.getAttribute(m_name).getDeathFieldBase());
-}
-
 bool EmitterAttributeEditor::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
 {
   bool changed = false;
@@ -52,30 +46,35 @@ void EmitterAttributeEditor::onImgui()
   }
 }
 
+void EmitterAttributeEditor::onUpdate(const DeltaTime& dt)
+{
+  if (m_spawnField->requestedNewFieldType())
+    assignSpawnField(EmitterFieldEditor::Instanciate(m_spawnField->getNextType()));
+
+  if (m_deathField->requestedNewFieldType())
+    assignDeathField(EmitterFieldEditor::Instanciate(m_deathField->getNextType()));
+}
+
+void EmitterAttributeEditor::assignField(std::unique_ptr<EmitterFieldEditor>& field, EmitterFieldEditor* newField, const EmitterScalarEditor::Settings& settings)
+{
+  field.reset(newField);
+  field->setScalarSettings(settings);
+}
+
 EmitterPositionEditor::EmitterPositionEditor()
   : EmitterAttributeEditor("Position", ParticleEmitterAttributeBase::EAttributeName::ePosition)
 {
-  EmitterScalarEditor::Settings settings;
-  settings.scalarType = EmitterScalarEditor::EScalarType::eVec3;
-  settings.minValue = { -10.f, -10.f, -10.f };
-  settings.maxValue = { 10.f, 10.f, 10.f };
-  settings.scaleLocked = false;
+  m_spawnFieldSettings.scalarType = EmitterScalarEditor::EScalarType::eVec3;
+  m_spawnFieldSettings.minValue = { -10.f, -10.f, -10.f };
+  m_spawnFieldSettings.maxValue = { 10.f, 10.f, 10.f };
+  m_spawnFieldSettings.defaultValue = { 0.f, 0.f, 0.f };
+  m_spawnFieldSettings.scaleLocked = false;
 
-  {
-    auto* field = new ConstEmitterFieldEditor();
-    field->setName("Spawn");
+  m_deathFieldSettings = m_spawnFieldSettings;
+  m_deathFieldSettings.defaultValue = { 0.f, 5.f, 0.f };
 
-    field->setScalarSettings(settings);
-    m_spawnField.reset(field);
-  }
-
-  {
-    auto* field = new ConstEmitterFieldEditor();
-    field->setName("Death");
-
-    field->setScalarSettings(settings);
-    m_deathField.reset(field);
-  }
+  assignSpawnField(new ConstEmitterFieldEditor());
+  assignDeathField(new ConstEmitterFieldEditor());
 }
 
 EmitterPositionEditor::~EmitterPositionEditor()
@@ -86,27 +85,16 @@ EmitterPositionEditor::~EmitterPositionEditor()
 EmitterScaleEditor::EmitterScaleEditor()
   : EmitterAttributeEditor("Scale", ParticleEmitterAttributeBase::EAttributeName::eScale)
 {
-  EmitterScalarEditor::Settings settings;
-  settings.scalarType = EmitterScalarEditor::EScalarType::eVec3;
-  settings.minValue = { 0.1f, 0.1f, 0.1f };
-  settings.maxValue = { 5.f, 5.f, 5.f };
-  settings.scaleLocked = true;
+  m_spawnFieldSettings.scalarType = EmitterScalarEditor::EScalarType::eVec3;
+  m_spawnFieldSettings.minValue = { 0.1f, 0.1f, 0.1f };
+  m_spawnFieldSettings.maxValue = { 5.f, 5.f, 5.f };
+  m_spawnFieldSettings.defaultValue = { 1.f, 1.f, 1.f };
+  m_spawnFieldSettings.scaleLocked = true;
 
-  {
-    auto* field = new ConstEmitterFieldEditor();
-    field->setName("Spawn");
+  m_deathFieldSettings = m_spawnFieldSettings;
 
-    field->setScalarSettings(settings);
-    m_spawnField.reset(field);
-  }
-
-  {
-    auto* field = new ConstEmitterFieldEditor();
-    field->setName("Death");
-
-    field->setScalarSettings(settings);
-    m_deathField.reset(field);
-  }
+  assignSpawnField(new ConstEmitterFieldEditor());
+  assignDeathField(new ConstEmitterFieldEditor());
 }
 
 EmitterScaleEditor::~EmitterScaleEditor()
@@ -117,27 +105,17 @@ EmitterScaleEditor::~EmitterScaleEditor()
 EmitterColorEditor::EmitterColorEditor()
   : EmitterAttributeEditor("Color", ParticleEmitterAttributeBase::EAttributeName::eColor)
 {
-  EmitterScalarEditor::Settings settings;
-  settings.scalarType = EmitterScalarEditor::EScalarType::eColor4;
-  settings.minValue = { 0.f, 0.f, 0.f, 0.f };
-  settings.maxValue = { 1.f, 1.f, 1.f, 1.f };
-  settings.scaleLocked = false;
+  m_spawnFieldSettings.scalarType = EmitterScalarEditor::EScalarType::eColor4;
+  m_spawnFieldSettings.minValue = { 0.f, 0.f, 0.f, 0.f };
+  m_spawnFieldSettings.maxValue = { 1.f, 1.f, 1.f, 1.f };
+  m_spawnFieldSettings.defaultValue = { 1.f, 0.f, 0.f, 1.f };
+  m_spawnFieldSettings.scaleLocked = false;
 
-  {
-    auto* field = new ConstEmitterFieldEditor();
-    field->setName("Spawn");
+  m_deathFieldSettings = m_spawnFieldSettings;
+  m_deathFieldSettings.defaultValue = { 0.f, 0.f, 1.f, 1.f };
 
-    field->setScalarSettings(settings);
-    m_spawnField.reset(field);
-  }
-
-  {
-    auto* field = new ConstEmitterFieldEditor();
-    field->setName("Death");
-
-    field->setScalarSettings(settings);
-    m_deathField.reset(field);
-  }
+  assignSpawnField(new ConstEmitterFieldEditor());
+  assignDeathField(new ConstEmitterFieldEditor());
 }
 
 EmitterColorEditor::~EmitterColorEditor()

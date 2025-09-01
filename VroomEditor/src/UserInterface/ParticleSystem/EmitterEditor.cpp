@@ -4,9 +4,11 @@
 
 using namespace vrm::editor;
 
-EmitterEditor::EmitterEditor(const ParticleEmitter::Specs& initSpecs)
+EmitterEditor::EmitterEditor()
 {
-  _initAttributes(initSpecs);
+  m_attributes.emplace_back(new EmitterPositionEditor());
+  m_attributes.emplace_back(new EmitterScaleEditor());
+  m_attributes.emplace_back(new EmitterColorEditor());
 }
 
 EmitterEditor::~EmitterEditor()
@@ -68,17 +70,15 @@ void EmitterEditor::onImgui()
   }
 }
 
+void EmitterEditor::onUpdate(const DeltaTime& dt)
+{
+  for (auto& attributeEditor : m_attributes)
+  {
+    attributeEditor->update(dt);
+  }
+}
+
 void EmitterEditor::_showContextualMenu()
 {
   m_requestDelete = ImGui::Selectable("Delete");
-}
-
-void EmitterEditor::_initAttributes(const ParticleEmitter::Specs& initSpecs)
-{
-  m_emitRate = initSpecs.emitRate;
-  m_lifeTime = initSpecs.lifeTime;
-
-  m_attributes.emplace_back(new EmitterPositionEditor())->setValueFromSpecs(initSpecs);
-  m_attributes.emplace_back(new EmitterScaleEditor())->setValueFromSpecs(initSpecs);
-  m_attributes.emplace_back(new EmitterColorEditor())->setValueFromSpecs(initSpecs);
 }

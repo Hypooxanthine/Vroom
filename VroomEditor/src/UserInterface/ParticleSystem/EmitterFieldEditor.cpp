@@ -5,7 +5,8 @@
 
 using namespace vrm::editor;
 
-EmitterFieldEditor::EmitterFieldEditor()
+EmitterFieldEditor::EmitterFieldEditor(EType::Type type)
+  : m_type(type), m_nextType(type)
 {
 
 }
@@ -20,11 +21,6 @@ void EmitterFieldEditor::setName(const std::string& name)
   m_name = name;
 }
 
-void EmitterFieldEditor::setData(const ParticleEmitterFieldBase& field)
-{
-  onSetData(field);
-}
-
 bool EmitterFieldEditor::updateEmitterField(ParticleEmitterFieldBase& field) const
 {
   return onUpdateEmitterField(field);
@@ -32,21 +28,58 @@ bool EmitterFieldEditor::updateEmitterField(ParticleEmitterFieldBase& field) con
 
 void EmitterFieldEditor::onImgui()
 {
-  onImguiEdit();
+  bool open = ImGui::TreeNodeEx(getName().c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+
+  if (ImGui::BeginPopupContextItem("Contextual menu"))
+  {
+    _showContextualMenu();
+    ImGui::EndPopup();
+  }
+
+  if (open)
+  {
+    onImguiEdit();
+    ImGui::TreePop();
+  }
+}
+
+void EmitterFieldEditor::_showContextualMenu()
+{
+  for (size_t i = 0; i < EType::eCount; ++i)
+  {
+    EType::Type type = EType::Type(i);
+    std::string str = std::to_string(type);
+    bool isThisType = m_type == type;
+
+    if (isThisType)
+      ImGui::BeginDisabled();
+
+    if (ImGui::Selectable(str.c_str()))
+    {
+      m_nextType = type;
+    }
+
+    if (isThisType)
+      ImGui::EndDisabled();
+  }
 }
 
 /* CONST PARTICLE FIELD EDITOR */
 
-void ConstEmitterFieldEditor::onImguiEdit()
+ConstEmitterFieldEditor::ConstEmitterFieldEditor()
+ : EmitterFieldEditor(EType::eConstEmitterField)
 {
-  ImGui::Text("%s:", getName().c_str());
-  ImGui::SameLine();
-  m_scalarEditor.renderImgui();
+
 }
 
-void ConstEmitterFieldEditor::onSetData(const ParticleEmitterFieldBase& field)
+ConstEmitterFieldEditor::~ConstEmitterFieldEditor()
 {
-  m_scalarEditor.setData(field.getRawData());
+
+}
+
+void ConstEmitterFieldEditor::onImguiEdit()
+{
+  m_scalarEditor.renderImgui();
 }
 
 bool ConstEmitterFieldEditor::onUpdateEmitterField(ParticleEmitterFieldBase& field) const
@@ -68,29 +101,32 @@ bool ConstEmitterFieldEditor::onUpdateEmitterField(ParticleEmitterFieldBase& fie
   return false;
 }
 
-void RandomRangeEmitterFieldEditor::onImguiEdit()
+/* RANDOM RANGE PARTICLE FIELD EDITOR */
+
+RandomRangeEmitterFieldEditor::RandomRangeEmitterFieldEditor()
+ : EmitterFieldEditor(EType::eRandomRangeEmitterField)
 {
-  if (ImGui::TreeNode(getName().c_str()))
-  {
-    ImGui::PushID("MinRange");
-      ImGui::Text("%s:", "Min range");
-      ImGui::SameLine();
-      m_minRange.renderImgui();
-    ImGui::PopID();
 
-    ImGui::PushID("MaxRange");
-      ImGui::Text("%s:", "Max range");
-      ImGui::SameLine();
-      m_maxRange.renderImgui();
-    ImGui::PopID();
-
-    ImGui::TreePop();
-  }
 }
 
-void RandomRangeEmitterFieldEditor::onSetData(const ParticleEmitterFieldBase& field)
+RandomRangeEmitterFieldEditor::~RandomRangeEmitterFieldEditor()
 {
-  m_minRange.setData(field.getRawData());
+
+}
+
+void RandomRangeEmitterFieldEditor::onImguiEdit()
+{
+  ImGui::PushID("MinRange");
+    ImGui::Text("%s:", "Min range");
+    ImGui::SameLine();
+    m_minRange.renderImgui();
+  ImGui::PopID();
+
+  ImGui::PushID("MaxRange");
+    ImGui::Text("%s:", "Max range");
+    ImGui::SameLine();
+    m_maxRange.renderImgui();
+  ImGui::PopID();
 }
 
 bool RandomRangeEmitterFieldEditor::onUpdateEmitterField(ParticleEmitterFieldBase& field) const
