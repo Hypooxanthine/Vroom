@@ -8,6 +8,12 @@ namespace vrm
 
   struct ParticleEmitterAttributeBase
   {
+    // For editor usage
+    enum class  EAttributeName
+    {
+      eColor = 0, ePosition, eScale
+    };
+    
     virtual ParticleEmitterFieldBase& getSpawnFieldBase() = 0;
     virtual ParticleEmitterFieldBase& getDeathFieldBase() = 0;
 

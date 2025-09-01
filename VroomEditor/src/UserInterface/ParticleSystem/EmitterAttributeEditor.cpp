@@ -6,7 +6,7 @@
 
 using namespace vrm::editor;
 
-EmitterAttributeEditor::EmitterAttributeEditor(const std::string& displayName, ParticleEmitter::Specs::EAttributeName name)
+EmitterAttributeEditor::EmitterAttributeEditor(const std::string& displayName, ParticleEmitterAttributeBase::EAttributeName name)
    : m_name(name), m_displayName(displayName)
 {
 }
@@ -53,7 +53,7 @@ void EmitterAttributeEditor::onImgui()
 }
 
 EmitterPositionEditor::EmitterPositionEditor()
-  : EmitterAttributeEditor("Position", ParticleEmitter::Specs::EAttributeName::ePosition)
+  : EmitterAttributeEditor("Position", ParticleEmitterAttributeBase::EAttributeName::ePosition)
 {
   EmitterScalarEditor::Settings settings;
   settings.scalarType = EmitterScalarEditor::EScalarType::eVec3;
@@ -84,7 +84,7 @@ EmitterPositionEditor::~EmitterPositionEditor()
 }
 
 EmitterScaleEditor::EmitterScaleEditor()
-  : EmitterAttributeEditor("Scale", ParticleEmitter::Specs::EAttributeName::eScale)
+  : EmitterAttributeEditor("Scale", ParticleEmitterAttributeBase::EAttributeName::eScale)
 {
   EmitterScalarEditor::Settings settings;
   settings.scalarType = EmitterScalarEditor::EScalarType::eVec3;
@@ -115,7 +115,7 @@ EmitterScaleEditor::~EmitterScaleEditor()
 }
 
 EmitterColorEditor::EmitterColorEditor()
-  : EmitterAttributeEditor("Color", ParticleEmitter::Specs::EAttributeName::eColor)
+  : EmitterAttributeEditor("Color", ParticleEmitterAttributeBase::EAttributeName::eColor)
 {
   EmitterScalarEditor::Settings settings;
   settings.scalarType = EmitterScalarEditor::EScalarType::eColor4;

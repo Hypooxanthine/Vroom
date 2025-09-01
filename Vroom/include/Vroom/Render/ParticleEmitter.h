@@ -21,11 +21,6 @@ namespace vrm
 
     struct VRM_API Specs
     {
-      // For editor usage
-      enum class EAttributeName
-      {
-        eColor = 0, ePosition, eScale
-      };
 
       ConstParticleEmitterField<1> lifeTime = 10.f;
       float emitRate = 1.f;
@@ -34,8 +29,8 @@ namespace vrm
       ParticleEmitterAttribute<3> position = { { 0.f, 0.f, 0.f } };
       ParticleEmitterAttribute<3> scale = { { 1.f, 1.f, 1.f } };
 
-      ParticleEmitterAttributeBase& getAttribute(EAttributeName name);
-      const ParticleEmitterAttributeBase& getAttribute(EAttributeName name) const;
+      ParticleEmitterAttributeBase& getAttribute(ParticleEmitterAttributeBase::EAttributeName name);
+      const ParticleEmitterAttributeBase& getAttribute(ParticleEmitterAttributeBase::EAttributeName name) const;
     };
 
   public:

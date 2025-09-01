@@ -12,7 +12,7 @@ namespace vrm::editor
   {
   public:
 
-    EmitterAttributeEditor(const std::string& displayName, ParticleEmitter::Specs::EAttributeName name);
+    EmitterAttributeEditor(const std::string& displayName, ParticleEmitterAttributeBase::EAttributeName name);
     ~EmitterAttributeEditor();
 
     EmitterAttributeEditor& operator=(const EmitterAttributeEditor& other) = delete;
@@ -36,7 +36,7 @@ namespace vrm::editor
 
   private:
 
-    ParticleEmitter::Specs::EAttributeName m_name;
+    ParticleEmitterAttributeBase::EAttributeName m_name;
     std::string m_displayName;
 
   };

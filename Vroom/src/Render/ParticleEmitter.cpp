@@ -7,22 +7,22 @@
 
 using namespace vrm;
 
-ParticleEmitterAttributeBase& ParticleEmitter::Specs::getAttribute(EAttributeName name)
+ParticleEmitterAttributeBase& ParticleEmitter::Specs::getAttribute(ParticleEmitterAttributeBase::EAttributeName name)
 {
   switch (name)
   {
-  case EAttributeName::eColor:
+  case ParticleEmitterAttributeBase::EAttributeName::eColor:
     return color;
-  case EAttributeName::ePosition:
+  case ParticleEmitterAttributeBase::EAttributeName::ePosition:
     return position;
-  case EAttributeName::eScale:
+  case ParticleEmitterAttributeBase::EAttributeName::eScale:
     return scale;
   default:
     VRM_ASSERT_MSG(false, "Unsupported attribute type");
   }
 }
 
-const ParticleEmitterAttributeBase& ParticleEmitter::Specs::getAttribute(EAttributeName name) const
+const ParticleEmitterAttributeBase& ParticleEmitter::Specs::getAttribute(ParticleEmitterAttributeBase::EAttributeName name) const
 {
   return const_cast<ParticleEmitter::Specs*>(this)->getAttribute(name);
 }
