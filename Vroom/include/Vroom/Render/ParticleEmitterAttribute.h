@@ -1,55 +1,36 @@
 #pragma once
 
+#include <variant>
+
 #include <glm/glm.hpp>
+
 #include "Vroom/Render/ParticleEmitterField.h"
 
 namespace vrm
 {
 
-  struct ParticleEmitterAttributeBase
-  {
-    // For editor usage
-    enum class  EAttributeName
-    {
-      eColor = 0, ePosition, eScale
-    };
-    
-    virtual ParticleEmitterFieldBase& getSpawnFieldBase() = 0;
-    virtual ParticleEmitterFieldBase& getDeathFieldBase() = 0;
+using ParticleEmitterFieldType =
+  std::variant<ConstParticleEmitterField, RandomRangeEmitterField>;
 
-    inline const ParticleEmitterFieldBase& getSpawnFieldBase() const
-    {
-      return const_cast<ParticleEmitterAttributeBase*>(this)->getSpawnFieldBase();
-    }
+struct ParticleEmitterAttribute
+{
+  using FieldType = ParticleEmitterFieldType;
 
-    inline const ParticleEmitterFieldBase& getDeathFieldBase() const
-    {
-      return const_cast<ParticleEmitterAttributeBase*>(this)->getDeathFieldBase();
-    }
-  };
+  inline ParticleEmitterAttribute(const FieldType& singleValue)
+    : spawnValue(singleValue), deathValue(singleValue)
+  {}
 
-  template <glm::length_t Dim>
-  struct ParticleEmitterAttribute : public ParticleEmitterAttributeBase
-  {
-    using FieldType = ConstParticleEmitterField<Dim>;
-    using VectorType = FieldType::VectorType;
+  inline ParticleEmitterAttribute(const FieldType& spawn,
+                                  const FieldType& death)
+    : spawnValue(spawn), deathValue(death)
+  {}
 
-    inline ParticleEmitterAttribute(const VectorType& singleValue) : spawnValue(singleValue), deathValue(singleValue) {}
-    inline ParticleEmitterAttribute(const VectorType& spawn, const VectorType& death) : spawnValue(spawn), deathValue(death) {}
-    inline ParticleEmitterAttribute() : ParticleEmitterAttribute(VectorType(0.f)) {}
+  inline ParticleEmitterAttribute()
+    : ParticleEmitterAttribute(ConstParticleEmitterField())
+  {}
 
-    inline ParticleEmitterFieldBase& getSpawnFieldBase() override
-    {
-      return spawnValue;
-    }
+  FieldType spawnValue;
+  FieldType deathValue;
+};
 
-    inline ParticleEmitterFieldBase& getDeathFieldBase() override
-    {
-      return deathValue;
-    }
-
-    FieldType spawnValue;
-    FieldType deathValue;
-  };
-
-}
+} // namespace vrm

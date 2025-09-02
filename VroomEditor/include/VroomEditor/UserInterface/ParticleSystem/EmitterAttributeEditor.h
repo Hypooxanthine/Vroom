@@ -1,120 +1,123 @@
 #pragma once
 
-#include "Vroom/Core/DeltaTime.h"
-#include "Vroom/Render/ParticleEmitter.h"
+#include <memory>
+
 #include "VroomEditor/UserInterface/ImGuiElement.h"
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterFieldEditor.h"
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterScalarEditor.h"
-#include <memory>
+
+#include "Vroom/Core/DeltaTime.h"
+#include "Vroom/Render/ParticleEmitter.h"
 
 namespace vrm::editor
 {
 
-  class EmitterAttributeEditor : public ImGuiElement
+class EmitterAttributeEditor : public ImGuiElement
+{
+public:
+
+  EmitterAttributeEditor(const std::string& displayName);
+  ~EmitterAttributeEditor();
+
+  EmitterAttributeEditor&
+  operator=(const EmitterAttributeEditor& other)              = delete;
+  EmitterAttributeEditor(const EmitterAttributeEditor& other) = delete;
+
+  EmitterAttributeEditor& operator=(EmitterAttributeEditor&& other) = default;
+  EmitterAttributeEditor(EmitterAttributeEditor&& other)            = default;
+
+  virtual bool updateEmitterSpecs(ParticleEmitter::Specs& specs) const = 0;
+
+protected:
+
+  void onImgui() override;
+  void onUpdate(const DeltaTime& dt) override;
+
+  void        assignField(std::unique_ptr<EmitterFieldEditor>& field,
+                          EmitterFieldEditor*                  newField,
+                          const EmitterScalarEditor::Settings& settings);
+  inline void assignSpawnField(EmitterFieldEditor* emitterFieldEditor)
   {
-  public:
+    assignField(m_spawnField, emitterFieldEditor, m_spawnFieldSettings);
+    m_spawnField->setName("Spawn");
+  }
 
-    EmitterAttributeEditor(const std::string& displayName, ParticleEmitterAttributeBase::EAttributeName name);
-    ~EmitterAttributeEditor();
-
-    EmitterAttributeEditor& operator=(const EmitterAttributeEditor& other) = delete;
-    EmitterAttributeEditor(const EmitterAttributeEditor& other) = delete;
-
-    EmitterAttributeEditor& operator=(EmitterAttributeEditor&& other) = default;
-    EmitterAttributeEditor(EmitterAttributeEditor&& other) = default;
-
-    bool updateEmitterSpecs(ParticleEmitter::Specs& specs) const;
-  
-  protected:
-
-    void onImgui() override;
-    void onUpdate(const DeltaTime& dt) override;
-
-    void assignField(std::unique_ptr<EmitterFieldEditor>& field, EmitterFieldEditor* newField, const EmitterScalarEditor::Settings& settings);
-    inline void assignSpawnField(EmitterFieldEditor* emitterFieldEditor)
-    {
-      assignField(m_spawnField, emitterFieldEditor, m_spawnFieldSettings);
-      m_spawnField->setName("Spawn");
-    }
-
-    inline void assignDeathField(EmitterFieldEditor* emitterFieldEditor)
-    {
-      assignField(m_deathField, emitterFieldEditor, m_deathFieldSettings);
-      m_deathField->setName("Death");
-    }
-
-  protected:
-
-    std::unique_ptr<EmitterFieldEditor> m_spawnField;
-    std::unique_ptr<EmitterFieldEditor> m_deathField;
-    EmitterScalarEditor::Settings m_spawnFieldSettings, m_deathFieldSettings;
-
-  private:
-
-    ParticleEmitterAttributeBase::EAttributeName m_name;
-    std::string m_displayName;
-
-  };
-
-  class EmitterPositionEditor : public EmitterAttributeEditor
+  inline void assignDeathField(EmitterFieldEditor* emitterFieldEditor)
   {
-  public:
+    assignField(m_deathField, emitterFieldEditor, m_deathFieldSettings);
+    m_deathField->setName("Death");
+  }
 
-    EmitterPositionEditor();
-    ~EmitterPositionEditor();
+  std::unique_ptr<EmitterFieldEditor> m_spawnField;
+  std::unique_ptr<EmitterFieldEditor> m_deathField;
 
-    EmitterPositionEditor& operator=(const EmitterPositionEditor& other) = delete;
-    EmitterPositionEditor(const EmitterPositionEditor& other) = delete;
+protected:
 
-    EmitterPositionEditor& operator=(EmitterPositionEditor&& other) = default;
-    EmitterPositionEditor(EmitterPositionEditor&& other) = default;
+  EmitterScalarEditor::Settings m_spawnFieldSettings, m_deathFieldSettings;
 
-  protected:
+private:
 
+  std::string m_displayName;
+};
 
+class EmitterPositionEditor : public EmitterAttributeEditor
+{
+public:
 
-  private:
+  EmitterPositionEditor();
+  ~EmitterPositionEditor();
 
-  };
+  EmitterPositionEditor& operator=(const EmitterPositionEditor& other) = delete;
+  EmitterPositionEditor(const EmitterPositionEditor& other)            = delete;
 
-  class EmitterScaleEditor : public EmitterAttributeEditor
-  {
-  public:
+  EmitterPositionEditor& operator=(EmitterPositionEditor&& other) = default;
+  EmitterPositionEditor(EmitterPositionEditor&& other)            = default;
 
-    EmitterScaleEditor();
-    ~EmitterScaleEditor();
+protected:
 
-    EmitterScaleEditor& operator=(const EmitterScaleEditor& other) = delete;
-    EmitterScaleEditor(const EmitterScaleEditor& other) = delete;
+  bool updateEmitterSpecs(ParticleEmitter::Specs& specs) const override;
 
-    EmitterScaleEditor& operator=(EmitterScaleEditor&& other) = default;
-    EmitterScaleEditor(EmitterScaleEditor&& other) = default;
+private:
+};
 
-  protected:
+class EmitterScaleEditor : public EmitterAttributeEditor
+{
+public:
 
-  private:
+  EmitterScaleEditor();
+  ~EmitterScaleEditor();
 
-  };
+  EmitterScaleEditor& operator=(const EmitterScaleEditor& other) = delete;
+  EmitterScaleEditor(const EmitterScaleEditor& other)            = delete;
 
-  class EmitterColorEditor : public EmitterAttributeEditor
-  {
-  public:
+  EmitterScaleEditor& operator=(EmitterScaleEditor&& other) = default;
+  EmitterScaleEditor(EmitterScaleEditor&& other)            = default;
 
-    EmitterColorEditor();
-    ~EmitterColorEditor();
+protected:
 
-    EmitterColorEditor& operator=(const EmitterColorEditor& other) = delete;
-    EmitterColorEditor(const EmitterColorEditor& other) = delete;
+  bool updateEmitterSpecs(ParticleEmitter::Specs& specs) const override;
 
-    EmitterColorEditor& operator=(EmitterColorEditor&& other) = delete;
-    EmitterColorEditor(EmitterColorEditor&& other) = delete;
+private:
+};
 
-  protected:
+class EmitterColorEditor : public EmitterAttributeEditor
+{
+public:
 
-  private:
+  EmitterColorEditor();
+  ~EmitterColorEditor();
 
-  };
+  EmitterColorEditor& operator=(const EmitterColorEditor& other) = delete;
+  EmitterColorEditor(const EmitterColorEditor& other)            = delete;
 
+  EmitterColorEditor& operator=(EmitterColorEditor&& other) = delete;
+  EmitterColorEditor(EmitterColorEditor&& other)            = delete;
 
+protected:
 
-}
+  bool updateEmitterSpecs(ParticleEmitter::Specs& specs) const override;
+
+private:
+};
+
+} // namespace vrm::editor

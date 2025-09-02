@@ -1,6 +1,8 @@
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterEditor.h"
-#include "VroomEditor/UserInterface/ParticleSystem/EmitterAttributeEditor.h"
+
 #include "imgui.h"
+
+#include "VroomEditor/UserInterface/ParticleSystem/EmitterAttributeEditor.h"
 
 using namespace vrm::editor;
 
@@ -11,15 +13,9 @@ EmitterEditor::EmitterEditor()
   m_attributes.emplace_back(new EmitterColorEditor());
 }
 
-EmitterEditor::~EmitterEditor()
-{
+EmitterEditor::~EmitterEditor() {}
 
-}
-
-void EmitterEditor::setName(const std::string& name)
-{
-  m_name = name;
-}
+void EmitterEditor::setName(const std::string& name) { m_name = name; }
 
 bool EmitterEditor::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
 {
@@ -28,8 +24,8 @@ bool EmitterEditor::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
   if (m_changed)
   {
     specs.emitRate = m_emitRate;
-    specs.lifeTime.getRawData()[0] = m_lifeTime;
-    
+    specs.lifeTime = m_lifeTime;
+
     m_changed = false;
   }
 
@@ -55,8 +51,11 @@ void EmitterEditor::onImgui()
   {
     ImGui::TreePush("Life cycle");
     {
-      m_changed = ImGui::SliderFloat("Emit rate", &m_emitRate, 0.1f, 500.f, "%.1f", ImGuiSliderFlags_Logarithmic) || m_changed;
-      m_changed = ImGui::SliderFloat("Life time", &m_lifeTime, 0.1f, 20.f) || m_changed;
+      m_changed = ImGui::SliderFloat("Emit rate", &m_emitRate, 0.1f, 500.f,
+                                     "%.1f", ImGuiSliderFlags_Logarithmic)
+               || m_changed;
+      m_changed =
+        ImGui::SliderFloat("Life time", &m_lifeTime, 0.1f, 20.f) || m_changed;
 
       ImGui::TreePop();
     }
@@ -72,10 +71,7 @@ void EmitterEditor::onImgui()
 
 void EmitterEditor::onUpdate(const DeltaTime& dt)
 {
-  for (auto& attributeEditor : m_attributes)
-  {
-    attributeEditor->update(dt);
-  }
+  for (auto& attributeEditor : m_attributes) { attributeEditor->update(dt); }
 }
 
 void EmitterEditor::_showContextualMenu()
