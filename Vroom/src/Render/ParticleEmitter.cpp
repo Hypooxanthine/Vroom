@@ -43,13 +43,20 @@ void ParticleEmitter::update(const DeltaTime& dt)
 
 void ParticleEmitter::setSpecs(const Specs& specs)
 {
-  m_dirtyValues = true;
+  m_dirtyValues    = true;
+  m_dirtyStructure = false;
 
-  bool structuresDifferent = m_specs.position.structureDifferent(specs.position)
-                          || m_specs.color.structureDifferent(specs.color)
-                          || m_specs.scale.structureDifferent(specs.scale);
+  auto currentAttribs = m_specs.asArray();
+  auto newAttribs     = specs.asArray();
 
-  if (structuresDifferent) { m_dirtyStructure = true; }
+  for (size_t i = 0; i < Specs::s_attributeCount; ++i)
+  {
+    if (currentAttribs.at(i)->structureDifferent(*newAttribs.at(i)))
+    {
+      m_dirtyStructure = true;
+      break;
+    }
+  }
 
   m_specs = specs;
 }

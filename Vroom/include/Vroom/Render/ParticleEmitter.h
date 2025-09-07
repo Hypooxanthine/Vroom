@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <memory>
 
 #include <glm/glm.hpp>
@@ -22,6 +23,7 @@ public:
 
   struct VRM_API Specs
   {
+    static constexpr size_t s_attributeCount = 3;
 
     float lifeTime;
     float emitRate;
@@ -29,6 +31,17 @@ public:
     ParticleEmitterAttribute color;
     ParticleEmitterAttribute position;
     ParticleEmitterAttribute scale;
+
+    inline std::array<ParticleEmitterAttribute*, s_attributeCount> asArray()
+    {
+      return { &color, &position, &scale };
+    }
+
+    inline std::array<const ParticleEmitterAttribute*, s_attributeCount>
+    asArray() const
+    {
+      return { &color, &position, &scale };
+    }
   };
 
 public:

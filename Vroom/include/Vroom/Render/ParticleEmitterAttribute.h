@@ -10,8 +10,7 @@ namespace vrm
 {
 
 using ParticleEmitterFieldType =
-  std::variant<std::monostate, ConstParticleEmitterField,
-               RandomRangeEmitterField>;
+  std::variant<ConstParticleEmitterField, RandomRangeEmitterField>;
 
 struct ParticleEmitterAttribute
 {
