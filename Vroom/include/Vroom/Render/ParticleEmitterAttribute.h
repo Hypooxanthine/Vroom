@@ -10,7 +10,8 @@ namespace vrm
 {
 
 using ParticleEmitterFieldType =
-  std::variant<ConstParticleEmitterField, RandomRangeEmitterField>;
+  std::variant<std::monostate, ConstParticleEmitterField,
+               RandomRangeEmitterField>;
 
 struct ParticleEmitterAttribute
 {
@@ -28,6 +29,12 @@ struct ParticleEmitterAttribute
   inline ParticleEmitterAttribute()
     : ParticleEmitterAttribute(ConstParticleEmitterField())
   {}
+
+  inline bool structureDifferent(const ParticleEmitterAttribute& other) const
+  {
+    return spawnValue.index() != other.spawnValue.index()
+        && spawnValue.index() != other.spawnValue.index();
+  }
 
   FieldType spawnValue;
   FieldType deathValue;

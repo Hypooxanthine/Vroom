@@ -4,6 +4,7 @@
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Core/DeltaTime.h"
+#include "Vroom/Render/ParticleEmitterAttribute.h"
 
 using namespace vrm;
 
@@ -40,12 +41,25 @@ void ParticleEmitter::update(const DeltaTime& dt)
   }
 }
 
+void ParticleEmitter::setSpecs(const Specs& specs)
+{
+  m_dirtyValues = true;
+
+  bool structuresDifferent = m_specs.position.structureDifferent(specs.position)
+                          || m_specs.color.structureDifferent(specs.color)
+                          || m_specs.scale.structureDifferent(specs.scale);
+
+  if (structuresDifferent) { m_dirtyStructure = true; }
+
+  m_specs = specs;
+}
+
 void ParticleEmitter::setupRender() const
 {
-  if (m_dirty)
+  if (m_dirtyValues)
   {
     m_render->updateResources(this);
-    m_dirty = false;
+    m_dirtyValues = false;
   }
 
   m_render->prepareFrame(this);

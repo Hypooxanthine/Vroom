@@ -47,13 +47,10 @@ public:
   void executeRender(const RenderPassContext& ctx,
                      const glm::mat4*         model) const;
 
-  inline bool isDirty() const { return m_dirty; }
+  inline bool isDirty() const { return m_dirtyValues; }
 
-  inline void setSpecs(const Specs& specs)
-  {
-    m_specs = specs;
-    m_dirty = true;
-  }
+  void setSpecs(const Specs& specs);
+
   void setMesh(MeshAsset::Handle meshAsset);
 
   inline const Specs& getSpecs() const { return m_specs; }
@@ -73,7 +70,8 @@ private:
   std::unique_ptr<ParticleEmitterRender> m_render;
 
   Specs        m_specs;
-  mutable bool m_dirty = true;
+  mutable bool m_dirtyStructure = true;
+  mutable bool m_dirtyValues    = true;
 
   float m_timeAlive                = 0.f;
   float m_lastSpawnedParticleStamp = 0.f;

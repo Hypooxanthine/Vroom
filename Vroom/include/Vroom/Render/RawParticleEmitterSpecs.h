@@ -1,5 +1,11 @@
 #pragma once
 
+#include <span>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include "glm/glm.hpp"
 namespace vrm
 {
 
@@ -7,17 +13,36 @@ class RawParticleEmitterSpecs
 {
 public:
 
-  enum class EFieldType
+  enum class EAttributeName : size_t
   {
-    eConst = 0,
-    eRandomRange
+    ePosition = 0,
+    eColor,
+    eSale
   };
 
-  struct Layout
+  class Layout
   {
-    EFieldType colorSpawn, colorDeath;
-    EFieldType positionSpawn, positionDeath;
-    EFieldType scaleSpawn, scaleDeath;
+  public:
+
+    inline Layout()  = default;
+    inline ~Layout() = default;
+
+    inline Layout& operator=(const Layout& other) = delete;
+    inline Layout(const Layout& other)            = delete;
+
+    inline Layout& operator=(Layout&& other) = delete;
+    inline Layout(Layout&& other)            = delete;
+
+    inline void addAttribute(EAttributeName attribName, size_t fieldCount)
+    {
+      m_attributes.emplace_back(std::make_pair(attribName, fieldCount));
+    }
+
+    inline const auto& getAttributes() const { return m_attributes; }
+
+  private:
+
+    std::vector<std::pair<EAttributeName, size_t>> m_attributes;
   };
 
 public:
@@ -32,16 +57,25 @@ public:
   RawParticleEmitterSpecs& operator=(RawParticleEmitterSpecs&& other) = delete;
   RawParticleEmitterSpecs(RawParticleEmitterSpecs&& other)            = delete;
 
-  void setupLayout();
+  void setupLayout(const Layout& layout);
+
+  void setAttributeField(EAttributeName attribName, size_t fieldIndex,
+                         const glm::vec4& value);
+
+  inline std::span<glm::vec4 const> getData() const { return m_data; }
 
 private:
 
-  void _clear();
+  struct AttributeInfo
+  {
+    size_t offset;
+    size_t size;
+  };
 
 private:
 
-  char*  m_data     = nullptr;
-  size_t m_dataSize = 0;
+  std::vector<glm::vec4>                            m_data;
+  std::unordered_map<EAttributeName, AttributeInfo> m_attributes;
 };
 
 } // namespace vrm
