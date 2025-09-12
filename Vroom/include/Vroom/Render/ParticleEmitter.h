@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <span>
 
 #include <glm/glm.hpp>
 
@@ -28,19 +29,23 @@ public:
     float lifeTime;
     float emitRate;
 
-    ParticleEmitterAttribute color;
-    ParticleEmitterAttribute position;
-    ParticleEmitterAttribute scale;
+    ParticleEmitterAttribute color    = { "COLOR" };
+    ParticleEmitterAttribute position = { "POSITION" };
+    ParticleEmitterAttribute scale    = { "SCALE" };
 
-    inline std::array<ParticleEmitterAttribute*, s_attributeCount> asArray()
+    inline std::span<ParticleEmitterAttribute, s_attributeCount> getAttributes()
     {
-      return { &color, &position, &scale };
+      return std::span<ParticleEmitterAttribute, s_attributeCount>{
+        &color, s_attributeCount
+      };
     }
 
-    inline std::array<const ParticleEmitterAttribute*, s_attributeCount>
-    asArray() const
+    inline std::span<ParticleEmitterAttribute const, s_attributeCount>
+    getAttributes() const
     {
-      return { &color, &position, &scale };
+      return std::span<ParticleEmitterAttribute const, s_attributeCount>{
+        &color, s_attributeCount
+      };
     }
   };
 

@@ -10,6 +10,7 @@
 #include "Vroom/Render/Abstraction/VertexArray.h"
 #include "Vroom/Render/MaterialDefines.h"
 #include "Vroom/Render/ParticleEmitter.h"
+#include "Vroom/Render/ParticleEmitterAttribute.h"
 #include "Vroom/Render/ParticleEmitterField.h"
 #include "Vroom/Render/PassMaterials.h"
 #include "Vroom/Render/Passes/RenderPass.h"
@@ -51,7 +52,6 @@ struct RawEmitterSpawnData
 
 ParticleEmitterRender::ParticleEmitterRender()
 {
-  _setupUpdaterMaterial();
   m_emitterDataBuffer.ensureCapacity(sizeof(RawParticleEmitterSpecs));
   m_spawnDataBuffer.ensureCapacity(sizeof(RawEmitterSpawnData));
   m_indirectCommandsBuffer.ensureCapacity(
@@ -78,19 +78,69 @@ void ParticleEmitterRender::setRenderMaterial(MaterialAsset::Handle material)
   m_renderMaterial.prepare({});
 }
 
-void ParticleEmitterRender::updateResources(const ParticleEmitter* emitter)
+namespace
+{
+
+template <class... Ts>
+struct overloads : Ts...
+{
+  using Ts::operator()...;
+};
+
+template <class... Ts>
+overloads(Ts...) -> overloads<Ts...>;
+
+} // namespace
+
+void ParticleEmitterRender::rebuildMaterials(const ParticleEmitter& emitter)
+{
+  ::RawParticleEmitterSpecs::Layout layout;
+  // std::vector<std::string>        defines;
+  // std::string                     currentDefine;
+
+  // const auto visitor = overloads{
+  //   [&](const ConstParticleEmitterField& field)
+  //   {
+  //     defines.emplace_back(currentDefine + "_CONST_FIELD");
+  //   },
+  //   [&](const RandomRangeEmitterField& field)
+  //   {
+  //     defines.emplace_back(currentDefine + "_RANDOM_RANGE_FIELD");
+  //   },
+  // };
+
+  // ParticleEmitterAttribute attribute = emitter.getSpecs().position;
+
+  // const std::string attributeDefine =
+  //   "VRM_PARTICLE_" + attribute.getShaderDefineName();
+
+  // currentDefine = attributeDefine + "_SPAWN";
+  // std::visit(visitor, attribute.spawnValue);
+
+  // currentDefine = attributeDefine + "_DEATH";
+  // std::visit(visitor, attribute.deathValue);
+
+  // layout.addAttribute(::RawParticleEmitterSpecs::EAttributeName::ePosition,
+  // 2); layout.addAttribute(::RawParticleEmitterSpecs::EAttributeName::eColor,
+  // 2); layout.addAttribute(::RawParticleEmitterSpecs::EAttributeName::eScale,
+  // 2);
+
+  _setupUpdaterMaterial(layout);
+}
+
+void ParticleEmitterRender::updateResources(const ParticleEmitter& emitter)
 {
   _updateParticleStates(emitter);
   _updateEmitterData(emitter);
 }
 
-void ParticleEmitterRender::prepareFrame(const ParticleEmitter* emitter)
+void ParticleEmitterRender::prepareFrame(const ParticleEmitter& emitter)
 {
   _uploadSpawnData(emitter);
   _uploadIndirectCommandData();
 }
 
-void ParticleEmitterRender::executeRender(const ParticleEmitter*   emitter,
+void ParticleEmitterRender::executeRender(const ParticleEmitter&   emitter,
                                           const RenderPassContext& ctx,
                                           const glm::mat4*         model)
 {
@@ -98,7 +148,8 @@ void ParticleEmitterRender::executeRender(const ParticleEmitter*   emitter,
   _executeRenderParticles(ctx, model);
 }
 
-void ParticleEmitterRender::_setupUpdaterMaterial()
+void ParticleEmitterRender::_setupUpdaterMaterial(
+  const vrm::RawParticleEmitterSpecs::Layout& layout)
 {
   MaterialAsset::Handle updaterAsset =
     AssetManager::Get().tryGetAsset<MaterialAsset>(
@@ -113,7 +164,7 @@ void ParticleEmitterRender::_setupUpdaterMaterial()
 }
 
 void ParticleEmitterRender::_uploadSpawnData(
-  const ParticleEmitter* emitter) const
+  const ParticleEmitter& emitter) const
 {
   std::span<RawEmitterSpawnData> mapped =
     m_spawnDataBuffer.mapWriteOnly<RawEmitterSpawnData>(
@@ -139,9 +190,9 @@ void ParticleEmitterRender::_uploadIndirectCommandData() const
 }
 
 void ParticleEmitterRender::_updateParticleStates(
-  const ParticleEmitter* emitter)
+  const ParticleEmitter& emitter)
 {
-  const auto& specs = emitter->getSpecs();
+  const auto& specs = emitter.getSpecs();
   glm::uint   maxParticleCount =
     static_cast<glm::uint>(specs.lifeTime * specs.emitRate * 1.5f + 1.f);
 
@@ -182,32 +233,32 @@ static void SetRawSpecField(glm::vec<Dim, float>&           dst,
   }
 }
 
-void ParticleEmitterRender::_updateEmitterData(const ParticleEmitter* emitter)
+void ParticleEmitterRender::_updateEmitterData(const ParticleEmitter& emitter)
 {
   std::span<RawParticleEmitterSpecs> mapped =
     m_emitterDataBuffer.mapWriteOnly<RawParticleEmitterSpecs>(
       0, sizeof(RawParticleEmitterSpecs), true);
 
   RawParticleEmitterSpecs&      rawSpecs = mapped[0];
-  const ParticleEmitter::Specs& specs    = emitter->getSpecs();
+  const ParticleEmitter::Specs& specs    = emitter.getSpecs();
 
   rawSpecs.lifeTime = specs.lifeTime;
   rawSpecs.emitRate = specs.emitRate;
 
-  SetRawSpecField(rawSpecs.colorSpawn, specs.color.spawnValue);
-  SetRawSpecField(rawSpecs.colorDeath, specs.color.deathValue);
+  SetRawSpecField(rawSpecs.spawnColor, specs.color.spawnValue);
+  SetRawSpecField(rawSpecs.deathColor, specs.color.deathValue);
 
-  SetRawSpecField(rawSpecs.positionSpawn, specs.position.spawnValue);
-  SetRawSpecField(rawSpecs.positionDeath, specs.position.deathValue);
+  SetRawSpecField(rawSpecs.spawnPosition, specs.position.spawnValue);
+  SetRawSpecField(rawSpecs.deathPosition, specs.position.deathValue);
 
-  SetRawSpecField(rawSpecs.scaleSpawn, specs.scale.spawnValue);
-  SetRawSpecField(rawSpecs.scaleDeath, specs.scale.deathValue);
+  SetRawSpecField(rawSpecs.spawnScale, specs.scale.spawnValue);
+  SetRawSpecField(rawSpecs.deathScale, specs.scale.deathValue);
 
   m_emitterDataBuffer.unmap();
 }
 
 void ParticleEmitterRender::_executeUpdateParticles(
-  const ParticleEmitter* emitter)
+  const ParticleEmitter& emitter)
 {
   const gl::Shader& updaterShader = m_updaterMaterial.getShader();
   updaterShader.bind();
@@ -216,9 +267,9 @@ void ParticleEmitterRender::_executeUpdateParticles(
   updaterShader.setUniform1f("u_deltaTime",
                              Application::Get().getDeltaTime().seconds());
   updaterShader.setUniform1ui("u_particlesToSpawn",
-                              emitter->getNextParticleCountToSpawn());
+                              emitter.getNextParticleCountToSpawn());
   updaterShader.setUniform1f("u_firstParticleStamp",
-                             emitter->getNextParticleToSpawnStartingLifetime());
+                             emitter.getNextParticleToSpawnStartingLifetime());
 
   glm::uvec3 dispatch = gl::Shader::ComputeDispatchSize(
     s_updaterGroupSize, glm::uvec3(m_maxParticleCount, 1, 1));

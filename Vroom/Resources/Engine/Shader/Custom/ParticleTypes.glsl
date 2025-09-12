@@ -3,13 +3,14 @@
 
 struct ParticleEmitterSpecs
 {
+  float lifeTime;
+  float emitRate;
+
   vec4 spawnColor;
   vec4 deathColor;
-
+  
   vec3 spawnPosition;
-  float lifeTime;
   vec3 deathPosition;
-  float emitRate;
 
   vec3 spawnScale;
   vec3 deathScale;

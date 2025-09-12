@@ -4,7 +4,6 @@
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Core/DeltaTime.h"
-#include "Vroom/Render/ParticleEmitterAttribute.h"
 
 using namespace vrm;
 
@@ -43,15 +42,14 @@ void ParticleEmitter::update(const DeltaTime& dt)
 
 void ParticleEmitter::setSpecs(const Specs& specs)
 {
-  m_dirtyValues    = true;
-  m_dirtyStructure = false;
+  m_dirtyValues = true;
 
-  auto currentAttribs = m_specs.asArray();
-  auto newAttribs     = specs.asArray();
+  auto currentAttribs = m_specs.getAttributes();
+  auto newAttribs     = specs.getAttributes();
 
   for (size_t i = 0; i < Specs::s_attributeCount; ++i)
   {
-    if (currentAttribs.at(i)->structureDifferent(*newAttribs.at(i)))
+    if (currentAttribs[i].structureDifferent(newAttribs[i]))
     {
       m_dirtyStructure = true;
       break;
@@ -63,19 +61,24 @@ void ParticleEmitter::setSpecs(const Specs& specs)
 
 void ParticleEmitter::setupRender() const
 {
+  if (m_dirtyStructure)
+  {
+    m_render->rebuildMaterials(*this);
+    m_dirtyStructure = false;
+  }
   if (m_dirtyValues)
   {
-    m_render->updateResources(this);
+    m_render->updateResources(*this);
     m_dirtyValues = false;
   }
 
-  m_render->prepareFrame(this);
+  m_render->prepareFrame(*this);
 }
 
 void ParticleEmitter::executeRender(const RenderPassContext& ctx,
                                     const glm::mat4*         model) const
 {
-  m_render->executeRender(this, ctx, model);
+  m_render->executeRender(*this, ctx, model);
 }
 
 void ParticleEmitter::setMesh(MeshAsset::Handle meshAsset)

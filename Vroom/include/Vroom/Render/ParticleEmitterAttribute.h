@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <variant>
 
 #include <glm/glm.hpp>
@@ -12,22 +13,37 @@ namespace vrm
 using ParticleEmitterFieldType =
   std::variant<ConstParticleEmitterField, RandomRangeEmitterField>;
 
-struct ParticleEmitterAttribute
+class ParticleEmitterAttribute
 {
+public:
+
   using FieldType = ParticleEmitterFieldType;
 
-  inline ParticleEmitterAttribute(const FieldType& singleValue)
-    : spawnValue(singleValue), deathValue(singleValue)
+  FieldType spawnValue;
+  FieldType deathValue;
+
+  inline ParticleEmitterAttribute(const std::string& shaderDefineName,
+                                  const FieldType&   spawn,
+                                  const FieldType&   death)
+    : spawnValue(spawn), deathValue(death), m_shaderDefineName(shaderDefineName)
   {}
 
-  inline ParticleEmitterAttribute(const FieldType& spawn,
-                                  const FieldType& death)
-    : spawnValue(spawn), deathValue(death)
+  inline ParticleEmitterAttribute(const std::string& shaderDefineName,
+                                  const FieldType&   singleValue)
+    : ParticleEmitterAttribute(shaderDefineName, singleValue, singleValue)
   {}
 
-  inline ParticleEmitterAttribute()
-    : ParticleEmitterAttribute(ConstParticleEmitterField())
+  inline ParticleEmitterAttribute(const std::string& shaderDefineName)
+    : ParticleEmitterAttribute(shaderDefineName, ConstParticleEmitterField())
   {}
+
+  ParticleEmitterAttribute&
+  operator=(const ParticleEmitterAttribute& other)                = default;
+  ParticleEmitterAttribute(const ParticleEmitterAttribute& other) = default;
+
+  ParticleEmitterAttribute&
+  operator=(ParticleEmitterAttribute&& other)                = default;
+  ParticleEmitterAttribute(ParticleEmitterAttribute&& other) = default;
 
   inline bool structureDifferent(const ParticleEmitterAttribute& other) const
   {
@@ -35,8 +51,12 @@ struct ParticleEmitterAttribute
         && spawnValue.index() != other.spawnValue.index();
   }
 
-  FieldType spawnValue;
-  FieldType deathValue;
+  const std::string& getShaderDefineName() const { return m_shaderDefineName; }
+
+private:
+
+  // No VRM_ prefix, no trailing/tailing underscores
+  std::string m_shaderDefineName;
 };
 
 } // namespace vrm

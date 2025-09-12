@@ -17,7 +17,7 @@ public:
   {
     ePosition = 0,
     eColor,
-    eSale
+    eScale
   };
 
   class Layout
