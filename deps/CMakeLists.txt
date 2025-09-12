@@ -42,6 +42,18 @@ add_library(ImGuizmo
 target_include_directories(ImGuizmo PUBLIC ${imguizmo_SOURCE_DIR})
 target_link_libraries(ImGuizmo PUBLIC ImGuiGLFWGlew)
 
+# ----- IMPLOT -----
+
+set(ImPlot_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/implot/)
+
+add_library(ImPlot
+  ${ImPlot_SOURCE_DIR}/implot.cpp
+  ${ImPlot_SOURCE_DIR}/implot_items.cpp
+)
+
+target_include_directories(ImPlot PUBLIC ${ImPlot_SOURCE_DIR})
+target_link_libraries(ImPlot PUBLIC ImGuiGLFWGlew)
+
 # ----- GLM -----
 
 add_subdirectory(glm)

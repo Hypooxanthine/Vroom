@@ -1,5 +1,4 @@
 #include "VroomEditor/UserInterface/MainMenuBar.h"
-
 #include <imgui.h>
 
 #include <Vroom/Core/Application.h>
@@ -8,13 +7,9 @@
 
 using namespace vrm;
 
-MainMenuBar::MainMenuBar()
-{
-}
+MainMenuBar::MainMenuBar() {}
 
-MainMenuBar::~MainMenuBar()
-{
-}
+MainMenuBar::~MainMenuBar() {}
 
 void MainMenuBar::onImgui()
 {
@@ -24,62 +19,32 @@ void MainMenuBar::onImgui()
   {
     if (ImGui::BeginMenu("File"))
     {
-      if (ImGui::MenuItem("New project"))
-      {
-        notImplemented();
-      }
-      if (ImGui::MenuItem("Open project"))
-      {
-        notImplemented();
-      }
-      if (ImGui::MenuItem("Save project"))
-      {
-        notImplemented();
-      }
-      if (ImGui::MenuItem("Save project as"))
-      {
-        notImplemented();
-      }
+      if (ImGui::MenuItem("New project")) { notImplemented(); }
+      if (ImGui::MenuItem("Open project")) { notImplemented(); }
+      if (ImGui::MenuItem("Save project")) { notImplemented(); }
+      if (ImGui::MenuItem("Save project as")) { notImplemented(); }
 
       ImGui::Separator();
 
-      if (ImGui::MenuItem("Exit"))
-      {
-        Application::Get().exit();
-      }
+      if (ImGui::MenuItem("Exit")) { Application::Get().exit(); }
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Edit"))
     {
-      if (ImGui::MenuItem("Undo"))
-      {
-        notImplemented();
-      }
-      if (ImGui::MenuItem("Redo"))
-      {
-        notImplemented();
-      }
+      if (ImGui::MenuItem("Undo")) { notImplemented(); }
+      if (ImGui::MenuItem("Redo")) { notImplemented(); }
 
       ImGui::Separator();
 
-      if (ImGui::MenuItem("Cut"))
-      {
-        notImplemented();
-      }
-      if (ImGui::MenuItem("Copy"))
-      {
-        notImplemented();
-      }
-      if (ImGui::MenuItem("Paste"))
-      {
-        notImplemented();
-      }
+      if (ImGui::MenuItem("Cut")) { notImplemented(); }
+      if (ImGui::MenuItem("Copy")) { notImplemented(); }
+      if (ImGui::MenuItem("Paste")) { notImplemented(); }
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("View"))
     {
       EInterfaceElement::Element elem;
-      
+
       elem = EInterfaceElement::eViewport;
       if (ImGui::MenuItem("Viewport", nullptr, ui.isElementVisible(elem)))
       {
@@ -96,22 +61,25 @@ void MainMenuBar::onImgui()
         ui.setElementVisible(elem, !ui.isElementVisible(elem));
       }
       elem = EInterfaceElement::eParticleSystemEditor;
-      if (ImGui::MenuItem("Particle system editor", nullptr, ui.isElementVisible(elem)))
+      if (ImGui::MenuItem("Particle system editor", nullptr,
+                          ui.isElementVisible(elem)))
       {
         ui.setElementVisible(elem, !ui.isElementVisible(elem));
       }
       elem = EInterfaceElement::eEditorPreferences;
-      if (ImGui::MenuItem("Editor preferences", nullptr, ui.isElementVisible(elem)))
+      if (ImGui::MenuItem("Editor preferences", nullptr,
+                          ui.isElementVisible(elem)))
       {
         ui.setElementVisible(elem, !ui.isElementVisible(elem));
       }
       elem = EInterfaceElement::eRenderSettingsPanel;
-      if (ImGui::MenuItem("Render settings", nullptr, ui.isElementVisible(elem)))
+      if (ImGui::MenuItem("Render settings", nullptr,
+                          ui.isElementVisible(elem)))
       {
         ui.setElementVisible(elem, !ui.isElementVisible(elem));
       }
-      elem = EInterfaceElement::eStatisticsPanel;
-      if (ImGui::MenuItem("Stats", nullptr, ui.isElementVisible(elem)))
+      elem = EInterfaceElement::eProfilingPanel;
+      if (ImGui::MenuItem("Profiling", nullptr, ui.isElementVisible(elem)))
       {
         ui.setElementVisible(elem, !ui.isElementVisible(elem));
       }
@@ -119,26 +87,14 @@ void MainMenuBar::onImgui()
     }
     if (ImGui::BeginMenu("Scene"))
     {
-      if (ImGui::MenuItem("Unload scene"))
-      {
-        EditorLayer::Get().unloadScene();
-      }
-      if (ImGui::MenuItem("Save scene"))
-      {
-        EditorLayer::Get().saveScene();
-      }
+      if (ImGui::MenuItem("Unload scene")) { EditorLayer::Get().unloadScene(); }
+      if (ImGui::MenuItem("Save scene")) { EditorLayer::Get().saveScene(); }
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Scripts"))
     {
-      if (ImGui::MenuItem("Build"))
-      {
-        EditorLayer::Get().buildScripts();
-      }
-      if (ImGui::MenuItem("Reload"))
-      {
-        EditorLayer::Get().reloadScripts();
-      }
+      if (ImGui::MenuItem("Build")) { EditorLayer::Get().buildScripts(); }
+      if (ImGui::MenuItem("Reload")) { EditorLayer::Get().reloadScripts(); }
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Help"))

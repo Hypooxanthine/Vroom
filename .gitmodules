@@ -24,3 +24,6 @@
 [submodule "assimp"]
 	path = deps/assimp
 	url = git@github.com:assimp/assimp.git
+[submodule "implot"]
+	path = deps/implot
+	url = git@github.com:epezent/implot.git
