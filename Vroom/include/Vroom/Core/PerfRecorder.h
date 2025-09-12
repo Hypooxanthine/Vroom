@@ -8,7 +8,7 @@
 namespace vrm
 {
 
-class PerfRecorder
+class VRM_API PerfRecorder
 {
 public:
 
@@ -29,10 +29,12 @@ public:
 
   float getMeanTimeSeconds() const;
 
-  inline std::span<PerfRecorder const> getChildren() const
+  inline std::span<PerfRecorder* const> getChildren() const
   {
     return m_children;
   }
+
+  inline void addChild(PerfRecorder* child) { m_children.push_back(child); }
 
 private:
 
@@ -44,7 +46,7 @@ private:
   uint64_t              m_timeSum       = 0;
   size_t                m_sampleCount   = 0;
 
-  std::vector<PerfRecorder> m_children;
+  std::vector<PerfRecorder*> m_children;
 };
 
 } // namespace vrm

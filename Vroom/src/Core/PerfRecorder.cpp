@@ -20,7 +20,7 @@ void PerfRecorder::setHistorySize(size_t size)
   m_historyCursor = std::min(m_historyCursor, size);
   m_sampleCount   = std::min(m_sampleCount, size);
 
-  for (auto& child : m_children) { child.setHistorySize(size); }
+  for (auto& child : m_children) { child->setHistorySize(size); }
 }
 
 void PerfRecorder::startRecording() { m_timer.start(); }
