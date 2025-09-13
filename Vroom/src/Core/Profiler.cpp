@@ -34,6 +34,7 @@ void Profiler::notifyRecorderCreation(PerfRecorder* newRecorder)
   {
     // Top of the stack has a new child
     m_stack.top()->addChild(newRecorder);
+    newRecorder->setParent(m_stack.top());
   }
 }
 

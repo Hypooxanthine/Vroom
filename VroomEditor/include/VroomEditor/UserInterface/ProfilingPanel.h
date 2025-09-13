@@ -1,6 +1,13 @@
 #pragma once
 
+#include <vector>
+
+#include "imgui.h"
+
 #include "VroomEditor/UserInterface/ImGuiElement.h"
+
+#include "Vroom/Core/PerfRecorder.h"
+#include "Vroom/Core/Timer.h"
 
 namespace vrm::editor
 {
@@ -22,7 +29,32 @@ protected:
 
   void onImgui() override;
 
-public:
+private:
+
+  struct ProfileEntry
+  {
+    const char* name;
+    double      startSec;
+    double      endSec;
+    float       parentUse;
+    int         depth; // profondeur hiérarchique
+  };
+
+private:
+
+  void _showRecorderTree(const PerfRecorder& recorder);
+
+  bool _buildProfileEntriesCheck(const PerfRecorder& recorder);
+  void _buildProfileEntriesRecursive(const PerfRecorder& recorder,
+                                     uint64_t startNanosecs, int depth);
+
+  ImU32 _lerpColor(ImU32 c1, ImU32 c2, float t);
+
+private:
+
+  std::vector<ProfileEntry> m_entries;
+  int                       m_maxDepth = 0;
+  Timer                     m_timer;
 };
 
 } // namespace vrm::editor

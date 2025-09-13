@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include "Vroom/Api.h"
 #include "Vroom/Core/Timer.h"
 
 namespace vrm
@@ -27,19 +28,24 @@ public:
   void startRecording();
   void stopRecording();
 
-  float getMeanTimeSeconds() const;
+  double   getMeanTimeSeconds() const;
+  uint64_t getStartTimeNanosecs() const;
 
   inline std::span<PerfRecorder* const> getChildren() const
   {
     return m_children;
   }
 
+  inline PerfRecorder* getParent() const { return m_parent; }
+
   inline void addChild(PerfRecorder* child) { m_children.push_back(child); }
+  inline void setParent(PerfRecorder* parent) { m_parent = parent; }
 
 private:
 
-  std::string m_name;
-  Timer       m_timer;
+  std::string          m_name;
+  Timer                m_timer;
+  Timer::TimeStampType m_previousStart, m_previousEnd;
 
   std::vector<uint64_t> m_history;
   size_t                m_historyCursor = 0;
@@ -47,6 +53,7 @@ private:
   size_t                m_sampleCount   = 0;
 
   std::vector<PerfRecorder*> m_children;
+  PerfRecorder*              m_parent = nullptr;
 };
 
 } // namespace vrm

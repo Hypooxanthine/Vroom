@@ -3,9 +3,9 @@
 #include "Vroom/Core/PerfRecorder.h"
 #include "Vroom/Core/Profiler.h"
 
-#define VRM_PROFILE_SCOPE(name)                                     \
-  static PerfRecorder s_vrmPerfRecorder    = { name };              \
-  ScopePerfRecorder   vrmScopePerfRecorder = { s_vrmPerfRecorder };
+#define VRM_PROFILE_SCOPE(name)                                    \
+  static PerfRecorder s_vrmPerfRecorder    = { name };             \
+  ScopePerfRecorder   vrmScopePerfRecorder = { s_vrmPerfRecorder }
 
 namespace vrm
 {

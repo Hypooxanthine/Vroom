@@ -1,13 +1,17 @@
 #pragma once
 
 #include <chrono>
+#include <cstdint>
 
-#include "Vroom/Core/Duration.h"
 namespace vrm
 {
 
 class Timer
 {
+public:
+
+  using TimeStampType = std::chrono::high_resolution_clock::time_point;
+
 public:
 
   inline Timer();
@@ -20,34 +24,66 @@ public:
 
   inline void start();
   inline void stop();
+  inline void restart();
 
-  inline uint64_t getNanoseconds() const { return m_ellapsedTimeNs; }
+  inline bool isStarted() const { return m_started; }
 
-  template <typename T>
-  inline T getSeconds() const
+  inline const auto& getStartStamp() const { return m_start; }
+  inline const auto& getEndStamp() const { return m_end; }
+
+  inline uint64_t getLastNanoseconds() const { return m_ellapsedTimeNs; }
+
+  template <typename DurationType>
+  inline DurationType getLastDuration() const
   {
-    return DurationSeconds(m_ellapsedTimeNs).get<T>();
+    return DurationType(m_ellapsedTimeNs);
+  }
+
+  template <typename DurationType>
+  inline DurationType getCurrentDuration()
+  {
+    const TimeStampType now = std::chrono::high_resolution_clock::now();
+    const uint64_t      nanoSecs =
+      std::chrono::duration_cast<std::chrono::nanoseconds>(now - m_start)
+        .count();
+    return DurationType(nanoSecs);
   }
 
 private:
 
-  uint64_t                                       m_ellapsedTimeNs;
-  std::chrono::high_resolution_clock::time_point m_stamp;
+  bool          m_started = false;
+  uint64_t      m_ellapsedTimeNs;
+  TimeStampType m_start, m_end;
 };
 
 inline Timer::Timer() : m_ellapsedTimeNs(0) {}
 
 inline void Timer::start()
 {
-  m_stamp = std::chrono::high_resolution_clock::now();
+  if (m_started == false)
+  {
+    m_start   = std::chrono::high_resolution_clock::now();
+    m_started = true;
+  }
 }
 
 inline void Timer::stop()
 {
-  auto now      = std::chrono::high_resolution_clock::now();
-  auto duration = now - m_stamp;
-  m_ellapsedTimeNs =
-    std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
+  if (m_started == true)
+  {
+    m_end         = std::chrono::high_resolution_clock::now();
+    auto duration = m_end - m_start;
+    m_ellapsedTimeNs =
+      std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
+
+    m_started = false;
+  }
+}
+
+inline void Timer::restart()
+{
+  if (m_started) stop();
+  start();
 }
 
 } // namespace vrm

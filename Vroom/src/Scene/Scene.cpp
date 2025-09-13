@@ -4,19 +4,18 @@
 
 #include "Vroom/Core/Application.h"
 #include "Vroom/Core/GameLayer.h"
-
-#include "Vroom/Render/Renderer.h"
+#include "Vroom/Core/Profiling.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
-
-#include "Vroom/Scene/Components/ParticleSystemComponent.h"
-#include "Vroom/Scene/Entity.h"
-#include "Vroom/Scene/Components/NameComponent.h"
-#include "Vroom/Scene/Components/TransformComponent.h"
-#include "Vroom/Scene/Components/MeshComponent.h"
-#include "Vroom/Scene/Components/SkyboxComponent.h"
-#include "Vroom/Scene/Components/PointLightComponent.h"
+#include "Vroom/Render/Renderer.h"
 #include "Vroom/Scene/Components/DirectionalLightComponent.h"
 #include "Vroom/Scene/Components/HierarchyComponent.h"
+#include "Vroom/Scene/Components/MeshComponent.h"
+#include "Vroom/Scene/Components/NameComponent.h"
+#include "Vroom/Scene/Components/ParticleSystemComponent.h"
+#include "Vroom/Scene/Components/PointLightComponent.h"
+#include "Vroom/Scene/Components/SkyboxComponent.h"
+#include "Vroom/Scene/Components/TransformComponent.h"
+#include "Vroom/Scene/Entity.h"
 
 using namespace vrm;
 
@@ -24,24 +23,20 @@ Scene::Scene()
 {
   m_renderer.reset(new Renderer());
 
-  m_Root = createRoot();
+  m_Root                                                      = createRoot();
   getRoot().getComponentInternal<HierarchyComponent>().parent = Entity();
 
   // Setting a default camera
   setCamera(&m_defaultCamera);
 }
 
-Scene::~Scene()
-{
-}
+Scene::~Scene() {}
 
-void Scene::init()
-{
-  onInit();
-}
+void Scene::init() { onInit(); }
 
 void Scene::update(const DeltaTime& dt)
 {
+  VRM_PROFILE_SCOPE("Scene::update");
   onUpdate(dt);
 
   auto viewParticles = m_Registry.view<ParticleSystemComponent>();
@@ -54,31 +49,36 @@ void Scene::update(const DeltaTime& dt)
   auto viewScripts = m_Registry.view<ScriptHandler>();
   for (auto entity : viewScripts)
   {
-    auto &scriptHandler = viewScripts.get<ScriptHandler>(entity);
+    auto& scriptHandler = viewScripts.get<ScriptHandler>(entity);
     scriptHandler.getScript().onUpdate(dt);
   }
 }
 
 void Scene::render()
 {
+  VRM_PROFILE_SCOPE("Scene::render");
   _updateGlobalTransforms();
 
-  Renderer &renderer = *m_renderer;
+  Renderer& renderer = *m_renderer;
   renderer.beginScene(&m_renderLayout);
 
-  auto viewDirLights = m_Registry.view<DirectionalLightComponent, TransformComponent>();
+  auto viewDirLights =
+    m_Registry.view<DirectionalLightComponent, TransformComponent>();
   for (auto&& [e, dl, t] : viewDirLights.each())
   {
-    const glm::quat& rot = t.getGlobalRotationQuat();
-    glm::vec4 forward = { 1.f, 0.f, 0.f, 0.f };
+    const glm::quat& rot     = t.getGlobalRotationQuat();
+    glm::vec4        forward = { 1.f, 0.f, 0.f, 0.f };
 
-    renderer.submitDirectionalLight(static_cast<entt::id_type>(e), dl, glm::vec3(rot * forward));
+    renderer.submitDirectionalLight(static_cast<entt::id_type>(e), dl,
+                                    glm::vec3(rot * forward));
   }
 
-  auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent>();
+  auto viewPointLights =
+    m_Registry.view<PointLightComponent, TransformComponent>();
   for (auto&& [e, pl, t] : viewPointLights.each())
   {
-    renderer.submitPointLight(static_cast<entt::id_type>(e), pl, t.getGlobalPosition());
+    renderer.submitPointLight(static_cast<entt::id_type>(e), pl,
+                              t.getGlobalPosition());
   }
 
   auto viewMeshes = m_Registry.view<MeshComponent, TransformComponent>();
@@ -93,10 +93,12 @@ void Scene::render()
     renderer.submitSkybox(skybox);
   }
 
-  auto viewParticles = m_Registry.view<ParticleSystemComponent, TransformComponent>();
+  auto viewParticles =
+    m_Registry.view<ParticleSystemComponent, TransformComponent>();
   for (auto&& [e, particleSystem, t] : viewParticles.each())
   {
-    renderer.submitParticleSystem(static_cast<uint32_t>(e), particleSystem, &t.getGlobalTransform());
+    renderer.submitParticleSystem(static_cast<uint32_t>(e), particleSystem,
+                                  &t.getGlobalTransform());
   }
 
   onRender();
@@ -120,13 +122,15 @@ void Scene::onWindowResized(const glm::uvec2& size)
 void Scene::setResizesWithWindow(bool resizesWithWindow)
 {
   m_windowResizeBinder = Application::Get().getGameLayer().getCustomEvent(
-      "VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE");
+    "VRM_RESERVED_CUSTOM_EVENT_WINDOW_RESIZE");
 
   if (resizesWithWindow)
   {
-    m_windowResizeBinder.bindCallback([this](const Event &e) {
-      onWindowResized( { e.newWidth, e.newHeight });
-    });
+    m_windowResizeBinder.bindCallback(
+      [this](const Event& e)
+      {
+        onWindowResized({ e.newWidth, e.newHeight });
+      });
   }
 }
 
@@ -150,7 +154,8 @@ void Scene::spawn()
 
 void Scene::setSplitScreenGridSize(size_t rows, size_t columns)
 {
-  VRM_ASSERT_MSG(rows > 0 && columns > 0, "At least 1 row and 1 column are needed");
+  VRM_ASSERT_MSG(rows > 0 && columns > 0,
+                 "At least 1 row and 1 column are needed");
   RenderLayout newLayout(rows, columns);
 
   size_t keptRows = std::min(rows, m_renderLayout.getRows());
@@ -175,8 +180,12 @@ void Scene::setCamera(CameraBasic* camera)
 
 void Scene::setCamera(CameraBasic* camera, size_t row, size_t col)
 {
-  VRM_ASSERT_MSG(row < m_renderLayout.getRows(), "Row {} is out of bounds. Row count is {}", row, m_renderLayout.getRows());
-  VRM_ASSERT_MSG(col < m_renderLayout.getCols(), "Column {} is out of bounds. Column count is {}", col, m_renderLayout.getCols());
+  VRM_ASSERT_MSG(row < m_renderLayout.getRows(),
+                 "Row {} is out of bounds. Row count is {}", row,
+                 m_renderLayout.getRows());
+  VRM_ASSERT_MSG(col < m_renderLayout.getCols(),
+                 "Column {} is out of bounds. Column count is {}", col,
+                 m_renderLayout.getCols());
 
   render::NormalizedView view(camera);
   m_renderLayout.setView(row, col, view);
@@ -187,12 +196,13 @@ CameraBasic* Scene::getCamera() const
   return m_renderLayout.getView(0, 0).getCamera();
 }
 
-Entity Scene::createEntity(const std::string &nameTag)
+Entity Scene::createEntity(const std::string& nameTag)
 {
-  auto e = createRawEntity(nameTag);
-  auto &hierarchy = e.getComponentInternal<HierarchyComponent>();
+  auto  e          = createRawEntity(nameTag);
+  auto& hierarchy  = e.getComponentInternal<HierarchyComponent>();
   hierarchy.parent = m_Root;
-  getRoot().getComponentInternal<HierarchyComponent>().children.emplace_back(e.clone());
+  getRoot().getComponentInternal<HierarchyComponent>().children.emplace_back(
+    e.clone());
 
   return e;
 }
@@ -209,24 +219,25 @@ void Scene::renameEntity(Entity& e, const std::string& name)
 {
   VRM_ASSERT_MSG(e != m_Root, "You cannot rename root entity.");
   VRM_ASSERT_MSG(!name.empty(), "You cannot use an empty name.");
-  VRM_ASSERT_MSG(!m_EntitiesByName.contains(name), "Another entity is already named \"{}\". Consider using entityExists(const std::string& name) before renaming an entity.", name);
+  VRM_ASSERT_MSG(
+    !m_EntitiesByName.contains(name),
+    "Another entity is already named \"{}\". Consider using entityExists(const "
+    "std::string& name) before renaming an entity.",
+    name);
   VRM_ASSERT_MSG(e.isValid(), "Entity is not valid.");
   m_EntitiesByName.erase(e.getName());
-  m_EntitiesByName[name] = e.clone();
+  m_EntitiesByName[name]                       = e.clone();
   e.getComponentInternal<NameComponent>().name = name;
 
   // @todo Keep entities sorted by name in HierarchyComponent
 }
 
-bool Scene::entityExists(const std::string &name) const
+bool Scene::entityExists(const std::string& name) const
 {
   return m_EntitiesByName.contains(name);
 }
 
-bool Scene::entityExists(entt::entity e) const
-{
-  return m_Registry.valid(e);
-}
+bool Scene::entityExists(entt::entity e) const { return m_Registry.valid(e); }
 
 Entity Scene::getEntity(entt::entity handle)
 {
@@ -235,14 +246,16 @@ Entity Scene::getEntity(entt::entity handle)
   return Entity(handle, &m_Registry, this);
 }
 
-Entity Scene::getEntity(const std::string &name)
+Entity Scene::getEntity(const std::string& name)
 {
-  VRM_ASSERT_MSG(entityExists(name), "Entity with name " + name + " does not exist.");
+  VRM_ASSERT_MSG(entityExists(name),
+                 "Entity with name " + name + " does not exist.");
 
   return m_EntitiesByName.at(name);
 }
 
-bool Scene::checkEntitiesRelation(const Entity& parent, const Entity& child) const
+bool Scene::checkEntitiesRelation(const Entity& parent,
+                                  const Entity& child) const
 {
   VRM_ASSERT_MSG(m_Registry.valid(parent), "Unknown parent entity");
   VRM_ASSERT_MSG(m_Registry.valid(child), "Unknown child entity");
@@ -250,13 +263,12 @@ bool Scene::checkEntitiesRelation(const Entity& parent, const Entity& child) con
   return child.getComponent<HierarchyComponent>().parent == parent;
 }
 
-bool Scene::checkEntityAncestor(const Entity& ancestor, const Entity& child) const
+bool Scene::checkEntityAncestor(const Entity& ancestor,
+                                const Entity& child) const
 {
-  if (child.getParent() == ancestor)
-    return true;
-  if (child.isRoot())
-    return false;
-    
+  if (child.getParent() == ancestor) return true;
+  if (child.isRoot()) return false;
+
   return checkEntityAncestor(ancestor, child.getParent());
 }
 
@@ -267,12 +279,11 @@ void Scene::setEntitiesRelation(const Entity& parent, const Entity& child)
 
   VRM_ASSERT_MSG(child != m_Root, "You cannot set Root node's parent");
 
-  if (checkEntitiesRelation(parent, child))
-    return;
+  if (checkEntitiesRelation(parent, child)) return;
 
-  auto &hParent = parent.getComponentInternal<HierarchyComponent>();
-  auto &hChild = child.getComponentInternal<HierarchyComponent>();
-  auto &hExParent = hChild.parent.getComponentInternal<HierarchyComponent>();
+  auto& hParent   = parent.getComponentInternal<HierarchyComponent>();
+  auto& hChild    = child.getComponentInternal<HierarchyComponent>();
+  auto& hExParent = hChild.parent.getComponentInternal<HierarchyComponent>();
 
   hExParent.children.remove(child);
   hChild.parent = parent;
@@ -288,7 +299,8 @@ void Scene::destroyEntity(const Entity& entity)
   VRM_ASSERT_MSG(entity != m_Root, "You cannot delete root entity!");
 
   auto parent = entity.getComponentInternal<HierarchyComponent>().parent;
-  VRM_ASSERT_MSG(m_Registry.valid(parent.getHandle()), "The parent of the entity you want to destroy is not valid");
+  VRM_ASSERT_MSG(m_Registry.valid(parent.getHandle()),
+                 "The parent of the entity you want to destroy is not valid");
 
   destroyEntityRecursive(entity);
 
@@ -298,18 +310,12 @@ void Scene::destroyEntity(const Entity& entity)
 
 void Scene::destroyEntityRecursive(Entity entity)
 {
-  auto &h = entity.getComponentInternal<HierarchyComponent>();
-  auto children = std::move(h.children);
+  auto& h        = entity.getComponentInternal<HierarchyComponent>();
+  auto  children = std::move(h.children);
 
-  for (auto child : children)
-  {
-    destroyEntityRecursive(child);
-  }
+  for (auto child : children) { destroyEntityRecursive(child); }
 
-  if (entity.hasScriptComponent())
-  {
-    entity.getScriptComponent().onDestroy();
-  }
+  if (entity.hasScriptComponent()) { entity.getScriptComponent().onDestroy(); }
 
   m_EntitiesByName.erase(entity.getName());
   m_Registry.destroy(entity);
@@ -322,13 +328,14 @@ void Scene::destroyAllEntities()
   m_Root = createRoot();
 }
 
-Entity Scene::createRawEntity(const std::string &nameTag)
+Entity Scene::createRawEntity(const std::string& nameTag)
 {
-  VRM_ASSERT_MSG(!entityExists(nameTag), "Entity with name " + nameTag + " already exists.");
+  VRM_ASSERT_MSG(!entityExists(nameTag),
+                 "Entity with name " + nameTag + " already exists.");
   auto e = getEntity(m_Registry.create());
   e.addComponent<NameComponent>(nameTag);
   e.addComponent<TransformComponent>();
-  auto &hierarchy = e.addComponent<HierarchyComponent>();
+  auto& hierarchy           = e.addComponent<HierarchyComponent>();
   m_EntitiesByName[nameTag] = e;
 
   return e;
@@ -336,7 +343,7 @@ Entity Scene::createRawEntity(const std::string &nameTag)
 
 Entity Scene::createRoot()
 {
-  auto e = createRawEntity("Root");
+  auto e                                              = createRawEntity("Root");
   e.getComponentInternal<HierarchyComponent>().parent = Entity();
 
   return e;
@@ -345,7 +352,7 @@ Entity Scene::createRoot()
 void Scene::renameRoot(const std::string& rootName)
 {
   m_EntitiesByName.erase(m_Root.getName());
-  m_EntitiesByName[rootName] = m_Root.clone();
+  m_EntitiesByName[rootName]                        = m_Root.clone();
   m_Root.getComponentInternal<NameComponent>().name = rootName;
 }
 
@@ -356,9 +363,7 @@ void Scene::_updateGlobalTransforms()
     auto& currentTC = current.getComponentInternal<vrm::TransformComponent>();
 
     TransformComponent::SceneAttorney::computeGlobals(
-      currentTC,
-      parent.getComponentInternal<vrm::TransformComponent>()
-    );
+      currentTC, parent.getComponentInternal<vrm::TransformComponent>());
 
     TransformComponent::SceneAttorney::setFrameDirty(currentTC, false);
 

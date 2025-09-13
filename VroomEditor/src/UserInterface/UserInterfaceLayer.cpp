@@ -26,6 +26,7 @@
 #include "VroomEditor/UserInterface/SceneGraph.h"
 #include "VroomEditor/UserInterface/Viewport.h"
 
+#include "Vroom/Core/Profiling.h"
 #include "implot.h"
 
 using namespace vrm;
@@ -140,6 +141,7 @@ void UserInterfaceLayer::onUpdate(const DeltaTime& dt)
 
 void UserInterfaceLayer::onRender()
 {
+  VRM_PROFILE_SCOPE("UserInterfaceLayer::onRender");
   for (auto& element : m_elements)
   {
     if (element) element->render();
@@ -156,6 +158,7 @@ void UserInterfaceLayer::onEvent(vrm::Event& e)
 
 void UserInterfaceLayer::renderImgui()
 {
+  VRM_PROFILE_SCOPE("UserInterfaceLayer::renderImgui");
   auto& editorLayer = EditorLayer::Get();
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
