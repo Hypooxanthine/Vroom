@@ -30,10 +30,14 @@ void ProfilingPanel::onImgui()
 
 void ProfilingPanel::_showRecorderTree(const PerfRecorder& recorder)
 {
-  if (_buildProfileEntriesCheck(recorder) == false) return;
+  if (_buildProfileEntriesCheck(recorder) == false || m_entries.empty()) return;
 
-  if (ImPlot::BeginPlot("Profiler Timeline", ImVec2(-1, 300)))
+  static constexpr ImPlotFlags plotFlags = ImPlotFlags_NoMouseText;
+
+  if (ImPlot::BeginPlot("Profiler Timeline", ImVec2(-1, 300), plotFlags))
   {
+    const ProfileEntry& firstEntry = m_entries.front();
+
     ImPlot::SetupAxis(ImAxis_X1, "Time (s)",
                       ImPlotAxisFlags_AuxDefault | ImPlotAxisFlags_LockMin);
     ImPlot::SetupAxis(ImAxis_Y1, "Depth",
@@ -41,7 +45,8 @@ void ProfilingPanel::_showRecorderTree(const PerfRecorder& recorder)
                         | ImPlotAxisFlags_NoGridLines);
     ImPlot::SetupAxisLimits(ImAxis_Y1, 0.0, (double)m_maxDepth + 1.0,
                             ImPlotCond_Always);
-    ImPlot::SetupAxisLimits(ImAxis_X1, 0.0, 0.01, ImPlotCond_Once);
+    ImPlot::SetupAxisLimits(ImAxis_X1, 0.0, firstEntry.endSec,
+                            ImPlotCond_Always);
 
     auto drawList = ImPlot::GetPlotDrawList();
 
@@ -77,8 +82,8 @@ void ProfilingPanel::_showRecorderTree(const PerfRecorder& recorder)
         ImGui::BeginTooltip();
         ImGui::Text("Scope: %s", e.name);
         ImGui::Separator();
-        ImGui::Text("Start: %.6f s", e.startSec);
-        ImGui::Text("End:   %.6f s", e.endSec);
+        ImGui::Text("Start:    %.6f s", e.startSec);
+        ImGui::Text("End:      %.6f s", e.endSec);
         ImGui::Text("Duration: %.6f s", e.endSec - e.startSec);
         ImGui::EndTooltip();
       }

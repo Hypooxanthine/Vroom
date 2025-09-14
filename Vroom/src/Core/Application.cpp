@@ -131,8 +131,6 @@ void Application::draw()
   VRM_PROFILE_SCOPE("Application::draw");
 
   for (Layer& layer : m_LayerStack) layer.render();
-
-  m_Window->swapBuffers();
 }
 
 void Application::endFrame()
@@ -142,6 +140,8 @@ void Application::endFrame()
   // Notifying last frame to all layers
   for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
     it->endFrame();
+
+  m_Window->swapBuffers();
 }
 
 void Application::setFrameRateLimit(uint16_t framerate)
