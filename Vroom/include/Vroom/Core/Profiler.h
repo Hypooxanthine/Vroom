@@ -1,11 +1,11 @@
 #pragma once
 
 #include <memory>
-#include <span>
 #include <stack>
 #include <vector>
 
 #include "Vroom/Api.h"
+#include "Vroom/Core/PerfRecorder.h"
 
 namespace vrm
 {
@@ -28,28 +28,27 @@ public:
   static void      Shutdown();
   static Profiler& Get();
 
-  void notifyRecorderCreation(PerfRecorder* newRecorder);
+  void newFrame();
 
-  void pushRecorder(PerfRecorder* recorder);
+  void pushRecorder(const std::string& name);
   void popRecorder();
 
-  PerfRecorder* getCurrentRecorder() const
-  {
-    return m_stack.empty() ? nullptr : m_stack.top();
-  }
-
-  inline std::span<PerfRecorder* const> getRoots() const { return m_roots; }
+  const PerfRecorder*              getLastFrameRecorder(size_t id) const;
+  std::vector<const PerfRecorder*> getLastFrameRoots() const;
 
 private:
 
   Profiler();
 
+  inline PerfRecorder& _getRecorder(size_t id) { return m_recorders.at(id); }
+
 private:
 
   static std::unique_ptr<Profiler> s_instance;
 
-  std::vector<PerfRecorder*> m_roots;
-  std::stack<PerfRecorder*>  m_stack;
+  std::vector<PerfRecorder> m_recorders, m_lastRecorders;
+  std::vector<size_t>       m_roots, m_lastRoots;
+  std::stack<size_t>        m_stack, m_lastStack;
 };
 
 } // namespace vrm

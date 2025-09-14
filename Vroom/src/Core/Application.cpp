@@ -85,12 +85,16 @@ void Application::run()
   // Main loop
   while (!m_PendingKilled)
   {
-    VRM_PROFILE_SCOPE("Main loop");
+    {
+      VRM_PROFILE_SCOPE("Main loop");
 
-    newFrame();
-    update();
-    draw();
-    endFrame();
+      newFrame();
+      update();
+      draw();
+      endFrame();
+    }
+
+    Profiler::Get().newFrame();
   }
 }
 

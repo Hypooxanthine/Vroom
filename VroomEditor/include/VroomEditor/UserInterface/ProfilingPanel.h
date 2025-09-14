@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include "imgui.h"
@@ -33,11 +34,12 @@ private:
 
   struct ProfileEntry
   {
-    const char* name;
+    std::string name;
+    size_t      uid;
     double      startSec;
     double      endSec;
     float       parentUse;
-    int         depth; // profondeur hiérarchique
+    int         depth;
   };
 
 private:

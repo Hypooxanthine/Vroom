@@ -1,4 +1,5 @@
 #include "Vroom/Core/Profiler.h"
+#include <vector>
 
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Core/PerfRecorder.h"
@@ -23,21 +24,62 @@ Profiler& Profiler::Get()
   return *s_instance;
 }
 
-void Profiler::notifyRecorderCreation(PerfRecorder* newRecorder)
+void Profiler::newFrame()
 {
+  std::swap(m_recorders, m_lastRecorders);
+  std::swap(m_stack, m_lastStack);
+  std::swap(m_roots, m_lastRoots);
+
+  m_recorders.clear();
+  m_stack = {};
+  m_roots.clear();
+}
+
+void Profiler::pushRecorder(const std::string& name)
+{
+  size_t        id       = m_recorders.size();
+  PerfRecorder& recorder = m_recorders.emplace_back(name);
+  recorder.setId(id);
+  recorder.startRecording();
+
   if (m_stack.empty())
   {
     // No other recorder is active : new root
-    m_roots.push_back(newRecorder);
+    m_roots.push_back(id);
   }
   else
   {
     // Top of the stack has a new child
-    m_stack.top()->addChild(newRecorder);
-    newRecorder->setParent(m_stack.top());
+    size_t        parentId = m_stack.top();
+    PerfRecorder& parent   = _getRecorder(parentId);
+    parent.addChild(id);
+    recorder.setParent(parentId);
   }
+
+  m_stack.push(id);
 }
 
-void Profiler::pushRecorder(PerfRecorder* recorder) { m_stack.push(recorder); }
+void Profiler::popRecorder()
+{
+  _getRecorder(m_stack.top()).stopRecording();
+  m_stack.pop();
+}
 
-void Profiler::popRecorder() { m_stack.pop(); }
+const PerfRecorder* Profiler::getLastFrameRecorder(size_t id) const
+{
+  if (id < m_lastRecorders.size()) { return &m_lastRecorders.at(id); }
+  else return nullptr;
+}
+
+std::vector<const PerfRecorder*> Profiler::getLastFrameRoots() const
+{
+  std::vector<const PerfRecorder*> roots;
+  roots.reserve(m_lastRoots.size());
+
+  for (size_t rootId : m_lastRoots)
+  {
+    roots.emplace_back(&m_lastRecorders.at(rootId));
+  }
+
+  return roots;
+}

@@ -20,9 +20,9 @@ void ProfilingPanel::onImgui()
 {
   if (ImGui::Begin("Profiling", m_open))
   {
-    if (Profiler::Get().getRoots().size() > 0)
+    if (Profiler::Get().getLastFrameRoots().size() > 0)
     {
-      _showRecorderTree(*Profiler::Get().getRoots()[0]);
+      _showRecorderTree(*Profiler::Get().getLastFrameRoots()[0]);
     }
   }
   ImGui::End();
@@ -52,6 +52,7 @@ void ProfilingPanel::_showRecorderTree(const PerfRecorder& recorder)
 
     for (const auto& e : m_entries)
     {
+      ImGui::PushID(e.uid);
       ImVec2 p0 = ImPlot::PlotToPixels(ImPlotPoint(e.startSec, e.depth));
       ImVec2 p1 = ImPlot::PlotToPixels(ImPlotPoint(e.endSec, e.depth + 1.0));
 
@@ -71,22 +72,24 @@ void ProfilingPanel::_showRecorderTree(const PerfRecorder& recorder)
 
       drawList->AddText(
         ImVec2(p0.x + 3, (p0.y + p1.y) / 2 - ImGui::GetTextLineHeight() / 2),
-        IM_COL32_BLACK, e.name);
+        IM_COL32_BLACK, e.name.c_str());
 
       ImGui::SetCursorScreenPos(p0);
       ImGui::InvisibleButton(
-        e.name, ImVec2(std::max(p1.x - p0.x, 0.0001f), p1.y - p0.y));
+        e.name.c_str(), ImVec2(std::max(p1.x - p0.x, 0.0001f), p1.y - p0.y));
 
       if (ImGui::IsItemHovered())
       {
         ImGui::BeginTooltip();
-        ImGui::Text("Scope: %s", e.name);
+        ImGui::Text("Scope: %s", e.name.c_str());
         ImGui::Separator();
         ImGui::Text("Start:    %.6f s", e.startSec);
         ImGui::Text("End:      %.6f s", e.endSec);
         ImGui::Text("Duration: %.6f s", e.endSec - e.startSec);
         ImGui::EndTooltip();
       }
+
+      ImGui::PopID();
     }
 
     ImPlot::EndPlot();
@@ -101,8 +104,8 @@ bool ProfilingPanel::_buildProfileEntriesCheck(const PerfRecorder& recorder)
 
   m_timer.restart();
 
-  double meanTimeSeconds = recorder.getMeanTimeSeconds();
-  if (meanTimeSeconds == 0.f) { return false; }
+  double timeSeconds = recorder.getTimeSeconds();
+  if (timeSeconds == 0.f) { return false; }
 
   // Most likely the same amount of entries
   size_t size = m_entries.size();
@@ -121,20 +124,21 @@ void ProfilingPanel::_buildProfileEntriesRecursive(const PerfRecorder& recorder,
 {
   ProfileEntry& entry = m_entries.emplace_back();
 
-  entry.name = recorder.getName().c_str();
+  entry.name = recorder.getName();
+  entry.uid  = recorder.getId();
   entry.startSec =
     static_cast<double>(recorder.getStartTimeNanosecs() - startNanosecs)
     / DURATION_DIV_SECONDS;
   entry.endSec =
     static_cast<double>(recorder.getStartTimeNanosecs() - startNanosecs)
       / DURATION_DIV_SECONDS
-    + recorder.getMeanTimeSeconds();
+    + recorder.getTimeSeconds();
   entry.depth = depth;
 
   if (recorder.getParent())
   {
-    entry.parentUse = recorder.getMeanTimeSeconds()
-                    / recorder.getParent()->getMeanTimeSeconds();
+    entry.parentUse =
+      recorder.getTimeSeconds() / recorder.getParent()->getTimeSeconds();
   }
 
   m_maxDepth = std::max(m_maxDepth, depth);

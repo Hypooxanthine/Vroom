@@ -1,11 +1,9 @@
 #pragma once
 
-#include "Vroom/Core/PerfRecorder.h"
 #include "Vroom/Core/Profiler.h"
 
-#define VRM_PROFILE_SCOPE(name)                                    \
-  static PerfRecorder s_vrmPerfRecorder    = { name };             \
-  ScopePerfRecorder   vrmScopePerfRecorder = { s_vrmPerfRecorder }
+#define VRM_PROFILE_SCOPE(name)                     \
+  ScopePerfRecorder vrmScopePerfRecorder = { name }
 
 namespace vrm
 {
@@ -14,17 +12,12 @@ class VRM_API ScopePerfRecorder
 {
 public:
 
-  inline ScopePerfRecorder(PerfRecorder& recorder) : m_recorder(recorder)
+  inline ScopePerfRecorder(const std::string& name)
   {
-    m_recorder.startRecording();
-    Profiler::Get().pushRecorder(&recorder);
+    Profiler::Get().pushRecorder(name);
   }
 
-  inline ~ScopePerfRecorder()
-  {
-    m_recorder.stopRecording();
-    Profiler::Get().popRecorder();
-  }
+  inline ~ScopePerfRecorder() { Profiler::Get().popRecorder(); }
 
   ScopePerfRecorder() = delete;
 
@@ -33,10 +26,6 @@ public:
 
   ScopePerfRecorder& operator=(ScopePerfRecorder&& other) = delete;
   ScopePerfRecorder(ScopePerfRecorder&& other)            = delete;
-
-private:
-
-  PerfRecorder& m_recorder;
 };
 
 } // namespace vrm

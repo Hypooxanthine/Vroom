@@ -19,8 +19,8 @@ public:
   Timer& operator=(const Timer& other) = delete;
   Timer(const Timer& other)            = delete;
 
-  Timer& operator=(Timer&& other) = delete;
-  Timer(Timer&& other)            = delete;
+  Timer& operator=(Timer&& other) = default;
+  Timer(Timer&& other)            = default;
 
   inline void start();
   inline void stop();

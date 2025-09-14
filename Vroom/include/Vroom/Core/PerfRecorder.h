@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -18,42 +21,34 @@ public:
   PerfRecorder& operator=(const PerfRecorder& other) = delete;
   PerfRecorder(const PerfRecorder& other)            = delete;
 
-  PerfRecorder& operator=(PerfRecorder&& other) = delete;
-  PerfRecorder(PerfRecorder&& other)            = delete;
+  PerfRecorder& operator=(PerfRecorder&& other) = default;
+  PerfRecorder(PerfRecorder&& other)            = default;
 
   inline const std::string& getName() const { return m_name; }
-
-  void setHistorySize(size_t size);
 
   void startRecording();
   void stopRecording();
 
-  double   getMeanTimeSeconds() const;
   uint64_t getStartTimeNanosecs() const;
+  uint64_t getEndTimeNanosecs() const;
+  double   getTimeSeconds() const;
 
-  inline std::span<PerfRecorder* const> getChildren() const
-  {
-    return m_children;
-  }
+  inline size_t                    getId() const { return m_id; }
+  std::vector<const PerfRecorder*> getChildren() const;
+  const PerfRecorder*              getParent() const;
 
-  inline PerfRecorder* getParent() const { return m_parent; }
-
-  inline void addChild(PerfRecorder* child) { m_children.push_back(child); }
-  inline void setParent(PerfRecorder* parent) { m_parent = parent; }
+  inline void setId(size_t id) { m_id = id; }
+  inline void addChild(size_t child) { m_children.push_back(child); }
+  inline void setParent(size_t parent) { m_parent = parent; }
 
 private:
 
-  std::string          m_name;
-  Timer                m_timer;
-  Timer::TimeStampType m_previousStart, m_previousEnd;
+  std::string m_name;
+  Timer       m_timer;
 
-  std::vector<uint64_t> m_history;
-  size_t                m_historyCursor = 0;
-  uint64_t              m_timeSum       = 0;
-  size_t                m_sampleCount   = 0;
-
-  std::vector<PerfRecorder*> m_children;
-  PerfRecorder*              m_parent = nullptr;
+  size_t              m_id = std::numeric_limits<size_t>::max();
+  std::vector<size_t> m_children;
+  size_t              m_parent = std::numeric_limits<size_t>::max();
 };
 
 } // namespace vrm
