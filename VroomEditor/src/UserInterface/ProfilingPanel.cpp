@@ -70,9 +70,11 @@ void ProfilingPanel::_showRecorderTree(const PerfRecorder& recorder)
       drawList->AddRectFilled(p0, p1, color);
       drawList->AddRect(p0, p1, IM_COL32_BLACK);
 
+      ImGui::PushClipRect(p0, p1, true);
       drawList->AddText(
         ImVec2(p0.x + 3, (p0.y + p1.y) / 2 - ImGui::GetTextLineHeight() / 2),
         IM_COL32_BLACK, e.name.c_str());
+      ImGui::PopClipRect();
 
       ImGui::SetCursorScreenPos(p0);
       ImGui::InvisibleButton(
