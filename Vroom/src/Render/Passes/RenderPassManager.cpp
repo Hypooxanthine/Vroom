@@ -1,16 +1,12 @@
 #include "Vroom/Render/Passes/RenderPassManager.h"
 
+#include "Vroom/Core/Profiling.h"
+
 using namespace vrm;
 
-RenderPassManager::RenderPassManager()
-{
+RenderPassManager::RenderPassManager() {}
 
-}
-
-RenderPassManager::~RenderPassManager()
-{
-
-}
+RenderPassManager::~RenderPassManager() {}
 
 void RenderPassManager::reset()
 {
@@ -21,36 +17,31 @@ void RenderPassManager::reset()
 
 void RenderPassManager::init()
 {
-  VRM_ASSERT_MSG(m_initialized == false, "RenderPassManager has already been initialized");
+  VRM_ASSERT_MSG(m_initialized == false,
+                 "RenderPassManager has already been initialized");
 
-  for (auto& pass : m_passes)
-  {
-    pass->init();
-  }
+  for (auto& pass : m_passes) { pass->init(); }
 
   m_initialized = true;
 }
 
 void RenderPassManager::setup(const RenderPassContext& ctx)
 {
-  for (auto& pass : m_passes)
-  {
-    pass->setup(ctx);
-  }
+  VRM_PROFILE_SCOPE("RenderPassManager::setup");
+
+  for (auto& pass : m_passes) { pass->setup(ctx); }
 }
 
 void RenderPassManager::render(const RenderPassContext& ctx) const
 {
-  for (auto& pass : m_passes)
-    {
-      pass->render(ctx);
-    }
+  VRM_PROFILE_SCOPE("RenderPassManager::render");
+
+  for (auto& pass : m_passes) { pass->render(ctx); }
 }
 
 void RenderPassManager::cleanup(const RenderPassContext& ctx)
 {
-  for (auto& pass : m_passes)
-  {
-    pass->cleanup(ctx);
-  }
+  VRM_PROFILE_SCOPE("RenderPassManager::cleanup");
+
+  for (auto& pass : m_passes) { pass->cleanup(ctx); }
 }

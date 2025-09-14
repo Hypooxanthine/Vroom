@@ -1,6 +1,7 @@
 #include "Vroom/Render/Passes/GaussianBlurPass.h"
 
 #include "Vroom/Asset/AssetManager.h"
+#include "Vroom/Core/Profiling.h"
 #include "Vroom/Render/Abstraction/Buffer.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
 
@@ -13,21 +14,21 @@ void GaussianBlurPass::onInit()
   VRM_ASSERT_MSG(texture != nullptr, "Invalid texture");
   VRM_ASSERT_MSG(intermediateTexture != nullptr, "Invalid intermediateTexture");
 
-  m_matAsset = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/GaussianBlurPostProcessMaterial.json");
+  m_matAsset = AssetManager::Get().getAsset<MaterialAsset>(
+    "Resources/Engine/Material/GaussianBlurPostProcessMaterial.json");
   m_material = &getPassMaterial(m_matAsset);
 
   m_dummyVao.create();
 }
 
-void GaussianBlurPass::onSetup(const RenderPassContext& ctx)
-{
-
-}
+void GaussianBlurPass::onSetup(const RenderPassContext& ctx) {}
 
 void GaussianBlurPass::onRender(const RenderPassContext& ctx) const
 {
-  const gl::FrameBuffer* fb[] = { framebufferA, framebufferB };
-  const gl::Texture* input[] = { texture, intermediateTexture };
+  VRM_PROFILE_SCOPE("GaussianBlurPass::onRender");
+
+  const gl::FrameBuffer*  fb[]          = { framebufferA, framebufferB };
+  const gl::Texture*      input[]       = { texture, intermediateTexture };
   static constexpr GLuint verticalVal[] = { 0, 1 };
 
   auto& shader = m_material->getShader();
@@ -40,7 +41,8 @@ void GaussianBlurPass::onRender(const RenderPassContext& ctx) const
   gl::Buffer::Unbind(GL_ARRAY_BUFFER);
   gl::Buffer::Unbind(GL_ELEMENT_ARRAY_BUFFER);
 
-  for (uint16_t i = 0; i < uint16_t(ctx.dynamicSettings->bloom.blurPasses) * 2; ++i)
+  for (uint16_t i = 0; i < uint16_t(ctx.dynamicSettings->bloom.blurPasses) * 2;
+       ++i)
   {
     uint16_t index = i % 2;
 
