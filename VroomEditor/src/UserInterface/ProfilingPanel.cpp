@@ -1,4 +1,5 @@
 #include "VroomEditor/UserInterface/ProfilingPanel.h"
+#include <algorithm>
 #include <vector>
 
 #include "imgui.h"
