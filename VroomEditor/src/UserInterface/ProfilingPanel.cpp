@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "imgui.h"
+#include "imgui_internal.h"
 
 #include "Vroom/Core/Duration.h"
 #include "Vroom/Core/PerfRecorder.h"
@@ -70,11 +71,16 @@ void ProfilingPanel::_showRecorderTree(const PerfRecorder& recorder)
       drawList->AddRectFilled(p0, p1, color);
       drawList->AddRect(p0, p1, IM_COL32_BLACK);
 
-      ImGui::PushClipRect(p0, p1, true);
-      drawList->AddText(
-        ImVec2(p0.x + 3, (p0.y + p1.y) / 2 - ImGui::GetTextLineHeight() / 2),
-        IM_COL32_BLACK, e.name.c_str());
-      ImGui::PopClipRect();
+      ImVec2 textPosStart =
+        ImVec2(p0.x + 3, (p0.y + p1.y) / 2 - ImGui::GetTextLineHeight() / 2);
+      ImVec2 textPosEnd = p1 - (textPosStart - p0);
+
+      ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
+      ImGui::RenderTextEllipsis(drawList, textPosStart, textPosEnd,
+                                textPosEnd.x - textPosStart.x, e.name.c_str(),
+                                nullptr, nullptr);
+
+      ImGui::PopStyleColor();
 
       ImGui::SetCursorScreenPos(p0);
       ImGui::InvisibleButton(
