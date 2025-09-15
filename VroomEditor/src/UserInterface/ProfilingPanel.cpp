@@ -43,7 +43,8 @@ void ProfilingPanel::_showRecorderTree(const PerfRecorder& recorder)
                       ImPlotAxisFlags_AuxDefault | ImPlotAxisFlags_LockMin);
     ImPlot::SetupAxis(ImAxis_Y1, "Depth",
                       ImPlotAxisFlags_Lock | ImPlotAxisFlags_Invert
-                        | ImPlotAxisFlags_NoGridLines);
+                        | ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoLabel
+                        | ImPlotAxisFlags_NoTickLabels);
     ImPlot::SetupAxisLimits(ImAxis_Y1, 0.0, (double)m_maxDepth + 1.0,
                             ImPlotCond_Always);
     ImPlot::SetupAxisLimits(ImAxis_X1, 0.0, firstEntry.endSec,
