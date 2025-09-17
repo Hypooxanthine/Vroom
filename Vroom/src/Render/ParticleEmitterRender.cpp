@@ -14,6 +14,7 @@
 #include "Vroom/Render/ParticleEmitterField.h"
 #include "Vroom/Render/PassMaterials.h"
 #include "Vroom/Render/Passes/RenderPass.h"
+#include "Vroom/Render/RawParticleEmitterSpecs.h"
 #include "Vroom/Render/RenderView.h"
 #include "glm/glm.hpp"
 
@@ -52,7 +53,7 @@ struct RawEmitterSpawnData
 
 ParticleEmitterRender::ParticleEmitterRender()
 {
-  m_emitterDataBuffer.ensureCapacity(sizeof(RawParticleEmitterSpecs));
+  m_emitterDataBuffer.ensureCapacity(sizeof(RawParticleEmitterSpecsFixed));
   m_spawnDataBuffer.ensureCapacity(sizeof(RawEmitterSpawnData));
   m_indirectCommandsBuffer.ensureCapacity(
     sizeof(RawDrawElementsIndirectCommand));
@@ -94,36 +95,52 @@ overloads(Ts...) -> overloads<Ts...>;
 
 void ParticleEmitterRender::rebuildMaterials(const ParticleEmitter& emitter)
 {
-  ::RawParticleEmitterSpecs::Layout layout;
-  // std::vector<std::string>        defines;
-  // std::string                     currentDefine;
+  RawParticleEmitterSpecs::Layout layout;
+  std::vector<std::string>        defines;
+  std::string                     currentDefine;
+  size_t                          currentFieldCount;
 
-  // const auto visitor = overloads{
-  //   [&](const ConstParticleEmitterField& field)
-  //   {
-  //     defines.emplace_back(currentDefine + "_CONST_FIELD");
-  //   },
-  //   [&](const RandomRangeEmitterField& field)
-  //   {
-  //     defines.emplace_back(currentDefine + "_RANDOM_RANGE_FIELD");
-  //   },
-  // };
+  const auto visitor = overloads{
+    [&](const ConstParticleEmitterField& field)
+    {
+      // const : only 1 vector
+      currentFieldCount += 1;
+      defines.emplace_back(currentDefine + "_CONST_FIELD");
+    },
+    [&](const RandomRangeEmitterField& field)
+    {
+      // random range : 1 vector for min + 1 for max
+      currentFieldCount += 2;
+      defines.emplace_back(currentDefine + "_RANDOM_RANGE_FIELD");
+    },
+  };
 
-  // ParticleEmitterAttribute attribute = emitter.getSpecs().position;
+  const auto setupAttribute =
+    [&](const ParticleEmitterAttribute&                attribute,
+        const RawParticleEmitterSpecs::EAttributeName& attribName)
+  {
+    const std::string definePrefix =
+      "VRM_PARTICLE_" + attribute.getShaderDefineName();
 
-  // const std::string attributeDefine =
-  //   "VRM_PARTICLE_" + attribute.getShaderDefineName();
+    currentFieldCount = 0;
 
-  // currentDefine = attributeDefine + "_SPAWN";
-  // std::visit(visitor, attribute.spawnValue);
+    currentDefine = definePrefix + "_SPAWN";
+    std::visit(visitor, attribute.spawnValue);
 
-  // currentDefine = attributeDefine + "_DEATH";
-  // std::visit(visitor, attribute.deathValue);
+    currentDefine = definePrefix + "_DEATH";
+    std::visit(visitor, attribute.deathValue);
 
-  // layout.addAttribute(::RawParticleEmitterSpecs::EAttributeName::ePosition,
-  // 2); layout.addAttribute(::RawParticleEmitterSpecs::EAttributeName::eColor,
-  // 2); layout.addAttribute(::RawParticleEmitterSpecs::EAttributeName::eScale,
-  // 2);
+    layout.addAttribute(attribName, currentFieldCount);
+  };
+
+  setupAttribute(emitter.getSpecs().position,
+                 RawParticleEmitterSpecs::EAttributeName::ePosition);
+
+  setupAttribute(emitter.getSpecs().color,
+                 RawParticleEmitterSpecs::EAttributeName::eColor);
+
+  setupAttribute(emitter.getSpecs().scale,
+                 RawParticleEmitterSpecs::EAttributeName::eScale);
 
   _setupUpdaterMaterial(layout);
 }
@@ -235,11 +252,11 @@ static void SetRawSpecField(glm::vec<Dim, float>&           dst,
 
 void ParticleEmitterRender::_updateEmitterData(const ParticleEmitter& emitter)
 {
-  std::span<RawParticleEmitterSpecs> mapped =
-    m_emitterDataBuffer.mapWriteOnly<RawParticleEmitterSpecs>(
-      0, sizeof(RawParticleEmitterSpecs), true);
+  std::span<RawParticleEmitterSpecsFixed> mapped =
+    m_emitterDataBuffer.mapWriteOnly<RawParticleEmitterSpecsFixed>(
+      0, sizeof(RawParticleEmitterSpecsFixed), true);
 
-  RawParticleEmitterSpecs&      rawSpecs = mapped[0];
+  RawParticleEmitterSpecsFixed& rawSpecs = mapped[0];
   const ParticleEmitter::Specs& specs    = emitter.getSpecs();
 
   rawSpecs.lifeTime = specs.lifeTime;

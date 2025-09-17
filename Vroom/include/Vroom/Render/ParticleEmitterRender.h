@@ -49,7 +49,7 @@ private:
     glm::uint baseInstance  = 0;
   };
 
-  struct RawParticleEmitterSpecs
+  struct RawParticleEmitterSpecsFixed
   {
     float lifeTime;
     float emitRate;
