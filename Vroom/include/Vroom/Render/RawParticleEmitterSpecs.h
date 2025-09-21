@@ -1,10 +1,12 @@
 #pragma once
 
+#include <cstddef>
 #include <span>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
+#include "Vroom/Tools/Maths.h"
 #include "glm/glm.hpp"
 
 namespace vrm
@@ -31,8 +33,8 @@ public:
     inline Layout& operator=(const Layout& other) = delete;
     inline Layout(const Layout& other)            = delete;
 
-    inline Layout& operator=(Layout&& other) = delete;
-    inline Layout(Layout&& other)            = delete;
+    inline Layout& operator=(Layout&& other) = default;
+    inline Layout(Layout&& other)            = default;
 
     inline void addAttribute(EAttributeName attribName, size_t fieldCount)
     {
@@ -44,6 +46,21 @@ public:
   private:
 
     std::vector<std::pair<EAttributeName, size_t>> m_attributes;
+  };
+
+  struct EmitterData
+  {
+    struct Header
+    {
+      float lifeTime;
+      float emitRate;
+    };
+
+    Header                 header;
+    std::vector<glm::vec4> attributes;
+
+    inline static constexpr size_t HeaderSize =
+      maths::NextPowerInclusive(sizeof(Header), 16);
   };
 
 public:
@@ -62,13 +79,17 @@ public:
 
   void setupLayout(const Layout& layout);
 
+  inline void setHeader(const EmitterData::Header& header)
+  {
+    m_data.header = header;
+  }
+
   void setAttributeField(EAttributeName attribName, size_t fieldIndex,
                          const glm::vec4& value);
 
-  inline std::span<glm::vec4 const> getData() const { return m_data; }
+  void copyData(std::span<std::byte> dst);
 
-  inline size_t getDataSize() const { return m_data.size(); }
-
+  size_t getDataSize() const;
   size_t getStatesRequiredSize() const;
 
 private:
@@ -81,7 +102,7 @@ private:
 
 private:
 
-  std::vector<glm::vec4>                            m_data;
+  EmitterData                                       m_data;
   std::unordered_map<EAttributeName, AttributeInfo> m_attributes;
 };
 

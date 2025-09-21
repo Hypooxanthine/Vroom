@@ -1,5 +1,6 @@
 #include "Vroom/Render/RawParticleEmitterSpecs.h"
 #include <cstddef>
+#include <cstring>
 #include <unordered_map>
 
 #include "Vroom/Core/Assert.h"
@@ -13,13 +14,13 @@ RawParticleEmitterSpecs::~RawParticleEmitterSpecs() {}
 
 void RawParticleEmitterSpecs::reset()
 {
-  m_data.clear();
+  m_data.attributes.clear();
   m_attributes.clear();
 }
 
 void RawParticleEmitterSpecs::setupLayout(const Layout& layout)
 {
-  m_data.clear();
+  m_data.attributes.clear();
 
   size_t dataSize = 0;
 
@@ -36,7 +37,7 @@ void RawParticleEmitterSpecs::setupLayout(const Layout& layout)
     dataSize += attribute.size;
   }
 
-  m_data.resize(dataSize, glm::vec4{});
+  m_data.attributes.resize(dataSize, glm::vec4{});
 }
 
 void RawParticleEmitterSpecs::setAttributeField(EAttributeName   attribName,
@@ -50,15 +51,33 @@ void RawParticleEmitterSpecs::setAttributeField(EAttributeName   attribName,
   const AttributeInfo& attribInfo = attribIt->second;
   VRM_ASSERT_MSG(attribInfo.size > fieldIndex, "Field index is out of bounds");
 
-  size_t dataIndex     = attribInfo.offset + fieldIndex;
-  m_data.at(dataIndex) = value;
+  size_t dataIndex                = attribInfo.offset + fieldIndex;
+  m_data.attributes.at(dataIndex) = value;
+}
+
+void RawParticleEmitterSpecs::copyData(std::span<std::byte> dst)
+{
+  VRM_ASSERT_MSG(dst.size_bytes() >= getDataSize(),
+                 "Destination buffer is too small. Size: {}, expected: {}",
+                 dst.size_bytes(), getDataSize());
+
+  std::memcpy(dst.data(), &m_data.header, sizeof(m_data.header));
+  std::memcpy(dst.data() + EmitterData::HeaderSize, m_data.attributes.data(),
+              m_data.attributes.size() * sizeof(glm::vec4));
+}
+
+size_t RawParticleEmitterSpecs::getDataSize() const
+{
+  return EmitterData::HeaderSize + m_data.attributes.size() * sizeof(glm::vec4);
 }
 
 size_t RawParticleEmitterSpecs::getStatesRequiredSize() const
 {
-  static const constinit size_t headerSize = sizeof(glm::uint) // Active
-                                           + sizeof(float)     // Ellapsed time
-                                           + sizeof(float);    // Max lifetime
+  static const constinit size_t headerSize =
+    maths::NextPowerInclusive(sizeof(glm::uint)  // Active
+                                + sizeof(float)  // Ellapsed time
+                                + sizeof(float), // Max lifetime
+                              16);
 
   // Each attribute has a spawn and death value
   return headerSize + m_attributes.size() * sizeof(glm::vec4) * 2;

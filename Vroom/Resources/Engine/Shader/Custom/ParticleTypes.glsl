@@ -5,15 +5,15 @@ struct ParticleEmitterSpecs
 {
   float lifeTime;
   float emitRate;
-
-  vec4 spawnColor;
-  vec4 deathColor;
   
   vec3 spawnPosition;
   vec3 deathPosition;
 
   vec3 spawnScale;
   vec3 deathScale;
+
+  vec4 spawnColor;
+  vec4 deathColor;
 };
 
 struct EmitterSpawnData
@@ -23,16 +23,16 @@ struct EmitterSpawnData
 
 struct ParticleStates
 {
+  uint alive;
+  float ellapsedLifeTime;
+  float maxLifeTime;
+
   vec3 spawnPosition;
   vec3 deathPosition;
   vec4 spawnColor;
   vec4 deathColor;
   vec3 spawnScale;
   vec3 deathScale;
-
-  uint alive;
-  float ellapsedLifeTime;
-  float maxLifeTime;
 };
 
 struct ParticleInstanceData

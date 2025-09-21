@@ -7,6 +7,7 @@
 #include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/AutoBuffer.h"
 #include "Vroom/Render/MaterialDefines.h"
+#include "Vroom/Render/ParticleEmitterAttribute.h"
 #include "Vroom/Render/PassMaterials.h"
 #include "Vroom/Render/RawParticleEmitterSpecs.h"
 
@@ -77,6 +78,13 @@ private:
 
   void _updateParticleStates(const ParticleEmitter& emitter);
   void _updateEmitterData(const ParticleEmitter& emitter);
+  void _setEmitterAttribute(RawParticleEmitterSpecs::EAttributeName attribName,
+                            const ParticleEmitterAttribute&         src);
+
+  /// @return The number of elements used by the field
+  size_t _setEmitterField(RawParticleEmitterSpecs::EAttributeName attribName,
+                          const ParticleEmitterFieldType&         field,
+                          size_t elementOffset);
 
   void _executeUpdateParticles(const ParticleEmitter& emitter);
   void _executeRenderParticles(const RenderPassContext& ctx,

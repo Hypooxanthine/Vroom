@@ -1,9 +1,11 @@
 #include "Vroom/Render/ParticleEmitterRender.h"
+#include <cstddef>
 #include <variant>
 
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Core/Application.h"
+#include "Vroom/Core/Assert.h"
 #include "Vroom/Render/Abstraction/Buffer.h"
 #include "Vroom/Render/Abstraction/GLCall.h"
 #include "Vroom/Render/Abstraction/Shader.h"
@@ -25,17 +27,17 @@ namespace
 
 struct RawParticleStates
 {
+  glm::uint alive            = 0;
+  float     ellapsedLifeTime = 0.f;
+  float     maxLifeTime      = 0.f;
+  float     _pad;
+
   glm::vec4 spawnPosition;
   glm::vec4 deathPosition;
   glm::vec4 spawnColor;
   glm::vec4 deathColor;
   glm::vec4 spawnScale;
-  glm::vec3 deathScale;
-
-  glm::uint alive            = 0;
-  float     ellapsedLifeTime = 0.f;
-  float     maxLifeTime      = 0.f;
-  float     _pad[2];
+  glm::vec4 deathScale;
 };
 
 struct RawInstanceData
@@ -53,7 +55,6 @@ struct RawEmitterSpawnData
 
 ParticleEmitterRender::ParticleEmitterRender()
 {
-  m_emitterDataBuffer.ensureCapacity(sizeof(RawParticleEmitterSpecsFixed));
   m_spawnDataBuffer.ensureCapacity(sizeof(RawEmitterSpawnData));
   m_indirectCommandsBuffer.ensureCapacity(
     sizeof(RawDrawElementsIndirectCommand));
@@ -136,11 +137,11 @@ void ParticleEmitterRender::rebuildMaterials(const ParticleEmitter& emitter)
   setupAttribute(emitter.getSpecs().position,
                  RawParticleEmitterSpecs::EAttributeName::ePosition);
 
-  setupAttribute(emitter.getSpecs().color,
-                 RawParticleEmitterSpecs::EAttributeName::eColor);
-
   setupAttribute(emitter.getSpecs().scale,
                  RawParticleEmitterSpecs::EAttributeName::eScale);
+
+  setupAttribute(emitter.getSpecs().color,
+                 RawParticleEmitterSpecs::EAttributeName::eColor);
 
   _setupUpdaterMaterial(layout, defines);
 }
@@ -171,6 +172,7 @@ void ParticleEmitterRender::_setupUpdaterMaterial(
 {
   m_rawEmitterSpecs.reset();
   m_rawEmitterSpecs.setupLayout(layout);
+  m_emitterDataBuffer.ensureCapacity(m_rawEmitterSpecs.getDataSize());
 
   MaterialAsset::Handle updaterAsset =
     AssetManager::Get().tryGetAsset<MaterialAsset>(
@@ -257,26 +259,63 @@ static void SetRawSpecField(glm::vec<Dim, float>&           dst,
 
 void ParticleEmitterRender::_updateEmitterData(const ParticleEmitter& emitter)
 {
-  std::span<RawParticleEmitterSpecsFixed> mapped =
-    m_emitterDataBuffer.mapWriteOnly<RawParticleEmitterSpecsFixed>(
-      0, sizeof(RawParticleEmitterSpecsFixed), true);
+  const ParticleEmitter::Specs& specs = emitter.getSpecs();
 
-  RawParticleEmitterSpecsFixed& rawSpecs = mapped[0];
-  const ParticleEmitter::Specs& specs    = emitter.getSpecs();
+  {
+    RawParticleEmitterSpecs::EmitterData::Header header;
+    header.lifeTime = specs.lifeTime;
+    header.emitRate = specs.emitRate;
 
-  rawSpecs.lifeTime = specs.lifeTime;
-  rawSpecs.emitRate = specs.emitRate;
+    m_rawEmitterSpecs.setHeader(header);
+  }
 
-  SetRawSpecField(rawSpecs.spawnColor, specs.color.spawnValue);
-  SetRawSpecField(rawSpecs.deathColor, specs.color.deathValue);
+  {
+    _setEmitterAttribute(RawParticleEmitterSpecs::EAttributeName::eColor,
+                         specs.color);
+    _setEmitterAttribute(RawParticleEmitterSpecs::EAttributeName::ePosition,
+                         specs.position);
+    _setEmitterAttribute(RawParticleEmitterSpecs::EAttributeName::eScale,
+                         specs.scale);
+  }
 
-  SetRawSpecField(rawSpecs.spawnPosition, specs.position.spawnValue);
-  SetRawSpecField(rawSpecs.deathPosition, specs.position.deathValue);
+  std::span<std::byte> mapped = m_emitterDataBuffer.mapWriteOnly<std::byte>(
+    0, m_rawEmitterSpecs.getDataSize(), true);
 
-  SetRawSpecField(rawSpecs.spawnScale, specs.scale.spawnValue);
-  SetRawSpecField(rawSpecs.deathScale, specs.scale.deathValue);
+  m_rawEmitterSpecs.copyData(mapped);
 
   m_emitterDataBuffer.unmap();
+}
+
+void ParticleEmitterRender::_setEmitterAttribute(
+  RawParticleEmitterSpecs::EAttributeName attribName,
+  const ParticleEmitterAttribute&         src)
+{
+  size_t offset = _setEmitterField(attribName, src.spawnValue, 0);
+  _setEmitterField(attribName, src.deathValue, offset);
+}
+
+size_t ParticleEmitterRender::_setEmitterField(
+  RawParticleEmitterSpecs::EAttributeName attribName,
+  const ParticleEmitterFieldType& field, size_t elementOffset)
+{
+  const auto updater = overloads{
+    [&](const ConstParticleEmitterField& f) -> size_t
+    {
+      m_rawEmitterSpecs.setAttributeField(attribName, elementOffset + 0,
+                                          f.value);
+      return 1;
+    },
+    [&](const RandomRangeEmitterField& f) -> size_t
+    {
+      m_rawEmitterSpecs.setAttributeField(attribName, elementOffset + 0,
+                                          f.minValue);
+      m_rawEmitterSpecs.setAttributeField(attribName, elementOffset + 1,
+                                          f.maxValue);
+      return 2;
+    },
+  };
+
+  return std::visit(updater, field);
 }
 
 void ParticleEmitterRender::_executeUpdateParticles(
