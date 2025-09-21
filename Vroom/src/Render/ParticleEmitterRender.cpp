@@ -96,7 +96,7 @@ overloads(Ts...) -> overloads<Ts...>;
 void ParticleEmitterRender::rebuildMaterials(const ParticleEmitter& emitter)
 {
   RawParticleEmitterSpecs::Layout layout;
-  std::vector<std::string>        defines;
+  MaterialDefines                 defines;
   std::string                     currentDefine;
   size_t                          currentFieldCount;
 
@@ -105,13 +105,13 @@ void ParticleEmitterRender::rebuildMaterials(const ParticleEmitter& emitter)
     {
       // const : only 1 vector
       currentFieldCount += 1;
-      defines.emplace_back(currentDefine + "_CONST_FIELD");
+      defines.add(currentDefine + "_CONST_FIELD");
     },
     [&](const RandomRangeEmitterField& field)
     {
       // random range : 1 vector for min + 1 for max
       currentFieldCount += 2;
-      defines.emplace_back(currentDefine + "_RANDOM_RANGE_FIELD");
+      defines.add(currentDefine + "_RANDOM_RANGE_FIELD");
     },
   };
 
@@ -142,7 +142,7 @@ void ParticleEmitterRender::rebuildMaterials(const ParticleEmitter& emitter)
   setupAttribute(emitter.getSpecs().scale,
                  RawParticleEmitterSpecs::EAttributeName::eScale);
 
-  _setupUpdaterMaterial(layout);
+  _setupUpdaterMaterial(layout, defines);
 }
 
 void ParticleEmitterRender::updateResources(const ParticleEmitter& emitter)
@@ -166,18 +166,23 @@ void ParticleEmitterRender::executeRender(const ParticleEmitter&   emitter,
 }
 
 void ParticleEmitterRender::_setupUpdaterMaterial(
-  const vrm::RawParticleEmitterSpecs::Layout& layout)
+  const vrm::RawParticleEmitterSpecs::Layout& layout,
+  const MaterialDefines&                      defines)
 {
+  m_rawEmitterSpecs.reset();
+  m_rawEmitterSpecs.setupLayout(layout);
+
   MaterialAsset::Handle updaterAsset =
     AssetManager::Get().tryGetAsset<MaterialAsset>(
       "Resources/Engine/Material/UpdateParticlesMaterial.json");
   VRM_CHECK_RET(updaterAsset.isValid());
 
-  MaterialDefines defines;
-  defines.add("VRM_UPDATER_GROUP_SIZE", s_updaterGroupSize.x);
+  MaterialDefines localDefines;
+  localDefines.add(defines);
+  localDefines.add("VRM_UPDATER_GROUP_SIZE", s_updaterGroupSize.x);
 
   m_updaterMaterial.setMaterialAsset(updaterAsset);
-  m_updaterMaterial.prepare(defines);
+  m_updaterMaterial.prepare(localDefines);
 }
 
 void ParticleEmitterRender::_uploadSpawnData(

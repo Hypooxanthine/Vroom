@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "glm/glm.hpp"
+
 namespace vrm
 {
 
@@ -54,8 +55,10 @@ public:
   operator=(const RawParticleEmitterSpecs& other)               = delete;
   RawParticleEmitterSpecs(const RawParticleEmitterSpecs& other) = delete;
 
-  RawParticleEmitterSpecs& operator=(RawParticleEmitterSpecs&& other) = delete;
-  RawParticleEmitterSpecs(RawParticleEmitterSpecs&& other)            = delete;
+  RawParticleEmitterSpecs& operator=(RawParticleEmitterSpecs&& other) = default;
+  RawParticleEmitterSpecs(RawParticleEmitterSpecs&& other)            = default;
+
+  void reset();
 
   void setupLayout(const Layout& layout);
 
@@ -63,6 +66,10 @@ public:
                          const glm::vec4& value);
 
   inline std::span<glm::vec4 const> getData() const { return m_data; }
+
+  inline size_t getDataSize() const { return m_data.size(); }
+
+  size_t getStatesRequiredSize() const;
 
 private:
 

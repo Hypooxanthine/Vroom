@@ -6,6 +6,7 @@
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/AutoBuffer.h"
+#include "Vroom/Render/MaterialDefines.h"
 #include "Vroom/Render/PassMaterials.h"
 #include "Vroom/Render/RawParticleEmitterSpecs.h"
 
@@ -68,8 +69,8 @@ private:
 
 private:
 
-  void
-  _setupUpdaterMaterial(const vrm::RawParticleEmitterSpecs::Layout& layout);
+  void _setupUpdaterMaterial(const vrm::RawParticleEmitterSpecs::Layout& layout,
+                             const MaterialDefines& defines);
 
   void _uploadSpawnData(const ParticleEmitter& emitter) const;
   void _uploadIndirectCommandData() const;
@@ -98,6 +99,7 @@ private:
   PassMaterial m_updaterMaterial;
   PassMaterial m_renderMaterial;
 
+  RawParticleEmitterSpecs        m_rawEmitterSpecs;
   RawDrawElementsIndirectCommand m_indirectCommand;
 
   render::AutoBuffer m_emitterDataBuffer;

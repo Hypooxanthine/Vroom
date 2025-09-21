@@ -3,12 +3,19 @@
 #include <unordered_map>
 
 #include "Vroom/Core/Assert.h"
+#include "glm/fwd.hpp"
 
 using namespace vrm;
 
 RawParticleEmitterSpecs::RawParticleEmitterSpecs() {}
 
 RawParticleEmitterSpecs::~RawParticleEmitterSpecs() {}
+
+void RawParticleEmitterSpecs::reset()
+{
+  m_data.clear();
+  m_attributes.clear();
+}
 
 void RawParticleEmitterSpecs::setupLayout(const Layout& layout)
 {
@@ -45,4 +52,14 @@ void RawParticleEmitterSpecs::setAttributeField(EAttributeName   attribName,
 
   size_t dataIndex     = attribInfo.offset + fieldIndex;
   m_data.at(dataIndex) = value;
+}
+
+size_t RawParticleEmitterSpecs::getStatesRequiredSize() const
+{
+  static const constinit size_t headerSize = sizeof(glm::uint) // Active
+                                           + sizeof(float)     // Ellapsed time
+                                           + sizeof(float);    // Max lifetime
+
+  // Each attribute has a spawn and death value
+  return headerSize + m_attributes.size() * sizeof(glm::vec4) * 2;
 }
