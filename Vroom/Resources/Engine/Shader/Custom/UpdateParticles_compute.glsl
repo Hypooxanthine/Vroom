@@ -75,12 +75,12 @@ void SpawnParticle(inout ParticleStates states)
   states.ellapsedLifeTime = 0.f;
   states.maxLifeTime = g_emitter.lifeTime;
 
-  states.spawnPosition = g_emitter.spawnPosition;
-  states.deathPosition = g_emitter.deathPosition;
-  
-  states.spawnColor = g_emitter.spawnColor;
-  states.deathColor = g_emitter.deathColor;
+  states.spawnPosition = g_emitter.positionSpawnValue.xyz;
+  states.deathPosition = g_emitter.positionDeathValue.xyz;
 
-  states.spawnScale = g_emitter.spawnScale;
-  states.deathScale = g_emitter.deathScale;
+  states.spawnScale = g_emitter.scaleSpawnValue.xyz;
+  states.deathScale = g_emitter.scaleDeathValue.xyz;
+  
+  states.spawnColor = g_emitter.colorSpawnValue.xyzw;
+  states.deathColor = g_emitter.colorDeathValue.xyzw;
 }
