@@ -26,6 +26,10 @@
       {
         "Name": "u_deltaTime",
         "Type": "float"
+      },
+      {
+        "Name": "u_randomSeed",
+        "Type": "uint"
       }
     ],
     "StorageBuffers": [

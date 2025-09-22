@@ -1,5 +1,8 @@
 #include "Vroom/Render/ParticleEmitterRender.h"
+#include <chrono>
 #include <cstddef>
+#include <cstdint>
+#include <limits>
 #include <variant>
 
 #include "Vroom/Asset/AssetManager.h"
@@ -331,6 +334,18 @@ void ParticleEmitterRender::_executeUpdateParticles(
                               emitter.getNextParticleCountToSpawn());
   updaterShader.setUniform1f("u_firstParticleStamp",
                              emitter.getNextParticleToSpawnStartingLifetime());
+
+  {
+    const auto now = std::chrono::high_resolution_clock::now();
+
+    const auto nanosecs = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                            now.time_since_epoch())
+                            .count();
+    const uint32_t nanosecsUint32 = static_cast<uint32_t>(
+      nanosecs % std::numeric_limits<decltype(nanosecs)>::max());
+
+    updaterShader.setUniform1ui("u_randomSeed", nanosecsUint32);
+  }
 
   glm::uvec3 dispatch = gl::Shader::ComputeDispatchSize(
     s_updaterGroupSize, glm::uvec3(m_maxParticleCount, 1, 1));
