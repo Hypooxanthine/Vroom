@@ -8,6 +8,7 @@
 #include "Vroom/Core/Duration.h"
 #include "Vroom/Core/PerfRecorder.h"
 #include "Vroom/Core/Profiler.h"
+#include "Vroom/Core/Profiling.h"
 #include "implot.h"
 #include "implot_internal.h"
 
@@ -20,6 +21,8 @@ ProfilingPanel::~ProfilingPanel() {}
 
 void ProfilingPanel::onImgui()
 {
+  VRM_PROFILE_SCOPE("ProfilingPanel::onImgui");
+
   if (ImGui::Begin("Profiling", m_open))
   {
     if (Profiler::Get().getLastFrameRoots().size() > 0)

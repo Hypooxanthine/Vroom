@@ -1,19 +1,17 @@
 #include "VroomEditor/UserInterface/EditorPreferences.h"
 
+#include "Vroom/Core/Profiling.h"
+
 using namespace vrm;
 
-EditorPreferences::EditorPreferences()
-{
+EditorPreferences::EditorPreferences() {}
 
-}
-
-EditorPreferences::~EditorPreferences()
-{
-
-}
+EditorPreferences::~EditorPreferences() {}
 
 void EditorPreferences::onImgui()
 {
+  VRM_PROFILE_SCOPE("EditorPreferences::onImgui");
+
   if (ImGui::Begin("Preferences", m_open))
   {
     if (ImGui::BeginTabBar("TabBar"))

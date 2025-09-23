@@ -1,40 +1,34 @@
 #include "VroomEditor/UserInterface/EntityEditor.h"
-
-#include <Vroom/Core/Assert.h>
-#include <Vroom/Core/Application.h>
-#include <Vroom/Core/GameLayer.h>
-#include <Vroom/Scene/Scene.h>
-#include <Vroom/Scene/Components/NameComponent.h>
-
 #include <imgui.h>
 
+#include <Vroom/Core/Application.h>
+#include <Vroom/Core/Assert.h>
+#include <Vroom/Core/GameLayer.h>
+#include <Vroom/Scene/Components/NameComponent.h>
+#include <Vroom/Scene/Scene.h>
+
 #include "VroomEditor/UserInterface/ComponentEditor.h"
+
+#include "Vroom/Core/Profiling.h"
 
 using namespace vrm;
 
 void EntityEditor::ContextualMenuBehaviour(const Entity& e)
 {
   bool isRoot = e.isRoot();
-  if (isRoot)
-    ImGui::BeginDisabled();
+  if (isRoot) ImGui::BeginDisabled();
 
-  if (ImGui::Selectable("Delete"))
-  {
-    RequestDeleteEntity(e);
-  }
+  if (ImGui::Selectable("Delete")) { RequestDeleteEntity(e); }
 
-  if (isRoot)
-    ImGui::EndDisabled();
+  if (isRoot) ImGui::EndDisabled();
 
-  if (ImGui::Selectable("Add child"))
-  {
-    RequestCreateEntityChild(e);
-  }
+  if (ImGui::Selectable("Add child")) { RequestCreateEntityChild(e); }
 }
 
 void EntityEditor::RequestDeleteEntity(const Entity& e)
 {
-  Application::Get().getGameLayer().pushRoutine(Layer::EFrameLocation::ePreEndFrame,
+  Application::Get().getGameLayer().pushRoutine(
+    Layer::EFrameLocation::ePreEndFrame,
     [=](Layer& layer)
     {
       auto& gameLayer = static_cast<GameLayer&>(layer);
@@ -44,43 +38,35 @@ void EntityEditor::RequestDeleteEntity(const Entity& e)
 
 void EntityEditor::RequestCreateEntityChild(const Entity& parent)
 {
-  Application::Get().getGameLayer().pushRoutine(Layer::EFrameLocation::ePreEndFrame,
+  Application::Get().getGameLayer().pushRoutine(
+    Layer::EFrameLocation::ePreEndFrame,
     [e = parent](Layer& layer)
     {
-      auto& gameLayer = static_cast<GameLayer&>(layer);
-      Entity newChild = gameLayer.getScene().createEntity();
+      auto&  gameLayer = static_cast<GameLayer&>(layer);
+      Entity newChild  = gameLayer.getScene().createEntity();
       gameLayer.getScene().setEntitiesRelation(e, newChild);
     });
 }
 
-EntityEditor::EntityEditor()
-  : ImGuiElement()
-{
+EntityEditor::EntityEditor() : ImGuiElement() {}
 
-}
-
-EntityEditor::~EntityEditor()
-{
-
-}
+EntityEditor::~EntityEditor() {}
 
 void EntityEditor::open(const Entity& e)
 {
-  m_open = true;
+  m_open   = true;
   m_entity = e;
 }
 
 void EntityEditor::openOrCloseIfSame(const Entity& e)
 {
-  if (m_entity == e)
-    close();
-  else
-    open(e);
+  if (m_entity == e) close();
+  else open(e);
 }
 
 void EntityEditor::close()
 {
-  m_open = false;
+  m_open   = false;
   m_entity = Entity();
 }
 
@@ -91,15 +77,14 @@ bool EntityEditor::isEditingEntity(const Entity& e) const
 
 void EntityEditor::onImgui()
 {
-  if (!m_entity.isValid())
-    close();
+  VRM_PROFILE_SCOPE("EntityEditor::onImgui");
 
-  if (!m_open)
-    return;
+  if (!m_entity.isValid()) close();
 
-  constexpr auto flags = ImGuiWindowFlags_None
-    ;
-  
+  if (!m_open) return;
+
+  constexpr auto flags = ImGuiWindowFlags_None;
+
   if (ImGui::Begin("Entity editor", &m_open, flags))
   {
     ComponentEditor::EditEntity(m_entity);
@@ -107,6 +92,5 @@ void EntityEditor::onImgui()
   ImGui::End();
 
   // User requested close
-  if (!m_open)
-    close();
+  if (!m_open) close();
 }

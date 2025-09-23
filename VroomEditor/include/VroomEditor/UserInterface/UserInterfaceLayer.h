@@ -125,6 +125,8 @@ private:
   void fileDropCallback(const Event& e);
 
   bool _loadImguiStyle();
+  void _beginImguiFrame();
+  void _endImguiFrame();
 
 private:
 

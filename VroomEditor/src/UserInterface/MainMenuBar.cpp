@@ -5,6 +5,8 @@
 
 #include "VroomEditor/EditorLayer.h"
 
+#include "Vroom/Core/Profiling.h"
+
 using namespace vrm;
 
 MainMenuBar::MainMenuBar() {}
@@ -13,6 +15,8 @@ MainMenuBar::~MainMenuBar() {}
 
 void MainMenuBar::onImgui()
 {
+  VRM_PROFILE_SCOPE("MainMenuBar::onImgui");
+
   auto& ui = UserInterfaceLayer::Get();
 
   if (ImGui::BeginMainMenuBar())

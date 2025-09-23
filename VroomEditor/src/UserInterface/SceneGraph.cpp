@@ -1,31 +1,28 @@
 #include "VroomEditor/UserInterface/SceneGraph.h"
+#include <imgui.h>
 
 #include <Vroom/Core/Application.h>
 #include <Vroom/Core/GameLayer.h>
-#include <Vroom/Scene/Scene.h>
-#include <Vroom/Scene/Entity.h>
 #include <Vroom/Scene/Components/HierarchyComponent.h>
 #include <Vroom/Scene/Components/NameComponent.h>
+#include <Vroom/Scene/Entity.h>
+#include <Vroom/Scene/Scene.h>
 
 #include "VroomEditor/UserInterface/EntityEditor.h"
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 
-#include <imgui.h>
+#include "Vroom/Core/Profiling.h"
 
 using namespace vrm;
 
-SceneGraph::SceneGraph()
-{
+SceneGraph::SceneGraph() {}
 
-}
-
-SceneGraph::~SceneGraph()
-{
-
-}
+SceneGraph::~SceneGraph() {}
 
 void SceneGraph::onImgui()
 {
+  VRM_PROFILE_SCOPE("SceneGraph::onImgui");
+
   setupFrameContext();
 
   auto& scene = *m_frameContext.activeScene;
@@ -34,8 +31,7 @@ void SceneGraph::onImgui()
   {
     ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, 10.f);
 
-    if (scene.getRoot().isValid())
-      renderEntityEntryRecursive(scene.getRoot());
+    if (scene.getRoot().isValid()) renderEntityEntryRecursive(scene.getRoot());
 
     ImGui::PopStyleVar();
   }
@@ -46,10 +42,10 @@ void SceneGraph::onImgui()
 
 void SceneGraph::renderEntityEntryRecursive(Entity& e)
 {
-  const auto& name = e.getName();
-  auto& children = e.getChildren();
-  const bool isLeaf = children.empty();
-  const bool isNode = !isLeaf;
+  const auto& name     = e.getName();
+  auto&       children = e.getChildren();
+  const bool  isLeaf   = children.empty();
+  const bool  isNode   = !isLeaf;
 
   ImGui::PushID(name.c_str());
 
@@ -59,16 +55,10 @@ void SceneGraph::renderEntityEntryRecursive(Entity& e)
 
   if (isLeaf)
     flags =
-    flags
-    | ImGuiTreeNodeFlags_Leaf
-    | ImGuiTreeNodeFlags_NoTreePushOnOpen
-    ;
+      flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
   else // isNode
     flags =
-    flags
-    | ImGuiTreeNodeFlags_DefaultOpen
-    | ImGuiTreeNodeFlags_OpenOnArrow
-    ;
+      flags | ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow;
 
   if (m_frameContext.entityEditor->isEditingEntity(e))
     flags = flags | ImGuiTreeNodeFlags_Selected;
@@ -85,13 +75,9 @@ void SceneGraph::renderEntityEntryRecursive(Entity& e)
 
   if (open)
   {
-    for (auto& child : children)
-    {
-      renderEntityEntryRecursive(child);
-    }
+    for (auto& child : children) { renderEntityEntryRecursive(child); }
 
-    if (isNode)
-      ImGui::TreePop();
+    if (isNode) ImGui::TreePop();
   }
 
   ImGui::PopID();
@@ -107,7 +93,8 @@ void SceneGraph::clickBehaviour(Entity& e)
 
 void SceneGraph::dragAndDropBehaviour(Entity& e)
 {
-  static constexpr std::string_view payloadName = "VRM_SceneGraph_Hierarchy_Edit";
+  static constexpr std::string_view payloadName =
+    "VRM_SceneGraph_Hierarchy_Edit";
 
   bool validTarget = true;
 
@@ -116,18 +103,20 @@ void SceneGraph::dragAndDropBehaviour(Entity& e)
     if (payload->IsDataType(payloadName.data()))
     {
       Entity* newChild = (Entity*)payload->Data;
-      validTarget = !m_frameContext.activeScene->checkEntityAncestor(*newChild, e);
+      validTarget =
+        !m_frameContext.activeScene->checkEntityAncestor(*newChild, e);
     }
   }
 
   if (validTarget && ImGui::BeginDragDropTarget())
   {
-    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(payloadName.data()))
+    if (const ImGuiPayload* payload =
+          ImGui::AcceptDragDropPayload(payloadName.data()))
     {
       Entity* newChild = (Entity*)payload->Data;
 
       m_frameContext.RequestHierarchyEdit.parent = e.clone();
-      m_frameContext.RequestHierarchyEdit.child = newChild->clone();
+      m_frameContext.RequestHierarchyEdit.child  = newChild->clone();
     }
 
     ImGui::EndDragDropTarget();
@@ -146,26 +135,23 @@ void SceneGraph::dragAndDropBehaviour(Entity& e)
 
 void SceneGraph::setupFrameContext()
 {
-  m_frameContext = {};
-  m_frameContext.activeScene = &Application::Get().getGameLayer().getScene();
+  m_frameContext              = {};
+  m_frameContext.activeScene  = &Application::Get().getGameLayer().getScene();
   m_frameContext.entityEditor = &VRM_EDITOR_UI_ELEMENT(EntityEditor);
 }
 
 void SceneGraph::handleFrameContext()
 {
-  auto& hierarchy = m_frameContext.RequestHierarchyEdit;
-  const bool changeHierarchyRelation = true
-    && hierarchy.child.isValid()
-    && !hierarchy.child.isRoot()
+  auto&      hierarchy = m_frameContext.RequestHierarchyEdit;
+  const bool changeHierarchyRelation =
+    true && hierarchy.child.isValid() && !hierarchy.child.isRoot()
     && hierarchy.parent.isValid()
-    && !m_frameContext.activeScene->checkEntitiesRelation(hierarchy.parent, hierarchy.child)
-    ;
+    && !m_frameContext.activeScene->checkEntitiesRelation(hierarchy.parent,
+                                                          hierarchy.child);
 
   if (changeHierarchyRelation)
   {
-    m_frameContext.activeScene->setEntitiesRelation(
-      hierarchy.parent,
-      hierarchy.child
-    );
+    m_frameContext.activeScene->setEntitiesRelation(hierarchy.parent,
+                                                    hierarchy.child);
   }
 }

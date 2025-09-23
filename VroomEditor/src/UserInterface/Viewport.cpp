@@ -1,17 +1,19 @@
 #include "VroomEditor/UserInterface/Viewport.h"
 
-#include <Vroom/Core/Log.h>
 #include <Vroom/Core/Application.h>
 #include <Vroom/Core/GameLayer.h>
-#include <Vroom/Scene/Scene.h>
+#include <Vroom/Core/Log.h>
 #include <Vroom/Render/Abstraction/Texture.h>
 #include <Vroom/Render/Renderer.h>
-
-#include "VroomEditor/UserInterface/UserInterfaceLayer.h"
-#include "VroomEditor/UserInterface/EntityEditor.h"
-#include "VroomEditor/UserInterface/SceneGraph.h"
+#include <Vroom/Scene/Scene.h>
 
 #include "imgui.h"
+
+#include "VroomEditor/UserInterface/EntityEditor.h"
+#include "VroomEditor/UserInterface/SceneGraph.h"
+#include "VroomEditor/UserInterface/UserInterfaceLayer.h"
+
+#include "Vroom/Core/Profiling.h"
 
 using namespace vrm;
 
@@ -27,7 +29,10 @@ void Viewport::MyViewportModule::onPopupImgui(const ImVec2& texturePx)
 
     if (texturePx.x > -1 && texturePx.y > -1)
     {
-      uint32_t rawId = Application::Get().getMainSceneRenderer().getRenderPipeline().getEntityIndexOnPixel({ texturePx.x, texturePx.y });
+      uint32_t rawId = Application::Get()
+                         .getMainSceneRenderer()
+                         .getRenderPipeline()
+                         .getEntityIndexOnPixel({ texturePx.x, texturePx.y });
       auto& scene = Application::Get().getGameLayer().getScene();
 
       if (scene.entityExists(entt::entity(rawId)))
@@ -51,33 +56,35 @@ void Viewport::MyViewportModule::onLeftClick(const ImVec2& texturePx)
 {
   if (texturePx.x > -1 && texturePx.y > -1)
   {
-    uint32_t rawId = Application::Get().getMainSceneRenderer().getRenderPipeline().getEntityIndexOnPixel({ texturePx.x, texturePx.y });
-    UserInterfaceLayer::Get().pushRoutine(Layer::EFrameLocation::ePreEndFrame, [=](Layer& l)
-    {
-      auto& scene = Application::Get().getGameLayer().getScene();
-      auto& sceneGraph = VRM_EDITOR_UI_ELEMENT(SceneGraph);
-      auto& entityEditor = VRM_EDITOR_UI_ELEMENT(EntityEditor);
-
-      if (scene.entityExists(entt::entity(rawId)))
+    uint32_t rawId = Application::Get()
+                       .getMainSceneRenderer()
+                       .getRenderPipeline()
+                       .getEntityIndexOnPixel({ texturePx.x, texturePx.y });
+    UserInterfaceLayer::Get().pushRoutine(
+      Layer::EFrameLocation::ePreEndFrame,
+      [=](Layer& l)
       {
-        Entity e = scene.getEntity(entt::entity(rawId));
-        entityEditor.openOrCloseIfSame(e);
-      }
-      else
-      {
-        entityEditor.close();
-      }
+        auto& scene        = Application::Get().getGameLayer().getScene();
+        auto& sceneGraph   = VRM_EDITOR_UI_ELEMENT(SceneGraph);
+        auto& entityEditor = VRM_EDITOR_UI_ELEMENT(EntityEditor);
 
-    });
+        if (scene.entityExists(entt::entity(rawId)))
+        {
+          Entity e = scene.getEntity(entt::entity(rawId));
+          entityEditor.openOrCloseIfSame(e);
+        }
+        else { entityEditor.close(); }
+      });
   }
 }
 
 void Viewport::MyViewportModule::onResize(const ImVec2& texturePx)
 {
-  UserInterfaceLayer::ViewportInfos& infos = UserInterfaceLayer::Get().getViewportInfo();
+  UserInterfaceLayer::ViewportInfos& infos =
+    UserInterfaceLayer::Get().getViewportInfo();
   infos.justChangedSize = true;
-  infos.width = static_cast<int>(texturePx.x);
-  infos.height = static_cast<int>(texturePx.y);
+  infos.width           = static_cast<int>(texturePx.x);
+  infos.height          = static_cast<int>(texturePx.y);
 }
 
 Viewport::Viewport()
@@ -86,13 +93,14 @@ Viewport::Viewport()
   m_viewportModule.setSupportGuizmo(true);
 }
 
-Viewport::~Viewport()
-{
-}
+Viewport::~Viewport() {}
 
 void Viewport::onImgui()
 {
-  UserInterfaceLayer::ViewportInfos& infos = UserInterfaceLayer::Get().getViewportInfo();
+  VRM_PROFILE_SCOPE("Viewport::onImgui");
+
+  UserInterfaceLayer::ViewportInfos& infos =
+    UserInterfaceLayer::Get().getViewportInfo();
 
   ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
   if (ImGui::Begin("Viewport", m_open))
@@ -110,17 +118,15 @@ void Viewport::onImgui()
       }
       else
       {
-        if (!m_Paused)
-          m_Paused = ImGui::Button("Pause");
-        else
-          m_Paused = !ImGui::Button("Resume");
+        if (!m_Paused) m_Paused = ImGui::Button("Pause");
+        else m_Paused = !ImGui::Button("Resume");
         ImGui::SameLine();
         bool stopped = ImGui::Button("Stop");
         if (stopped)
         {
-          m_Playing = false;
+          m_Playing    = false;
           m_Simulating = false;
-          m_Paused = false;
+          m_Paused     = false;
         }
       }
     }
@@ -130,10 +136,10 @@ void Viewport::onImgui()
   }
   ImGui::End();
   ImGui::PopStyleVar();
-  
-  infos.paused = m_Paused;
+
+  infos.paused     = m_Paused;
   infos.simulating = m_Simulating;
-  infos.playing = m_Playing;
-  infos.active = m_viewportModule.isDraggingLeft();
+  infos.playing    = m_Playing;
+  infos.active     = m_viewportModule.isDraggingLeft();
   infos.localSpace = m_viewportModule.isLocalSpace();
 }

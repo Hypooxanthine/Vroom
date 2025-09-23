@@ -1,17 +1,19 @@
 #include "VroomEditor/UserInterface/RenderSettingsPanel.h"
-
 #include <imgui.h>
 
 #include <Vroom/Core/Application.h>
 #include <Vroom/Core/GameLayer.h>
-#include <Vroom/Scene/Scene.h>
 #include <Vroom/Render/Renderer.h>
+#include <Vroom/Scene/Scene.h>
+
+#include "Vroom/Core/Profiling.h"
 
 using namespace vrm;
 
 RenderSettingsPanel::RenderSettingsPanel()
 {
-  const auto& features = Application::Get().getMainSceneRenderer().getGPUFeatures();
+  const auto& features =
+    Application::Get().getMainSceneRenderer().getGPUFeatures();
 
   for (uint8_t i = 1; i <= features.maxMSAA; i = i * 2)
   {
@@ -19,42 +21,47 @@ RenderSettingsPanel::RenderSettingsPanel()
   }
 }
 
-RenderSettingsPanel::~RenderSettingsPanel()
-{
-}
+RenderSettingsPanel::~RenderSettingsPanel() {}
 
 void RenderSettingsPanel::onImgui()
 {
-  auto& pipeline = Application::Get().getMainSceneRenderer().getRenderPipeline();
-  auto settings = pipeline.getRenderSettings();
-  auto dynSettings = pipeline.getDynamicRenderSettings();
-  bool settingsChanged = false;
+  VRM_PROFILE_SCOPE("RenderSettingsPanel::onImgui");
+
+  auto& pipeline =
+    Application::Get().getMainSceneRenderer().getRenderPipeline();
+  auto settings           = pipeline.getRenderSettings();
+  auto dynSettings        = pipeline.getDynamicRenderSettings();
+  bool settingsChanged    = false;
   bool dynSettingsChanged = false;
 
   if (ImGui::Begin("Render settings", m_open))
   {
 
-    int framerateLimit = static_cast<int>(Application::Get().getFrameRateLimit());
+    int framerateLimit =
+      static_cast<int>(Application::Get().getFrameRateLimit());
     ImGui::TextWrapped("Framerate limit:");
-    if (ImGui::SliderInt("##Framerate limit", &framerateLimit, 0, 360, "%d", ImGuiSliderFlags_AlwaysClamp))
+    if (ImGui::SliderInt("##Framerate limit", &framerateLimit, 0, 360, "%d",
+                         ImGuiSliderFlags_AlwaysClamp))
     {
       settings.frameRateLimit = static_cast<uint16_t>(framerateLimit);
-      settingsChanged = true;
+      settingsChanged         = true;
     }
 
     ImGui::TextWrapped("Antialiasing:");
-    if (ImGui::BeginCombo("##Antialiasing", std::to_string(settings.antiAliasingLevel).c_str()))
+    if (ImGui::BeginCombo("##Antialiasing",
+                          std::to_string(settings.antiAliasingLevel).c_str()))
     {
-      for (auto it = m_msaaPossibleValues.begin(); it != m_msaaPossibleValues.end(); ++it)
+      for (auto it = m_msaaPossibleValues.begin();
+           it != m_msaaPossibleValues.end(); ++it)
       {
-        auto itemValue = *it;
-        const auto& valStr = std::to_string(itemValue);
-        bool selected = (settings.antiAliasingLevel == itemValue);
+        auto        itemValue = *it;
+        const auto& valStr    = std::to_string(itemValue);
+        bool        selected  = (settings.antiAliasingLevel == itemValue);
 
         if (ImGui::Selectable(valStr.c_str(), &selected))
         {
           settings.antiAliasingLevel = itemValue;
-          settingsChanged = true;
+          settingsChanged            = true;
         }
       }
 
@@ -66,16 +73,21 @@ void RenderSettingsPanel::onImgui()
       settingsChanged = true;
     }
 
-    int softShadowKernelRadius = static_cast<int>(dynSettings.shadows.softShadowKernelRadius);
+    int softShadowKernelRadius =
+      static_cast<int>(dynSettings.shadows.softShadowKernelRadius);
 
     ImGui::TextWrapped("Soft shadows kernel radius:");
-    if (ImGui::SliderInt("##Soft shadows kernel radius", &softShadowKernelRadius, 0, 10, "%d", ImGuiSliderFlags_AlwaysClamp))
+    if (ImGui::SliderInt("##Soft shadows kernel radius",
+                         &softShadowKernelRadius, 0, 10, "%d",
+                         ImGuiSliderFlags_AlwaysClamp))
     {
-      dynSettings.shadows.softShadowKernelRadius = static_cast<uint8_t>(softShadowKernelRadius);
+      dynSettings.shadows.softShadowKernelRadius =
+        static_cast<uint8_t>(softShadowKernelRadius);
       dynSettingsChanged = true;
     }
 
-    if (ImGui::SliderFloat("exposure", &dynSettings.hdr.exposure, 0.f, 10.f, "%.2f", ImGuiSliderFlags_AlwaysClamp))
+    if (ImGui::SliderFloat("exposure", &dynSettings.hdr.exposure, 0.f, 10.f,
+                           "%.2f", ImGuiSliderFlags_AlwaysClamp))
     {
       dynSettingsChanged = true;
     }
@@ -87,24 +99,28 @@ void RenderSettingsPanel::onImgui()
 
     if (settings.bloom.activated)
     {
-      if (ImGui::SliderFloat("Bloom intensity", &dynSettings.bloom.intensity, 0.f, 10.f))
+      if (ImGui::SliderFloat("Bloom intensity", &dynSettings.bloom.intensity,
+                             0.f, 10.f))
       {
         dynSettingsChanged = true;
       }
 
-      if (ImGui::SliderFloat("Bloom threshold", &dynSettings.bloom.threshold, 0.f, 10.f))
+      if (ImGui::SliderFloat("Bloom threshold", &dynSettings.bloom.threshold,
+                             0.f, 10.f))
       {
         dynSettingsChanged = true;
       }
 
       int blurPasses = static_cast<int>(dynSettings.bloom.blurPasses);
-      int min = 1;
-      int max = std::numeric_limits<decltype(dynSettings.bloom.blurPasses)>::max();
+      int min        = 1;
+      int max =
+        std::numeric_limits<decltype(dynSettings.bloom.blurPasses)>::max();
 
-      if (ImGui::SliderInt("Bloom blur passes", &blurPasses, min, max, "%d", ImGuiSliderFlags_AlwaysClamp))
+      if (ImGui::SliderInt("Bloom blur passes", &blurPasses, min, max, "%d",
+                           ImGuiSliderFlags_AlwaysClamp))
       {
         dynSettings.bloom.blurPasses = blurPasses;
-        dynSettingsChanged = true;
+        dynSettingsChanged           = true;
       }
     }
 
@@ -113,7 +129,9 @@ void RenderSettingsPanel::onImgui()
       settingsChanged = true;
     }
 
-    if (settings.normalMapping.activated && ImGui::Checkbox("Orthogonalize tangent space", &settings.normalMapping.reorthoTangentSpace))
+    if (settings.normalMapping.activated
+        && ImGui::Checkbox("Orthogonalize tangent space",
+                           &settings.normalMapping.reorthoTangentSpace))
     {
       settingsChanged = true;
     }
@@ -129,7 +147,7 @@ void RenderSettingsPanel::onImgui()
       if (ImGui::DragInt3("Cluster count", &clusterCount.x, 1.f, 1, 64, "%d"))
       {
         settings.clusterCount = glm::uvec3(clusterCount);
-        settingsChanged = true;
+        settingsChanged       = true;
       }
     }
 
@@ -137,7 +155,9 @@ void RenderSettingsPanel::onImgui()
 
     const std::string& watchedTexture = pipeline.getWatchedTexture();
 
-    if (ImGui::BeginCombo("Watch texture", watchedTexture.empty() ? "Default" : watchedTexture.c_str()))
+    if (ImGui::BeginCombo("Watch texture", watchedTexture.empty()
+                                             ? "Default"
+                                             : watchedTexture.c_str()))
     {
       bool selected = (watchedTexture == "");
       if (ImGui::Selectable("Default", selected))
@@ -157,7 +177,8 @@ void RenderSettingsPanel::onImgui()
       ImGui::EndCombo();
     }
 
-    if (ImGui::SliderInt("Dummy cameras", &m_dummyCameraUsed, 0, 3, "%d", ImGuiSliderFlags_AlwaysClamp))
+    if (ImGui::SliderInt("Dummy cameras", &m_dummyCameraUsed, 0, 3, "%d",
+                         ImGuiSliderFlags_AlwaysClamp))
     {
       Scene& scene = Application::Get().getGameLayer().getScene();
       scene.setSplitScreenGridSize(1, 1); // First removing all cameras
@@ -187,13 +208,7 @@ void RenderSettingsPanel::onImgui()
   }
   ImGui::End();
 
-  if (settingsChanged)
-  {
-    pipeline.setRenderSettings(settings);
-  }
+  if (settingsChanged) { pipeline.setRenderSettings(settings); }
 
-  if (dynSettingsChanged)
-  {
-    pipeline.setDynamicRenderSettings(dynSettings);
-  }
+  if (dynSettingsChanged) { pipeline.setDynamicRenderSettings(dynSettings); }
 }

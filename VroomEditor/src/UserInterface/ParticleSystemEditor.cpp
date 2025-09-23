@@ -1,27 +1,29 @@
 #include "VroomEditor/UserInterface/ParticleSystemEditor.h"
+#include <string>
+
+#include "imgui.h"
+
+#include "VroomEditor/UserInterface/ParticleSystem/EmitterEditor.h"
+
 #include "Vroom/Core/Application.h"
 #include "Vroom/Core/GameLayer.h"
 #include "Vroom/Core/Layer.h"
+#include "Vroom/Core/Profiling.h"
 #include "Vroom/Render/ParticleEmitter.h"
 #include "Vroom/Render/Renderer.h"
 #include "Vroom/Scene/Components/ParticleSystemComponent.h"
 #include "Vroom/Scene/Components/SkyboxComponent.h"
-#include "VroomEditor/UserInterface/ParticleSystem/EmitterEditor.h"
 #include "glm/fwd.hpp"
-#include "imgui.h"
-#include <string>
 
 using namespace vrm::editor;
 
-void ParticleSystemEditor::MyViewportModule::onPopupImgui(const ImVec2& texturePx)
-{
+void ParticleSystemEditor::MyViewportModule::onPopupImgui(
+  const ImVec2& texturePx)
+{}
 
-}
-
-void ParticleSystemEditor::MyViewportModule::onLeftClick(const ImVec2& texturePx)
-{
-
-}
+void ParticleSystemEditor::MyViewportModule::onLeftClick(
+  const ImVec2& texturePx)
+{}
 
 void ParticleSystemEditor::MyViewportModule::onResize(const ImVec2& size)
 {
@@ -29,7 +31,8 @@ void ParticleSystemEditor::MyViewportModule::onResize(const ImVec2& size)
 }
 
 ParticleSystemEditor::ParticleSystemEditor()
-  : ImGuiElement(), m_camera(0.1f, 100.f, 90.f, 1.f, glm::vec3(0.f, 0.f, 10.f), glm::vec3(0.f))
+  : ImGuiElement()
+  , m_camera(0.1f, 100.f, 90.f, 1.f, glm::vec3(0.f, 0.f, 10.f), glm::vec3(0.f))
 {
   m_scene.init();
   m_entity = m_scene.createEntity("Particles");
@@ -44,11 +47,11 @@ ParticleSystemEditor::ParticleSystemEditor()
 
   {
     RenderSettings settings;
-    settings.antiAliasingLevel = 1;
-    settings.bloom.activated = false;
-    settings.clusteredShading = false;
+    settings.antiAliasingLevel       = 1;
+    settings.bloom.activated         = false;
+    settings.clusteredShading        = false;
     settings.normalMapping.activated = false;
-    settings.shadowsEnable = false;
+    settings.shadowsEnable           = false;
 
     m_scene.getRenderer().getRenderPipeline().setRenderSettings(settings);
   }
@@ -60,30 +63,21 @@ ParticleSystemEditor::ParticleSystemEditor()
   };
 }
 
-ParticleSystemEditor::~ParticleSystemEditor()
-{
-
-}
+ParticleSystemEditor::~ParticleSystemEditor() {}
 
 void ParticleSystemEditor::open(ParticleSystemAsset::Handle asset)
 {
   m_particlesAsset = asset;
-  if (m_open)
-  {
-    *m_open = true;
-  }
+  if (m_open) { *m_open = true; }
 }
 
 void ParticleSystemEditor::close()
 {
   m_particlesAsset = {};
-  if (m_open)
-  {
-    *m_open = false;
-  }
+  if (m_open) { *m_open = false; }
 }
 
-void ParticleSystemEditor::onUpdate(const DeltaTime &dt)
+void ParticleSystemEditor::onUpdate(const DeltaTime& dt)
 {
   if (!m_open || *m_open)
   {
@@ -103,17 +97,15 @@ void ParticleSystemEditor::_updateEmitterSpecs()
 {
   for (size_t i = 0; i < m_emitters.size(); ++i)
   {
-    bool specsChanged = false;
-    ParticleEmitter& emitter = m_entity.getComponent<ParticleSystemComponent>().getEmitters()[i];
-    const EmitterEditor& editor = m_emitters.at(i);
-    ParticleEmitter::Specs specs = emitter.getSpecs();
+    bool             specsChanged = false;
+    ParticleEmitter& emitter =
+      m_entity.getComponent<ParticleSystemComponent>().getEmitters()[i];
+    const EmitterEditor&   editor = m_emitters.at(i);
+    ParticleEmitter::Specs specs  = emitter.getSpecs();
 
     specsChanged = editor.updateEmitterSpecs(specs) || specsChanged;
 
-    if (specsChanged)
-    {
-      emitter.setSpecs(specs);
-    }
+    if (specsChanged) { emitter.setSpecs(specs); }
   }
 }
 
@@ -129,7 +121,7 @@ void ParticleSystemEditor::_checkRemovedEmitter()
     {
       m_emitters.erase(m_emitters.begin() + i);
       m_entity.getComponent<ParticleSystemComponent>().removeEmitter(i);
-    
+
       for (size_t i = 0; i < m_emitters.size(); ++i)
       {
         m_emitters.at(i).setName("Emitter " + std::to_string(i));
@@ -145,27 +137,24 @@ void ParticleSystemEditor::onRender()
   if (!m_open || *m_open)
   {
     m_scene.render();
-    m_viewport.setTexture(m_scene.getRenderer().getRenderPipeline().getRenderedTexture());
+    m_viewport.setTexture(
+      m_scene.getRenderer().getRenderPipeline().getRenderedTexture());
   }
 }
 
 void ParticleSystemEditor::onImgui()
 {
+  VRM_PROFILE_SCOPE("ParticleSystemEditor::onImgui");
+
   if (ImGui::Begin("Particle System", m_open))
   {
     if (ImGui::BeginTable("Table", 2, ImGuiTableFlags_Resizable))
     {
       ImGui::TableNextRow();
 
-      if (ImGui::TableNextColumn())
-      {
-        m_viewport.renderImgui();
-      }
+      if (ImGui::TableNextColumn()) { m_viewport.renderImgui(); }
 
-      if (ImGui::TableNextColumn())
-      {
-        _showSettings();
-      }
+      if (ImGui::TableNextColumn()) { _showSettings(); }
 
       ImGui::EndTable();
     }
@@ -178,23 +167,22 @@ void ParticleSystemEditor::_addEmitter()
   auto& psc = m_entity.getComponent<ParticleSystemComponent>();
   psc.addEmitter({});
   EmitterEditor& emitter = m_emitters.emplace_back();
-  emitter.setName("Emitter " + std::to_string(m_emitters.size() - 1)); 
+  emitter.setName("Emitter " + std::to_string(m_emitters.size() - 1));
 }
 
 void ParticleSystemEditor::_showSettings()
 {
   if (ImGui::BeginChild("Settings"))
   {
-    for (EmitterEditor& emitter : m_emitters)
-    {
-      emitter.renderImgui();
-    }
+    for (EmitterEditor& emitter : m_emitters) { emitter.renderImgui(); }
 
     if (ImGui::Button("Add emitter"))
     {
-      Application::Get().getGameLayer().pushFrameEndRoutine([this](Layer& layer) {
-        _addEmitter();
-      });
+      Application::Get().getGameLayer().pushFrameEndRoutine(
+        [this](Layer& layer)
+        {
+          _addEmitter();
+        });
     }
   }
   ImGui::EndChild();

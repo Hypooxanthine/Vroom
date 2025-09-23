@@ -159,11 +159,8 @@ void UserInterfaceLayer::onEvent(vrm::Event& e)
 void UserInterfaceLayer::renderImgui()
 {
   VRM_PROFILE_SCOPE("UserInterfaceLayer::renderImgui");
-  auto& editorLayer = EditorLayer::Get();
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplGlfw_NewFrame();
-  ImGui::NewFrame();
-  ImGuizmo::BeginFrame();
+
+  _beginImguiFrame();
 
   ImGui::PushFont(m_Font);
 
@@ -187,6 +184,23 @@ void UserInterfaceLayer::renderImgui()
   }
 
   ImGui::PopFont();
+  _endImguiFrame();
+}
+
+void UserInterfaceLayer::_beginImguiFrame()
+{
+  VRM_PROFILE_SCOPE("UserInterfaceLayer::_beginImguiFrame");
+
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplGlfw_NewFrame();
+  ImGui::NewFrame();
+  ImGuizmo::BeginFrame();
+}
+
+void UserInterfaceLayer::_endImguiFrame()
+{
+  VRM_PROFILE_SCOPE("UserInterfaceLayer::_endImguiFrame");
+
   ImGui::Render();
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
