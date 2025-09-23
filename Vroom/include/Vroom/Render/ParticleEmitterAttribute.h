@@ -48,7 +48,7 @@ public:
   inline bool structureDifferent(const ParticleEmitterAttribute& other) const
   {
     return spawnValue.index() != other.spawnValue.index()
-        && spawnValue.index() != other.spawnValue.index();
+        || deathValue.index() != other.deathValue.index();
   }
 
   const std::string& getShaderDefineName() const { return m_shaderDefineName; }

@@ -25,7 +25,8 @@ public:
     };
   };
 
-  inline static EmitterFieldEditor* Instanciate(EType::Type fieldType);
+  [[nodiscard]] inline static EmitterFieldEditor*
+  Instanciate(EType::Type fieldType);
 
 public:
 

@@ -224,7 +224,7 @@ void ParticleEmitterRender::_updateParticleStates(
     static_cast<glm::uint>(specs.lifeTime * specs.emitRate * 1.5f + 1.f);
 
   m_particleStatesBuffer.ensureCapacity(
-    sizeof(RawParticleStates) * maxParticleCount, true);
+    m_rawEmitterSpecs.getStatesRequiredSize() * maxParticleCount, true);
   m_instanceDataBuffer.ensureCapacity(
     sizeof(RawInstanceData) * maxParticleCount, false);
 
@@ -250,16 +250,6 @@ void ParticleEmitterRender::_updateParticleStates(
   m_maxParticleCount = maxParticleCount;
 }
 
-template <glm::length_t Dim>
-static void SetRawSpecField(glm::vec<Dim, float>&           dst,
-                            const ParticleEmitterFieldType& src)
-{
-  if (std::holds_alternative<ConstParticleEmitterField>(src))
-  {
-    dst = glm::vec<Dim, float>(std::get<ConstParticleEmitterField>(src).value);
-  }
-}
-
 void ParticleEmitterRender::_updateEmitterData(const ParticleEmitter& emitter)
 {
   const ParticleEmitter::Specs& specs = emitter.getSpecs();
@@ -273,12 +263,12 @@ void ParticleEmitterRender::_updateEmitterData(const ParticleEmitter& emitter)
   }
 
   {
-    _setEmitterAttribute(RawParticleEmitterSpecs::EAttributeName::eColor,
-                         specs.color);
     _setEmitterAttribute(RawParticleEmitterSpecs::EAttributeName::ePosition,
                          specs.position);
     _setEmitterAttribute(RawParticleEmitterSpecs::EAttributeName::eScale,
                          specs.scale);
+    _setEmitterAttribute(RawParticleEmitterSpecs::EAttributeName::eColor,
+                         specs.color);
   }
 
   std::span<std::byte> mapped = m_emitterDataBuffer.mapWriteOnly<std::byte>(

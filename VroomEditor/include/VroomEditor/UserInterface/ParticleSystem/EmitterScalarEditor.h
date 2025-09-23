@@ -34,7 +34,12 @@ public:
 
 public:
 
-  inline bool getModified() const { return m_dataModified; }
+  inline bool getAndResetModified() const
+  {
+    bool modified  = m_dataModified;
+    m_dataModified = false;
+    return modified;
+  }
 
   void setSettings(const Settings& settings);
   void setScalarType(EScalarType type);
@@ -68,7 +73,7 @@ protected:
 private:
 
   EScalarType          m_type         = EScalarType::eScalar;
-  bool                 m_dataModified = true;
+  mutable bool         m_dataModified = true;
   size_t               m_dim          = 1;
   bool                 m_scaleLock    = false;
   std::array<float, 4> m_min          = { 0.f, 0.f, 0.f, 0.f };

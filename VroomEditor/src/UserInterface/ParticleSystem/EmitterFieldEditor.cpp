@@ -68,18 +68,16 @@ void ConstEmitterFieldEditor::onImguiEdit() { m_scalarEditor.renderImgui(); }
 bool ConstEmitterFieldEditor::onUpdateEmitterField(
   ParticleEmitterFieldType& field) const
 {
-  ConstParticleEmitterField newField;
-
-  if (m_scalarEditor.getModified())
+  if (m_scalarEditor.getAndResetModified())
   {
-    std::span<float const> editorData = m_scalarEditor.getData();
+    ConstParticleEmitterField newField;
+    std::span<float const>    editorData = m_scalarEditor.getData();
     std::memcpy(&newField.value.x, editorData.data(), editorData.size_bytes());
     field = newField;
 
     return true;
   }
-
-  return false;
+  else return false;
 }
 
 /* RANDOM RANGE PARTICLE FIELD EDITOR */
@@ -93,13 +91,13 @@ RandomRangeEmitterFieldEditor::~RandomRangeEmitterFieldEditor() {}
 void RandomRangeEmitterFieldEditor::onImguiEdit()
 {
   ImGui::PushID("MinRange");
-  ImGui::Text("%s:", "Min range");
+  ImGui::Text("%s:", "Min");
   ImGui::SameLine();
   m_minRange.renderImgui();
   ImGui::PopID();
 
   ImGui::PushID("MaxRange");
-  ImGui::Text("%s:", "Max range");
+  ImGui::Text("%s:", "Max");
   ImGui::SameLine();
   m_maxRange.renderImgui();
   ImGui::PopID();
@@ -108,29 +106,27 @@ void RandomRangeEmitterFieldEditor::onImguiEdit()
 bool RandomRangeEmitterFieldEditor::onUpdateEmitterField(
   ParticleEmitterFieldType& field) const
 {
-  bool changed = false;
-
-  RandomRangeEmitterField newField;
-
-  if (m_minRange.getModified())
+  if (m_minRange.getAndResetModified() || m_maxRange.getAndResetModified())
   {
-    std::span<float const> editorData = m_minRange.getData();
-    std::memcpy(&newField.minValue.x, editorData.data(),
-                editorData.size_bytes());
+    RandomRangeEmitterField newField;
 
-    changed = true;
+    // min range
+    {
+      std::span<float const> editorData = m_minRange.getData();
+      std::memcpy(&newField.minValue.x, editorData.data(),
+                  editorData.size_bytes());
+    }
+
+    // max range
+    {
+      std::span<float const> editorData = m_maxRange.getData();
+      std::memcpy(&newField.maxValue.x, editorData.data(),
+                  editorData.size_bytes());
+    }
+
+    field = newField;
+
+    return true;
   }
-
-  if (m_maxRange.getModified())
-  {
-    std::span<float const> editorData = m_maxRange.getData();
-    std::memcpy(&newField.maxValue.x, editorData.data(),
-                editorData.size_bytes());
-
-    changed = true;
-  }
-
-  if (changed) { field = newField; }
-
-  return changed;
+  else return false;
 }

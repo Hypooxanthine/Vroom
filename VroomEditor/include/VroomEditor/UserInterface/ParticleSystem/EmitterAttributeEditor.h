@@ -33,9 +33,10 @@ protected:
   void onImgui() override;
   void onUpdate(const DeltaTime& dt) override;
 
-  void        assignField(std::unique_ptr<EmitterFieldEditor>& field,
-                          EmitterFieldEditor*                  newField,
-                          const EmitterScalarEditor::Settings& settings);
+  void assignField(std::unique_ptr<EmitterFieldEditor>& field,
+                   EmitterFieldEditor*                  newField,
+                   const EmitterScalarEditor::Settings& settings);
+
   inline void assignSpawnField(EmitterFieldEditor* emitterFieldEditor)
   {
     assignField(m_spawnField, emitterFieldEditor, m_spawnFieldSettings);

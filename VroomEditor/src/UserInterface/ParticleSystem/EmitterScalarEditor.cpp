@@ -1,20 +1,19 @@
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterScalarEditor.h"
-#include "Vroom/Core/Assert.h"
+
 #include "imgui.h"
+
+#include "Vroom/Core/Assert.h"
 
 using namespace vrm::editor;
 
 void EmitterScalarEditor::onImgui()
 {
-  m_dataModified = false;
-  
   static constexpr std::string_view widgetLabel = "##";
 
   if (isColorType())
   {
-    ImGuiColorEditFlags flags = 0
-      | (getDimension() == 3 ? ImGuiColorEditFlags_NoAlpha : 0)
-    ;
+    ImGuiColorEditFlags flags =
+      0 | (getDimension() == 3 ? ImGuiColorEditFlags_NoAlpha : 0);
     if (ImGui::ColorEdit4(widgetLabel.data(), m_data.data(), flags))
     {
       markDataModified();
@@ -22,20 +21,11 @@ void EmitterScalarEditor::onImgui()
   }
   else
   {
-    ImGuiSliderFlags flags = 0
-      | ImGuiSliderFlags_ClampOnInput
-    ;
+    ImGuiSliderFlags flags = 0 | ImGuiSliderFlags_ClampOnInput;
 
-    if (ImGui::SliderScalarN(
-          widgetLabel.data(),
-          ImGuiDataType_Float,
-          m_data.data(),
-          getDimension(),
-          getMin().data(),
-          getMax().data(),
-          nullptr,
-          flags)
-    )
+    if (ImGui::SliderScalarN(widgetLabel.data(), ImGuiDataType_Float,
+                             m_data.data(), getDimension(), getMin().data(),
+                             getMax().data(), nullptr, flags))
     {
       markDataModified();
     }
@@ -50,7 +40,8 @@ void EmitterScalarEditor::setSettings(const Settings& settings)
   setData(settings.defaultValue);
 }
 
-void EmitterScalarEditor::setBounds(std::span<float const> min, std::span<float const> max)
+void EmitterScalarEditor::setBounds(std::span<float const> min,
+                                    std::span<float const> max)
 {
   VRM_ASSERT(min.size() == max.size() && min.size() == getDimension());
 
@@ -63,7 +54,7 @@ void EmitterScalarEditor::setBounds(std::span<float const> min, std::span<float 
 
 void EmitterScalarEditor::setScalarType(EScalarType type)
 {
-  switch(type)
+  switch (type)
   {
   case EScalarType::eScalar:
     m_dim = 1;
@@ -96,18 +87,13 @@ void EmitterScalarEditor::setScalarType(EScalarType type)
   }
 }
 
-void EmitterScalarEditor::setLockScale(bool lock)
-{
-  m_scaleLock = lock;
-}
+void EmitterScalarEditor::setLockScale(bool lock) { m_scaleLock = lock; }
 
 void EmitterScalarEditor::setData(std::span<float const> data)
 {
-  VRM_ASSERT_MSG(data.size() == getDimension(), "Field dimension must match value size");
-  for (size_t i = 0; i < getDimension(); ++i)
-  {
-    m_data[i] = data[i];
-  }
+  VRM_ASSERT_MSG(data.size() == getDimension(),
+                 "Field dimension must match value size");
+  for (size_t i = 0; i < getDimension(); ++i) { m_data[i] = data[i]; }
 }
 
 std::span<float const> EmitterScalarEditor::getData() const

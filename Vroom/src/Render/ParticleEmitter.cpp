@@ -44,8 +44,8 @@ void ParticleEmitter::setSpecs(const Specs& specs)
 {
   m_dirtyValues = true;
 
-  auto currentAttribs = m_specs.getAttributes();
-  auto newAttribs     = specs.getAttributes();
+  const auto& currentAttribs = m_specs.getAttributes();
+  const auto& newAttribs     = specs.getAttributes();
 
   for (size_t i = 0; i < Specs::s_attributeCount; ++i)
   {
