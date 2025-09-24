@@ -58,6 +58,8 @@ private:
   std::vector<ProfileEntry> m_entries;
   int                       m_maxDepth = 0;
   Timer                     m_timer;
+
+  std::string m_highlight;
 };
 
 } // namespace vrm::editor

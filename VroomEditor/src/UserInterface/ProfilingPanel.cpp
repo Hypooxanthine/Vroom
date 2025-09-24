@@ -9,8 +9,10 @@
 #include "Vroom/Core/PerfRecorder.h"
 #include "Vroom/Core/Profiler.h"
 #include "Vroom/Core/Profiling.h"
+#include "Vroom/Tools/String.h"
 #include "implot.h"
 #include "implot_internal.h"
+#include "misc/cpp/imgui_stdlib.h"
 
 using namespace vrm;
 using namespace vrm::editor;
@@ -37,7 +39,15 @@ void ProfilingPanel::_showRecorderTree(const PerfRecorder& recorder)
 {
   if (_buildProfileEntriesCheck(recorder) == false || m_entries.empty()) return;
 
-  static constexpr ImPlotFlags plotFlags = ImPlotFlags_NoMouseText;
+  ImGui::Text("Highlight blocks:");
+  ImGui::SameLine();
+
+  constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll;
+
+  if (ImGui::InputText("##HighlightInputText", &m_highlight, flags)) {}
+
+  static constexpr ImPlotFlags plotFlags =
+    ImPlotFlags_NoMouseText | ImPlotFlags_NoTitle;
 
   if (ImPlot::BeginPlot("Profiler Timeline", ImVec2(-1, 300), plotFlags))
   {
@@ -73,8 +83,18 @@ void ProfilingPanel::_showRecorderTree(const PerfRecorder& recorder)
         color = _lerpColor(colMin, colMax, std::clamp(e.parentUse, 0.f, 1.f));
       }
 
-      drawList->AddRectFilled(p0, p1, color);
-      drawList->AddRect(p0, p1, IM_COL32_BLACK);
+      bool highlight = m_highlight.size() > 0
+                    && FindString(e.name, m_highlight, true) != e.name.npos;
+      static const constinit ImU32 highlightBorderColor =
+        IM_COL32(255, 0, 0, 255);
+      static const constinit ImU32 highlightFillColor =
+        IM_COL32(230, 120, 80, 255);
+      static const constinit float rounding = 2.f;
+
+      drawList->AddRectFilled(p0, p1, highlight ? highlightFillColor : color,
+                              rounding);
+      drawList->AddRect(
+        p0, p1, highlight ? highlightBorderColor : IM_COL32_BLACK, rounding);
 
       ImVec2 textPosStart =
         ImVec2(p0.x + 3, (p0.y + p1.y) / 2 - ImGui::GetTextLineHeight() / 2);
