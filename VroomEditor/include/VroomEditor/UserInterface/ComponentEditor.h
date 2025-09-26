@@ -8,11 +8,12 @@ namespace vrm
 class ComponentEditor
 {
 public:
+
   friend class EntityEditor;
 
   virtual ~ComponentEditor() {}
 
-  virtual bool editEntityComponent(Entity& e) const = 0;
+  virtual void editEntityComponent(Entity& e) const = 0;
 
   virtual bool canEditEntity(const Entity& e) const = 0;
 

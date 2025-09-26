@@ -60,6 +60,13 @@ void EmitterEditor::onImgui()
       ImGui::TreePop();
     }
 
+    if (ImGui::TreeNodeEx("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+      m_meshSelector.renderImgui();
+
+      ImGui::TreePop();
+    }
+
     for (std::unique_ptr<EmitterAttributeEditor>& attribute : m_attributes)
     {
       attribute->renderImgui();
@@ -71,7 +78,10 @@ void EmitterEditor::onImgui()
 
 void EmitterEditor::onUpdate(const DeltaTime& dt)
 {
-  for (auto& attributeEditor : m_attributes) { attributeEditor->update(dt); }
+  for (auto& attributeEditor : m_attributes)
+  {
+    attributeEditor->update(dt);
+  }
 }
 
 void EmitterEditor::_showContextualMenu()

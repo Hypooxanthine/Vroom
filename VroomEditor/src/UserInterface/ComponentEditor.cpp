@@ -13,11 +13,13 @@
 #include "ImGuizmo.h"
 
 #include "VroomEditor/EditorLayer.h"
+#include "VroomEditor/UserInterface/AssetSelector.h"
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
 
 //--------------------------------------------------
 // Include necessary component headers
 
+#include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Core/Profiling.h"
 #include "Vroom/Scene/Components/DirectionalLightComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
@@ -57,7 +59,10 @@ void ComponentEditor::EditEntity(Entity& e)
     ImGui::PushID(editor->getComponentName().c_str());
     if (editor->canBeRemoved() && ImGui::BeginPopupContextItem("Popup"))
     {
-      if (ImGui::Selectable("Remove component")) { askedRemove = true; }
+      if (ImGui::Selectable("Remove component"))
+      {
+        askedRemove = true;
+      }
 
       ImGui::EndPopup();
     }
@@ -107,7 +112,7 @@ struct ComponentGetter
   public:                                                                        \
                                                                                  \
     ~ComponentName##Editor() {}                                                  \
-    bool        editEntityComponent(Entity&) const override;                     \
+    void        editEntityComponent(Entity&) const override;                     \
     std::string getComponentName() const override { return displayName; }        \
     bool        canEditEntity(const Entity& e) const override { return has(e); } \
     bool        canBeRemoved() const override { return removable; }              \
@@ -138,7 +143,7 @@ struct ComponentGetter
 // Implementations of component editors
 
 VRM_REGISTER_COMPONENT_EDITOR(NameComponent, "Name tag", false)
-bool NameComponentEditor::editEntityComponent(Entity& e) const
+void NameComponentEditor::editEntityComponent(Entity& e) const
 {
   constexpr size_t bufferSize = 256;
   std::string      name;
@@ -160,7 +165,10 @@ bool NameComponentEditor::editEntityComponent(Entity& e) const
         state->ReloadUserBufAndKeepSelection();
       }
     }
-    else { e.setName(name); }
+    else
+    {
+      e.setName(name);
+    }
   }
 
   if (!e.getParent().isValid())
@@ -168,12 +176,10 @@ bool NameComponentEditor::editEntityComponent(Entity& e) const
     ImGui::EndDisabled();
     ImGui::SetItemTooltip("You cannot edit Root entity name.");
   }
-
-  return true;
 }
 
 VRM_REGISTER_COMPONENT_EDITOR(TransformComponent, "Transform component", false)
-bool TransformComponentEditor::editEntityComponent(Entity& e) const
+void TransformComponentEditor::editEntityComponent(Entity& e) const
 {
   auto& component = get(e);
 
@@ -217,13 +223,11 @@ bool TransformComponentEditor::editEntityComponent(Entity& e) const
   {
     viewportInfo.manipulatingGuizmo = false;
   }
-
-  return true;
 }
 
 VRM_REGISTER_COMPONENT_EDITOR(DirectionalLightComponent,
                               "Directional light component", true)
-bool DirectionalLightComponentEditor::editEntityComponent(Entity& e) const
+void DirectionalLightComponentEditor::editEntityComponent(Entity& e) const
 {
   auto& component = get(e);
 
@@ -235,13 +239,11 @@ bool DirectionalLightComponentEditor::editEntityComponent(Entity& e) const
                        ImGuiSliderFlags_AlwaysClamp))
     component.intensity = intensity;
   ImGui::Checkbox("Casts shadows", &component.castsShadows);
-
-  return true;
 }
 
 VRM_REGISTER_COMPONENT_EDITOR(PointLightComponent, "Point light component",
                               true)
-bool PointLightComponentEditor::editEntityComponent(Entity& e) const
+void PointLightComponentEditor::editEntityComponent(Entity& e) const
 {
   auto& component = get(e);
 
@@ -263,114 +265,30 @@ bool PointLightComponentEditor::editEntityComponent(Entity& e) const
   ImGui::DragFloat("Quadratic Attenuation", &component.quadraticAttenuation,
                    0.01f, 0.f, std::numeric_limits<float>::max(), "%.3f",
                    ImGuiSliderFlags_AlwaysClamp);
-
-  return true;
 }
 
 VRM_REGISTER_COMPONENT_EDITOR(MeshComponent, "Mesh component", true)
-bool MeshComponentEditor::editEntityComponent(Entity& e) const
+void MeshComponentEditor::editEntityComponent(Entity& e) const
 {
   auto& component = get(e);
 
-  constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll
-                       | ImGuiInputTextFlags_EnterReturnsTrue
-                       | ImGuiInputTextFlags_CharsNoBlank;
-
-  MeshAsset::Handle                        requestNewMesh;
-  std::pair<size_t, MaterialAsset::Handle> requestNewMaterial;
-
-  std::string resourceName = component.getMesh()->getFilePath();
-  bool        meshChanged  = false;
-  if (ImGui::InputText("Mesh", &resourceName, flags))
-  {
-    if (AssetManager::Get().tryLoadAsset<MeshAsset>(resourceName))
-    {
-      meshChanged = true;
-    }
-    else
-    {
-      if (auto* state = ImGui::GetInputTextState(ImGui::GetItemID()))
-      {
-        state->ReloadUserBufAndKeepSelection();
-      }
-    }
-  }
-
-  if (ImGui::BeginDragDropTarget())
-  {
-    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MeshAsset"))
-    {
-      // Entity* newChild = (Entity*)payload->Data;
-      std::filesystem::path meshPath = *(std::filesystem::path*)payload->Data;
-
-      if (AssetManager::Get().tryLoadAsset<MeshAsset>(meshPath.string()))
-      {
-        resourceName = meshPath.string();
-        meshChanged  = true;
-      }
-    }
-
-    ImGui::EndDragDropTarget();
-  }
-
-  if (meshChanged)
-  {
-    requestNewMesh = AssetManager::Get().getAsset<MeshAsset>(resourceName);
-  }
+  MeshSelector meshSelector(component.getMesh());
+  meshSelector.renderImgui();
+  if (meshSelector.getChanged()) component.setMesh(meshSelector.getAsset());
 
   const size_t matSlotMax = component.getMaterials().getSlotCount();
   for (size_t matSlot = 0; matSlot < matSlotMax; ++matSlot)
   {
-    const auto& mat = component.getMaterials().getMaterial(matSlot);
+    MaterialAsset::Handle mat = component.getMaterials().getMaterial(matSlot);
     if (!mat.isValid()) continue;
-    std::string inputName       = "Material " + std::to_string(matSlot);
-    std::string resourceName    = mat->getFilePath();
-    bool        resourceChanged = false;
 
-    constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll
-                         | ImGuiInputTextFlags_EnterReturnsTrue
-                         | ImGuiInputTextFlags_CharsNoBlank;
-
-    if (ImGui::InputText(inputName.c_str(), &resourceName, flags))
+    MaterialSelector materialSelector(mat);
+    ImGui::PushID(matSlot);
+    materialSelector.renderImgui();
+    ImGui::PopID();
+    if (materialSelector.getChanged())
     {
-      if (AssetManager::Get().tryLoadAsset<MaterialAsset>(resourceName))
-      {
-        resourceChanged = true;
-      }
-      else
-      {
-        if (auto* state = ImGui::GetInputTextState(ImGui::GetItemID()))
-        {
-          state->ReloadUserBufAndKeepSelection();
-        }
-      }
-    }
-
-    if (ImGui::BeginDragDropTarget())
-    {
-      if (const ImGuiPayload* payload =
-            ImGui::AcceptDragDropPayload("MaterialAsset"))
-      {
-        // Entity* newChild = (Entity*)payload->Data;
-        std::filesystem::path materialPath =
-          *(std::filesystem::path*)payload->Data;
-
-        if (AssetManager::Get().tryLoadAsset<MaterialAsset>(
-              materialPath.string()))
-        {
-          resourceName    = materialPath.string();
-          resourceChanged = true;
-        }
-      }
-
-      ImGui::EndDragDropTarget();
-    }
-
-    if (resourceChanged)
-    {
-      requestNewMaterial.first = matSlot;
-      requestNewMaterial.second =
-        AssetManager::Get().getAsset<MaterialAsset>(resourceName);
+      component.setMaterial(matSlot, materialSelector.getAsset());
     }
   }
 
@@ -380,39 +298,17 @@ bool MeshComponentEditor::editEntityComponent(Entity& e) const
   bool castsShadow = component.doesCastShadow();
   if (ImGui::Checkbox("Casts shadow", &castsShadow))
     component.setCastsShadow(castsShadow);
-
-  if (requestNewMesh.isValid()) component.setMesh(requestNewMesh);
-
-  if (requestNewMaterial.second.isValid())
-    component.setMaterial(requestNewMaterial.first, requestNewMaterial.second);
-
-  return true;
 }
 
 VRM_REGISTER_COMPONENT_EDITOR(SkyboxComponent, "Skybox component", false)
-bool SkyboxComponentEditor::editEntityComponent(Entity& e) const
+void SkyboxComponentEditor::editEntityComponent(Entity& e) const
 {
-  auto&          component = get(e);
-  constexpr auto flags     = ImGuiInputTextFlags_AutoSelectAll
-                       | ImGuiInputTextFlags_EnterReturnsTrue
-                       | ImGuiInputTextFlags_CharsNoBlank;
+  auto& component = get(e);
 
-  std::string resourceName  = component.getCubemapAsset()->getFilePath();
-  bool        skyboxChanged = false;
-  if (ImGui::InputText("Cubemap", &resourceName, flags))
+  CubemapSelector selector(component.getCubemapAsset());
+  selector.renderImgui();
+  if (selector.getChanged())
   {
-    if (AssetManager::Get().tryLoadAsset<CubemapAsset>(resourceName))
-    {
-      skyboxChanged = true;
-    }
-    else
-    {
-      if (auto* state = ImGui::GetInputTextState(ImGui::GetItemID()))
-      {
-        state->ReloadUserBufAndKeepSelection();
-      }
-    }
+    component.setCubemapAsset(selector.getAsset());
   }
-
-  return true;
 }

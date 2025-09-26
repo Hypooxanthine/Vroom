@@ -1,5 +1,7 @@
 #pragma once
 
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 #include "Vroom/Core/DeltaTime.h"
 namespace vrm
 {
@@ -7,6 +9,7 @@ namespace vrm
 class ImGuiElement
 {
 public:
+
   ImGuiElement();
   virtual ~ImGuiElement();
 
@@ -19,13 +22,13 @@ public:
   inline void resetOpenBoolean() { setOpenBoolean(nullptr); }
 
 protected:
+
   virtual void onUpdate(const DeltaTime& dt) {}
   virtual void onRender() {}
   virtual void onImgui() = 0;
-  void notImplemented();
+  void         notImplemented();
 
   bool* m_open = nullptr;
-
 };
 
 } // namespace vrm
