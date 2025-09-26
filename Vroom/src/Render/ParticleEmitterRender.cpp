@@ -68,6 +68,7 @@ ParticleEmitterRender::~ParticleEmitterRender() {}
 void ParticleEmitterRender::setMesh(MeshAsset::Handle mesh)
 {
   m_mesh = mesh;
+  if (!m_mesh.isValid()) return;
 
   m_indirectCommand.baseInstance  = 0;
   m_indirectCommand.instanceCount = 0;
@@ -345,6 +346,8 @@ void ParticleEmitterRender::_executeUpdateParticles(
 void ParticleEmitterRender::_executeRenderParticles(
   const RenderPassContext& ctx, const glm::mat4* model)
 {
+  if (!m_mesh.isValid()) return;
+
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

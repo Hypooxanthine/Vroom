@@ -29,6 +29,8 @@ public:
     float lifeTime;
     float emitRate;
 
+    MeshAsset::Handle mesh;
+
     ParticleEmitterAttribute color    = { "COLOR" };
     ParticleEmitterAttribute position = { "POSITION" };
     ParticleEmitterAttribute scale    = { "SCALE" };
@@ -68,8 +70,6 @@ public:
   inline bool isDirty() const { return m_dirtyValues; }
 
   void setSpecs(const Specs& specs);
-
-  void setMesh(MeshAsset::Handle meshAsset);
 
   inline const Specs& getSpecs() const { return m_specs; }
 

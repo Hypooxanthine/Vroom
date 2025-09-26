@@ -11,6 +11,8 @@ EmitterEditor::EmitterEditor()
   m_attributes.emplace_back(new EmitterPositionEditor());
   m_attributes.emplace_back(new EmitterScaleEditor());
   m_attributes.emplace_back(new EmitterColorEditor());
+  m_meshSelector.setAsset(AssetManager::Get().getAsset<MeshAsset>(
+    "Resources/Engine/Meshes/default_cube.obj"));
 }
 
 EmitterEditor::~EmitterEditor() {}
@@ -25,6 +27,7 @@ bool EmitterEditor::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
   {
     specs.emitRate = m_emitRate;
     specs.lifeTime = m_lifeTime;
+    specs.mesh     = m_meshSelector.getAsset();
 
     m_changed = false;
   }
@@ -63,6 +66,7 @@ void EmitterEditor::onImgui()
     if (ImGui::TreeNodeEx("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
     {
       m_meshSelector.renderImgui();
+      m_changed = m_meshSelector.getChanged() || m_changed;
 
       ImGui::TreePop();
     }

@@ -2,7 +2,6 @@
 
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
-#include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Core/DeltaTime.h"
 
 using namespace vrm;
@@ -11,8 +10,6 @@ ParticleEmitter::ParticleEmitter()
 {
   m_render.reset(new ParticleEmitterRender());
   AssetManager& manager = AssetManager::Get();
-  setMesh(
-    manager.getAsset<MeshAsset>("Resources/Engine/Meshes/default_cube.obj"));
   m_render->setRenderMaterial(manager.getAsset<MaterialAsset>(
     "Resources/Engine/Material/DefaultParticleMaterial.json"));
 }
@@ -68,6 +65,7 @@ void ParticleEmitter::setupRender() const
   }
   if (m_dirtyValues)
   {
+    m_render->setMesh(m_specs.mesh);
     m_render->updateResources(*this);
     m_dirtyValues = false;
   }
@@ -79,9 +77,4 @@ void ParticleEmitter::executeRender(const RenderPassContext& ctx,
                                     const glm::mat4*         model) const
 {
   m_render->executeRender(*this, ctx, model);
-}
-
-void ParticleEmitter::setMesh(MeshAsset::Handle meshAsset)
-{
-  m_render->setMesh(meshAsset);
 }
