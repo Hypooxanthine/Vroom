@@ -67,6 +67,8 @@ ParticleEmitterRender::~ParticleEmitterRender() {}
 
 void ParticleEmitterRender::setMesh(MeshAsset::Handle mesh)
 {
+  if (mesh == m_mesh) return;
+
   m_mesh = mesh;
   if (!m_mesh.isValid()) return;
 
