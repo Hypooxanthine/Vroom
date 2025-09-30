@@ -74,10 +74,10 @@ size_t RawParticleEmitterSpecs::getDataSize() const
 size_t RawParticleEmitterSpecs::getStatesRequiredSize() const
 {
   static const constinit size_t headerSize =
-    maths::NextPowerInclusive(sizeof(glm::uint)  // Active
-                                + sizeof(float)  // Ellapsed time
-                                + sizeof(float), // Max lifetime
-                              16);
+    maths::NextPowerMultipleInclusive(sizeof(glm::uint)  // Active
+                                        + sizeof(float)  // Ellapsed time
+                                        + sizeof(float), // Max lifetime
+                                      16);
 
   // Each attribute has a spawn and death value
   return headerSize + m_attributes.size() * sizeof(glm::vec4) * 2;

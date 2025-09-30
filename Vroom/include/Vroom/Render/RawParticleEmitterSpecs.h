@@ -60,7 +60,7 @@ public:
     std::vector<glm::vec4> attributes;
 
     inline static constexpr size_t HeaderSize =
-      maths::NextPowerInclusive(sizeof(Header), 16);
+      maths::NextPowerMultipleInclusive(sizeof(Header), 16);
   };
 
 public:
