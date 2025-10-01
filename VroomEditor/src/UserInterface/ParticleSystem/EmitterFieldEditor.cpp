@@ -49,7 +49,10 @@ void EmitterFieldEditor::_showContextualMenu()
 
     if (isThisType) ImGui::BeginDisabled();
 
-    if (ImGui::Selectable(str.c_str())) { m_nextType = type; }
+    if (ImGui::Selectable(str.c_str()))
+    {
+      m_nextType = type;
+    }
 
     if (isThisType) ImGui::EndDisabled();
   }
@@ -108,7 +111,7 @@ bool RandomRangeEmitterFieldEditor::onUpdateEmitterField(
 {
   if (m_minRange.getAndResetModified() || m_maxRange.getAndResetModified())
   {
-    RandomRangeEmitterField newField;
+    RandomRangeParticleEmitterField newField;
 
     // min range
     {

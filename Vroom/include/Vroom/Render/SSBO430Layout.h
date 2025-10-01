@@ -2,6 +2,7 @@
 
 #include <cstddef>
 
+#include "Vroom/Core/Assert.h"
 #include "Vroom/Tools/Maths.h"
 #include "glm/common.hpp"
 #include "glm/fwd.hpp"
@@ -35,13 +36,14 @@ public:
     constexpr Attrib& operator=(Attrib&& other) = default;
     constexpr Attrib(Attrib&& other)            = default;
 
+    inline constexpr bool isValid() const { return size > 0 && alignment > 0; }
     inline constexpr size_t getAlignment() const { return alignment; }
     inline constexpr size_t getSize() const { return size; }
 
   private:
 
-    size_t alignment;
-    size_t size;
+    size_t alignment = 0;
+    size_t size      = 0;
   };
 
 public:
@@ -79,6 +81,13 @@ public:
   constexpr inline Attrib push()
   {
     return _push(SSBO430Traits<T>::size, SSBO430Traits<T>::alignment);
+  }
+
+  inline constexpr Attrib pushVectorFloat(size_t dim)
+  {
+    VRM_ASSERT_MSG(dim > 0 && dim <= 4,
+                   "Only vectors of dimension 1 to 4 are supported");
+    return _push(dim, (dim == 3 ? 4 : dim) * sizeof(glm::float32));
   }
 
 private:

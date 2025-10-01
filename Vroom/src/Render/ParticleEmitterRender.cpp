@@ -114,7 +114,7 @@ void ParticleEmitterRender::rebuildMaterials(const ParticleEmitter& emitter)
       currentFieldCount += 1;
       defines.add(currentDefine + "_CONST_FIELD");
     },
-    [&](const RandomRangeEmitterField& field)
+    [&](const RandomRangeParticleEmitterField& field)
     {
       // random range : 1 vector for min + 1 for max
       currentFieldCount += 2;
@@ -301,7 +301,7 @@ size_t ParticleEmitterRender::_setEmitterField(
                                           f.value);
       return 1;
     },
-    [&](const RandomRangeEmitterField& f) -> size_t
+    [&](const RandomRangeParticleEmitterField& f) -> size_t
     {
       m_rawEmitterSpecs.setAttributeField(attribName, elementOffset + 0,
                                           f.minValue);

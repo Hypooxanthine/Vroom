@@ -35,6 +35,11 @@ public:
   }
 
   template <typename T>
+  inline void setAttribute(std::span<T const>           data,
+                           const SSBO430Layout::Attrib& attribute,
+                           size_t                       arrayIndex);
+
+  template <typename T>
   inline void setAttribute(const T&                     data,
                            const SSBO430Layout::Attrib& attribute,
                            size_t                       arrayIndex);
@@ -62,6 +67,17 @@ inline void StructuredBuffer::setAttribute(
   std::byte const* dataPtr = reinterpret_cast<std::byte const*>(&data);
   _setAttributeData(std::span<std::byte const>(dataPtr, sizeof(T)), attribute,
                     arrayIndex);
+}
+
+template <typename T>
+inline void
+StructuredBuffer::setAttribute(std::span<T const>           data,
+                               const SSBO430Layout::Attrib& attribute,
+                               size_t                       arrayIndex)
+{
+  std::byte const* dataPtr = reinterpret_cast<std::byte const*>(data.data());
+  _setAttributeData(std::span<std::byte const>(dataPtr, data.size_bytes()),
+                    attribute, arrayIndex);
 }
 
 } // namespace vrm::render
