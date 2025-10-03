@@ -58,8 +58,8 @@ void EmitterEditor::onImgui()
   {
     ImGui::TreePush("Life cycle");
     {
-      m_changed = ImGui::SliderFloat("Emit rate", &m_emitRate, 0.1f, 500.f,
-                                     "%.1f", ImGuiSliderFlags_Logarithmic)
+      m_changed = ImGui::DragFloat("Emit rate", &m_emitRate, 1.f, 0.f,
+                                   1'000'000.f, "%.1f")
                || m_changed;
 
       ImGui::TreePop();

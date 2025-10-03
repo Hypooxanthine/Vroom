@@ -197,7 +197,7 @@ void ParticleEmitterRender::_updateParticleStates(
         m_maxParticleCount * singleStatesSize,
         (maxParticleCount - m_maxParticleCount) * singleStatesSize, false);
 
-    for (size_t i = 0; i < maxParticleCount; ++i)
+    for (size_t i = 0; i < maxParticleCount - m_maxParticleCount; ++i)
     {
       /// @todo Make this safer, particle states should be using
       /// render::StructuredBuffer class
