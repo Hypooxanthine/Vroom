@@ -1,9 +1,12 @@
 #pragma once
 
 #include <cstddef>
+#include <cstring>
 #include <span>
 #include <vector>
 
+#include "Vroom/Api.h"
+#include "Vroom/Render/AutoBuffer.h"
 #include "Vroom/Render/SSBO430Layout.h"
 
 namespace vrm::render
@@ -14,7 +17,7 @@ namespace vrm::render
  * not supported.
  *
  */
-class StructuredBuffer
+class VRM_API StructuredBuffer
 {
 public:
 
@@ -34,6 +37,18 @@ public:
     m_data.assign(elemCount * m_layout.getAlignedSize(), std::byte(0));
   }
 
+  inline void uploadTo(AutoBuffer& buffer)
+  {
+    const size_t size = m_data.size() * sizeof(std::byte);
+    buffer.ensureCapacity(size);
+
+    std::span<std::byte> mapped = buffer.mapWriteOnly<std::byte>(0, size, true);
+
+    std::memcpy(mapped.data(), m_data.data(), size);
+
+    buffer.unmap();
+  }
+
   template <typename T>
   inline void setAttribute(std::span<T const>           data,
                            const SSBO430Layout::Attrib& attribute,
@@ -46,6 +61,7 @@ public:
 
   inline const SSBO430Layout& getLayout() const { return m_layout; }
   inline size_t               getArraySize() const { return m_arraySize; }
+  inline size_t getSize() const { return m_data.size() * sizeof(std::byte); }
 
 private:
 

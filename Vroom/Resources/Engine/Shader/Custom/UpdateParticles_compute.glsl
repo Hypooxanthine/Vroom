@@ -6,10 +6,11 @@ void UpdateParticleStates(inout ParticleStates states, float dt);
 void SpawnParticle(inout ParticleStates states);
 vec4 GenerateRandomRange4(in vec4 min, in vec4 max);
 vec3 GenerateRandomRange3(in vec3 min, in vec3 max);
+float GenerateRandomRange1(in float min, in float max);
 uint murmurHash(in uint x);
 
-// Position, scale, color
-const uint g_attributeCount = 3;
+// Lifetime, position, scale, color
+const uint g_attributeCount = 4;
 
 void main()
 {
@@ -58,78 +59,64 @@ void main()
 void UpdateParticleStates(inout ParticleStates states, float dt)
 {
   states.ellapsedLifeTime += dt;
-  const float t = states.ellapsedLifeTime / states.maxLifeTime;
-
-  const vec3 position = mix(states.spawnPosition, states.deathPosition, t);
-  const vec3 scale = mix(states.spawnScale, states.deathScale, t);
-  const vec4 color = mix(states.spawnColor, states.deathColor, t);
+  
+  states.position += states.velocity * dt;
   
   uint instanceIndex = atomicAdd(g_indirectCommand.instanceCount, 1);
 
   mat4 M = mat4(1.f);
-  for (int i = 0; i < 3; ++i) M[i][i] = scale[i];
+  for (int i = 0; i < 3; ++i) M[i][i] = states.scale[i];
 
-  M[3].xyz = position;
+  M[3].xyz = states.position;
 
   g_particleInstanceData[instanceIndex].modelMatrix = M;
-  g_particleInstanceData[instanceIndex].color = color;
+  g_particleInstanceData[instanceIndex].color = states.color;
 }
 
 void SpawnParticle(inout ParticleStates states)
 {
   states.alive = 1;
   states.ellapsedLifeTime = 0.f;
+  states.velocity = vec3(0.f);
+  
+  // LifeTime attribute
+#ifdef VRM_PARTICLE_LifeTime_Const
   states.maxLifeTime = g_emitter.lifeTime;
-
-// Position attribute
-  // Spawn field
-#ifdef VRM_PARTICLE_POSITION_SPAWN_CONST_FIELD
-  states.spawnPosition = g_emitter.positionSpawnValue.xyz;
 #endif
-#ifdef VRM_PARTICLE_POSITION_SPAWN_RANDOM_RANGE_FIELD
-  states.spawnPosition = GenerateRandomRange3(g_emitter.positionSpawnMinValue.xyz, g_emitter.positionSpawnMaxValue.xyz);
+#ifdef VRM_PARTICLE_LifeTime_RandomRange
+  states.maxLifeTime = GenerateRandomRange1(g_emitter.lifeTimeMin, g_emitter.lifeTimeMax);
 #endif
 
-// Death field
-#ifdef VRM_PARTICLE_POSITION_DEATH_CONST_FIELD
-  states.deathPosition = g_emitter.positionDeathValue.xyz;
+  // Position attribute
+#ifdef VRM_PARTICLE_SpawnPosition_Const
+  states.position = g_emitter.spawnPosition;
 #endif
-#ifdef VRM_PARTICLE_POSITION_DEATH_RANDOM_RANGE_FIELD
-  states.deathPosition = GenerateRandomRange3(g_emitter.positionDeathMinValue.xyz, g_emitter.positionDeathMaxValue.xyz);
-#endif
-
-// Scale attribute
-  // Spawn field
-#ifdef VRM_PARTICLE_SCALE_SPAWN_CONST_FIELD
-  states.spawnScale = g_emitter.scaleSpawnValue.xyz;
-#endif
-#ifdef VRM_PARTICLE_SCALE_SPAWN_RANDOM_RANGE_FIELD
-  states.spawnScale = GenerateRandomRange3(g_emitter.scaleSpawnMinValue.xyz, g_emitter.scaleSpawnMaxValue.xyz);
+#ifdef VRM_PARTICLE_SpawnPosition_RandomRange
+  states.position = GenerateRandomRange3(g_emitter.spawnPositionMin, g_emitter.spawnPositionMax);
 #endif
 
-// Death field
-#ifdef VRM_PARTICLE_SCALE_DEATH_CONST_FIELD
-  states.deathScale = g_emitter.scaleDeathValue.xyz;
+  // Velocity attribute
+#ifdef VRM_PARTICLE_SpawnVelocity_Const
+  states.velocity = g_emitter.spawnVelocity;
 #endif
-#ifdef VRM_PARTICLE_SCALE_DEATH_RANDOM_RANGE_FIELD
-  states.deathScale = GenerateRandomRange3(g_emitter.scaleDeathMinValue.xyz, g_emitter.scaleDeathMaxValue.xyz);
-#endif
-
-// Color attribute
-  // Spawn field
-#ifdef VRM_PARTICLE_COLOR_SPAWN_CONST_FIELD
-  states.spawnColor = g_emitter.colorSpawnValue.xyzw;
-#endif
-#ifdef VRM_PARTICLE_COLOR_SPAWN_RANDOM_RANGE_FIELD
-  states.spawnColor = GenerateRandomRange4(g_emitter.colorSpawnMinValue, g_emitter.colorSpawnMaxValue);
+#ifdef VRM_PARTICLE_SpawnVelocity_RandomRange
+  states.velocity = GenerateRandomRange3(g_emitter.spawnVelocityMin, g_emitter.spawnVelocityMax);
 #endif
 
-// Death field
-#ifdef VRM_PARTICLE_COLOR_DEATH_CONST_FIELD
-  states.deathColor = g_emitter.colorDeathValue.xyzw;
+  // Scale attribute
+#ifdef VRM_PARTICLE_SpawnScale_Const
+  states.scale = g_emitter.spawnScale;
 #endif
-#ifdef VRM_PARTICLE_COLOR_DEATH_RANDOM_RANGE_FIELD
-  states.deathColor = GenerateRandomRange4(g_emitter.colorDeathMinValue, g_emitter.colorDeathMaxValue);
+#ifdef VRM_PARTICLE_SpawnScale_RandomRange
+  states.scale = GenerateRandomRange3(g_emitter.spawnScaleMin, g_emitter.spawnScaleMax);
+#endif
+
+  // Color attribute
+#ifdef VRM_PARTICLE_SpawnColor_Const
+  states.color = g_emitter.spawnColor;
+#endif
+#ifdef VRM_PARTICLE_SpawnColor_RandomRange
+  states.color = GenerateRandomRange4(g_emitter.spawnColorMin, g_emitter.spawnColorMax);
 #endif
 }
 
@@ -161,6 +148,13 @@ vec3 GenerateRandomRange3(in vec3 min, in vec3 max)
   }
    
   return rnd;
+}
+
+float GenerateRandomRange1(in float min, in float max)
+{
+  uint hash = murmurHash(u_randomSeed + gl_GlobalInvocationID.x * g_attributeCount + g_rndCounter++);
+  float normalized = float(hash) / float(0xFFFFFFFFu);
+  return mix(min, max, normalized);
 }
 
 uint murmurHash(in uint x)

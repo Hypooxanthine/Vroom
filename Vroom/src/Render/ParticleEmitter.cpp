@@ -3,8 +3,54 @@
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Core/DeltaTime.h"
+#include "Vroom/Render/ParticleEmitterAttribute.h"
+#include "Vroom/Render/SSBO430Layout.h"
+#include "glm/fwd.hpp"
 
 using namespace vrm;
+
+ParticleEmitter::Specs::Specs()
+{
+  emitRate      = std::make_unique<EmitRateEmitterAttrib>();
+  lifeTime      = std::make_unique<LifeTimeEmitterAttrib>();
+  spawnPosition = std::make_unique<SpawnPositionEmitterAttrib>();
+  spawnVelocity = std::make_unique<SpawnVelocityEmitterAttrib>();
+  spawnScale    = std::make_unique<SpawnScaleEmitterAttrib>();
+  spawnColor    = std::make_unique<SpawnColorEmitterAttrib>();
+}
+
+ParticleEmitter::Specs& ParticleEmitter::Specs::operator=(const Specs& other)
+{
+  if (this != &other)
+  {
+    mesh = other.mesh;
+    emitRate.reset(other.emitRate->clone());
+    lifeTime.reset(other.lifeTime->clone());
+    spawnPosition.reset(other.spawnPosition->clone());
+    spawnVelocity.reset(other.spawnVelocity->clone());
+    spawnScale.reset(other.spawnScale->clone());
+    spawnColor.reset(other.spawnColor->clone());
+  }
+
+  return *this;
+}
+
+ParticleEmitter::Specs::Specs(const Specs& other) { *this = other; }
+
+size_t ParticleEmitter::Specs::computeStatesRequiredSize() const
+{
+  render::SSBO430Layout layout;
+
+  layout.push<glm::uint>();    // Alive
+  layout.push<glm::float32>(); // Ellapsed life time
+  layout.push<glm::float32>(); // Max life time
+  layout.push<glm::vec3>();    // Current position
+  layout.push<glm::vec3>();    // Current velocity
+  layout.push<glm::vec3>();    // Current scale
+  layout.push<glm::vec4>();    // Current color
+
+  return layout.getAlignedSize();
+}
 
 ParticleEmitter::ParticleEmitter()
 {
@@ -21,7 +67,7 @@ void ParticleEmitter::update(const DeltaTime& dt)
   m_timeAlive            += dt.seconds();
   m_nextParticlesToSpawn  = 0;
 
-  const float timePerParticle = 1.f / m_specs.emitRate;
+  const float timePerParticle = 1.f / m_specs.emitRate->getEmitRate();
 
   if (m_lastSpawnedParticleStamp + timePerParticle < m_timeAlive)
   {
@@ -37,23 +83,12 @@ void ParticleEmitter::update(const DeltaTime& dt)
   }
 }
 
-void ParticleEmitter::setSpecs(const Specs& specs)
+void ParticleEmitter::setSpecs(Specs&& specs)
 {
-  m_dirtyValues = true;
+  m_dirtyValues    = true;
+  m_dirtyStructure = m_dirtyStructure || m_specs.structuresDifferent(specs);
 
-  const auto& currentAttribs = m_specs.getAttributes();
-  const auto& newAttribs     = specs.getAttributes();
-
-  for (size_t i = 0; i < Specs::s_attributeCount; ++i)
-  {
-    if (currentAttribs[i].structureDifferent(newAttribs[i]))
-    {
-      m_dirtyStructure = true;
-      break;
-    }
-  }
-
-  m_specs = specs;
+  m_specs = std::move(specs);
 }
 
 void ParticleEmitter::setupRender() const

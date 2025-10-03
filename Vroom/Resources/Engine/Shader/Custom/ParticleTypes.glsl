@@ -1,75 +1,56 @@
 #ifndef PARTICLE_TYPES_GLSL
 #define PARTICLE_TYPES_GLSL
 
-#define VRM_DECLARE_SPAWN_CONST_FIELD(attributeName) \
-  vec4 attributeName ## SpawnValue
-
-#define VRM_DECLARE_DEATH_CONST_FIELD(attributeName) \
-  vec4 attributeName ## DeathValue
-
-#define VRM_DECLARE_SPAWN_RANDOM_RANGE_FIELD(attributeName) \
-  vec4 attributeName ## SpawnMinValue; \
-  vec4 attributeName ## SpawnMaxValue
-
-#define VRM_DECLARE_DEATH_RANDOM_RANGE_FIELD(attributeName) \
-  vec4 attributeName ## DeathMinValue; \
-  vec4 attributeName ## DeathMaxValue
-
 struct ParticleEmitterSpecs
 {
-  float lifeTime;
+  // EmitRate attribute : only const field is supported
   float emitRate;
+  
+  // LifeTime attribute
+#ifdef VRM_PARTICLE_LifeTime_Const
+  float lifeTime;
+#endif
+#ifdef VRM_PARTICLE_LifeTime_RandomRange
+  float lifeTimeMin;
+  float lifeTimeMax;
+#endif
 
   // Position attribute
-    // Spawn field
-  #ifdef VRM_PARTICLE_POSITION_SPAWN_CONST_FIELD
-    VRM_DECLARE_SPAWN_CONST_FIELD(position);
-  #endif
-  #ifdef VRM_PARTICLE_POSITION_SPAWN_RANDOM_RANGE_FIELD
-    VRM_DECLARE_SPAWN_RANDOM_RANGE_FIELD(position);
-  #endif
+#ifdef VRM_PARTICLE_SpawnPosition_Const
+  vec3 spawnPosition;
+#endif
+#ifdef VRM_PARTICLE_SpawnPosition_RandomRange
+  vec3 spawnPositionMin;
+  vec3 spawnPositionMax;
+#endif
 
-  // Death field
-  #ifdef VRM_PARTICLE_POSITION_DEATH_CONST_FIELD
-    VRM_DECLARE_DEATH_CONST_FIELD(position);
-  #endif
-  #ifdef VRM_PARTICLE_POSITION_DEATH_RANDOM_RANGE_FIELD
-    VRM_DECLARE_DEATH_RANDOM_RANGE_FIELD(position);
-  #endif
+  // Velocity attribute
+#ifdef VRM_PARTICLE_SpawnVelocity_Const
+  vec3 spawnVelocity;
+#endif
+#ifdef VRM_PARTICLE_SpawnVelocity_RandomRange
+  vec3 spawnVelocityMin;
+  vec3 spawnVelocityMax;
+#endif
 
   // Scale attribute
-    // Spawn field
-  #ifdef VRM_PARTICLE_SCALE_SPAWN_CONST_FIELD
-    VRM_DECLARE_SPAWN_CONST_FIELD(scale);
-  #endif
-  #ifdef VRM_PARTICLE_SCALE_SPAWN_RANDOM_RANGE_FIELD
-    VRM_DECLARE_SPAWN_RANDOM_RANGE_FIELD(scale);
-  #endif
-
-  // Death field
-  #ifdef VRM_PARTICLE_SCALE_DEATH_CONST_FIELD
-    VRM_DECLARE_DEATH_CONST_FIELD(scale);
-  #endif
-  #ifdef VRM_PARTICLE_SCALE_DEATH_RANDOM_RANGE_FIELD
-    VRM_DECLARE_DEATH_RANDOM_RANGE_FIELD(scale);
-  #endif
+#ifdef VRM_PARTICLE_SpawnScale_Const
+  vec3 spawnScale;
+#endif
+#ifdef VRM_PARTICLE_SpawnScale_RandomRange
+  vec3 spawnScaleMin;
+  vec3 spawnScaleMax;
+#endif
 
   // Color attribute
-    // Spawn field
-  #ifdef VRM_PARTICLE_COLOR_SPAWN_CONST_FIELD
-    VRM_DECLARE_SPAWN_CONST_FIELD(color);
-  #endif
-  #ifdef VRM_PARTICLE_COLOR_SPAWN_RANDOM_RANGE_FIELD
-    VRM_DECLARE_SPAWN_RANDOM_RANGE_FIELD(color);
-  #endif
+#ifdef VRM_PARTICLE_SpawnColor_Const
+  vec4 spawnColor;
+#endif
+#ifdef VRM_PARTICLE_SpawnColor_RandomRange
+  vec4 spawnColorMin;
+  vec4 spawnColorMax;
+#endif
 
-  // Death field
-  #ifdef VRM_PARTICLE_COLOR_DEATH_CONST_FIELD
-    VRM_DECLARE_DEATH_CONST_FIELD(color);
-  #endif
-  #ifdef VRM_PARTICLE_COLOR_DEATH_RANDOM_RANGE_FIELD
-    VRM_DECLARE_DEATH_RANDOM_RANGE_FIELD(color);
-  #endif
 };
 
 struct EmitterSpawnData
@@ -83,12 +64,10 @@ struct ParticleStates
   float ellapsedLifeTime;
   float maxLifeTime;
 
-  vec3 spawnPosition;
-  vec3 deathPosition;
-  vec4 spawnColor;
-  vec4 deathColor;
-  vec3 spawnScale;
-  vec3 deathScale;
+  vec3 position;
+  vec3 velocity;
+  vec3 scale;
+  vec4 color;
 };
 
 struct ParticleInstanceData

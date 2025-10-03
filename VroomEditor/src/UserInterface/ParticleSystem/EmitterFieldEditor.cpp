@@ -3,6 +3,9 @@
 
 #include "imgui.h"
 
+#include "VroomEditor/UserInterface/ParticleSystem/EmitterScalarEditor.h"
+
+#include "Vroom/Core/Assert.h"
 #include "Vroom/Render/ParticleEmitterField.h"
 
 using namespace vrm::editor;
@@ -16,7 +19,7 @@ EmitterFieldEditor::~EmitterFieldEditor() {}
 void EmitterFieldEditor::setName(const std::string& name) { m_name = name; }
 
 bool EmitterFieldEditor::updateEmitterField(
-  ParticleEmitterFieldType& field) const
+  std::unique_ptr<IEmitterField>& field) const
 {
   return onUpdateEmitterField(field);
 }
@@ -69,14 +72,35 @@ ConstEmitterFieldEditor::~ConstEmitterFieldEditor() {}
 void ConstEmitterFieldEditor::onImguiEdit() { m_scalarEditor.renderImgui(); }
 
 bool ConstEmitterFieldEditor::onUpdateEmitterField(
-  ParticleEmitterFieldType& field) const
+  std::unique_ptr<IEmitterField>& field) const
 {
   if (m_scalarEditor.getAndResetModified())
   {
-    ConstParticleEmitterField newField;
-    std::span<float const>    editorData = m_scalarEditor.getData();
-    std::memcpy(&newField.value.x, editorData.data(), editorData.size_bytes());
-    field = newField;
+    if (field->getType() != EmitterFieldType::Const)
+    {
+      switch (m_scalarEditor.getDimension())
+      {
+      case 1:
+        field.reset(new ConstEmitterField1);
+        break;
+      case 2:
+        field.reset(new ConstEmitterField2);
+        break;
+      case 3:
+        field.reset(new ConstEmitterField3);
+        break;
+      case 4:
+        field.reset(new ConstEmitterField4);
+        break;
+      default:
+        VRM_ASSERT_MSG(false, "Dimension must be from 1 to 4");
+      }
+    }
+
+    IConstEmitterField& asConst = static_cast<IConstEmitterField&>(*field);
+
+    std::span<float const> editorData = m_scalarEditor.getData();
+    asConst.setValue(editorData);
 
     return true;
   }
@@ -107,27 +131,37 @@ void RandomRangeEmitterFieldEditor::onImguiEdit()
 }
 
 bool RandomRangeEmitterFieldEditor::onUpdateEmitterField(
-  ParticleEmitterFieldType& field) const
+  std::unique_ptr<IEmitterField>& field) const
 {
   if (m_minRange.getAndResetModified() || m_maxRange.getAndResetModified())
   {
-    RandomRangeParticleEmitterField newField;
-
-    // min range
+    if (field->getType() != EmitterFieldType::RandomRange)
     {
-      std::span<float const> editorData = m_minRange.getData();
-      std::memcpy(&newField.minValue.x, editorData.data(),
-                  editorData.size_bytes());
+      switch (m_minRange.getDimension())
+      {
+      case 1:
+        field.reset(new RandomRangeEmitterField1);
+        break;
+      case 2:
+        field.reset(new RandomRangeEmitterField2);
+        break;
+      case 3:
+        field.reset(new RandomRangeEmitterField3);
+        break;
+      case 4:
+        field.reset(new RandomRangeEmitterField4);
+        break;
+      default:
+        VRM_ASSERT_MSG(false, "Dimension must be from 1 to 4");
+      }
     }
 
-    // max range
-    {
-      std::span<float const> editorData = m_maxRange.getData();
-      std::memcpy(&newField.maxValue.x, editorData.data(),
-                  editorData.size_bytes());
-    }
+    IRandomRangeEmitterField& asRandomRange =
+      static_cast<IRandomRangeEmitterField&>(*field);
 
-    field = newField;
+    std::span<float const> editorMinData = m_minRange.getData();
+    std::span<float const> editorMaxData = m_maxRange.getData();
+    asRandomRange.setValue(editorMinData, editorMaxData);
 
     return true;
   }

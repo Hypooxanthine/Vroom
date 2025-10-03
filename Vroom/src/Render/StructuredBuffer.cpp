@@ -16,7 +16,7 @@ void StructuredBuffer::_setAttributeData(std::span<std::byte const>   data,
     "layout of this structured buffer?");
 
   const size_t location =
-    arrayIndex * m_layout.getAlignedSize() + attribute.getAlignment();
+    arrayIndex * m_layout.getAlignedSize() + attribute.getLocation();
 
   std::memcpy(&m_data[location], data.data(), data.size());
 }

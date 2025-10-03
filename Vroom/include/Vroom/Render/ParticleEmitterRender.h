@@ -7,9 +7,9 @@
 #include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/AutoBuffer.h"
 #include "Vroom/Render/MaterialDefines.h"
-#include "Vroom/Render/ParticleEmitterAttribute.h"
 #include "Vroom/Render/PassMaterials.h"
-#include "Vroom/Render/RawParticleEmitterSpecs.h"
+#include "Vroom/Render/SSBO430Layout.h"
+#include "Vroom/Render/StructuredBuffer.h"
 
 namespace vrm
 {
@@ -51,40 +51,15 @@ private:
     glm::uint baseInstance  = 0;
   };
 
-  struct RawParticleEmitterSpecsFixed
-  {
-    float lifeTime;
-    float emitRate;
-
-    float _pad[2];
-
-    glm::vec4 spawnColor;
-    glm::vec4 deathColor;
-
-    glm::vec4 spawnPosition;
-    glm::vec4 deathPosition;
-
-    glm::vec4 spawnScale;
-    glm::vec4 deathScale;
-  };
-
 private:
 
-  void _setupUpdaterMaterial(const vrm::RawParticleEmitterSpecs::Layout& layout,
-                             const MaterialDefines& defines);
+  void _setupUpdaterMaterial(const MaterialDefines& defines);
 
   void _uploadSpawnData(const ParticleEmitter& emitter) const;
   void _uploadIndirectCommandData() const;
 
   void _updateParticleStates(const ParticleEmitter& emitter);
   void _updateEmitterData(const ParticleEmitter& emitter);
-  void _setEmitterAttribute(RawParticleEmitterSpecs::EAttributeName attribName,
-                            const ParticleEmitterAttribute&         src);
-
-  /// @return The number of elements used by the field
-  size_t _setEmitterField(RawParticleEmitterSpecs::EAttributeName attribName,
-                          const ParticleEmitterFieldType&         field,
-                          size_t elementOffset);
 
   void _executeUpdateParticles(const ParticleEmitter& emitter);
   void _executeRenderParticles(const RenderPassContext& ctx,
@@ -107,7 +82,8 @@ private:
   PassMaterial m_updaterMaterial;
   PassMaterial m_renderMaterial;
 
-  RawParticleEmitterSpecs        m_rawEmitterSpecs;
+  render::StructuredBuffer       m_rawEmitterSpecs;
+  render::SSBO430Layout          m_rawEmitterSpecsLayout;
   RawDrawElementsIndirectCommand m_indirectCommand;
 
   render::AutoBuffer m_emitterDataBuffer;

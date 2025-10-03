@@ -68,13 +68,19 @@ ParticleSystemEditor::~ParticleSystemEditor() {}
 void ParticleSystemEditor::open(ParticleSystemAsset::Handle asset)
 {
   m_particlesAsset = asset;
-  if (m_open) { *m_open = true; }
+  if (m_open)
+  {
+    *m_open = true;
+  }
 }
 
 void ParticleSystemEditor::close()
 {
   m_particlesAsset = {};
-  if (m_open) { *m_open = false; }
+  if (m_open)
+  {
+    *m_open = false;
+  }
 }
 
 void ParticleSystemEditor::onUpdate(const DeltaTime& dt)
@@ -105,7 +111,10 @@ void ParticleSystemEditor::_updateEmitterSpecs()
 
     specsChanged = editor.updateEmitterSpecs(specs) || specsChanged;
 
-    if (specsChanged) { emitter.setSpecs(specs); }
+    if (specsChanged)
+    {
+      emitter.setSpecs(std::move(specs));
+    }
   }
 }
 
@@ -152,9 +161,15 @@ void ParticleSystemEditor::onImgui()
     {
       ImGui::TableNextRow();
 
-      if (ImGui::TableNextColumn()) { m_viewport.renderImgui(); }
+      if (ImGui::TableNextColumn())
+      {
+        m_viewport.renderImgui();
+      }
 
-      if (ImGui::TableNextColumn()) { _showSettings(); }
+      if (ImGui::TableNextColumn())
+      {
+        _showSettings();
+      }
 
       ImGui::EndTable();
     }
@@ -174,7 +189,10 @@ void ParticleSystemEditor::_showSettings()
 {
   if (ImGui::BeginChild("Settings"))
   {
-    for (EmitterEditor& emitter : m_emitters) { emitter.renderImgui(); }
+    for (EmitterEditor& emitter : m_emitters)
+    {
+      emitter.renderImgui();
+    }
 
     if (ImGui::Button("Add emitter"))
     {

@@ -5,8 +5,6 @@
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterFieldEditor.h"
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterScalarEditor.h"
 
-#include "Vroom/Render/ParticleEmitterAttribute.h"
-
 using namespace vrm::editor;
 
 EmitterAttributeEditor::EmitterAttributeEditor(const std::string& displayName)
@@ -19,17 +17,7 @@ void EmitterAttributeEditor::onImgui()
 {
   if (ImGui::TreeNode(m_displayName.c_str()))
   {
-    ImGui::PushID("spawn");
-    {
-      m_spawnField->renderImgui();
-      ImGui::PopID();
-    }
-
-    ImGui::PushID("death");
-    {
-      m_deathField->renderImgui();
-      ImGui::PopID();
-    }
+    m_field->renderImgui();
 
     ImGui::TreePop();
   }
@@ -37,103 +25,121 @@ void EmitterAttributeEditor::onImgui()
 
 void EmitterAttributeEditor::onUpdate(const DeltaTime& dt)
 {
-  if (m_spawnField->requestedNewFieldType())
-    assignSpawnField(
-      EmitterFieldEditor::Instanciate(m_spawnField->getNextType()));
-
-  if (m_deathField->requestedNewFieldType())
-    assignDeathField(
-      EmitterFieldEditor::Instanciate(m_deathField->getNextType()));
+  if (m_field->requestedNewFieldType())
+    assignField(EmitterFieldEditor::Instanciate(m_field->getNextType()),
+                m_scalarSettings);
 }
 
 void EmitterAttributeEditor::assignField(
-  std::unique_ptr<EmitterFieldEditor>& field, EmitterFieldEditor* newField,
-  const EmitterScalarEditor::Settings& settings)
+  EmitterFieldEditor* newField, const EmitterScalarEditor::Settings& settings)
 {
-  field.reset(newField);
-  field->setScalarSettings(settings);
+  m_field.reset(newField);
+  m_field->setScalarSettings(settings);
+  m_scalarSettings = settings;
 }
 
-EmitterPositionEditor::EmitterPositionEditor()
-  : EmitterAttributeEditor("Position")
+EmitterSpawnPositionEditor::EmitterSpawnPositionEditor()
+  : EmitterAttributeEditor("Spawn position")
 {
-  m_spawnFieldSettings.scalarType   = EmitterScalarEditor::EScalarType::eVec3;
-  m_spawnFieldSettings.minValue     = { -10.f, -10.f, -10.f };
-  m_spawnFieldSettings.maxValue     = { 10.f, 10.f, 10.f };
-  m_spawnFieldSettings.defaultValue = { 0.f, 0.f, 0.f };
-  m_spawnFieldSettings.scaleLocked  = false;
+  EmitterScalarEditor::Settings settings;
+  settings.scalarType   = EmitterScalarEditor::EScalarType::eVec3;
+  settings.minValue     = { -10.f, -10.f, -10.f };
+  settings.maxValue     = { 10.f, 10.f, 10.f };
+  settings.defaultValue = { 0.f, 0.f, 0.f };
+  settings.scaleLocked  = false;
 
-  m_deathFieldSettings              = m_spawnFieldSettings;
-  m_deathFieldSettings.defaultValue = { 0.f, 5.f, 0.f };
-
-  assignSpawnField(new ConstEmitterFieldEditor());
-  assignDeathField(new ConstEmitterFieldEditor());
+  assignField(new ConstEmitterFieldEditor(), settings);
 }
 
-EmitterPositionEditor::~EmitterPositionEditor() {}
+EmitterSpawnPositionEditor::~EmitterSpawnPositionEditor() {}
 
-bool EmitterPositionEditor::updateEmitterSpecs(
+bool EmitterSpawnPositionEditor::updateEmitterSpecs(
   ParticleEmitter::Specs& specs) const
 {
   bool changed = false;
 
   changed =
-    m_spawnField->updateEmitterField(specs.position.spawnValue) || changed;
+    m_field->updateEmitterField(specs.spawnPosition->getPositionFieldPtr())
+    || changed;
+
+  return changed;
+}
+
+EmitterSpawnVelocityEditor::EmitterSpawnVelocityEditor()
+  : EmitterAttributeEditor("Spawn velocity")
+{
+  EmitterScalarEditor::Settings settings;
+  settings.scalarType   = EmitterScalarEditor::EScalarType::eVec3;
+  settings.minValue     = { -10.f, -10.f, -10.f };
+  settings.maxValue     = { 10.f, 10.f, 10.f };
+  settings.defaultValue = { 0.f, 1.f, 0.f };
+  settings.scaleLocked  = false;
+
+  assignField(new ConstEmitterFieldEditor(), settings);
+}
+
+EmitterSpawnVelocityEditor::~EmitterSpawnVelocityEditor() {}
+
+bool EmitterSpawnVelocityEditor::updateEmitterSpecs(
+  ParticleEmitter::Specs& specs) const
+{
+  bool changed = false;
+
   changed =
-    m_deathField->updateEmitterField(specs.position.deathValue) || changed;
+    m_field->updateEmitterField(specs.spawnVelocity->getVelocityFieldPtr())
+    || changed;
 
   return changed;
 }
 
-EmitterScaleEditor::EmitterScaleEditor() : EmitterAttributeEditor("Scale")
+EmitterSpawnScaleEditor::EmitterSpawnScaleEditor()
+  : EmitterAttributeEditor("Spawn scale")
 {
-  m_spawnFieldSettings.scalarType   = EmitterScalarEditor::EScalarType::eVec3;
-  m_spawnFieldSettings.minValue     = { 0.1f, 0.1f, 0.1f };
-  m_spawnFieldSettings.maxValue     = { 5.f, 5.f, 5.f };
-  m_spawnFieldSettings.defaultValue = { 1.f, 1.f, 1.f };
-  m_spawnFieldSettings.scaleLocked  = true;
+  EmitterScalarEditor::Settings settings;
+  settings.scalarType   = EmitterScalarEditor::EScalarType::eVec3;
+  settings.minValue     = { 0.1f, 0.1f, 0.1f };
+  settings.maxValue     = { 5.f, 5.f, 5.f };
+  settings.defaultValue = { 1.f, 1.f, 1.f };
+  settings.scaleLocked  = true;
 
-  m_deathFieldSettings = m_spawnFieldSettings;
-
-  assignSpawnField(new ConstEmitterFieldEditor());
-  assignDeathField(new ConstEmitterFieldEditor());
+  assignField(new ConstEmitterFieldEditor(), settings);
 }
 
-EmitterScaleEditor::~EmitterScaleEditor() {}
+EmitterSpawnScaleEditor::~EmitterSpawnScaleEditor() {}
 
-bool EmitterScaleEditor::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
+bool EmitterSpawnScaleEditor::updateEmitterSpecs(
+  ParticleEmitter::Specs& specs) const
 {
   bool changed = false;
 
-  changed = m_spawnField->updateEmitterField(specs.scale.spawnValue) || changed;
-  changed = m_deathField->updateEmitterField(specs.scale.deathValue) || changed;
+  changed = m_field->updateEmitterField(specs.spawnScale->getScaleFieldPtr())
+         || changed;
 
   return changed;
 }
 
-EmitterColorEditor::EmitterColorEditor() : EmitterAttributeEditor("Color")
+EmitterSpawnColorEditor::EmitterSpawnColorEditor()
+  : EmitterAttributeEditor("Spawn color")
 {
-  m_spawnFieldSettings.scalarType   = EmitterScalarEditor::EScalarType::eColor4;
-  m_spawnFieldSettings.minValue     = { 0.f, 0.f, 0.f, 0.f };
-  m_spawnFieldSettings.maxValue     = { 1.f, 1.f, 1.f, 1.f };
-  m_spawnFieldSettings.defaultValue = { 1.f, 0.f, 0.f, 1.f };
-  m_spawnFieldSettings.scaleLocked  = false;
+  EmitterScalarEditor::Settings settings;
+  settings.scalarType   = EmitterScalarEditor::EScalarType::eColor4;
+  settings.minValue     = { 0.f, 0.f, 0.f, 0.f };
+  settings.maxValue     = { 1.f, 1.f, 1.f, 1.f };
+  settings.defaultValue = { 1.f, 0.f, 0.f, 1.f };
+  settings.scaleLocked  = false;
 
-  m_deathFieldSettings              = m_spawnFieldSettings;
-  m_deathFieldSettings.defaultValue = { 0.f, 0.f, 1.f, 1.f };
-
-  assignSpawnField(new ConstEmitterFieldEditor());
-  assignDeathField(new ConstEmitterFieldEditor());
+  assignField(new ConstEmitterFieldEditor(), settings);
 }
 
-EmitterColorEditor::~EmitterColorEditor() {}
+EmitterSpawnColorEditor::~EmitterSpawnColorEditor() {}
 
-bool EmitterColorEditor::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
+bool EmitterSpawnColorEditor::updateEmitterSpecs(
+  ParticleEmitter::Specs& specs) const
 {
   bool changed = false;
 
-  changed = m_spawnField->updateEmitterField(specs.color.spawnValue) || changed;
-  changed = m_deathField->updateEmitterField(specs.color.deathValue) || changed;
+  changed = m_field->updateEmitterField(specs.spawnColor->getColorFieldPtr())
+         || changed;
 
   return changed;
 }

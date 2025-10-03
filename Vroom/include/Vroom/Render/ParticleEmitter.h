@@ -2,7 +2,6 @@
 
 #include <cstddef>
 #include <memory>
-#include <span>
 
 #include <glm/glm.hpp>
 
@@ -24,31 +23,38 @@ public:
 
   struct VRM_API Specs
   {
-    static constexpr size_t s_attributeCount = 3;
+    Specs();
+    ~Specs() = default;
 
-    float lifeTime;
-    float emitRate;
+    Specs& operator=(const Specs& other);
+    Specs(const Specs& other);
+
+    Specs& operator=(Specs&& other) = default;
+    Specs(Specs&& other)            = default;
+
+    static constexpr size_t s_attributeCount = 3;
 
     MeshAsset::Handle mesh;
 
-    ParticleEmitterAttribute color    = { "COLOR" };
-    ParticleEmitterAttribute position = { "POSITION" };
-    ParticleEmitterAttribute scale    = { "SCALE" };
+    std::unique_ptr<EmitRateEmitterAttrib> emitRate;
+    std::unique_ptr<LifeTimeEmitterAttrib> lifeTime;
 
-    inline std::span<ParticleEmitterAttribute, s_attributeCount> getAttributes()
+    std::unique_ptr<SpawnPositionEmitterAttrib> spawnPosition;
+    std::unique_ptr<SpawnVelocityEmitterAttrib> spawnVelocity;
+    std::unique_ptr<SpawnScaleEmitterAttrib>    spawnScale;
+    std::unique_ptr<SpawnColorEmitterAttrib>    spawnColor;
+
+    inline bool structuresDifferent(const Specs& other) const
     {
-      return std::span<ParticleEmitterAttribute, s_attributeCount>{
-        &color, s_attributeCount
-      };
+      return emitRate->structuresDifferent(*other.emitRate)
+          || lifeTime->structuresDifferent(*other.lifeTime)
+          || spawnPosition->structuresDifferent(*other.spawnPosition)
+          || spawnVelocity->structuresDifferent(*other.spawnVelocity)
+          || spawnScale->structuresDifferent(*other.spawnScale)
+          || spawnColor->structuresDifferent(*other.spawnColor);
     }
 
-    inline std::span<ParticleEmitterAttribute const, s_attributeCount>
-    getAttributes() const
-    {
-      return std::span<ParticleEmitterAttribute const, s_attributeCount>{
-        &color, s_attributeCount
-      };
-    }
+    size_t computeStatesRequiredSize() const;
   };
 
 public:
@@ -69,7 +75,7 @@ public:
 
   inline bool isDirty() const { return m_dirtyValues; }
 
-  void setSpecs(const Specs& specs);
+  void setSpecs(Specs&& specs);
 
   inline const Specs& getSpecs() const { return m_specs; }
 

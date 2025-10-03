@@ -2,6 +2,7 @@
 
 #include <cstddef>
 
+#include "Vroom/Api.h"
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Tools/Maths.h"
 #include "glm/common.hpp"
@@ -19,7 +20,7 @@ struct SSBO430Traits;
  * struct size with or without padding.
  *
  */
-class SSBO430Layout
+class VRM_API SSBO430Layout
 {
 public:
 
@@ -37,11 +38,13 @@ public:
     constexpr Attrib(Attrib&& other)            = default;
 
     inline constexpr bool isValid() const { return size > 0 && alignment > 0; }
+    inline constexpr size_t getLocation() const { return location; }
     inline constexpr size_t getAlignment() const { return alignment; }
     inline constexpr size_t getSize() const { return size; }
 
   private:
 
+    size_t location  = -1;
     size_t alignment = 0;
     size_t size      = 0;
   };
@@ -112,6 +115,9 @@ struct SSBO430Traits<glm::int32> : SSBO430Traits<float>
 template <>
 struct SSBO430Traits<glm::uint32> : SSBO430Traits<float>
 {};
+template <>
+struct SSBO430Traits<glm::vec1> : SSBO430Traits<float>
+{};
 
 template <>
 struct SSBO430Traits<glm::vec2>
@@ -157,6 +163,7 @@ inline constexpr SSBO430Layout::Attrib SSBO430Layout::_push(size_t elemSize,
   m_alignment     = glm::max(m_alignment, alignment);
 
   Attrib outAttrib;
+  outAttrib.location  = location;
   outAttrib.alignment = alignment;
   outAttrib.size      = elemSize;
   return outAttrib;

@@ -33,46 +33,31 @@ protected:
   void onImgui() override;
   void onUpdate(const DeltaTime& dt) override;
 
-  void assignField(std::unique_ptr<EmitterFieldEditor>& field,
-                   EmitterFieldEditor*                  newField,
+  void assignField(EmitterFieldEditor*                  newField,
                    const EmitterScalarEditor::Settings& settings);
 
-  inline void assignSpawnField(EmitterFieldEditor* emitterFieldEditor)
-  {
-    assignField(m_spawnField, emitterFieldEditor, m_spawnFieldSettings);
-    m_spawnField->setName("Spawn");
-  }
-
-  inline void assignDeathField(EmitterFieldEditor* emitterFieldEditor)
-  {
-    assignField(m_deathField, emitterFieldEditor, m_deathFieldSettings);
-    m_deathField->setName("Death");
-  }
-
-  std::unique_ptr<EmitterFieldEditor> m_spawnField;
-  std::unique_ptr<EmitterFieldEditor> m_deathField;
-
-protected:
-
-  EmitterScalarEditor::Settings m_spawnFieldSettings, m_deathFieldSettings;
+  std::unique_ptr<EmitterFieldEditor> m_field;
 
 private:
 
-  std::string m_displayName;
+  std::string                   m_displayName;
+  EmitterScalarEditor::Settings m_scalarSettings;
 };
 
-class EmitterPositionEditor : public EmitterAttributeEditor
+class EmitterSpawnPositionEditor : public EmitterAttributeEditor
 {
 public:
 
-  EmitterPositionEditor();
-  ~EmitterPositionEditor();
+  EmitterSpawnPositionEditor();
+  ~EmitterSpawnPositionEditor();
 
-  EmitterPositionEditor& operator=(const EmitterPositionEditor& other) = delete;
-  EmitterPositionEditor(const EmitterPositionEditor& other)            = delete;
+  EmitterSpawnPositionEditor&
+  operator=(const EmitterSpawnPositionEditor& other)                  = delete;
+  EmitterSpawnPositionEditor(const EmitterSpawnPositionEditor& other) = delete;
 
-  EmitterPositionEditor& operator=(EmitterPositionEditor&& other) = default;
-  EmitterPositionEditor(EmitterPositionEditor&& other)            = default;
+  EmitterSpawnPositionEditor&
+  operator=(EmitterSpawnPositionEditor&& other)                  = default;
+  EmitterSpawnPositionEditor(EmitterSpawnPositionEditor&& other) = default;
 
 protected:
 
@@ -81,18 +66,20 @@ protected:
 private:
 };
 
-class EmitterScaleEditor : public EmitterAttributeEditor
+class EmitterSpawnVelocityEditor : public EmitterAttributeEditor
 {
 public:
 
-  EmitterScaleEditor();
-  ~EmitterScaleEditor();
+  EmitterSpawnVelocityEditor();
+  ~EmitterSpawnVelocityEditor();
 
-  EmitterScaleEditor& operator=(const EmitterScaleEditor& other) = delete;
-  EmitterScaleEditor(const EmitterScaleEditor& other)            = delete;
+  EmitterSpawnVelocityEditor&
+  operator=(const EmitterSpawnVelocityEditor& other)                  = delete;
+  EmitterSpawnVelocityEditor(const EmitterSpawnVelocityEditor& other) = delete;
 
-  EmitterScaleEditor& operator=(EmitterScaleEditor&& other) = default;
-  EmitterScaleEditor(EmitterScaleEditor&& other)            = default;
+  EmitterSpawnVelocityEditor&
+  operator=(EmitterSpawnVelocityEditor&& other)                  = default;
+  EmitterSpawnVelocityEditor(EmitterSpawnVelocityEditor&& other) = default;
 
 protected:
 
@@ -101,18 +88,40 @@ protected:
 private:
 };
 
-class EmitterColorEditor : public EmitterAttributeEditor
+class EmitterSpawnScaleEditor : public EmitterAttributeEditor
 {
 public:
 
-  EmitterColorEditor();
-  ~EmitterColorEditor();
+  EmitterSpawnScaleEditor();
+  ~EmitterSpawnScaleEditor();
 
-  EmitterColorEditor& operator=(const EmitterColorEditor& other) = delete;
-  EmitterColorEditor(const EmitterColorEditor& other)            = delete;
+  EmitterSpawnScaleEditor&
+  operator=(const EmitterSpawnScaleEditor& other)               = delete;
+  EmitterSpawnScaleEditor(const EmitterSpawnScaleEditor& other) = delete;
 
-  EmitterColorEditor& operator=(EmitterColorEditor&& other) = delete;
-  EmitterColorEditor(EmitterColorEditor&& other)            = delete;
+  EmitterSpawnScaleEditor& operator=(EmitterSpawnScaleEditor&& other) = default;
+  EmitterSpawnScaleEditor(EmitterSpawnScaleEditor&& other)            = default;
+
+protected:
+
+  bool updateEmitterSpecs(ParticleEmitter::Specs& specs) const override;
+
+private:
+};
+
+class EmitterSpawnColorEditor : public EmitterAttributeEditor
+{
+public:
+
+  EmitterSpawnColorEditor();
+  ~EmitterSpawnColorEditor();
+
+  EmitterSpawnColorEditor&
+  operator=(const EmitterSpawnColorEditor& other)               = delete;
+  EmitterSpawnColorEditor(const EmitterSpawnColorEditor& other) = delete;
+
+  EmitterSpawnColorEditor& operator=(EmitterSpawnColorEditor&& other) = delete;
+  EmitterSpawnColorEditor(EmitterSpawnColorEditor&& other)            = delete;
 
 protected:
 

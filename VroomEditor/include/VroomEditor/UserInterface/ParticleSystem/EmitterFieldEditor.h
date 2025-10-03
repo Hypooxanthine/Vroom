@@ -1,12 +1,17 @@
 #pragma once
 
+#include <memory>
 #include <string>
 
 #include "VroomEditor/UserInterface/ImGuiElement.h"
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterScalarEditor.h"
 
 #include "Vroom/Core/Assert.h"
-#include "Vroom/Render/ParticleEmitterAttribute.h"
+
+namespace vrm
+{
+class IEmitterField;
+}
 
 namespace vrm::editor
 {
@@ -33,7 +38,7 @@ public:
   EmitterFieldEditor(EType::Type type);
   ~EmitterFieldEditor();
 
-  bool updateEmitterField(ParticleEmitterFieldType& field) const;
+  bool updateEmitterField(std::unique_ptr<IEmitterField>& field) const;
 
   void                      setName(const std::string& name);
   inline const std::string& getName() const { return m_name; }
@@ -43,14 +48,21 @@ public:
 
   inline void setScalarSettings(const EmitterScalarEditor::Settings& settings)
   {
+    m_scalarSettings = settings;
     onUpdateScalarSettings(settings);
+  }
+
+  inline const EmitterScalarEditor::Settings& getScalarSettings() const
+  {
+    return m_scalarSettings;
   }
 
 protected:
 
   void         onImgui() override;
-  virtual void onImguiEdit()                                               = 0;
-  virtual bool onUpdateEmitterField(ParticleEmitterFieldType& field) const = 0;
+  virtual void onImguiEdit() = 0;
+  virtual bool
+  onUpdateEmitterField(std::unique_ptr<IEmitterField>& field) const = 0;
   virtual void
   onUpdateScalarSettings(const EmitterScalarEditor::Settings& settings) = 0;
 
@@ -60,9 +72,10 @@ private:
 
 private:
 
-  std::string m_name = "Field";
-  EType::Type m_type;
-  EType::Type m_nextType;
+  std::string                   m_name = "Field";
+  EmitterScalarEditor::Settings m_scalarSettings;
+  EType::Type                   m_type;
+  EType::Type                   m_nextType;
 };
 
 class ConstEmitterFieldEditor : public EmitterFieldEditor
@@ -75,7 +88,8 @@ public:
 protected:
 
   void onImguiEdit() override;
-  bool onUpdateEmitterField(ParticleEmitterFieldType& field) const override;
+  bool
+  onUpdateEmitterField(std::unique_ptr<IEmitterField>& field) const override;
   inline void
   onUpdateScalarSettings(const EmitterScalarEditor::Settings& settings) override
   {
@@ -97,7 +111,8 @@ public:
 protected:
 
   void onImguiEdit() override;
-  bool onUpdateEmitterField(ParticleEmitterFieldType& field) const override;
+  bool
+  onUpdateEmitterField(std::unique_ptr<IEmitterField>& field) const override;
 
   inline void
   onUpdateScalarSettings(const EmitterScalarEditor::Settings& settings) override

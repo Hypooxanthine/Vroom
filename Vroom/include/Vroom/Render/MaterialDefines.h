@@ -3,10 +3,12 @@
 #include <map>
 #include <string>
 
+#include "Vroom/Api.h"
+
 namespace vrm
 {
 
-class MaterialDefines
+class VRM_API MaterialDefines
 {
 public:
 

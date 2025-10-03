@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <memory>
 
 #include <glm/glm.hpp>
@@ -11,72 +12,80 @@
 namespace vrm
 {
 
-struct ConstParticleEmitterField
+enum class EmitterFieldType
 {
-  inline ConstParticleEmitterField() = default;
-  inline ConstParticleEmitterField(const glm::vec4& value) : value(value) {}
-
-  glm::vec4 value;
+  Const = 0,
+  RandomRange
 };
 
-struct RandomRangeParticleEmitterField
-{
-  inline RandomRangeParticleEmitterField() = default;
-  inline RandomRangeParticleEmitterField(const glm::vec4& minValue,
-                                         const glm::vec4& maxValue)
-    : minValue(minValue), maxValue(maxValue)
-  {}
-
-  glm::vec4 minValue, maxValue;
-};
-
-class EmitterField
+class IEmitterField
 {
 public:
 
-  EmitterField(size_t dim) : m_dim(dim) {}
-  ~EmitterField() = default;
-
-  EmitterField& operator=(const EmitterField& other) = delete;
-  EmitterField(const EmitterField& other)            = delete;
-
-  EmitterField& operator=(EmitterField&& other) = delete;
-  EmitterField(EmitterField&& other)            = delete;
-
-  inline size_t getDim() const { return m_dim; }
-
-  virtual void applyDefines(MaterialDefines&   defines,
-                            const std::string& prefix)                      = 0;
-  virtual void pushToLayout(render::SSBO430Layout& layout)                  = 0;
-  virtual void assignStructuredBufferData(render::StructuredBuffer& buffer) = 0;
-
-private:
-
-  size_t m_dim;
-};
-
-using EmitterFieldPtr = std::unique_ptr<EmitterField>;
-
-class ConstEmitterField : public EmitterField
-{
-public:
-
-  ConstEmitterField(size_t dim) : EmitterField(dim) {}
-  ~ConstEmitterField() = default;
-
-  ConstEmitterField& operator=(const ConstEmitterField& other) = delete;
-  ConstEmitterField(const ConstEmitterField& other)            = delete;
-
-  ConstEmitterField& operator=(ConstEmitterField&& other) = delete;
-  ConstEmitterField(ConstEmitterField&& other)            = delete;
-
-  template <glm::length_t Dim>
-  inline void setValue(const glm::vec<Dim, float>& value)
+  inline bool structureDifferent(const IEmitterField& other) const
   {
-    m_value = glm::vec4(value);
+    return getType() != other.getType();
   }
 
-  inline const glm::vec4& getValue() const { return m_value; }
+  virtual IEmitterField*   clone() const                                    = 0;
+  virtual EmitterFieldType getType() const                                  = 0;
+  virtual void             applyDefines(MaterialDefines&   defines,
+                                        const std::string& prefix)          = 0;
+  virtual void             pushToLayout(render::SSBO430Layout& layout)      = 0;
+  virtual void assignStructuredBufferData(render::StructuredBuffer& buffer) = 0;
+  virtual glm::vec4 getUpperBound() const                                   = 0;
+};
+
+using EmitterField1 = IEmitterField;
+using EmitterField2 = IEmitterField;
+using EmitterField3 = IEmitterField;
+using EmitterField4 = IEmitterField;
+
+template <glm::length_t Dim>
+using EmitterFieldPtr = std::unique_ptr<IEmitterField>;
+
+using EmitterField1Ptr = EmitterFieldPtr<1>;
+using EmitterField2Ptr = EmitterFieldPtr<2>;
+using EmitterField3Ptr = EmitterFieldPtr<3>;
+using EmitterField4Ptr = EmitterFieldPtr<4>;
+
+class IConstEmitterField : public IEmitterField
+{
+public:
+
+  virtual void setValue(std::span<float const> value) = 0;
+};
+
+template <glm::length_t Dim>
+class ConstEmitterField : public IConstEmitterField
+{
+public:
+
+  using VectorType = glm::vec<Dim, float>;
+
+public:
+
+  ConstEmitterField()  = default;
+  ~ConstEmitterField() = default;
+
+  ConstEmitterField(const VectorType& value) : m_value(value) {}
+
+  ConstEmitterField& operator=(const ConstEmitterField& other) = default;
+  ConstEmitterField(const ConstEmitterField& other)            = default;
+
+  ConstEmitterField& operator=(ConstEmitterField&& other) = default;
+  ConstEmitterField(ConstEmitterField&& other)            = default;
+
+  inline void setValue(const VectorType& value) { m_value = value; }
+
+  inline const VectorType& getValue() const { return m_value; }
+
+  ConstEmitterField* clone() const override
+  {
+    return new ConstEmitterField(*this);
+  }
+
+  EmitterFieldType getType() const override { return EmitterFieldType::Const; }
 
   void applyDefines(MaterialDefines&   defines,
                     const std::string& prefix) override
@@ -86,48 +95,84 @@ public:
 
   void pushToLayout(render::SSBO430Layout& layout) override
   {
-    m_attrib = layout.pushVectorFloat(getDim());
+    m_attrib = layout.push<VectorType>();
   }
 
   void assignStructuredBufferData(render::StructuredBuffer& buffer) override
   {
-    buffer.setAttribute(std::span{ &m_value.x, getDim() }, m_attrib, 0);
+    buffer.setAttribute(m_value, m_attrib, 0);
+  }
+
+  glm::vec4 getUpperBound() const override
+  {
+    glm::vec4 out(0.f);
+    std::copy_n(&m_value.x, Dim, &out.x);
+    return out;
+  }
+
+  void setValue(std::span<float const> value) override
+  {
+    std::copy_n(value.begin(), std::min<size_t>(Dim, value.size()), &m_value.x);
   }
 
 private:
 
-  glm::vec4                     m_value;
+  VectorType                    m_value;
   render::SSBO430Layout::Attrib m_attrib;
 };
 
-class RandomRangeEmitterField : public EmitterField
+using ConstEmitterField1 = ConstEmitterField<1>;
+using ConstEmitterField2 = ConstEmitterField<2>;
+using ConstEmitterField3 = ConstEmitterField<3>;
+using ConstEmitterField4 = ConstEmitterField<4>;
+
+class IRandomRangeEmitterField : public IEmitterField
 {
 public:
 
-  RandomRangeEmitterField(size_t dim) : EmitterField(dim) {}
+  virtual void setValue(std::span<float const> minValue,
+                        std::span<float const> maxValue) = 0;
+};
+
+template <glm::length_t Dim>
+class RandomRangeEmitterField : public IRandomRangeEmitterField
+{
+public:
+
+  using VectorType = glm::vec<Dim, float>;
+
+public:
+
+  RandomRangeEmitterField()  = default;
   ~RandomRangeEmitterField() = default;
 
+  RandomRangeEmitterField(const VectorType& min, const VectorType& max)
+    : m_minValue(min), m_maxValue(max)
+  {}
+
   RandomRangeEmitterField&
-  operator=(const RandomRangeEmitterField& other)               = delete;
-  RandomRangeEmitterField(const RandomRangeEmitterField& other) = delete;
+  operator=(const RandomRangeEmitterField& other)               = default;
+  RandomRangeEmitterField(const RandomRangeEmitterField& other) = default;
 
-  RandomRangeEmitterField& operator=(RandomRangeEmitterField&& other) = delete;
-  RandomRangeEmitterField(RandomRangeEmitterField&& other)            = delete;
+  RandomRangeEmitterField& operator=(RandomRangeEmitterField&& other) = default;
+  RandomRangeEmitterField(RandomRangeEmitterField&& other)            = default;
 
-  template <glm::length_t Dim>
-  inline void setMinValue(const glm::vec<Dim, float>& value)
+  inline void setMinValue(const VectorType& value) { m_minValue = value; }
+
+  inline void setMaxValue(const VectorType& value) { m_maxValue = value; }
+
+  inline const VectorType& getMinValue() const { return m_minValue; }
+  inline const VectorType& getMaxValue() const { return m_maxValue; }
+
+  RandomRangeEmitterField* clone() const override
   {
-    m_minValue = glm::vec4(value);
+    return new RandomRangeEmitterField(*this);
   }
 
-  template <glm::length_t Dim>
-  inline void setMaxValue(const glm::vec<Dim, float>& value)
+  EmitterFieldType getType() const override
   {
-    m_maxValue = glm::vec4(value);
+    return EmitterFieldType::RandomRange;
   }
-
-  inline const glm::vec4& getMinValue() const { return m_minValue; }
-  inline const glm::vec4& getMaxValue() const { return m_maxValue; }
 
   void applyDefines(MaterialDefines&   defines,
                     const std::string& prefix) override
@@ -137,23 +182,44 @@ public:
 
   void pushToLayout(render::SSBO430Layout& layout) override
   {
-    m_minAttrib = layout.pushVectorFloat(getDim());
-    m_maxAttrib = layout.pushVectorFloat(getDim());
+    m_minAttrib = layout.push<VectorType>();
+    m_maxAttrib = layout.push<VectorType>();
   }
 
   void assignStructuredBufferData(render::StructuredBuffer& buffer) override
   {
-    buffer.setAttribute(std::span{ &m_minValue.x, getDim() }, m_minAttrib, 0);
-    buffer.setAttribute(std::span{ &m_maxValue.x, getDim() }, m_maxAttrib, 0);
+    buffer.setAttribute(m_minValue, m_minAttrib, 0);
+    buffer.setAttribute(m_maxValue, m_maxAttrib, 0);
+  }
+
+  glm::vec4 getUpperBound() const override
+  {
+    glm::vec4 out(0.f);
+    std::copy_n(&m_maxValue.x, Dim, &out.x);
+    return out;
+  }
+
+  void setValue(std::span<float const> minValue,
+                std::span<float const> maxValue) override
+  {
+    std::copy_n(minValue.begin(), std::min<size_t>(Dim, minValue.size()),
+                &m_minValue.x);
+    std::copy_n(maxValue.begin(), std::min<size_t>(Dim, maxValue.size()),
+                &m_maxValue.x);
   }
 
 private:
 
-  glm::vec4 m_minValue;
-  glm::vec4 m_maxValue;
+  VectorType m_minValue;
+  VectorType m_maxValue;
 
   render::SSBO430Layout::Attrib m_minAttrib;
   render::SSBO430Layout::Attrib m_maxAttrib;
 };
+
+using RandomRangeEmitterField1 = RandomRangeEmitterField<1>;
+using RandomRangeEmitterField2 = RandomRangeEmitterField<2>;
+using RandomRangeEmitterField3 = RandomRangeEmitterField<3>;
+using RandomRangeEmitterField4 = RandomRangeEmitterField<4>;
 
 } // namespace vrm

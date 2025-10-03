@@ -4,13 +4,18 @@
 
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterAttributeEditor.h"
 
+#include "Vroom/Core/Assert.h"
+#include "Vroom/Render/ParticleEmitterAttribute.h"
+#include "Vroom/Render/ParticleEmitterField.h"
+
 using namespace vrm::editor;
 
 EmitterEditor::EmitterEditor()
 {
-  m_attributes.emplace_back(new EmitterPositionEditor());
-  m_attributes.emplace_back(new EmitterScaleEditor());
-  m_attributes.emplace_back(new EmitterColorEditor());
+  m_attributes.emplace_back(new EmitterSpawnPositionEditor());
+  m_attributes.emplace_back(new EmitterSpawnVelocityEditor());
+  m_attributes.emplace_back(new EmitterSpawnScaleEditor());
+  m_attributes.emplace_back(new EmitterSpawnColorEditor());
   m_meshSelector.setAsset(AssetManager::Get().getAsset<MeshAsset>(
     "Resources/Engine/Meshes/default_cube.obj"));
 }
@@ -25,9 +30,15 @@ bool EmitterEditor::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
 
   if (m_changed)
   {
-    specs.emitRate = m_emitRate;
-    specs.lifeTime = m_lifeTime;
-    specs.mesh     = m_meshSelector.getAsset();
+    specs.emitRate->setEmitRate(m_emitRate);
+
+    VRM_ASSERT_MSG(
+      specs.lifeTime->getLifeTimeField().getType() == EmitterFieldType::Const,
+      "Unexpected emitter field type: life time must be a const field");
+    static_cast<ConstEmitterField1&>(specs.lifeTime->getLifeTimeField())
+      .setValue(glm::vec1(m_lifeTime));
+
+    specs.mesh = m_meshSelector.getAsset();
 
     m_changed = false;
   }
