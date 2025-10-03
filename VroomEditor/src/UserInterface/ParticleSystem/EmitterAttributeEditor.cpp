@@ -38,6 +38,36 @@ void EmitterAttributeEditor::assignField(
   m_scalarSettings = settings;
 }
 
+/** LIFE TIME EDITOR */
+
+EmitterLifeTimeEditor::EmitterLifeTimeEditor()
+  : EmitterAttributeEditor("Life time")
+{
+  EmitterScalarEditor::Settings settings;
+  settings.scalarType   = EmitterScalarEditor::EScalarType::eScalar;
+  settings.minValue     = { 0.f };
+  settings.maxValue     = { 20.f };
+  settings.defaultValue = { 1.f };
+  settings.scaleLocked  = false;
+
+  assignField(new ConstEmitterFieldEditor(), settings);
+}
+
+EmitterLifeTimeEditor::~EmitterLifeTimeEditor() {}
+
+bool EmitterLifeTimeEditor::updateEmitterSpecs(
+  ParticleEmitter::Specs& specs) const
+{
+  bool changed = false;
+
+  changed = m_field->updateEmitterField(specs.lifeTime->getLifeTimeFieldPtr())
+         || changed;
+
+  return changed;
+}
+
+/** SPAWN POSITION EDITOR */
+
 EmitterSpawnPositionEditor::EmitterSpawnPositionEditor()
   : EmitterAttributeEditor("Spawn position")
 {
@@ -64,6 +94,8 @@ bool EmitterSpawnPositionEditor::updateEmitterSpecs(
 
   return changed;
 }
+
+/** SPAWN VELOCITY EDITOR */
 
 EmitterSpawnVelocityEditor::EmitterSpawnVelocityEditor()
   : EmitterAttributeEditor("Spawn velocity")
@@ -92,6 +124,8 @@ bool EmitterSpawnVelocityEditor::updateEmitterSpecs(
   return changed;
 }
 
+/** SPAWN SCALE EDITOR */
+
 EmitterSpawnScaleEditor::EmitterSpawnScaleEditor()
   : EmitterAttributeEditor("Spawn scale")
 {
@@ -117,6 +151,8 @@ bool EmitterSpawnScaleEditor::updateEmitterSpecs(
 
   return changed;
 }
+
+/** SPAWN COLOR EDITOR */
 
 EmitterSpawnColorEditor::EmitterSpawnColorEditor()
   : EmitterAttributeEditor("Spawn color")

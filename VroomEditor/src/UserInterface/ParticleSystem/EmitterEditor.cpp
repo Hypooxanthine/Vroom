@@ -4,14 +4,13 @@
 
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterAttributeEditor.h"
 
-#include "Vroom/Core/Assert.h"
 #include "Vroom/Render/ParticleEmitterAttribute.h"
-#include "Vroom/Render/ParticleEmitterField.h"
 
 using namespace vrm::editor;
 
 EmitterEditor::EmitterEditor()
 {
+  m_attributes.emplace_back(new EmitterLifeTimeEditor());
   m_attributes.emplace_back(new EmitterSpawnPositionEditor());
   m_attributes.emplace_back(new EmitterSpawnVelocityEditor());
   m_attributes.emplace_back(new EmitterSpawnScaleEditor());
@@ -31,12 +30,6 @@ bool EmitterEditor::updateEmitterSpecs(ParticleEmitter::Specs& specs) const
   if (m_changed)
   {
     specs.emitRate->setEmitRate(m_emitRate);
-
-    VRM_ASSERT_MSG(
-      specs.lifeTime->getLifeTimeField().getType() == EmitterFieldType::Const,
-      "Unexpected emitter field type: life time must be a const field");
-    static_cast<ConstEmitterField1&>(specs.lifeTime->getLifeTimeField())
-      .setValue(glm::vec1(m_lifeTime));
 
     specs.mesh = m_meshSelector.getAsset();
 
@@ -68,8 +61,6 @@ void EmitterEditor::onImgui()
       m_changed = ImGui::SliderFloat("Emit rate", &m_emitRate, 0.1f, 500.f,
                                      "%.1f", ImGuiSliderFlags_Logarithmic)
                || m_changed;
-      m_changed =
-        ImGui::SliderFloat("Life time", &m_lifeTime, 0.1f, 20.f) || m_changed;
 
       ImGui::TreePop();
     }

@@ -44,6 +44,26 @@ private:
   EmitterScalarEditor::Settings m_scalarSettings;
 };
 
+class EmitterLifeTimeEditor : public EmitterAttributeEditor
+{
+public:
+
+  EmitterLifeTimeEditor();
+  ~EmitterLifeTimeEditor();
+
+  EmitterLifeTimeEditor& operator=(const EmitterLifeTimeEditor& other) = delete;
+  EmitterLifeTimeEditor(const EmitterLifeTimeEditor& other)            = delete;
+
+  EmitterLifeTimeEditor& operator=(EmitterLifeTimeEditor&& other) = default;
+  EmitterLifeTimeEditor(EmitterLifeTimeEditor&& other)            = default;
+
+protected:
+
+  bool updateEmitterSpecs(ParticleEmitter::Specs& specs) const override;
+
+private:
+};
+
 class EmitterSpawnPositionEditor : public EmitterAttributeEditor
 {
 public:

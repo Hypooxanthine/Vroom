@@ -42,7 +42,6 @@ private:
   mutable bool m_changed       = true;
   bool         m_requestDelete = false;
   float        m_emitRate      = 1.f;
-  float        m_lifeTime      = 2.f;
   std::string  m_name          = "Attribute";
   MeshSelector m_meshSelector;
 
