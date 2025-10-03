@@ -89,7 +89,9 @@ public:
   void applyDefines(MaterialDefines&   defines,
                     const std::string& prefix) override
   {
-    m_position->applyDefines(defines, prefix + "_SpawnPosition");
+    static const std::string attribSuffix = "_SpawnPosition";
+    defines.add(prefix + "_USE" + attribSuffix);
+    m_position->applyDefines(defines, prefix + attribSuffix);
   }
 
   void pushToLayout(render::SSBO430Layout& layout) override
@@ -161,7 +163,9 @@ public:
   void applyDefines(MaterialDefines&   defines,
                     const std::string& prefix) override
   {
-    m_lifeTime->applyDefines(defines, prefix + "_LifeTime");
+    static const std::string attribSuffix = "_LifeTime";
+    defines.add(prefix + "_USE" + attribSuffix);
+    m_lifeTime->applyDefines(defines, prefix + attribSuffix);
   }
 
   void pushToLayout(render::SSBO430Layout& layout) override
@@ -229,8 +233,10 @@ public:
   void applyDefines(MaterialDefines&   defines,
                     const std::string& prefix) override
   {
-    // Useless, it has to be a float
-    // m_emitRate.applyDefines(defines, prefix + "_EmitRate");
+    // It has to be a const float anyway, but to stay consistent
+    static const std::string attribSuffix = "_EmitRate";
+    defines.add(prefix + "_USE" + attribSuffix);
+    m_emitRate.applyDefines(defines, prefix + attribSuffix);
   }
 
   void pushToLayout(render::SSBO430Layout& layout) override
@@ -302,7 +308,9 @@ public:
   void applyDefines(MaterialDefines&   defines,
                     const std::string& prefix) override
   {
-    m_velocity->applyDefines(defines, prefix + "_SpawnVelocity");
+    static const std::string attribSuffix = "_SpawnVelocity";
+    defines.add(prefix + "_USE" + attribSuffix);
+    m_velocity->applyDefines(defines, prefix + attribSuffix);
   }
 
   void pushToLayout(render::SSBO430Layout& layout) override
@@ -369,7 +377,9 @@ public:
   void applyDefines(MaterialDefines&   defines,
                     const std::string& prefix) override
   {
-    m_color->applyDefines(defines, prefix + "_SpawnColor");
+    static const std::string attribSuffix = "_SpawnColor";
+    defines.add(prefix + "_USE" + attribSuffix);
+    m_color->applyDefines(defines, prefix + attribSuffix);
   }
 
   void pushToLayout(render::SSBO430Layout& layout) override
@@ -436,7 +446,9 @@ public:
   void applyDefines(MaterialDefines&   defines,
                     const std::string& prefix) override
   {
-    m_scale->applyDefines(defines, prefix + "_SpawnScale");
+    static const std::string attribSuffix = "_SpawnScale";
+    defines.add(prefix + "_USE" + attribSuffix);
+    m_scale->applyDefines(defines, prefix + attribSuffix);
   }
 
   void pushToLayout(render::SSBO430Layout& layout) override
