@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <unordered_set>
 
 #include "VroomEditor/UserInterface/ImGuiElement.h"
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterFieldEditor.h"
@@ -16,7 +17,9 @@ class EmitterAttributeEditor : public ImGuiElement
 {
 public:
 
-  EmitterAttributeEditor(const std::string& displayName);
+  EmitterAttributeEditor(
+    const std::string&                                         displayName,
+    const std::unordered_set<EmitterFieldEditor::EType::Type>& supportedFields);
   ~EmitterAttributeEditor();
 
   EmitterAttributeEditor&
@@ -40,8 +43,9 @@ protected:
 
 private:
 
-  std::string                   m_displayName;
-  EmitterScalarEditor::Settings m_scalarSettings;
+  std::string                                         m_displayName;
+  std::unordered_set<EmitterFieldEditor::EType::Type> m_supportedFields;
+  EmitterScalarEditor::Settings                       m_scalarSettings;
 };
 
 class EmitterLifeTimeEditor : public EmitterAttributeEditor

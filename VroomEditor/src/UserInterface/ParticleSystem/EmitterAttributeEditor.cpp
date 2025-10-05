@@ -7,8 +7,10 @@
 
 using namespace vrm::editor;
 
-EmitterAttributeEditor::EmitterAttributeEditor(const std::string& displayName)
-  : m_displayName(displayName)
+EmitterAttributeEditor::EmitterAttributeEditor(
+  const std::string&                                         displayName,
+  const std::unordered_set<EmitterFieldEditor::EType::Type>& supportedFields)
+  : m_displayName(displayName), m_supportedFields(supportedFields)
 {}
 
 EmitterAttributeEditor::~EmitterAttributeEditor() {}
@@ -34,6 +36,7 @@ void EmitterAttributeEditor::assignField(
   EmitterFieldEditor* newField, const EmitterScalarEditor::Settings& settings)
 {
   m_field.reset(newField);
+  m_field->setSupportedTypes(m_supportedFields);
   m_field->setScalarSettings(settings);
   m_scalarSettings = settings;
 }
@@ -41,7 +44,9 @@ void EmitterAttributeEditor::assignField(
 /** LIFE TIME EDITOR */
 
 EmitterLifeTimeEditor::EmitterLifeTimeEditor()
-  : EmitterAttributeEditor("Life time")
+  : EmitterAttributeEditor("Life time",
+                           { EmitterFieldEditor::EType::eConst,
+                             EmitterFieldEditor::EType::eRandomRange })
 {
   EmitterScalarEditor::Settings settings;
   settings.scalarType   = EmitterScalarEditor::EScalarType::eScalar;
@@ -69,7 +74,9 @@ bool EmitterLifeTimeEditor::updateEmitterSpecs(
 /** SPAWN POSITION EDITOR */
 
 EmitterSpawnPositionEditor::EmitterSpawnPositionEditor()
-  : EmitterAttributeEditor("Spawn position")
+  : EmitterAttributeEditor("Spawn position",
+                           { EmitterFieldEditor::EType::eConst,
+                             EmitterFieldEditor::EType::eRandomRange })
 {
   EmitterScalarEditor::Settings settings;
   settings.scalarType   = EmitterScalarEditor::EScalarType::eVec3;
@@ -98,7 +105,10 @@ bool EmitterSpawnPositionEditor::updateEmitterSpecs(
 /** SPAWN VELOCITY EDITOR */
 
 EmitterSpawnVelocityEditor::EmitterSpawnVelocityEditor()
-  : EmitterAttributeEditor("Spawn velocity")
+  : EmitterAttributeEditor("Spawn velocity",
+                           { EmitterFieldEditor::EType::eConst,
+                             EmitterFieldEditor::EType::eRandomRange,
+                             EmitterFieldEditor::EType::eRandomCone })
 {
   EmitterScalarEditor::Settings settings;
   settings.scalarType   = EmitterScalarEditor::EScalarType::eVec3;
@@ -127,7 +137,9 @@ bool EmitterSpawnVelocityEditor::updateEmitterSpecs(
 /** SPAWN SCALE EDITOR */
 
 EmitterSpawnScaleEditor::EmitterSpawnScaleEditor()
-  : EmitterAttributeEditor("Spawn scale")
+  : EmitterAttributeEditor("Spawn scale",
+                           { EmitterFieldEditor::EType::eConst,
+                             EmitterFieldEditor::EType::eRandomRange })
 {
   EmitterScalarEditor::Settings settings;
   settings.scalarType   = EmitterScalarEditor::EScalarType::eVec3;
@@ -155,7 +167,9 @@ bool EmitterSpawnScaleEditor::updateEmitterSpecs(
 /** SPAWN COLOR EDITOR */
 
 EmitterSpawnColorEditor::EmitterSpawnColorEditor()
-  : EmitterAttributeEditor("Spawn color")
+  : EmitterAttributeEditor("Spawn color",
+                           { EmitterFieldEditor::EType::eConst,
+                             EmitterFieldEditor::EType::eRandomRange })
 {
   EmitterScalarEditor::Settings settings;
   settings.scalarType   = EmitterScalarEditor::EScalarType::eColor4;

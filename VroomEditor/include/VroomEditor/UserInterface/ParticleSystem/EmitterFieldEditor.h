@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_set>
 
 #include "VroomEditor/UserInterface/ImGuiElement.h"
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterScalarEditor.h"
@@ -24,8 +25,9 @@ public:
   {
     enum Type : size_t
     {
-      eConstEmitterField = 0,
-      eRandomRangeEmitterField,
+      eConst = 0,
+      eRandomRange,
+      eRandomCone,
       eCount
     };
   };
@@ -45,6 +47,11 @@ public:
 
   inline bool requestedNewFieldType() const { return m_type != m_nextType; }
   inline EType::Type getNextType() const { return m_nextType; }
+
+  inline void setSupportedTypes(const std::unordered_set<EType::Type>& types)
+  {
+    m_supportedTypes = types;
+  }
 
   inline void setScalarSettings(const EmitterScalarEditor::Settings& settings)
   {
@@ -72,10 +79,11 @@ private:
 
 private:
 
-  std::string                   m_name = "Field";
-  EmitterScalarEditor::Settings m_scalarSettings;
-  EType::Type                   m_type;
-  EType::Type                   m_nextType;
+  std::string                     m_name = "Field";
+  std::unordered_set<EType::Type> m_supportedTypes;
+  EmitterScalarEditor::Settings   m_scalarSettings;
+  EType::Type                     m_type;
+  EType::Type                     m_nextType;
 };
 
 class ConstEmitterFieldEditor : public EmitterFieldEditor
@@ -126,16 +134,42 @@ private:
   EmitterScalarEditor m_minRange, m_maxRange;
 };
 
+class RandomConeEmitterFieldEditor : public EmitterFieldEditor
+{
+public:
+
+  RandomConeEmitterFieldEditor();
+  ~RandomConeEmitterFieldEditor();
+
+protected:
+
+  void onImguiEdit() override;
+  bool
+  onUpdateEmitterField(std::unique_ptr<IEmitterField>& field) const override;
+
+  void onUpdateScalarSettings(
+    const EmitterScalarEditor::Settings& settings) override;
+
+private:
+
+  EmitterScalarEditor m_direction;
+  EmitterScalarEditor m_angle;
+  EmitterScalarEditor m_length;
+};
+
 inline EmitterFieldEditor*
 EmitterFieldEditor::Instanciate(EType::Type fieldType)
 {
   switch (fieldType)
   {
-  case vrm::editor::EmitterFieldEditor::EType::eConstEmitterField:
+  case vrm::editor::EmitterFieldEditor::EType::eConst:
     return new ConstEmitterFieldEditor();
     break;
-  case vrm::editor::EmitterFieldEditor::EType::eRandomRangeEmitterField:
+  case vrm::editor::EmitterFieldEditor::EType::eRandomRange:
     return new RandomRangeEmitterFieldEditor();
+    break;
+  case vrm::editor::EmitterFieldEditor::EType::eRandomCone:
+    return new RandomConeEmitterFieldEditor();
     break;
   default:
     VRM_ASSERT_MSG(false, "Unsupported field type");
@@ -152,11 +186,14 @@ to_string(vrm::editor::EmitterFieldEditor::EType::Type fieldType)
 {
   switch (fieldType)
   {
-  case vrm::editor::EmitterFieldEditor::EType::eConstEmitterField:
+  case vrm::editor::EmitterFieldEditor::EType::eConst:
     return "Constant";
     break;
-  case vrm::editor::EmitterFieldEditor::EType::eRandomRangeEmitterField:
+  case vrm::editor::EmitterFieldEditor::EType::eRandomRange:
     return "Random range";
+    break;
+  case vrm::editor::EmitterFieldEditor::EType::eRandomCone:
+    return "Random cone";
     break;
   default:
     return "Undefined";

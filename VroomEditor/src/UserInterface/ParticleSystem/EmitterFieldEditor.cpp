@@ -7,6 +7,7 @@
 
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Render/ParticleEmitterField.h"
+#include "glm/ext/scalar_constants.hpp"
 
 using namespace vrm::editor;
 
@@ -46,7 +47,10 @@ void EmitterFieldEditor::_showContextualMenu()
 {
   for (size_t i = 0; i < EType::eCount; ++i)
   {
-    EType::Type type       = EType::Type(i);
+    EType::Type type = EType::Type(i);
+
+    if (!m_supportedTypes.contains(type)) continue;
+
     std::string str        = std::to_string(type);
     bool        isThisType = m_type == type;
 
@@ -64,7 +68,7 @@ void EmitterFieldEditor::_showContextualMenu()
 /* CONST PARTICLE FIELD EDITOR */
 
 ConstEmitterFieldEditor::ConstEmitterFieldEditor()
-  : EmitterFieldEditor(EType::eConstEmitterField)
+  : EmitterFieldEditor(EType::eConst)
 {}
 
 ConstEmitterFieldEditor::~ConstEmitterFieldEditor() {}
@@ -110,7 +114,7 @@ bool ConstEmitterFieldEditor::onUpdateEmitterField(
 /* RANDOM RANGE PARTICLE FIELD EDITOR */
 
 RandomRangeEmitterFieldEditor::RandomRangeEmitterFieldEditor()
-  : EmitterFieldEditor(EType::eRandomRangeEmitterField)
+  : EmitterFieldEditor(EType::eRandomRange)
 {}
 
 RandomRangeEmitterFieldEditor::~RandomRangeEmitterFieldEditor() {}
@@ -166,4 +170,61 @@ bool RandomRangeEmitterFieldEditor::onUpdateEmitterField(
     return true;
   }
   else return false;
+}
+
+/* RANDOM RANGE PARTICLE FIELD EDITOR */
+
+RandomConeEmitterFieldEditor::RandomConeEmitterFieldEditor()
+  : EmitterFieldEditor(EType::eRandomCone)
+{
+  EmitterScalarEditor::Settings settings;
+  settings.scalarType   = EmitterScalarEditor::EScalarType::eScalar;
+  settings.defaultValue = { 0.f };
+  settings.minValue     = { 0.f };
+  settings.scaleLocked  = false;
+
+  settings.maxValue = { glm::pi<float>() };
+  m_angle.setSettings(settings);
+
+  settings.maxValue = { 100.f };
+  m_length.setSettings(settings);
+}
+
+RandomConeEmitterFieldEditor::~RandomConeEmitterFieldEditor() {}
+
+void RandomConeEmitterFieldEditor::onImguiEdit()
+{
+  ImGui::PushID("Direction");
+  ImGui::Text("%s:", "Direction");
+  ImGui::SameLine();
+  m_direction.renderImgui();
+  ImGui::PopID();
+
+  ImGui::PushID("Angle");
+  ImGui::Text("%s:", "Angle");
+  ImGui::SameLine();
+  m_angle.renderImgui();
+  ImGui::PopID();
+
+  ImGui::PushID("Length");
+  ImGui::Text("%s:", "Length");
+  ImGui::SameLine();
+  m_length.renderImgui();
+  ImGui::PopID();
+}
+
+bool RandomConeEmitterFieldEditor::onUpdateEmitterField(
+  std::unique_ptr<IEmitterField>& field) const
+{
+  //
+  return false;
+}
+
+void RandomConeEmitterFieldEditor::onUpdateScalarSettings(
+  const EmitterScalarEditor::Settings& settings)
+{
+  VRM_ASSERT_MSG(settings.scalarType == EmitterScalarEditor::EScalarType::eVec3,
+                 "Unsupported scalar type");
+
+  m_direction.setSettings(settings);
 }
