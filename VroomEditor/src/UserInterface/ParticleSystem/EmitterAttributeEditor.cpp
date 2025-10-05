@@ -131,7 +131,7 @@ EmitterSpawnScaleEditor::EmitterSpawnScaleEditor()
 {
   EmitterScalarEditor::Settings settings;
   settings.scalarType   = EmitterScalarEditor::EScalarType::eVec3;
-  settings.minValue     = { 0.1f, 0.1f, 0.1f };
+  settings.minValue     = { 0.01f, 0.01f, 0.01f };
   settings.maxValue     = { 5.f, 5.f, 5.f };
   settings.defaultValue = { 1.f, 1.f, 1.f };
   settings.scaleLocked  = true;
