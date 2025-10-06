@@ -1,4 +1,5 @@
 #include "VroomEditor/UserInterface/ParticleSystem/EmitterFieldEditor.h"
+#include <algorithm>
 #include <cstring>
 
 #include "imgui.h"
@@ -80,7 +81,7 @@ bool ConstEmitterFieldEditor::onUpdateEmitterField(
 {
   if (m_scalarEditor.getAndResetModified())
   {
-    if (field->getType() != EmitterFieldType::Const)
+    if (field->getType() != EmitterFieldType::eConst)
     {
       switch (m_scalarEditor.getDimension())
       {
@@ -139,7 +140,7 @@ bool RandomRangeEmitterFieldEditor::onUpdateEmitterField(
 {
   if (m_minRange.getAndResetModified() || m_maxRange.getAndResetModified())
   {
-    if (field->getType() != EmitterFieldType::RandomRange)
+    if (field->getType() != EmitterFieldType::eRandomRange)
     {
       switch (m_minRange.getDimension())
       {
@@ -216,8 +217,32 @@ void RandomConeEmitterFieldEditor::onImguiEdit()
 bool RandomConeEmitterFieldEditor::onUpdateEmitterField(
   std::unique_ptr<IEmitterField>& field) const
 {
-  //
-  return false;
+  if (m_direction.getAndResetModified() || m_angle.getAndResetModified()
+      || m_length.getAndResetModified())
+  {
+    if (field->getType() != EmitterFieldType::eRandomCone)
+    {
+      field.reset(new RandomConeEmitterField());
+    }
+
+    RandomConeEmitterField& asRandomCone =
+      static_cast<RandomConeEmitterField&>(*field);
+
+    std::span<float const> editorDirectionData = m_direction.getData();
+    glm::vec3              direction;
+    std::copy_n(editorDirectionData.begin(),
+                std::min<size_t>(editorDirectionData.size(), 3), &direction.x);
+    asRandomCone.setDirection(direction);
+
+    std::span<float const> editorAngleData = m_angle.getData();
+    asRandomCone.setAngle(editorAngleData[0]);
+
+    std::span<float const> editorLengthData = m_length.getData();
+    asRandomCone.setLength(editorLengthData[0]);
+
+    return true;
+  }
+  else return false;
 }
 
 void RandomConeEmitterFieldEditor::onUpdateScalarSettings(

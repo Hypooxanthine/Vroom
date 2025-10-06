@@ -8,14 +8,16 @@
 #include "Vroom/Render/MaterialDefines.h"
 #include "Vroom/Render/SSBO430Layout.h"
 #include "Vroom/Render/StructuredBuffer.h"
+#include "glm/fwd.hpp"
 
 namespace vrm
 {
 
 enum class EmitterFieldType
 {
-  Const = 0,
-  RandomRange
+  eConst = 0,
+  eRandomRange,
+  eRandomCone
 };
 
 class IEmitterField
@@ -33,21 +35,10 @@ public:
                                         const std::string& prefix)          = 0;
   virtual void             pushToLayout(render::SSBO430Layout& layout)      = 0;
   virtual void assignStructuredBufferData(render::StructuredBuffer& buffer) = 0;
-  virtual glm::vec4 getUpperBound() const                                   = 0;
+  virtual glm::vec4 getUpperBound() const { return glm::vec4(0.f); };
 };
 
-using EmitterField1 = IEmitterField;
-using EmitterField2 = IEmitterField;
-using EmitterField3 = IEmitterField;
-using EmitterField4 = IEmitterField;
-
-template <glm::length_t Dim>
 using EmitterFieldPtr = std::unique_ptr<IEmitterField>;
-
-using EmitterField1Ptr = EmitterFieldPtr<1>;
-using EmitterField2Ptr = EmitterFieldPtr<2>;
-using EmitterField3Ptr = EmitterFieldPtr<3>;
-using EmitterField4Ptr = EmitterFieldPtr<4>;
 
 class IConstEmitterField : public IEmitterField
 {
@@ -85,7 +76,7 @@ public:
     return new ConstEmitterField(*this);
   }
 
-  EmitterFieldType getType() const override { return EmitterFieldType::Const; }
+  EmitterFieldType getType() const override { return EmitterFieldType::eConst; }
 
   void applyDefines(MaterialDefines&   defines,
                     const std::string& prefix) override
@@ -171,7 +162,7 @@ public:
 
   EmitterFieldType getType() const override
   {
-    return EmitterFieldType::RandomRange;
+    return EmitterFieldType::eRandomRange;
   }
 
   void applyDefines(MaterialDefines&   defines,
@@ -221,5 +212,76 @@ using RandomRangeEmitterField1 = RandomRangeEmitterField<1>;
 using RandomRangeEmitterField2 = RandomRangeEmitterField<2>;
 using RandomRangeEmitterField3 = RandomRangeEmitterField<3>;
 using RandomRangeEmitterField4 = RandomRangeEmitterField<4>;
+
+class RandomConeEmitterField : public IEmitterField
+{
+public:
+
+  RandomConeEmitterField()  = default;
+  ~RandomConeEmitterField() = default;
+
+  RandomConeEmitterField(const glm::vec3& direction, float angle, float length)
+    : m_direction(direction), m_angle(angle), m_length(length)
+  {}
+
+  RandomConeEmitterField&
+  operator=(const RandomConeEmitterField& other)              = default;
+  RandomConeEmitterField(const RandomConeEmitterField& other) = default;
+
+  RandomConeEmitterField& operator=(RandomConeEmitterField&& other) = default;
+  RandomConeEmitterField(RandomConeEmitterField&& other)            = default;
+
+  inline void setDirection(const glm::vec3& direction)
+  {
+    m_direction = direction;
+  }
+
+  inline void setAngle(float angle) { m_angle = angle; }
+  inline void setLength(float length) { m_length = length; }
+
+  inline const glm::vec3& getDirection() const { return m_direction; }
+  inline float            getAngle() const { return m_angle; }
+  inline float            getLength() const { return m_length; }
+
+  RandomConeEmitterField* clone() const override
+  {
+    return new RandomConeEmitterField(*this);
+  }
+
+  EmitterFieldType getType() const override
+  {
+    return EmitterFieldType::eRandomCone;
+  }
+
+  void applyDefines(MaterialDefines&   defines,
+                    const std::string& prefix) override
+  {
+    defines.add(prefix + "_RandomCone");
+  }
+
+  void pushToLayout(render::SSBO430Layout& layout) override
+  {
+    m_directionAttrib = layout.push<glm::vec3>();
+    m_angleAttrib     = layout.push<float>();
+    m_lengthAttrib    = layout.push<float>();
+  }
+
+  void assignStructuredBufferData(render::StructuredBuffer& buffer) override
+  {
+    buffer.setAttribute(m_direction, m_directionAttrib, 0);
+    buffer.setAttribute(m_angle, m_angleAttrib, 0);
+    buffer.setAttribute(m_length, m_lengthAttrib, 0);
+  }
+
+private:
+
+  glm::vec3 m_direction;
+  float     m_angle;
+  float     m_length;
+
+  render::SSBO430Layout::Attrib m_directionAttrib;
+  render::SSBO430Layout::Attrib m_angleAttrib;
+  render::SSBO430Layout::Attrib m_lengthAttrib;
+};
 
 } // namespace vrm

@@ -39,7 +39,7 @@ class SpawnPositionEmitterAttrib : public IEmitterAttrib
 {
 public:
 
-  inline SpawnPositionEmitterAttrib(EmitterField3Ptr&& position)
+  inline SpawnPositionEmitterAttrib(EmitterFieldPtr&& position)
     : m_position(std::move(position))
   {}
 
@@ -57,19 +57,19 @@ public:
   operator=(SpawnPositionEmitterAttrib&& other)                  = delete;
   SpawnPositionEmitterAttrib(SpawnPositionEmitterAttrib&& other) = delete;
 
-  inline void setPosition(EmitterField3Ptr&& field)
+  inline void setPosition(EmitterFieldPtr&& field)
   {
     m_position = std::move(field);
   }
 
-  inline EmitterField3Ptr&    getPositionFieldPtr() { return m_position; }
-  inline const EmitterField3& getPositionField() const { return *m_position; }
-  inline EmitterField3&       getPositionField() { return *m_position; }
+  inline EmitterFieldPtr&     getPositionFieldPtr() { return m_position; }
+  inline const IEmitterField& getPositionField() const { return *m_position; }
+  inline IEmitterField&       getPositionField() { return *m_position; }
 
   SpawnPositionEmitterAttrib* clone() const override
   {
-    EmitterField3Ptr positionField(
-      static_cast<EmitterField3*>(m_position->clone()));
+    EmitterFieldPtr positionField(
+      static_cast<IEmitterField*>(m_position->clone()));
 
     return new SpawnPositionEmitterAttrib(std::move(positionField));
   }
@@ -106,14 +106,14 @@ public:
 
 private:
 
-  EmitterField3Ptr m_position;
+  EmitterFieldPtr m_position;
 };
 
 class LifeTimeEmitterAttrib : public IEmitterAttrib
 {
 public:
 
-  inline LifeTimeEmitterAttrib(EmitterField1Ptr&& lifeTime)
+  inline LifeTimeEmitterAttrib(EmitterFieldPtr&& lifeTime)
     : m_lifeTime(std::move(lifeTime))
   {}
 
@@ -129,21 +129,21 @@ public:
   LifeTimeEmitterAttrib& operator=(LifeTimeEmitterAttrib&& other) = delete;
   LifeTimeEmitterAttrib(LifeTimeEmitterAttrib&& other)            = delete;
 
-  inline void setLifeTime(EmitterField1Ptr&& field)
+  inline void setLifeTime(EmitterFieldPtr&& field)
   {
     m_lifeTime = std::move(field);
   }
 
-  inline EmitterField1Ptr&    getLifeTimeFieldPtr() { return m_lifeTime; }
-  inline const EmitterField1& getLifeTimeField() const { return *m_lifeTime; }
-  inline EmitterField1&       getLifeTimeField() { return *m_lifeTime; }
+  inline EmitterFieldPtr&     getLifeTimeFieldPtr() { return m_lifeTime; }
+  inline const IEmitterField& getLifeTimeField() const { return *m_lifeTime; }
+  inline IEmitterField&       getLifeTimeField() { return *m_lifeTime; }
 
   inline float getUpperBound() const { return m_lifeTime->getUpperBound().x; }
 
   LifeTimeEmitterAttrib* clone() const override
   {
-    EmitterField1Ptr lifeTimeField(
-      static_cast<EmitterField1*>(m_lifeTime->clone()));
+    EmitterFieldPtr lifeTimeField(
+      static_cast<IEmitterField*>(m_lifeTime->clone()));
 
     return new LifeTimeEmitterAttrib(std::move(lifeTimeField));
   }
@@ -180,7 +180,7 @@ public:
 
 private:
 
-  EmitterField1Ptr m_lifeTime;
+  EmitterFieldPtr m_lifeTime;
 };
 
 /**
@@ -258,7 +258,7 @@ class SpawnVelocityEmitterAttrib : public IEmitterAttrib
 {
 public:
 
-  inline SpawnVelocityEmitterAttrib(EmitterField3Ptr&& velocity)
+  inline SpawnVelocityEmitterAttrib(EmitterFieldPtr&& velocity)
     : m_velocity(std::move(velocity))
   {}
 
@@ -276,19 +276,19 @@ public:
   operator=(SpawnVelocityEmitterAttrib&& other)                  = delete;
   SpawnVelocityEmitterAttrib(SpawnVelocityEmitterAttrib&& other) = delete;
 
-  inline void setVelocity(EmitterField3Ptr&& field)
+  inline void setVelocity(EmitterFieldPtr&& field)
   {
     m_velocity = std::move(field);
   }
 
-  inline EmitterField3Ptr&    getVelocityFieldPtr() { return m_velocity; }
-  inline const EmitterField3& getVelocityField() const { return *m_velocity; }
-  inline EmitterField3&       getVelocityField() { return *m_velocity; }
+  inline EmitterFieldPtr&     getVelocityFieldPtr() { return m_velocity; }
+  inline const IEmitterField& getVelocityField() const { return *m_velocity; }
+  inline IEmitterField&       getVelocityField() { return *m_velocity; }
 
   SpawnVelocityEmitterAttrib* clone() const override
   {
-    EmitterField3Ptr velocityField(
-      static_cast<EmitterField3*>(m_velocity->clone()));
+    EmitterFieldPtr velocityField(
+      static_cast<IEmitterField*>(m_velocity->clone()));
 
     return new SpawnVelocityEmitterAttrib(std::move(velocityField));
   }
@@ -325,14 +325,14 @@ public:
 
 private:
 
-  EmitterField3Ptr m_velocity;
+  EmitterFieldPtr m_velocity;
 };
 
 class SpawnColorEmitterAttrib : public IEmitterAttrib
 {
 public:
 
-  inline SpawnColorEmitterAttrib(EmitterField4Ptr&& color)
+  inline SpawnColorEmitterAttrib(EmitterFieldPtr&& color)
     : m_color(std::move(color))
   {}
 
@@ -349,15 +349,15 @@ public:
   SpawnColorEmitterAttrib& operator=(SpawnColorEmitterAttrib&& other) = delete;
   SpawnColorEmitterAttrib(SpawnColorEmitterAttrib&& other)            = delete;
 
-  inline void setColor(EmitterField4Ptr&& field) { m_color = std::move(field); }
+  inline void setColor(EmitterFieldPtr&& field) { m_color = std::move(field); }
 
-  inline EmitterField4Ptr&    getColorFieldPtr() { return m_color; }
-  inline const EmitterField4& getColorField() const { return *m_color; }
-  inline EmitterField4&       getColorField() { return *m_color; }
+  inline EmitterFieldPtr&     getColorFieldPtr() { return m_color; }
+  inline const IEmitterField& getColorField() const { return *m_color; }
+  inline IEmitterField&       getColorField() { return *m_color; }
 
   SpawnColorEmitterAttrib* clone() const override
   {
-    EmitterField4Ptr colorField(static_cast<EmitterField4*>(m_color->clone()));
+    EmitterFieldPtr colorField(static_cast<IEmitterField*>(m_color->clone()));
 
     return new SpawnColorEmitterAttrib(std::move(colorField));
   }
@@ -394,14 +394,14 @@ public:
 
 private:
 
-  EmitterField4Ptr m_color;
+  EmitterFieldPtr m_color;
 };
 
 class SpawnScaleEmitterAttrib : public IEmitterAttrib
 {
 public:
 
-  inline SpawnScaleEmitterAttrib(EmitterField3Ptr&& scale)
+  inline SpawnScaleEmitterAttrib(EmitterFieldPtr&& scale)
     : m_scale(std::move(scale))
   {}
 
@@ -418,15 +418,15 @@ public:
   SpawnScaleEmitterAttrib& operator=(SpawnScaleEmitterAttrib&& other) = delete;
   SpawnScaleEmitterAttrib(SpawnScaleEmitterAttrib&& other)            = delete;
 
-  inline void setScale(EmitterField3Ptr&& field) { m_scale = std::move(field); }
+  inline void setScale(EmitterFieldPtr&& field) { m_scale = std::move(field); }
 
-  inline EmitterField3Ptr&    getScaleFieldPtr() { return m_scale; }
-  inline const EmitterField3& getScaleField() const { return *m_scale; }
-  inline EmitterField3&       getScaleField() { return *m_scale; }
+  inline EmitterFieldPtr&     getScaleFieldPtr() { return m_scale; }
+  inline const IEmitterField& getScaleField() const { return *m_scale; }
+  inline IEmitterField&       getScaleField() { return *m_scale; }
 
   SpawnScaleEmitterAttrib* clone() const override
   {
-    EmitterField3Ptr scaleField(static_cast<EmitterField3*>(m_scale->clone()));
+    EmitterFieldPtr scaleField(static_cast<IEmitterField*>(m_scale->clone()));
 
     return new SpawnScaleEmitterAttrib(std::move(scaleField));
   }
@@ -463,7 +463,7 @@ public:
 
 private:
 
-  EmitterField3Ptr m_scale;
+  EmitterFieldPtr m_scale;
 };
 
 } // namespace vrm
