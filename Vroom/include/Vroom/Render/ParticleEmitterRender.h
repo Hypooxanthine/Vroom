@@ -6,7 +6,6 @@
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/AutoBuffer.h"
-#include "Vroom/Render/MaterialDefines.h"
 #include "Vroom/Render/PassMaterials.h"
 #include "Vroom/Render/SSBO430Layout.h"
 #include "Vroom/Render/StructuredBuffer.h"
@@ -52,8 +51,6 @@ private:
   };
 
 private:
-
-  void _setupUpdaterMaterial(const MaterialDefines& defines);
 
   void _uploadSpawnData(const ParticleEmitter& emitter) const;
   void _uploadIndirectCommandData() const;

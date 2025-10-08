@@ -105,7 +105,19 @@ void ParticleEmitterRender::rebuildMaterials(const ParticleEmitter& emitter)
 
   m_rawEmitterSpecs.setup(m_rawEmitterSpecsLayout, 1);
 
-  _setupUpdaterMaterial(defines);
+  m_emitterDataBuffer.ensureCapacity(m_rawEmitterSpecs.getSize());
+
+  MaterialAsset::Handle updaterAsset =
+    AssetManager::Get().tryGetAsset<MaterialAsset>(
+      "Resources/Engine/Material/UpdateParticlesMaterial.json");
+  VRM_CHECK_RET(updaterAsset.isValid());
+
+  MaterialDefines localDefines;
+  localDefines.add(defines);
+  localDefines.add("VRM_UPDATER_GROUP_SIZE", s_updaterGroupSize.x);
+
+  m_updaterMaterial.setMaterialAsset(updaterAsset);
+  m_updaterMaterial.prepare(localDefines);
 }
 
 void ParticleEmitterRender::updateResources(const ParticleEmitter& emitter)
@@ -126,24 +138,6 @@ void ParticleEmitterRender::executeRender(const ParticleEmitter&   emitter,
 {
   _executeUpdateParticles(emitter);
   _executeRenderParticles(ctx, model);
-}
-
-void ParticleEmitterRender::_setupUpdaterMaterial(
-  const MaterialDefines& defines)
-{
-  m_emitterDataBuffer.ensureCapacity(m_rawEmitterSpecs.getSize());
-
-  MaterialAsset::Handle updaterAsset =
-    AssetManager::Get().tryGetAsset<MaterialAsset>(
-      "Resources/Engine/Material/UpdateParticlesMaterial.json");
-  VRM_CHECK_RET(updaterAsset.isValid());
-
-  MaterialDefines localDefines;
-  localDefines.add(defines);
-  localDefines.add("VRM_UPDATER_GROUP_SIZE", s_updaterGroupSize.x);
-
-  m_updaterMaterial.setMaterialAsset(updaterAsset);
-  m_updaterMaterial.prepare(localDefines);
 }
 
 void ParticleEmitterRender::_uploadSpawnData(
