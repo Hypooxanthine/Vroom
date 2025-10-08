@@ -147,8 +147,9 @@ protected:
   bool
   onUpdateEmitterField(std::unique_ptr<IEmitterField>& field) const override;
 
-  void onUpdateScalarSettings(
-    const EmitterScalarEditor::Settings& settings) override;
+  inline void
+  onUpdateScalarSettings(const EmitterScalarEditor::Settings& settings) override
+  {}
 
 private:
 

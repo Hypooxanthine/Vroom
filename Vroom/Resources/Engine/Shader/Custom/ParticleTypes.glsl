@@ -32,6 +32,11 @@ struct ParticleEmitterSpecs
   vec3 spawnVelocityMin;
   vec3 spawnVelocityMax;
 #endif
+#ifdef VRM_PARTICLE_SpawnVelocity_RandomCone
+  vec3 spawnVelocityDir;
+  float spawnVelocityAngle;
+  float spawnVelocityLength;
+#endif
 
   // Scale attribute
 #ifdef VRM_PARTICLE_SpawnScale_Const

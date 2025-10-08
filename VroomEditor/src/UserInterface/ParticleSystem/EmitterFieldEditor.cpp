@@ -8,7 +8,6 @@
 
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Render/ParticleEmitterField.h"
-#include "glm/ext/scalar_constants.hpp"
 
 using namespace vrm::editor;
 
@@ -184,11 +183,18 @@ RandomConeEmitterFieldEditor::RandomConeEmitterFieldEditor()
   settings.minValue     = { 0.f };
   settings.scaleLocked  = false;
 
-  settings.maxValue = { glm::pi<float>() };
+  settings.maxValue = { 180.f }; // 180 degrees
   m_angle.setSettings(settings);
 
-  settings.maxValue = { 100.f };
+  settings.maxValue     = { 100.f };
+  settings.defaultValue = { 1.f };
   m_length.setSettings(settings);
+
+  settings.scalarType   = EmitterScalarEditor::EScalarType::eVec3;
+  settings.minValue     = { -1.f, -1.f, -1.f };
+  settings.maxValue     = { 1.f, 1.f, 1.f };
+  settings.defaultValue = { 0.f, 1.f, 0.f };
+  m_direction.setSettings(settings);
 }
 
 RandomConeEmitterFieldEditor::~RandomConeEmitterFieldEditor() {}
@@ -235,7 +241,7 @@ bool RandomConeEmitterFieldEditor::onUpdateEmitterField(
     asRandomCone.setDirection(direction);
 
     std::span<float const> editorAngleData = m_angle.getData();
-    asRandomCone.setAngle(editorAngleData[0]);
+    asRandomCone.setAngle(glm::radians(editorAngleData[0]));
 
     std::span<float const> editorLengthData = m_length.getData();
     asRandomCone.setLength(editorLengthData[0]);
@@ -243,13 +249,4 @@ bool RandomConeEmitterFieldEditor::onUpdateEmitterField(
     return true;
   }
   else return false;
-}
-
-void RandomConeEmitterFieldEditor::onUpdateScalarSettings(
-  const EmitterScalarEditor::Settings& settings)
-{
-  VRM_ASSERT_MSG(settings.scalarType == EmitterScalarEditor::EScalarType::eVec3,
-                 "Unsupported scalar type");
-
-  m_direction.setSettings(settings);
 }

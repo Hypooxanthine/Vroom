@@ -7,10 +7,13 @@ void SpawnParticle(inout ParticleStates states);
 vec4 GenerateRandomRange4(in vec4 min, in vec4 max);
 vec3 GenerateRandomRange3(in vec3 min, in vec3 max);
 float GenerateRandomRange1(in float min, in float max);
+
+// Dir must be normalized
+vec3 GenerateRandomCone3(in vec3 dir, in float angle, in float vecSize);
 uint murmurHash(in uint x);
 
-// Lifetime, position, scale, color
-const uint g_attributeCount = 4;
+// Big enough to generate sufficient values
+const uint g_attributeCount = 64;
 
 void main()
 {
@@ -102,6 +105,9 @@ void SpawnParticle(inout ParticleStates states)
 #ifdef VRM_PARTICLE_SpawnVelocity_RandomRange
   states.velocity = GenerateRandomRange3(g_emitter.spawnVelocityMin, g_emitter.spawnVelocityMax);
 #endif
+#ifdef VRM_PARTICLE_SpawnVelocity_RandomCone
+  states.velocity = GenerateRandomCone3(normalize(g_emitter.spawnVelocityDir), g_emitter.spawnVelocityAngle, g_emitter.spawnVelocityLength);
+#endif
 
   // Scale attribute
 #ifdef VRM_PARTICLE_SpawnScale_Const
@@ -165,4 +171,41 @@ uint murmurHash(in uint x)
   x *= 0x846ca68bU;
   x ^= x >> 16;
   return x;
+}
+
+// Dir is replaced with "j": second vector of the destination basis
+vec3 GenerateRandomCone3(in vec3 j, in float angle, in float vecSize)
+{
+  const float u = GenerateRandomRange1(0.f, 1.f);
+  const float v = GenerateRandomRange1(0.f, 1.f);
+
+  const float theta = u * angle;
+  const float psi = 2.f * VRM_PI * v;
+
+  const float cosTheta = cos(theta);
+  const float cosPsi = cos(psi);
+  const float sinTheta = sin(theta);
+  const float sinPsi = sin(psi);
+
+  const vec3 localDir = vec3(sinTheta * cosPsi, cosTheta, sinTheta * sinPsi);
+
+  // For i/k, it does not matter because it's a cone, every rotation of the destination
+  // basic around the j axis will not change anything.
+  // Finding the smallest compound of j and using the canonical vector
+  // with a 1 in the corresponding compound (any non colinear vector will do the job).
+  vec3 a;
+  if (abs(j.x) <= abs(j.y) && abs(j.x) <= abs(j.z))
+    a = vec3(1.f, 0, 0);
+  else if(abs(j.y) <= abs(j.x) && abs(j.y) <= abs(j.z))
+    a = vec3(0, 1.f, 0);
+  else
+    a = vec3(0, 0, 1.f);
+
+  // Gram-Schmidt to obtain i from a : a is any vector which is not collinear with j.
+  // We need to orthonormalize it with respect of j.
+  const vec3 i = normalize(a - dot(a, j));
+  // k is the cross product
+  const vec3 k = cross(i, j);
+
+  return (i * localDir.x + j * localDir.y + k * localDir.z) * vecSize;
 }
