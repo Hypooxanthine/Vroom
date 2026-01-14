@@ -15,7 +15,9 @@ protected:
 
   void SetUp() override
   {
-    ASSERT_TRUE(RuntimeLibrary::IsPlatformSupported()) << "Platform not supported for dynamic loading.";
+    if (!RuntimeLibrary::IsPlatformSupported())
+      GTEST_SKIP() << "Platform not supported for dynamic loading.";
+    
     ASSERT_TRUE(lib.load(libPath)) << "Failed to load library: " << libPath;
   }
 

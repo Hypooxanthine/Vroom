@@ -14,9 +14,9 @@ namespace vrm
     RuntimeLibrary();
     ~RuntimeLibrary();
 
-    inline static constexpr bool IsPlatformSupported()
+    inline static consteval bool IsPlatformSupported()
     {
-#if defined(__unix__)
+#if defined(VRM_PLATFORM_LINUX) || defined(VRM_PLATFORM_WINDOWS)
       return true;
 #endif
       return false;
