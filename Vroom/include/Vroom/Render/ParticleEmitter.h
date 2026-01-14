@@ -46,12 +46,10 @@ public:
 
     inline bool structuresDifferent(const Specs& other) const
     {
-      return emitRate->structuresDifferent(*other.emitRate)
-          || lifeTime->structuresDifferent(*other.lifeTime)
+      return emitRate->structuresDifferent(*other.emitRate) || lifeTime->structuresDifferent(*other.lifeTime)
           || spawnPosition->structuresDifferent(*other.spawnPosition)
           || spawnVelocity->structuresDifferent(*other.spawnVelocity)
-          || spawnScale->structuresDifferent(*other.spawnScale)
-          || spawnColor->structuresDifferent(*other.spawnColor);
+          || spawnScale->structuresDifferent(*other.spawnScale) || spawnColor->structuresDifferent(*other.spawnColor);
     }
 
     size_t computeStatesRequiredSize() const;
@@ -70,8 +68,7 @@ public:
 
   void update(const DeltaTime& dt);
   void setupRender() const;
-  void executeRender(const RenderPassContext& ctx,
-                     const glm::mat4*         model) const;
+  void executeRender(const RenderPassContext& ctx, const glm::mat4* model) const;
 
   inline bool isDirty() const { return m_dirtyValues; }
 
@@ -79,15 +76,21 @@ public:
 
   inline const Specs& getSpecs() const { return m_specs; }
 
-  inline float        getTimeSinceStart() const { return m_timeAlive; }
-  inline unsigned int getNextParticleCountToSpawn() const
-  {
-    return m_nextParticlesToSpawn;
-  }
-  inline float getNextParticleToSpawnStartingLifetime() const
-  {
-    return m_nextParticleSpawnLifetime;
-  }
+  inline float getTimeSinceStart() const { return m_timeAlive; }
+
+  /**
+   * @brief Get the amount of particles that need to be spawned on this frame
+   *
+   * @return unsigned int
+   */
+  inline unsigned int getNextParticleCountToSpawn() const { return m_nextParticlesToSpawn; }
+
+  /**
+   * @brief Get the elapsed lifetime of the first particle that need to be spawned on this frame
+   *
+   * @return float
+   */
+  inline float getNextParticleToSpawnStartingLifetime() const { return m_nextParticleSpawnLifetime; }
 
 private:
 
@@ -100,8 +103,11 @@ private:
   float m_timeAlive                = 0.f;
   float m_lastSpawnedParticleStamp = 0.f;
 
-  float        m_nextParticleSpawnLifetime = 0.f;
-  unsigned int m_nextParticlesToSpawn      = 0;
+  float m_nextParticleSpawnLifetime = 0.f;
+
+  // The amount of particles that need to be spawned by the
+  // compute shader on this frame
+  unsigned int m_nextParticlesToSpawn = 0;
 };
 
 } // namespace vrm
