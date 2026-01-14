@@ -13,9 +13,10 @@ endif(POLICY CMP0072)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if(CMAKE_EXPORT_COMPILE_COMMANDS)
-  file(COPY ${CMAKE_BINARY_DIR}/compile_commands.json DESTINATION ${CMAKE_SOURCE_DIR})
+if(CMAKE_EXPORT_COMPILE_COMMANDS AND EXISTS "${CMAKE_BINARY_DIR}/compile_commands.json")
+  file(COPY "${CMAKE_BINARY_DIR}/compile_commands.json" DESTINATION "${CMAKE_SOURCE_DIR}")
 endif()
+
 
 # ----- General compiler settings -----
 
