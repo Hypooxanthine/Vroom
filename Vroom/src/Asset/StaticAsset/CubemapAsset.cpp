@@ -110,7 +110,7 @@ bool CubemapAsset::_buildGpuCubemap()
     }
   }
 
-  GLCall(m_gpuTexture.create(desc));
+  m_gpuTexture.create(desc);
 
   glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, 0, 0, desc.width, desc.height, desc.format, GL_UNSIGNED_BYTE, m_data.posx.getData());
   glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, 0, 0, desc.width, desc.height, desc.format, GL_UNSIGNED_BYTE, m_data.negx.getData());

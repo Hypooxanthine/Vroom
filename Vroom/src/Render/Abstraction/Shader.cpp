@@ -3,7 +3,7 @@
 
 #include "Vroom/Core/Log.h"
 #include "Vroom/Render/Abstraction/Buffer.h"
-#include "Vroom/Render/Abstraction/GLCall.h"
+#include "Vroom/Render/Abstraction/GLCore.h"
 #include "Vroom/Render/Abstraction/Texture.h"
 
 using namespace vrm;
@@ -38,7 +38,7 @@ bool Shader::addShaderStage(const EShaderType& type, const GLString& source,
 
   VRM_CHECK_RET_FALSE_MSG(shader != 0, "Shader compile error");
 
-  GLCall(glAttachShader(m_RendererID, shader));
+  glAttachShader(m_RendererID, shader);
   m_attachedShaders.emplace(shader);
 
   return true;
@@ -47,26 +47,26 @@ bool Shader::addShaderStage(const EShaderType& type, const GLString& source,
 GLuint Shader::CompileShader(GLenum type, const GLString& source,
                              bool recordErrors)
 {
-  GLCall(GLuint id = glCreateShader(type));
+  GLuint id = glCreateShader(type);
   const GLchar* src = source.c_str();
-  GLCall(glShaderSource(id, 1, &src, nullptr));
-  GLCall(glCompileShader(id));
+  glShaderSource(id, 1, &src, nullptr);
+  glCompileShader(id);
 
   int result;
-  GLCall(glGetShaderiv(id, GL_COMPILE_STATUS, &result));
+  glGetShaderiv(id, GL_COMPILE_STATUS, &result);
   if (result == GL_FALSE)
   {
     if (recordErrors)
     {
       int length;
-      GLCall(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length));
+      glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
       GLString str(length, ' ');
-      GLCall(glGetShaderInfoLog(id, length, &length, str.data()));
+      glGetShaderInfoLog(id, length, &length, str.data());
       m_errorRecord += str;
       m_errorRecord += "\n";
     }
 
-    GLCall(glDeleteShader(id));
+    glDeleteShader(id);
     return 0;
   }
 
@@ -75,16 +75,16 @@ GLuint Shader::CompileShader(GLenum type, const GLString& source,
 
 bool Shader::validate(bool checkErrors)
 {
-  GLCall(glLinkProgram(m_RendererID));
+  glLinkProgram(m_RendererID);
 
   GLint linkStatus;
-  GLCall(glGetProgramiv(m_RendererID, GL_LINK_STATUS, &linkStatus));
+  glGetProgramiv(m_RendererID, GL_LINK_STATUS, &linkStatus);
   if (linkStatus == GL_FALSE)
   {
     if (checkErrors)
     {
       GLint maxLength = 0;
-      GLCall(glGetProgramiv(m_RendererID, GL_INFO_LOG_LENGTH, &maxLength));
+      glGetProgramiv(m_RendererID, GL_INFO_LOG_LENGTH, &maxLength);
 
       std::basic_string<GLchar> s(maxLength, ' ');
 
@@ -95,21 +95,21 @@ bool Shader::validate(bool checkErrors)
       m_errorRecord += " ";
     }
 
-    GLCall(glDeleteProgram(m_RendererID));
+    glDeleteProgram(m_RendererID);
     m_RendererID = 0;
   }
 
   if (m_RendererID)
   {
-    GLCall(glValidateProgram(m_RendererID));
+    glValidateProgram(m_RendererID);
     GLint validateStatus;
-    GLCall(glGetProgramiv(m_RendererID, GL_VALIDATE_STATUS, &validateStatus));
+    glGetProgramiv(m_RendererID, GL_VALIDATE_STATUS, &validateStatus);
     if (validateStatus == GL_FALSE)
     {
       if (checkErrors)
       {
         GLint maxLength = 0;
-        GLCall(glGetProgramiv(m_RendererID, GL_INFO_LOG_LENGTH, &maxLength));
+        glGetProgramiv(m_RendererID, GL_INFO_LOG_LENGTH, &maxLength);
 
         std::basic_string<GLchar> s(maxLength, ' ');
 
@@ -121,14 +121,14 @@ bool Shader::validate(bool checkErrors)
         m_errorRecord += " ";
       }
 
-      GLCall(glDeleteProgram(m_RendererID));
+      glDeleteProgram(m_RendererID);
       m_RendererID = 0;
     }
   }
 
   for (const auto& shader : m_attachedShaders)
   {
-    GLCall(glDeleteShader(shader));
+    glDeleteShader(shader);
   }
   m_attachedShaders.clear();
 
@@ -155,46 +155,46 @@ void Shader::unload()
   }
 }
 
-void Shader::bind() const { GLCall(glUseProgram(m_RendererID)); }
+void Shader::bind() const { glUseProgram(m_RendererID); }
 
-void Shader::unbind() const { GLCall(glUseProgram(0)); }
+void Shader::unbind() const { glUseProgram(0); }
 
 void Shader::setUniform1i(const GLString& name, int value) const
 {
-  GLCall(glUniform1i(getUniformLocation(name), value));
+  glUniform1i(getUniformLocation(name), value);
 }
 
 void Shader::setUniform1iv(const GLString& name, int count,
                            const int* value) const
 {
-  GLCall(glUniform1iv(getUniformLocation(name), count, value));
+  glUniform1iv(getUniformLocation(name), count, value);
 }
 
 void Shader::setUniform1ui(const GLString& name, unsigned int value) const
 {
-  GLCall(glUniform1ui(getUniformLocation(name), value));
+  glUniform1ui(getUniformLocation(name), value);
 }
 
 void Shader::setUniform2ui(const GLString& name, unsigned int v0,
                            unsigned int v1) const
 {
-  GLCall(glUniform2ui(getUniformLocation(name), v0, v1));
+  glUniform2ui(getUniformLocation(name), v0, v1);
 }
 
 void Shader::setUniform1f(const GLString& name, float value) const
 {
-  GLCall(glUniform1f(getUniformLocation(name), value));
+  glUniform1f(getUniformLocation(name), value);
 }
 
 void Shader::setUniform2f(const GLString& name, float v0, float v1) const
 {
-  GLCall(glUniform2f(getUniformLocation(name), v0, v1));
+  glUniform2f(getUniformLocation(name), v0, v1);
 }
 
 void Shader::setUniform3f(const GLString& name, float v0, float v1,
                           float v2) const
 {
-  GLCall(glUniform3f(getUniformLocation(name), v0, v1, v2));
+  glUniform3f(getUniformLocation(name), v0, v1, v2);
 }
 
 void Shader::setUniform3f(const GLString& name, const glm::vec3& vec) const
@@ -205,12 +205,12 @@ void Shader::setUniform3f(const GLString& name, const glm::vec3& vec) const
 void Shader::setUniform4f(const GLString& name, float v0, float v1, float v2,
                           float v3) const
 {
-  GLCall(glUniform4f(getUniformLocation(name), v0, v1, v2, v3));
+  glUniform4f(getUniformLocation(name), v0, v1, v2, v3);
 }
 
 void Shader::setUniformMat4f(const GLString& name, const glm::mat4& mat) const
 {
-  GLCall(glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &mat[0][0]));
+  glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &mat[0][0]);
 }
 
 int Shader::getUniformLocation(const GLString& name) const
@@ -218,7 +218,7 @@ int Shader::getUniformLocation(const GLString& name) const
   if (m_UniformLocationCache.contains(name))
     return m_UniformLocationCache.at(name);
 
-  GLCall(int location = glGetUniformLocation(m_RendererID, name.c_str()));
+  int location = glGetUniformLocation(m_RendererID, name.c_str());
 
   m_UniformLocationCache[name] = location;
 
@@ -266,7 +266,7 @@ void Shader::setStorageBuffer(const GLString&   name,
   if (loc != -1)
   {
     Buffer::Bind(ssbo, GL_SHADER_STORAGE_BUFFER);
-    GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, loc, ssbo.getRenderId()));
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, loc, ssbo.getRenderId());
   }
 }
 
@@ -277,7 +277,7 @@ void Shader::setStorageBuffer(const GLString& name, const gl::Buffer& ssbo,
   if (loc != -1)
   {
     Buffer::Bind(ssbo, GL_SHADER_STORAGE_BUFFER);
-    GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, loc, ssbo.getRenderId()));
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, loc, ssbo.getRenderId());
     glBindBufferRange(GL_SHADER_STORAGE_BUFFER, loc, ssbo.getRenderId(), offset,
                       size);
   }

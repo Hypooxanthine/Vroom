@@ -50,6 +50,6 @@ void GaussianBlurPass::onRender(const RenderPassContext& ctx) const
 
     shader.setTexture("u_inputTexture", *input[index], index);
     shader.setUniform1ui("u_vertical", verticalVal[index]);
-    GLCall(glDrawArrays(GL_TRIANGLES, 0, 3));
+    glDrawArrays(GL_TRIANGLES, 0, 3);
   }
 }

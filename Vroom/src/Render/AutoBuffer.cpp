@@ -65,7 +65,7 @@ void* AutoBuffer::_mapWriteOnly(uint32_t offset, uint32_t size, bool discardData
     | (discardData ? GL_MAP_INVALIDATE_RANGE_BIT : 0)
   ;
 
-  GLCall(void* ptr = glMapNamedBufferRange(m_buffer.getRenderId(), static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(size), flags));
+  void* ptr = glMapNamedBufferRange(m_buffer.getRenderId(), static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(size), flags);
   return ptr;
 }
 

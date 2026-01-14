@@ -9,7 +9,7 @@
 #include "Vroom/Core/Application.h"
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Render/Abstraction/Buffer.h"
-#include "Vroom/Render/Abstraction/GLCall.h"
+#include "Vroom/Render/Abstraction/GLCore.h"
 #include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/Abstraction/VertexArray.h"
 #include "Vroom/Render/MaterialDefines.h"
@@ -252,7 +252,7 @@ void ParticleEmitterRender::_executeUpdateParticles(
 
   glm::uvec3 dispatch = gl::Shader::ComputeDispatchSize(
     s_updaterGroupSize, glm::uvec3(m_maxParticleCount, 1, 1));
-  GLCall(glDispatchCompute(dispatch.x, dispatch.y, dispatch.z));
+  glDispatchCompute(dispatch.x, dispatch.y, dispatch.z);
 }
 
 void ParticleEmitterRender::_executeRenderParticles(
@@ -283,7 +283,7 @@ void ParticleEmitterRender::_executeRenderParticles(
     shader.setUniformMat4f("u_model", *model);
     shader.setUniformMat4f("u_viewProj", view.getCamera()->getViewProjection());
 
-    GLCall(glDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr));
+    glDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr);
   }
 
   glDisable(GL_BLEND);

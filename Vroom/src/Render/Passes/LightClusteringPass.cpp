@@ -108,10 +108,10 @@ void LightClusteringPass::onSetup(const RenderPassContext& ctx)
                                          m_clustersBuffer.getBuffer(),
                                          sizePerView * i, sizePerView);
 
-    GLCall(glDispatchCompute(dispatch.x, dispatch.y, dispatch.z));
+    glDispatchCompute(dispatch.x, dispatch.y, dispatch.z);
   }
 
-  GLCall(glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT));
+  glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 void LightClusteringPass::onRender(const RenderPassContext& ctx) const
@@ -144,8 +144,8 @@ void LightClusteringPass::onRender(const RenderPassContext& ctx) const
                                       m_clustersBuffer.getBuffer(),
                                       sizePerView * i, sizePerView);
 
-    GLCall(glDispatchCompute(dispatch.x, dispatch.y, dispatch.z));
+    glDispatchCompute(dispatch.x, dispatch.y, dispatch.z);
   }
 
-  GLCall(glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT));
+  glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }

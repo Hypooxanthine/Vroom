@@ -3,7 +3,7 @@
 #include <concepts>
 #include <array>
 
-#include "Vroom/Render/Abstraction/GLCall.h"
+#include "Vroom/Render/Abstraction/GLCore.h"
 
 namespace vrm::gl
 {

@@ -48,13 +48,13 @@ void Texture::create(const Desc& desc)
           {
             m_defaultTarget = GL_TEXTURE_CUBE_MAP_ARRAY;
             bind();
-            GLCall(glTexStorage3D(m_defaultTarget, desc.mipmapCount, desc.internalFormat, desc.width, desc.height, desc.depth));
+            glTexStorage3D(m_defaultTarget, desc.mipmapCount, desc.internalFormat, desc.width, desc.height, desc.depth);
           }
           else // 2D texture array
           {
             m_defaultTarget = GL_TEXTURE_2D_ARRAY;
             bind();
-            GLCall(glTexStorage3D(m_defaultTarget, desc.mipmapCount, desc.internalFormat, desc.width, desc.height, desc.depth));
+            glTexStorage3D(m_defaultTarget, desc.mipmapCount, desc.internalFormat, desc.width, desc.height, desc.depth);
           }
         }
         else
@@ -63,13 +63,13 @@ void Texture::create(const Desc& desc)
           {
             m_defaultTarget = GL_TEXTURE_CUBE_MAP;
             bind();
-            GLCall(glTexStorage2D(m_defaultTarget, desc.mipmapCount, desc.internalFormat, desc.width, desc.height));
+            glTexStorage2D(m_defaultTarget, desc.mipmapCount, desc.internalFormat, desc.width, desc.height);
           }
           else // 2D texture
           {
             m_defaultTarget = GL_TEXTURE_2D;
             bind();
-            GLCall(glTexStorage2D(m_defaultTarget, desc.mipmapCount, desc.internalFormat, desc.width, desc.height));
+            glTexStorage2D(m_defaultTarget, desc.mipmapCount, desc.internalFormat, desc.width, desc.height);
           }
         }
       }

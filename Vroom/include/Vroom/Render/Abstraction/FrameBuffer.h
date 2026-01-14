@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "Vroom/Api.h"
-#include "Vroom/Render/Abstraction/GLCall.h"
+#include "Vroom/Render/Abstraction/GLCore.h"
 
 #include "Vroom/Render/Abstraction/Texture.h"
 #include "Vroom/Render/Abstraction/RenderBuffer.h"

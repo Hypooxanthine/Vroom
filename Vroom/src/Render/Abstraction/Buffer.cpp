@@ -37,7 +37,7 @@ void Buffer::_create(const Desc& description, const void* data)
 {
   release();
 
-  GLCall(glGenBuffers(1, &m_renderId));
+  glGenBuffers(1, &m_renderId);
   m_desc = description;
 
   GLbitfield flags = 0
@@ -47,7 +47,7 @@ void Buffer::_create(const Desc& description, const void* data)
   ;
 
   Bind(*this, GL_ARRAY_BUFFER);
-  GLCall(glBufferStorage(GL_ARRAY_BUFFER, m_desc.capacity, data, flags));
+  glBufferStorage(GL_ARRAY_BUFFER, m_desc.capacity, data, flags);
   Unbind(GL_ARRAY_BUFFER);
 }
 

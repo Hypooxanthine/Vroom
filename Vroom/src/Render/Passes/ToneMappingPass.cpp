@@ -49,5 +49,5 @@ void ToneMappingPass::onRender(const RenderPassContext& ctx) const
   gl::VertexArray::Bind(m_dummyVao);
   gl::Buffer::Unbind(GL_ARRAY_BUFFER);
   gl::Buffer::Unbind(GL_ELEMENT_ARRAY_BUFFER);
-  GLCall(glDrawArrays(GL_TRIANGLES, 0, 3));
+  glDrawArrays(GL_TRIANGLES, 0, 3);
 }
