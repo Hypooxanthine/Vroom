@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <Vroom/Render/RenderLayout.h>
 #include <Vroom/Render/Camera/CameraBasic.h>
+#include "Vroom/Render/Camera/OrthographicCamera.h"
 
 class TestRenderLayout : public testing::Test
 {
@@ -9,8 +10,8 @@ protected:
   void SetUp() override
   {
     // Use dummy pointer values for testing
-    camera = reinterpret_cast<vrm::CameraBasic*>(0x12345678);
-    camera2 = reinterpret_cast<vrm::CameraBasic*>(0x87654321);
+    cameraPtr = &dummyCamera;
+    camera2Ptr = &dummyCamera2;
   }
 
   void TearDown() override
@@ -18,8 +19,11 @@ protected:
 
   }
 
-  vrm::CameraBasic* camera;
-  vrm::CameraBasic* camera2;
+  vrm::CameraBasic* cameraPtr;
+  vrm::CameraBasic* camera2Ptr;
+
+  vrm::OrthographicCamera dummyCamera = vrm::OrthographicCamera(10.f, 10.f, 0.1f, 1.f);
+  vrm::OrthographicCamera dummyCamera2 = vrm::OrthographicCamera(20.f, 20.f, 0.1f, 2.f);
 };
 
 TEST_F(TestRenderLayout, DefaultConstructor)
@@ -74,12 +78,12 @@ TEST_F(TestRenderLayout, SetAndGetView)
 {
   vrm::RenderLayout layout(2, 2);
   vrm::render::NormalizedViewport viewport({ 0.1f, 0.2f }, { 0.3f, 0.4f });
-  vrm::render::NormalizedView view(camera, viewport);
+  vrm::render::NormalizedView view(cameraPtr, viewport);
 
   layout.setView(0, 1, view);
 
   const vrm::render::NormalizedView& retrievedView = layout.getView(0, 1);
-  EXPECT_EQ(retrievedView.getCamera(), camera);
+  EXPECT_EQ(retrievedView.getCamera(), cameraPtr);
 
   const auto& retrievedViewport = retrievedView.getViewport();
   EXPECT_FLOAT_EQ(retrievedViewport.getOriginX(), 0.5f);
@@ -100,7 +104,7 @@ TEST_F(TestRenderLayout, ViewportCalculation)
   layout.setHeights(heights);
 
   // Create views for each position
-  vrm::render::NormalizedView view(camera);
+  vrm::render::NormalizedView view(cameraPtr);
 
   for (size_t j = 0; j < 2; ++j) {
     for (size_t i = 0; i < 2; ++i) {
