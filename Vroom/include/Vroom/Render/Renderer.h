@@ -16,7 +16,7 @@ namespace vrm
 
   class Application;
   class Scene;
-  struct PointLightComponent;
+  class PointLightComponent;
   struct DirectionalLightComponent;
   class MeshComponent;
   class SkyboxComponent;

@@ -1,174 +1,211 @@
 #pragma once
 
-#include <vector>
+#include <set>
 #include <unordered_map>
 #include <unordered_set>
-#include <set>
+#include <vector>
 
 #include "Vroom/Core/Assert.h"
 
 namespace vrm
 {
 
-  template <typename T, typename IdType>
-  class LinearRegistry
+template <typename T, typename IdType>
+class LinearRegistry
+{
+public:
+
+  friend class test_LinearRegistry;
+  using ContainerType  = std::vector<T>;
+  using KeySet         = std::unordered_set<IdType>;
+  using ElementType    = T;
+  using KeyType        = IdType;
+  using const_iterator = ContainerType::const_iterator;
+
+public:
+
+  inline LinearRegistry()
+  {}
+
+  inline ~LinearRegistry()
+  {}
+
+  inline void reset()
   {
-  public:
-    friend class test_LinearRegistry;
-    using ContainerType = std::vector<T>;
-    using KeySet = std::unordered_set<IdType>;
-    using ElementType = T;
-    using KeyType = IdType;
-    using const_iterator = ContainerType::const_iterator;
+    m_data.clear();
+    m_indexMap.clear();
+    m_idMap.clear();
+    m_waitingKeys.clear();
+    m_confirmedKeys.clear();
+    m_isRegistering = false;
+    m_modified      = false;
+  }
 
-  public:
+  inline bool contains(const IdType& id) const
+  {
+    return m_indexMap.contains(id);
+  }
 
-    inline LinearRegistry()
+  inline const T* tryGetElement(const IdType& id) const
+  {
+    if (auto it = m_indexMap.find(id); it != m_indexMap.end())
     {
+      return &m_data.at(it->second);
+    }
+    else
+    {
+      return nullptr;
+    }
+  }
 
+  inline bool isRegistering() const
+  {
+    return m_isRegistering;
+  }
+
+  inline void startRegistering()
+  {
+    VRM_ASSERT_MSG(m_isRegistering == false, "Already registering");
+    m_isRegistering = true;
+
+    std::swap(m_waitingKeys, m_confirmedKeys);
+    m_confirmedKeys.clear();
+    m_modified = false;
+  }
+
+  template <typename uT>
+    requires std::is_same_v<std::decay_t<uT>, T>
+  inline void submit(const IdType& id, uT&& element)
+  {
+    notifyUsed(id);
+
+    if (m_indexMap.contains(id))
+    {
+      m_data.at(m_indexMap.at(id)) = std::forward<uT>(element);
+    }
+    else
+    {
+      m_indexMap[id]         = m_data.size();
+      m_idMap[m_data.size()] = id;
+      m_data.emplace_back(std::forward<uT>(element));
     }
 
-    inline ~LinearRegistry()
-    {
+    m_modified = true;
+  }
 
+  inline void notifyUsed(const IdType& id)
+  {
+    VRM_ASSERT_MSG(isRegistering(), "Wasn't registering");
+    m_waitingKeys.erase(id);
+    m_confirmedKeys.insert(id);
+  }
+
+  inline void endRegistering()
+  {
+    VRM_ASSERT_MSG(m_isRegistering == true, "Wasn't registering");
+    m_isRegistering = false;
+
+    if (m_waitingKeys.empty())
+    {
+      return;
     }
 
-    inline void reset()
+    m_modified = true;
+    std::set<size_t> sortedIdsToDelete;
+
+    for (const auto& missingId : m_waitingKeys)
     {
-      m_data.clear();
-      m_indexMap.clear();
-      m_idMap.clear();
-      m_waitingKeys.clear();
-      m_confirmedKeys.clear();
-      m_isRegistering = false;
-      m_modified = false;
+      sortedIdsToDelete.emplace(m_indexMap.at(missingId));
+      m_indexMap.erase(missingId);
     }
 
-    inline bool contains(const IdType& id) const
+    for (auto it = sortedIdsToDelete.rbegin(); it != sortedIdsToDelete.rend(); ++it)
     {
-      return m_indexMap.contains(id);
-    }
+      const size_t location = *it;
+      const size_t end      = m_data.size() - 1;
 
-    inline bool isRegistering() const { return m_isRegistering; }
-
-    inline void startRegistering()
-    {
-      VRM_ASSERT_MSG(m_isRegistering == false, "Already registering");
-      m_isRegistering = true;
-
-      std::swap(m_waitingKeys, m_confirmedKeys);
-      m_confirmedKeys.clear();
-      m_modified = false;
-    }
-
-    template <typename uT>
-      requires std::is_same_v<std::decay_t<uT>, T>
-    inline void submit(const IdType& id, uT&& element)
-    {
-      notifyUsed(id);
-
-      if (m_indexMap.contains(id))
+      if (location < end)
       {
-        m_data.at(m_indexMap.at(id)) = std::forward<uT>(element);
-      }
-      else
-      {
-        m_indexMap[id] = m_data.size();
-        m_idMap[m_data.size()] = id;
-        m_data.emplace_back(std::forward<uT>(element));
+        std::swap(m_data.at(location), m_data.at(end));
+        m_idMap.at(location)                = std::move(m_idMap.at(end));
+        m_indexMap.at(m_idMap.at(location)) = location;
       }
 
-      m_modified = true;
+      m_data.pop_back();
+      m_idMap.erase(end);
     }
+  }
 
-    inline void notifyUsed(const IdType& id)
-    {
-      VRM_ASSERT_MSG(isRegistering(), "Wasn't registering");
-      m_waitingKeys.erase(id);
-      m_confirmedKeys.insert(id);
-    }
+  inline size_t getElementCount() const
+  {
+    return m_data.size();
+  }
 
-    inline void endRegistering()
-    {
-      VRM_ASSERT_MSG(m_isRegistering == true, "Wasn't registering");
-      m_isRegistering = false;
+  inline const T* getRawData() const
+  {
+    return m_data.data();
+  }
 
-      if (m_waitingKeys.empty())
-      {
-        return;
-      }
+  inline const T& at(size_t index) const
+  {
+    return m_data.at(index);
+  }
 
-      m_modified = true;
-      std::set<size_t> sortedIdsToDelete;
+  inline const bool wasJustModified() const
+  {
+    VRM_ASSERT_MSG(m_isRegistering == false,
+                   "Registry data is undefined while registering. Call endregistering() first");
 
-      for (const auto& missingId : m_waitingKeys)
-      {
-        sortedIdsToDelete.emplace(m_indexMap.at(missingId));
-        m_indexMap.erase(missingId);
-      }
+    return m_modified;
+  }
 
-      for (auto it = sortedIdsToDelete.rbegin(); it != sortedIdsToDelete.rend(); ++it)
-      {
-        const size_t location = *it;
-        const size_t end = m_data.size() - 1;
+  inline const KeySet& getRegisteredKeys() const
+  {
+    VRM_ASSERT_MSG(m_isRegistering == false,
+                   "Registry data is undefined while registering. Call endregistering() first");
 
-        if (location < end)
-        {
-          std::swap(m_data.at(location), m_data.at(end));
-          m_idMap.at(location) = std::move(m_idMap.at(end));
-          m_indexMap.at(m_idMap.at(location)) = location;
-        }
+    return m_confirmedKeys;
+  }
 
-        m_data.pop_back();
-        m_idMap.erase(end);
-      }
-    }
+  inline const KeySet& getJustRemovedKeys() const
+  {
+    VRM_ASSERT_MSG(m_isRegistering == false,
+                   "Registry data is undefined while registering. Call endregistering() first");
 
-    inline size_t getElementCount() const { return m_data.size(); }
+    return m_waitingKeys;
+  }
 
-    inline const T* getRawData() const { return m_data.data(); }
+public:
 
-    inline const T& at(size_t index) const { return m_data.at(index); }
+  const_iterator begin() const
+  {
+    return m_data.begin();
+  }
+  const_iterator end() const
+  {
+    return m_data.end();
+  }
 
-    inline const bool wasJustModified() const
-    {
-      VRM_ASSERT_MSG(m_isRegistering == false, "Registry data is undefined while registering. Call endregistering() first");
+  const_iterator cbegin() const
+  {
+    return m_data.cbegin();
+  }
+  const_iterator cend() const
+  {
+    return m_data.cend();
+  }
 
-      return m_modified;
-    }
+private:
 
-    inline const KeySet& getRegisteredKeys() const
-    {
-      VRM_ASSERT_MSG(m_isRegistering == false, "Registry data is undefined while registering. Call endregistering() first");
+  ContainerType m_data;
 
-      return m_confirmedKeys;
-    }
+  std::unordered_map<IdType, size_t> m_indexMap;
+  std::unordered_map<size_t, IdType> m_idMap;
 
-    inline const KeySet& getJustRemovedKeys() const
-    {
-      VRM_ASSERT_MSG(m_isRegistering == false, "Registry data is undefined while registering. Call endregistering() first");
+  KeySet m_waitingKeys, m_confirmedKeys;
 
-      return m_waitingKeys;
-    }
-
-  public:
-
-    const_iterator begin() const { return m_data.begin(); }
-    const_iterator end() const { return m_data.end(); }
-
-    const_iterator cbegin() const { return m_data.cbegin(); }
-    const_iterator cend() const { return m_data.cend(); }
-
-  private:
-    ContainerType m_data;
-
-    std::unordered_map<IdType, size_t> m_indexMap;
-    std::unordered_map<size_t, IdType> m_idMap;
-
-    KeySet m_waitingKeys, m_confirmedKeys;
-
-    bool m_isRegistering = false;
-    bool m_modified = false;
-  };
+  bool m_isRegistering = false;
+  bool m_modified      = false;
+};
 
 } // namespace vrm

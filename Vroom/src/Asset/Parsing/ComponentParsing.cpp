@@ -1,27 +1,26 @@
-#include "Vroom/Asset/AssetData/ComponentData.h"
-
 #include <filesystem>
+
+#include "Vroom/Asset/AssetData/ComponentData.h"
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/Parsing/Json.h"
-
-#include "Vroom/Scene/Entity.h"
-#include "Vroom/Scene/Components/TransformComponent.h"
-#include "Vroom/Scene/Components/MeshComponent.h"
-#include "Vroom/Scene/Components/SkyboxComponent.h"
 #include "Vroom/Scene/Components/DirectionalLightComponent.h"
+#include "Vroom/Scene/Components/MeshComponent.h"
 #include "Vroom/Scene/Components/PointLightComponent.h"
+#include "Vroom/Scene/Components/SkyboxComponent.h"
+#include "Vroom/Scene/Components/TransformComponent.h"
+#include "Vroom/Scene/Entity.h"
 
 using namespace vrm;
 
 std::string ComponentData::formatPath(const std::string& path)
 {
   std::string out = path;
-  auto pos = out.find(L'\\');
+  auto        pos = out.find(L'\\');
 
   while (pos != out.npos)
   {
     out[pos] = '/';
-    pos = out.find(L'\\', pos);
+    pos      = out.find(L'\\', pos);
   }
 
   return out;
@@ -43,36 +42,36 @@ void TransformComponentData::getFromEntity(const Entity& entity)
   const auto& tc = entity.getComponent<vrm::TransformComponent>();
   this->position = tc.getPosition();
   this->rotation = tc.getRotation();
-  this->scale = tc.getScale();
+  this->scale    = tc.getScale();
 }
 
 json TransformComponentData::serialize() const
 {
-  json j = json::object();
-  j["type"] = "TransformComponent";
+  json j       = json::object();
+  j["type"]    = "TransformComponent";
   json& params = j["params"] = json::array();
-  
+
   // Position
   {
-    json& posParam = params.emplace_back();
+    json& posParam   = params.emplace_back();
     posParam["name"] = "Position";
-    json& pos = posParam["value"];
+    json& pos        = posParam["value"];
     to_json(pos, this->position);
   }
-  
+
   // Rotation
   {
-    json& rotParam = params.emplace_back();
+    json& rotParam   = params.emplace_back();
     rotParam["name"] = "Rotation";
-    json& rot = rotParam["value"];
+    json& rot        = rotParam["value"];
     to_json(rot, this->rotation);
   }
 
   // Scale
   {
-    json& scaleParam = params.emplace_back();
+    json& scaleParam   = params.emplace_back();
     scaleParam["name"] = "Scale";
-    json& scale = scaleParam["value"];
+    json& scale        = scaleParam["value"];
     to_json(scale, this->scale);
   }
 
@@ -130,38 +129,38 @@ void MeshComponentData::addToEntity(Entity& entity)
 
 void MeshComponentData::getFromEntity(const Entity& entity)
 {
-  const auto& mc = entity.getComponent<MeshComponent>();
+  const auto& mc     = entity.getComponent<MeshComponent>();
   this->resourceName = mc.getMesh()->getFilePath();
-  this->castsShadow = mc.doesCastShadow();
-  this->visible = mc.isVisible();
+  this->castsShadow  = mc.doesCastShadow();
+  this->visible      = mc.isVisible();
 }
 
 json MeshComponentData::serialize() const
 {
-  json j = json::object();
-  j["type"] = "MeshComponent";
+  json j       = json::object();
+  j["type"]    = "MeshComponent";
   json& params = j["params"] = json::array();
 
   // ResourceName
   {
-    json& rscParam = params.emplace_back();
+    json& rscParam   = params.emplace_back();
     rscParam["name"] = "ResourceName";
-    json& rsc = rscParam["value"];
-    rsc = formatPath(this->resourceName);
+    json& rsc        = rscParam["value"];
+    rsc              = formatPath(this->resourceName);
   }
 
   {
-    json& castsShadowParam = params.emplace_back();
+    json& castsShadowParam   = params.emplace_back();
     castsShadowParam["name"] = "CastsShadow";
-    json& castsShadow = castsShadowParam["value"];
-    castsShadow = this->castsShadow;
+    json& castsShadow        = castsShadowParam["value"];
+    castsShadow              = this->castsShadow;
   }
 
   {
-    json& visibleParam = params.emplace_back();
+    json& visibleParam   = params.emplace_back();
     visibleParam["name"] = "Visible";
-    json& visibleVal = visibleParam["value"];
-    visibleVal = this->visible;
+    json& visibleVal     = visibleParam["value"];
+    visibleVal           = this->visible;
   }
 
   return std::move(j);
@@ -216,22 +215,22 @@ void SkyboxComponentData::addToEntity(Entity& entity)
 
 void SkyboxComponentData::getFromEntity(const Entity& entity)
 {
-  const auto& mc = entity.getComponent<SkyboxComponent>();
+  const auto& mc     = entity.getComponent<SkyboxComponent>();
   this->resourceName = mc.getCubemapAsset()->getFilePath();
 }
 
 json SkyboxComponentData::serialize() const
 {
-  json j = json::object();
-  j["type"] = "SkyboxComponent";
+  json j       = json::object();
+  j["type"]    = "SkyboxComponent";
   json& params = j["params"] = json::array();
 
   // ResourceName
   {
-    json& rscParam = params.emplace_back();
+    json& rscParam   = params.emplace_back();
     rscParam["name"] = "ResourceName";
-    json& rsc = rscParam["value"];
-    rsc = formatPath(this->resourceName);
+    json& rsc        = rscParam["value"];
+    rsc              = formatPath(this->resourceName);
   }
 
   return std::move(j);
@@ -270,45 +269,45 @@ bool SkyboxComponentData::deserialize(const json& j)
 
 void DirectionalLightComponentData::addToEntity(Entity& entity)
 {
-  auto& dlc = entity.addComponent<DirectionalLightComponent>();
-  dlc.color = color;
-  dlc.intensity = intensity;
+  auto& dlc        = entity.addComponent<DirectionalLightComponent>();
+  dlc.color        = color;
+  dlc.intensity    = intensity;
   dlc.castsShadows = castsShadows;
 }
 
 void DirectionalLightComponentData::getFromEntity(const Entity& entity)
 {
-  const auto& dlc = entity.getComponent<DirectionalLightComponent>();
-  this->color = dlc.color;
-  this->intensity = dlc.intensity;
+  const auto& dlc    = entity.getComponent<DirectionalLightComponent>();
+  this->color        = dlc.color;
+  this->intensity    = dlc.intensity;
   this->castsShadows = dlc.castsShadows;
 }
 
 json DirectionalLightComponentData::serialize() const
 {
-  json j = json::object();
-  j["type"] = "DirectionalLightComponent";
+  json j       = json::object();
+  j["type"]    = "DirectionalLightComponent";
   json& params = j["params"] = json::array();
 
   {
-    json& colorParam = params.emplace_back();
+    json& colorParam   = params.emplace_back();
     colorParam["name"] = "Color";
-    json& color = colorParam["value"];
+    json& color        = colorParam["value"];
     to_json(color, this->color);
   }
 
   {
-    json& intensityParam = params.emplace_back();
+    json& intensityParam   = params.emplace_back();
     intensityParam["name"] = "Intensity";
-    json& intensity = intensityParam["value"];
+    json& intensity        = intensityParam["value"];
     to_json(intensity, this->intensity);
   }
 
   {
-    json& castsShadowsParam = params.emplace_back();
+    json& castsShadowsParam   = params.emplace_back();
     castsShadowsParam["name"] = "CastsShadows";
-    json& castsShadows = castsShadowsParam["value"];
-    castsShadows = this->castsShadows;
+    json& castsShadows        = castsShadowsParam["value"];
+    castsShadows              = this->castsShadows;
   }
 
   return std::move(j);
@@ -358,79 +357,79 @@ bool DirectionalLightComponentData::deserialize(const json& j)
 void PointLightComponentData::addToEntity(Entity& entity)
 {
   auto& plc = entity.addComponent<::PointLightComponent>();
-  plc.color = color;
-  plc.intensity = intensity;
-  plc.radius = radius;
-  plc.smoothRadius = smoothRadius;
-  plc.constantAttenuation = constantAttenuation;
-  plc.linearAttenuation = linearAttenuation;
-  plc.quadraticAttenuation = quadraticAttenuation;
+  plc.setColor(color);
+  plc.setIntensity(intensity);
+  plc.setRadius(radius);
+  plc.setSmoothRadius(smoothRadius);
+  plc.setConstantAttenuation(constantAttenuation);
+  plc.setLinearAttenuation(linearAttenuation);
+  plc.setQuadraticAttenuation(quadraticAttenuation);
 }
 
 void PointLightComponentData::getFromEntity(const Entity& entity)
 {
-  const auto& plc = entity.getComponent<::PointLightComponent>();
-  this->color = plc.color;
-  this->intensity = plc.intensity;
-  this->radius = plc.radius;
-  this->smoothRadius = plc.smoothRadius;
-  this->constantAttenuation = plc.constantAttenuation;
-  this->linearAttenuation = plc.linearAttenuation;
-  this->quadraticAttenuation = plc.quadraticAttenuation;
+  const auto& plc            = entity.getComponent<::PointLightComponent>();
+  this->color                = plc.getColor();
+  this->intensity            = plc.getIntensity();
+  this->radius               = plc.getRadius();
+  this->smoothRadius         = plc.getSmoothRadius();
+  this->constantAttenuation  = plc.getConstantAttenuation();
+  this->linearAttenuation    = plc.getLinearAttenuation();
+  this->quadraticAttenuation = plc.getQuadraticAttenuation();
 }
 
 json PointLightComponentData::serialize() const
 {
-  json j = json::object();
-  j["type"] = "PointLightComponent";
+  json j       = json::object();
+  j["type"]    = "PointLightComponent";
   json& params = j["params"] = json::array();
 
   {
-    json& colorParam = params.emplace_back();
+    json& colorParam   = params.emplace_back();
     colorParam["name"] = "Color";
-    json& color = colorParam["value"];
+    json& color        = colorParam["value"];
     to_json(color, this->color);
   }
 
   {
-    json& intensityParam = params.emplace_back();
+    json& intensityParam   = params.emplace_back();
     intensityParam["name"] = "Intensity";
-    json& intensity = intensityParam["value"];
+    json& intensity        = intensityParam["value"];
     to_json(intensity, this->intensity);
   }
 
   {
-    json& radiusParam = params.emplace_back();
+    json& radiusParam   = params.emplace_back();
     radiusParam["name"] = "Radius";
-    json& radius = radiusParam["value"];
+    json& radius        = radiusParam["value"];
     to_json(radius, this->radius);
   }
 
   {
-    json& smoothRadiusParam = params.emplace_back();
+    json& smoothRadiusParam   = params.emplace_back();
     smoothRadiusParam["name"] = "SmoothRadius";
-    json& smoothRadius = smoothRadiusParam["value"];
+    json& smoothRadius        = smoothRadiusParam["value"];
     to_json(smoothRadius, this->smoothRadius);
   }
 
   {
-    json& constantAttenuationParam = params.emplace_back();
+    json& constantAttenuationParam   = params.emplace_back();
     constantAttenuationParam["name"] = "ConstantAttenuation";
-    json& constantAttenuation = constantAttenuationParam["value"];
+    json& constantAttenuation        = constantAttenuationParam["value"];
     to_json(constantAttenuation, this->constantAttenuation);
   }
 
   {
-    json& linearAttenuationParam = params.emplace_back();
+    json& linearAttenuationParam   = params.emplace_back();
     linearAttenuationParam["name"] = "LinearAttenuation";
-    json& linearAttenuation = linearAttenuationParam["value"];
+    json& linearAttenuation        = linearAttenuationParam["value"];
     to_json(linearAttenuation, this->linearAttenuation);
   }
 
   {
-    json& quadraticAttenuationParam = params.emplace_back();
+    json& quadraticAttenuationParam   = params.emplace_back();
     quadraticAttenuationParam["name"] = "QuadraticAttenuation";
-    json& quadraticAttenuation = quadraticAttenuationParam["value"];
+    json& quadraticAttenuation        = quadraticAttenuationParam["value"];
     to_json(quadraticAttenuation, this->quadraticAttenuation);
   }
   return std::move(j);
@@ -507,21 +506,21 @@ void ScriptComponentData::addToEntity(Entity& entity)
 
 void ScriptComponentData::getFromEntity(const Entity& entity)
 {
-  const auto& sc = entity.getScriptComponent();
+  const auto& sc     = entity.getScriptComponent();
   this->resourceName = sc.getScriptName();
 }
 
 json ScriptComponentData::serialize() const
 {
-  json j = json::object();
-  j["type"] = "ScriptComponent";
+  json j       = json::object();
+  j["type"]    = "ScriptComponent";
   json& params = j["params"] = json::array();
 
   {
-    json& scriptNameParam = params.emplace_back();
+    json& scriptNameParam   = params.emplace_back();
     scriptNameParam["name"] = "ScriptName";
-    json& scriptName = scriptNameParam["value"];
-    scriptName = formatPath(this->resourceName);
+    json& scriptName        = scriptNameParam["value"];
+    scriptName              = formatPath(this->resourceName);
   }
 
   return std::move(j);
@@ -560,57 +559,57 @@ bool ScriptComponentData::deserialize(const json& j)
 
 namespace nlohmann
 {
-    
-  void to_json(json& j, const ComponentData& component)
-  {
-    j = component.serialize();
-  }
 
-  void from_json(const json& j, std::unique_ptr<ComponentData>& component)
-  {
-    VRM_CHECK_THROW_MSG(j.is_object(), "Expected an object for ComponentData, got {}", j.dump(2));
-
-    const std::string type = j["type"];
-    if (type == "TransformComponent")
-    {
-      auto tc = std::make_unique<TransformComponentData>();
-      VRM_CHECK_THROW_MSG(tc->deserialize(j), "Failed to deserialize TransformComponentData");
-      component = std::move(tc);
-    }
-    else if (type == "MeshComponent")
-    {
-      auto mc = std::make_unique<MeshComponentData>();
-      VRM_CHECK_THROW_MSG(mc->deserialize(j), "Failed to deserialize MeshComponentData");
-      component = std::move(mc);
-    }
-    else if (type == "SkyboxComponent")
-    {
-      auto sc = std::make_unique<SkyboxComponentData>();
-      VRM_CHECK_THROW_MSG(sc->deserialize(j), "Failed to deserialize SkyboxComponentData");
-      component = std::move(sc);
-    }
-    else if (type == "DirectionalLightComponent")
-    {
-      auto dlc = std::make_unique<DirectionalLightComponentData>();
-      VRM_CHECK_THROW_MSG(dlc->deserialize(j), "Failed to deserialize DirectionalLightComponentData");
-      component = std::move(dlc);
-    }
-    else if (type == "PointLightComponent")
-    {
-      auto plc = std::make_unique<PointLightComponentData>();
-      VRM_CHECK_THROW_MSG(plc->deserialize(j), "Failed to deserialize PointLightComponentData");
-      component = std::move(plc);
-    }
-    else if (type == "ScriptComponent")
-    {
-      auto sc = std::make_unique<ScriptComponentData>();
-      VRM_CHECK_THROW_MSG(sc->deserialize(j), "Failed to deserialize ScriptComponentData");
-      component = std::move(sc);
-    }
-    else
-    {
-      VRM_LOG_ERROR("Unsupported component type: {}", type);
-    }
-  }
-
+void to_json(json& j, const ComponentData& component)
+{
+  j = component.serialize();
 }
+
+void from_json(const json& j, std::unique_ptr<ComponentData>& component)
+{
+  VRM_CHECK_THROW_MSG(j.is_object(), "Expected an object for ComponentData, got {}", j.dump(2));
+
+  const std::string type = j["type"];
+  if (type == "TransformComponent")
+  {
+    auto tc = std::make_unique<TransformComponentData>();
+    VRM_CHECK_THROW_MSG(tc->deserialize(j), "Failed to deserialize TransformComponentData");
+    component = std::move(tc);
+  }
+  else if (type == "MeshComponent")
+  {
+    auto mc = std::make_unique<MeshComponentData>();
+    VRM_CHECK_THROW_MSG(mc->deserialize(j), "Failed to deserialize MeshComponentData");
+    component = std::move(mc);
+  }
+  else if (type == "SkyboxComponent")
+  {
+    auto sc = std::make_unique<SkyboxComponentData>();
+    VRM_CHECK_THROW_MSG(sc->deserialize(j), "Failed to deserialize SkyboxComponentData");
+    component = std::move(sc);
+  }
+  else if (type == "DirectionalLightComponent")
+  {
+    auto dlc = std::make_unique<DirectionalLightComponentData>();
+    VRM_CHECK_THROW_MSG(dlc->deserialize(j), "Failed to deserialize DirectionalLightComponentData");
+    component = std::move(dlc);
+  }
+  else if (type == "PointLightComponent")
+  {
+    auto plc = std::make_unique<PointLightComponentData>();
+    VRM_CHECK_THROW_MSG(plc->deserialize(j), "Failed to deserialize PointLightComponentData");
+    component = std::move(plc);
+  }
+  else if (type == "ScriptComponent")
+  {
+    auto sc = std::make_unique<ScriptComponentData>();
+    VRM_CHECK_THROW_MSG(sc->deserialize(j), "Failed to deserialize ScriptComponentData");
+    component = std::move(sc);
+  }
+  else
+  {
+    VRM_LOG_ERROR("Unsupported component type: {}", type);
+  }
+}
+
+} // namespace nlohmann

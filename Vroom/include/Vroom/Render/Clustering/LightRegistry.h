@@ -12,7 +12,7 @@
 
 namespace vrm
 {
-  struct PointLightComponent;
+  class PointLightComponent;
   struct DirectionalLightComponent;
 
   class LightRegistry

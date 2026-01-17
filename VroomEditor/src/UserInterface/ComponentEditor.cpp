@@ -36,8 +36,7 @@ using namespace vrm;
 static std::vector<std::unique_ptr<ComponentEditor>> ALL_EDITORS = {};
 
 template <typename C, typename... Args>
-static inline void
-AddComponentItem(Entity& e, const std::string_view& displayName, Args&&... args)
+static inline void AddComponentItem(Entity& e, const std::string_view& displayName, Args&&... args)
 {
   if (!e.hasComponent<C>() && ImGui::Selectable(displayName.data()))
   {
@@ -51,7 +50,8 @@ void ComponentEditor::EditEntity(Entity& e)
 
   for (auto& editor : ALL_EDITORS)
   {
-    if (!editor->canEditEntity(e)) continue;
+    if (!editor->canEditEntity(e))
+      continue;
 
     ImGui::SeparatorText(editor->getComponentName().c_str());
 
@@ -71,7 +71,8 @@ void ComponentEditor::EditEntity(Entity& e)
 
     ImGui::PopID();
 
-    if (askedRemove) editor->removeFromEntity(e);
+    if (askedRemove)
+      editor->removeFromEntity(e);
   }
 
   ImGui::Separator();
@@ -92,9 +93,15 @@ struct ComponentGetter
 {
   using ComponentType = T;
 
-  inline bool has(const Entity& e) const { return e.hasComponent<T>(); }
+  inline bool has(const Entity& e) const
+  {
+    return e.hasComponent<T>();
+  }
 
-  inline T& get(Entity& e) const { return e.getComponent<T>(); }
+  inline T& get(Entity& e) const
+  {
+    return e.getComponent<T>();
+  }
 };
 
 /**
@@ -105,38 +112,47 @@ struct ComponentGetter
  * removed or not
  *
  */
-#define VRM_REGISTER_COMPONENT_EDITOR(ComponentName, displayName, removable)     \
-  class ComponentName##Editor : public ComponentEditor,                          \
-                                public ComponentGetter<ComponentName>            \
-  {                                                                              \
-  public:                                                                        \
-                                                                                 \
-    ~ComponentName##Editor() {}                                                  \
-    void        editEntityComponent(Entity&) const override;                     \
-    std::string getComponentName() const override { return displayName; }        \
-    bool        canEditEntity(const Entity& e) const override { return has(e); } \
-    bool        canBeRemoved() const override { return removable; }              \
-    void        removeFromEntity(Entity& e) const override                       \
-    {                                                                            \
-      if constexpr (removable) e.removeComponent<ComponentName>();               \
-    }                                                                            \
-                                                                                 \
-  private:                                                                       \
-                                                                                 \
-    ComponentName##Editor()                                                      \
-      : ComponentEditor(), ComponentGetter<ComponentName>()                      \
-    {}                                                                           \
-    friend struct Registerer;                                                    \
-    struct Registerer                                                            \
-    {                                                                            \
-      Registerer()                                                               \
-      {                                                                          \
-        ALL_EDITORS.emplace_back().reset(new ComponentName##Editor());           \
-      }                                                                          \
-    };                                                                           \
-                                                                                 \
-    static Registerer s_Registerer;                                              \
-  };                                                                             \
+#define VRM_REGISTER_COMPONENT_EDITOR(ComponentName, displayName, removable)                  \
+  class ComponentName##Editor : public ComponentEditor, public ComponentGetter<ComponentName> \
+  {                                                                                           \
+  public:                                                                                     \
+                                                                                              \
+    ~ComponentName##Editor()                                                                  \
+    {}                                                                                        \
+    void        editEntityComponent(Entity&) const override;                                  \
+    std::string getComponentName() const override                                             \
+    {                                                                                         \
+      return displayName;                                                                     \
+    }                                                                                         \
+    bool canEditEntity(const Entity& e) const override                                        \
+    {                                                                                         \
+      return has(e);                                                                          \
+    }                                                                                         \
+    bool canBeRemoved() const override                                                        \
+    {                                                                                         \
+      return removable;                                                                       \
+    }                                                                                         \
+    void removeFromEntity(Entity& e) const override                                           \
+    {                                                                                         \
+      if constexpr (removable)                                                                \
+        e.removeComponent<ComponentName>();                                                   \
+    }                                                                                         \
+                                                                                              \
+  private:                                                                                    \
+                                                                                              \
+    ComponentName##Editor() : ComponentEditor(), ComponentGetter<ComponentName>()             \
+    {}                                                                                        \
+    friend struct Registerer;                                                                 \
+    struct Registerer                                                                         \
+    {                                                                                         \
+      Registerer()                                                                            \
+      {                                                                                       \
+        ALL_EDITORS.emplace_back().reset(new ComponentName##Editor());                        \
+      }                                                                                       \
+    };                                                                                        \
+                                                                                              \
+    static Registerer s_Registerer;                                                           \
+  };                                                                                          \
   ComponentName##Editor ::Registerer ComponentName##Editor ::s_Registerer = {};
 
 //--------------------------------------------------
@@ -150,11 +166,11 @@ void NameComponentEditor::editEntityComponent(Entity& e) const
   name.reserve(bufferSize);
   name = e.getName();
 
-  constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll
-                       | ImGuiInputTextFlags_EnterReturnsTrue
-                       | ImGuiInputTextFlags_CharsNoBlank;
+  constexpr auto flags =
+    ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsNoBlank;
 
-  if (!e.getParent().isValid()) ImGui::BeginDisabled();
+  if (!e.getParent().isValid())
+    ImGui::BeginDisabled();
 
   if (ImGui::InputText("##Name", &name, flags))
   {
@@ -187,10 +203,12 @@ void TransformComponentEditor::editEntityComponent(Entity& e) const
   auto rot   = component.getRotation() * 180.0f / glm::pi<float>();
   auto scale = component.getScale();
 
-  if (ImGui::DragFloat3("Position", &pos.x, 0.1f)) component.setPosition(pos);
+  if (ImGui::DragFloat3("Position", &pos.x, 0.1f))
+    component.setPosition(pos);
   if (ImGui::DragFloat3("Rotation", &rot.x, 0.1f))
     component.setRotation(rot * glm::pi<float>() / 180.0f);
-  if (ImGui::DragFloat3("Scale", &scale.x, 0.1f)) component.setScale(scale);
+  if (ImGui::DragFloat3("Scale", &scale.x, 0.1f))
+    component.setScale(scale);
 
   const auto& camera    = EditorLayer::Get().getCurrentCamera();
   glm::mat4   transform = component.getGlobalTransform();
@@ -198,16 +216,14 @@ void TransformComponentEditor::editEntityComponent(Entity& e) const
   auto& ui           = UserInterfaceLayer::Get();
   auto& viewportInfo = ui.getViewportInfo();
 
-  if (ImGuizmo::Manipulate(
-        &camera.getView()[0][0], &camera.getProjection()[0][0],
-        ImGuizmo::OPERATION::TRANSLATE | ImGuizmo::OPERATION::ROTATE,
-        viewportInfo.localSpace ? ImGuizmo::MODE::LOCAL : ImGuizmo::MODE::WORLD,
-        &transform[0][0]))
+  if (ImGuizmo::Manipulate(&camera.getView()[0][0], &camera.getProjection()[0][0],
+                           ImGuizmo::OPERATION::TRANSLATE | ImGuizmo::OPERATION::ROTATE,
+                           viewportInfo.localSpace ? ImGuizmo::MODE::LOCAL : ImGuizmo::MODE::WORLD, &transform[0][0]))
   {
-    if (e.isRoot()) component.setTransform(transform);
+    if (e.isRoot())
+      component.setTransform(transform);
     else
-      component.setGlobalTransform(transform,
-                                   get(e.getParent()).getGlobalTransform());
+      component.setGlobalTransform(transform, get(e.getParent()).getGlobalTransform());
 
     viewportInfo.manipulatingGuizmo = true;
     // Cancelling viewport active
@@ -225,8 +241,7 @@ void TransformComponentEditor::editEntityComponent(Entity& e) const
   }
 }
 
-VRM_REGISTER_COMPONENT_EDITOR(DirectionalLightComponent,
-                              "Directional light component", true)
+VRM_REGISTER_COMPONENT_EDITOR(DirectionalLightComponent, "Directional light component", true)
 void DirectionalLightComponentEditor::editEntityComponent(Entity& e) const
 {
   auto& component = get(e);
@@ -234,37 +249,64 @@ void DirectionalLightComponentEditor::editEntityComponent(Entity& e) const
   auto color     = component.color;
   auto intensity = component.intensity;
 
-  if (ImGui::ColorEdit3("Color", &color.x)) component.color = color;
-  if (ImGui::DragFloat("Intensity", &intensity, 0.01f, 0.f, 1.f, "%.3f",
-                       ImGuiSliderFlags_AlwaysClamp))
+  if (ImGui::ColorEdit3("Color", &color.x))
+    component.color = color;
+  if (ImGui::DragFloat("Intensity", &intensity, 0.01f, 0.f, 1.f, "%.3f", ImGuiSliderFlags_AlwaysClamp))
     component.intensity = intensity;
   ImGui::Checkbox("Casts shadows", &component.castsShadows);
 }
 
-VRM_REGISTER_COMPONENT_EDITOR(PointLightComponent, "Point light component",
-                              true)
+VRM_REGISTER_COMPONENT_EDITOR(PointLightComponent, "Point light component", true)
 void PointLightComponentEditor::editEntityComponent(Entity& e) const
 {
   auto& component = get(e);
 
-  ImGui::ColorEdit3("Color", &component.color.x);
-  ImGui::DragFloat("Intensity", &component.intensity, 0.1f, 0.f,
-                   std::numeric_limits<float>::max(), "%.2f",
-                   ImGuiSliderFlags_AlwaysClamp);
-  ImGui::DragFloat("Radius", &component.radius, 0.1f, 0.f,
-                   std::numeric_limits<float>::max(), "%.2f",
-                   ImGuiSliderFlags_AlwaysClamp);
-  ImGui::DragFloat("Smooth radius", &component.smoothRadius, 0.01f, 0.f, 1.f,
-                   "%.2f", ImGuiSliderFlags_AlwaysClamp);
-  ImGui::DragFloat("Constant Attenuation", &component.constantAttenuation,
-                   0.01f, 0.f, std::numeric_limits<float>::max(), "%.3f",
-                   ImGuiSliderFlags_AlwaysClamp);
-  ImGui::DragFloat("Linear Attenuation", &component.linearAttenuation, 0.01f,
-                   0.f, std::numeric_limits<float>::max(), "%.3f",
-                   ImGuiSliderFlags_AlwaysClamp);
-  ImGui::DragFloat("Quadratic Attenuation", &component.quadraticAttenuation,
-                   0.01f, 0.f, std::numeric_limits<float>::max(), "%.3f",
-                   ImGuiSliderFlags_AlwaysClamp);
+  auto color = component.getColor();
+  if (ImGui::ColorEdit3("Color", &color.x))
+  {
+    component.setColor(color);
+  }
+
+  auto intensity = component.getIntensity();
+  if (ImGui::DragFloat("Intensity", &intensity, 0.1f, 0.f, std::numeric_limits<float>::max(), "%.2f",
+                       ImGuiSliderFlags_AlwaysClamp))
+  {
+    component.setIntensity(intensity);
+  }
+
+  auto radius = component.getRadius();
+  if (ImGui::DragFloat("Radius", &radius, 0.1f, 0.f, std::numeric_limits<float>::max(), "%.2f",
+                       ImGuiSliderFlags_AlwaysClamp))
+  {
+    component.setRadius(radius);
+  }
+
+  auto smoothRadius = component.getSmoothRadius();
+  if (ImGui::DragFloat("Smooth radius", &smoothRadius, 0.01f, 0.f, 1.f, "%.2f", ImGuiSliderFlags_AlwaysClamp))
+  {
+    component.setSmoothRadius(smoothRadius);
+  }
+
+  auto constantAttenuation = component.getConstantAttenuation();
+  if (ImGui::DragFloat("Constant Attenuation", &constantAttenuation, 0.01f, 0.f, std::numeric_limits<float>::max(),
+                       "%.3f", ImGuiSliderFlags_AlwaysClamp))
+  {
+    component.setConstantAttenuation(constantAttenuation);
+  }
+
+  auto linearAttenuation = component.getLinearAttenuation();
+  if (ImGui::DragFloat("Linear Attenuation", &linearAttenuation, 0.01f, 0.f, std::numeric_limits<float>::max(), "%.3f",
+                       ImGuiSliderFlags_AlwaysClamp))
+  {
+    component.setLinearAttenuation(linearAttenuation);
+  }
+
+  auto quadraticAttenuation = component.getQuadraticAttenuation();
+  if (ImGui::DragFloat("Quadratic Attenuation", &quadraticAttenuation, 0.01f, 0.f, std::numeric_limits<float>::max(),
+                       "%.3f", ImGuiSliderFlags_AlwaysClamp))
+  {
+    component.setQuadraticAttenuation(quadraticAttenuation);
+  }
 }
 
 VRM_REGISTER_COMPONENT_EDITOR(MeshComponent, "Mesh component", true)
@@ -274,13 +316,15 @@ void MeshComponentEditor::editEntityComponent(Entity& e) const
 
   MeshSelector meshSelector(component.getMesh());
   meshSelector.renderImgui();
-  if (meshSelector.getChanged()) component.setMesh(meshSelector.getAsset());
+  if (meshSelector.getChanged())
+    component.setMesh(meshSelector.getAsset());
 
   const size_t matSlotMax = component.getMaterials().getSlotCount();
   for (size_t matSlot = 0; matSlot < matSlotMax; ++matSlot)
   {
     MaterialAsset::Handle mat = component.getMaterials().getMaterial(matSlot);
-    if (!mat.isValid()) continue;
+    if (!mat.isValid())
+      continue;
 
     MaterialSelector materialSelector(mat);
     ImGui::PushID(matSlot);
@@ -293,7 +337,8 @@ void MeshComponentEditor::editEntityComponent(Entity& e) const
   }
 
   bool visible = component.isVisible();
-  if (ImGui::Checkbox("Visible", &visible)) component.setVisible(visible);
+  if (ImGui::Checkbox("Visible", &visible))
+    component.setVisible(visible);
 
   bool castsShadow = component.doesCastShadow();
   if (ImGui::Checkbox("Casts shadow", &castsShadow))

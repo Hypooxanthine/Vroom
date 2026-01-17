@@ -2,27 +2,22 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Vroom/Asset/StaticAsset/MaterialAsset.h"
+#include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Core/Application.h"
-
 #include "Vroom/Render/GPURuntimeFeatures.h"
 #include "Vroom/Render/ParticleEmitter.h"
 #include "Vroom/Render/ParticleEmitterRegistry.h"
-#include "Vroom/Render/Passes/RenderPass.h"
 #include "Vroom/Render/Passes/LightClusteringPass.h"
-#include "Vroom/Render/Passes/ShadowMappingPass.h"
+#include "Vroom/Render/Passes/RenderPass.h"
 #include "Vroom/Render/Passes/RenderSkyboxPass.h"
-
-
-#include "Vroom/Asset/StaticAsset/MaterialAsset.h"
-#include "Vroom/Asset/StaticAsset/MeshAsset.h"
-
+#include "Vroom/Render/Passes/ShadowMappingPass.h"
 #include "Vroom/Render/RenderPipeline.h"
-#include "Vroom/Scene/Components/ParticleSystemComponent.h"
-#include "Vroom/Scene/Components/PointLightComponent.h"
 #include "Vroom/Scene/Components/DirectionalLightComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
+#include "Vroom/Scene/Components/ParticleSystemComponent.h"
+#include "Vroom/Scene/Components/PointLightComponent.h"
 #include "Vroom/Scene/Components/SkyboxComponent.h"
-
 #include "Vroom/Scene/Scene.h"
 
 using namespace vrm;
@@ -36,17 +31,16 @@ Renderer::Renderer()
     s_gpuFeatures.query();
 
   RenderPipelineContext ctx;
-  ctx.lights = &m_LightRegistry;
-  ctx.meshes = &m_meshRegistry;
-  ctx.skybox = &m_skybox;
+  ctx.lights           = &m_LightRegistry;
+  ctx.meshes           = &m_meshRegistry;
+  ctx.skybox           = &m_skybox;
   ctx.particleEmitters = &m_particleEmitterRegistry;
 
   m_pipeline.setContext(ctx);
 }
 
 Renderer::~Renderer()
-{
-}
+{}
 
 void Renderer::beginScene(const RenderLayout* layout)
 {
@@ -86,9 +80,9 @@ void Renderer::submitMesh(uint32_t id, const MeshComponent& meshComponent, const
   {
     MeshRenderInfo info;
     info.renderMeshId = (((size_t)id) << 32) | i; // Id is tracking the mesh component + its submesh
-    info.mesh = &submesh.renderMesh;
-    info.material = meshComponent.getMaterials().getMaterial(i);
-    info.model = model;
+    info.mesh         = &submesh.renderMesh;
+    info.material     = meshComponent.getMaterials().getMaterial(i);
+    info.model        = model;
     info.tags.set(EMeshTag::eVisible, meshComponent.isVisible());
     info.tags.set(EMeshTag::eShadowCaster, meshComponent.doesCastShadow());
     info.entityId = id;
@@ -121,11 +115,11 @@ void Renderer::submitParticleSystem(uint32_t entityId, const ParticleSystemCompo
   for (size_t i = 0; i < emitters.size(); ++i)
   {
     const ParticleEmitter* emitter = &emitters[i];
-    size_t id =  ((size_t)entityId << 32) | i;
+    size_t                 id      = ((size_t)entityId << 32) | i;
 
     ParticleSystemRenderInfo info;
     info.emitter = emitter;
-    info.model = model;
+    info.model   = model;
     m_particleEmitterRegistry.submit(id, info);
   }
 }

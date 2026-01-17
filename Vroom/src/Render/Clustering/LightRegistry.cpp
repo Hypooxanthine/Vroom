@@ -1,43 +1,54 @@
 #include "Vroom/Render/Clustering/LightRegistry.h"
 
-#include "Vroom/Scene/Components/PointLightComponent.h"
 #include "Vroom/Scene/Components/DirectionalLightComponent.h"
+#include "Vroom/Scene/Components/PointLightComponent.h"
 
 using namespace vrm;
 
 LightRegistry::LightRegistry()
+{}
+
+void LightRegistry::submitLight(const PointLightComponent& pointLight, const glm::vec3& position, size_t identifier)
 {
-  
+  bool                 needSubmit = PointLightComponent::LightRegistryAttorney::getAndResetDirtyForRender(pointLight);
+  const RawPointLight* retrievedLight = m_pointLightsRegistry.tryGetElement(identifier);
+
+  if (!needSubmit)
+  {
+    const auto* retrievedLight = m_pointLightsRegistry.tryGetElement(identifier);
+
+    if (retrievedLight != nullptr)
+    {
+      needSubmit = needSubmit || glm::vec3(retrievedLight->position) != position;
+    }
+  }
+
+  if (needSubmit)
+  {
+    m_pointLightsRegistry.submit(identifier, RawPointLight{
+                                               .position             = glm::vec4(position, 1.f),
+                                               .color                = glm::vec4(pointLight.getColor(), 1.f),
+                                               .intensity            = pointLight.getIntensity(),
+                                               .radius               = pointLight.getRadius(),
+                                               .smoothRadius         = pointLight.getSmoothRadius(),
+                                               .constantAttenuation  = pointLight.getConstantAttenuation(),
+                                               .linearAttenuation    = pointLight.getLinearAttenuation(),
+                                               .quadraticAttenuation = pointLight.getQuadraticAttenuation(),
+                                             });
+  }
+  else
+  {
+    m_pointLightsRegistry.notifyUsed(identifier);
+  }
 }
 
-void LightRegistry::submitLight(const PointLightComponent &pointLight, const glm::vec3 &position, size_t identifier)
+void LightRegistry::submitLight(const DirectionalLightComponent& dirLight, const glm::vec3& direction,
+                                size_t identifier)
 {
-  m_pointLightsRegistry.submit(
-    identifier,
-    RawPointLight {
-      .position = glm::vec4(position, 1.f),
-      .color = glm::vec4(pointLight.color, 1.f),
-      .intensity = pointLight.intensity,
-      .radius = pointLight.radius,
-      .smoothRadius = pointLight.smoothRadius,
-      .constantAttenuation = pointLight.constantAttenuation,
-      .linearAttenuation = pointLight.linearAttenuation,
-      .quadraticAttenuation = pointLight.quadraticAttenuation,
-    }
-  );
-}
-
-void LightRegistry::submitLight(const DirectionalLightComponent &dirLight, const glm::vec3 &direction, size_t identifier)
-{
-  m_dirLightsRegistry.submit(
-    identifier,
-    RawDirLight {
-      .direction = glm::vec4(direction, 1.f),
-      .color = glm::vec4(dirLight.color, 1.f),
-      .intensity = dirLight.intensity,
-      .castsShadows = dirLight.castsShadows
-    }
-  );
+  m_dirLightsRegistry.submit(identifier, RawDirLight{ .direction    = glm::vec4(direction, 1.f),
+                                                      .color        = glm::vec4(dirLight.color, 1.f),
+                                                      .intensity    = dirLight.intensity,
+                                                      .castsShadows = dirLight.castsShadows });
 }
 
 void LightRegistry::startRegistering()
@@ -57,8 +68,11 @@ void LightRegistry::endRegistering()
 
 void LightRegistry::_updateGpuDirLights()
 {
-  DirLightRegistry& registry = m_dirLightsRegistry;
-  render::AutoBuffer& buffer = m_dirLightsBuffer;
+  if (!m_dirLightsRegistry.wasJustModified())
+    return;
+
+  DirLightRegistry&   registry = m_dirLightsRegistry;
+  render::AutoBuffer& buffer   = m_dirLightsBuffer;
 
   // std430 rule : the first array element is aligned on the size of its biggest
   // attribute (here, vec4)
@@ -70,7 +84,7 @@ void LightRegistry::_updateGpuDirLights()
     std::span<uint8_t> map = buffer.mapWriteOnly();
 
     glm::uint* header = reinterpret_cast<glm::uint*>(map.data());
-    *header = static_cast<glm::uint>(registry.getElementCount());
+    *header           = static_cast<glm::uint>(registry.getElementCount());
 
     RawDirLight* lights = reinterpret_cast<RawDirLight*>(map.data() + headerSizeBytes);
     std::memcpy(lights, registry.getRawData(), lightsSizeBytes);
@@ -81,8 +95,11 @@ void LightRegistry::_updateGpuDirLights()
 
 void LightRegistry::_updateGpuPointLights()
 {
+  if (!m_pointLightsRegistry.wasJustModified())
+    return;
+
   PointLightRegistry& registry = m_pointLightsRegistry;
-  render::AutoBuffer& buffer = m_pointLightsBuffer;
+  render::AutoBuffer& buffer   = m_pointLightsBuffer;
 
   // std430 rule : the first array element is aligned on the size of its biggest
   // attribute (here, vec4)
@@ -94,7 +111,7 @@ void LightRegistry::_updateGpuPointLights()
     std::span<uint8_t> map = buffer.mapWriteOnly();
 
     uint32_t* header = reinterpret_cast<uint32_t*>(map.data());
-    *header = static_cast<uint32_t>(registry.getElementCount());
+    *header          = static_cast<uint32_t>(registry.getElementCount());
 
     RawPointLight* lights = reinterpret_cast<RawPointLight*>(map.data() + headerSizeBytes);
     std::memcpy(lights, registry.getRawData(), lightsSizeBytes);

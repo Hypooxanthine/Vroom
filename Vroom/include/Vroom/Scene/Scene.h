@@ -19,7 +19,7 @@ namespace vrm
   class CameraBasic;
   class AssetManager;
   class SceneData;
-  struct PointLightComponent;
+  class PointLightComponent;
   class DeltaTime;
   class Renderer;
 
