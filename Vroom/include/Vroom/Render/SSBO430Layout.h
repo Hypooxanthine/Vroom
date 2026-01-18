@@ -70,7 +70,7 @@ public:
 
   constexpr size_t getAlignedSize() const
   {
-    return maths::NextPowerMultipleInclusive(m_elementSize, m_alignment);
+    return maths::NextMultipleInclusive(m_elementSize, m_alignment);
   }
 
   /**
@@ -158,7 +158,7 @@ struct SSBO430Traits<glm::mat4>
 inline constexpr SSBO430Layout::Attrib SSBO430Layout::_push(size_t elemSize,
                                                             size_t alignment)
 {
-  size_t location = maths::NextPowerMultipleInclusive(m_elementSize, alignment);
+  size_t location = maths::NextMultipleInclusive(m_elementSize, alignment);
   m_elementSize   = location + elemSize;
   m_alignment     = glm::max(m_alignment, alignment);
 
