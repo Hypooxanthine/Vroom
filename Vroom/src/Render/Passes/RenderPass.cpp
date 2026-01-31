@@ -1,39 +1,57 @@
 #include "Vroom/Render/Passes/RenderPass.h"
 
+#include "Vroom/Render/Abstraction/GLCore.h"
+#include "Vroom/Render/Abstraction/Shader.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
 #include "Vroom/Render/RenderViewport.h"
-#include "Vroom/Render/Abstraction/Shader.h"
 
 using namespace vrm;
 
 RenderPass::RenderPass()
-{
+{}
 
+RenderPass::RenderPass(const std::string& name)
+{
+  setName(name);
 }
 
 RenderPass::~RenderPass()
-{
-
-}
+{}
 
 void RenderPass::init()
 {
+  _beginDebugGroup("init");
+  
   onInit();
+  
+  _endDebugGroup();
 }
 
 void RenderPass::setup(const RenderPassContext& ctx)
 {
+  _beginDebugGroup("setup");
+  
   onSetup(ctx);
+  
+  _endDebugGroup();
 }
 
 void RenderPass::render(const RenderPassContext& ctx) const
 {
+  _beginDebugGroup("render");
+  
   onRender(ctx);
+  
+  _endDebugGroup();
 }
 
 void RenderPass::cleanup(const RenderPassContext& ctx)
 {
+  _beginDebugGroup("cleanup");
+  
   onCleanup(ctx);
+  
+  _endDebugGroup();
 }
 
 void RenderPass::applyCameraUniforms(const gl::Shader& shader, const CameraBasic& camera)
@@ -56,7 +74,7 @@ const PassMaterial& RenderPass::getPassMaterial(MaterialAsset::Handle asset, con
 {
   PassMaterials::Key key;
   {
-    key.asset = asset;
+    key.asset   = asset;
     key.defines = customDefines;
   }
   return m_materialsRef->getMaterial(key);
@@ -65,4 +83,16 @@ const PassMaterial& RenderPass::getPassMaterial(MaterialAsset::Handle asset, con
 const PassMaterial& RenderPass::getPassMaterial(MaterialAsset::Handle asset) const
 {
   return getPassMaterial(asset, &m_defines);
+}
+
+void RenderPass::_beginDebugGroup(const std::string& stage) const
+{
+  std::string message = std::to_string(getPassIndex()) + ": " + getName() + " (" + stage + ")";
+
+  glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, getPassIndex(), message.size(), message.c_str());
+}
+
+void RenderPass::_endDebugGroup() const
+{
+  glPopDebugGroup();
 }

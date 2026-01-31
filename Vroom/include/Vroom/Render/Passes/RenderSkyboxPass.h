@@ -3,7 +3,6 @@
 #include "Vroom/Render/Passes/RenderPass.h"
 #include "Vroom/Render/Abstraction/VertexArray.h"
 #include "Vroom/Render/Abstraction/Buffer.h"
-#include "Vroom/Asset/StaticAsset/MeshAsset.h"
 
 namespace vrm
 {
@@ -19,7 +18,7 @@ namespace vrm
   {
   public:
     
-    RenderSkyboxPass();
+    RenderSkyboxPass(const std::string& name = "RenderSkyboxPass");
     ~RenderSkyboxPass();
 
   public:

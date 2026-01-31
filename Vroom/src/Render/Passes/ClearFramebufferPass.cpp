@@ -5,9 +5,11 @@
 
 using namespace vrm;
 
-ClearFrameBufferPass::ClearFrameBufferPass() : RenderPass() {}
+ClearFrameBufferPass::ClearFrameBufferPass(const std::string& name) : RenderPass(name)
+{}
 
-ClearFrameBufferPass::~ClearFrameBufferPass() {}
+ClearFrameBufferPass::~ClearFrameBufferPass()
+{}
 
 void ClearFrameBufferPass::onRender(const RenderPassContext& ctx) const
 {

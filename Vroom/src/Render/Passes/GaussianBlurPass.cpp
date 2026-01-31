@@ -4,8 +4,13 @@
 #include "Vroom/Core/Profiling.h"
 #include "Vroom/Render/Abstraction/Buffer.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
+#include "Vroom/Render/Passes/RenderPass.h"
 
 using namespace vrm;
+
+GaussianBlurPass::GaussianBlurPass(const std::string& name)
+  : RenderPass(name)
+{}
 
 void GaussianBlurPass::onInit()
 {

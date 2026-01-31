@@ -14,7 +14,7 @@ namespace vrm
   {
   public:
     
-    ClearTexturePass();
+    ClearTexturePass(const std::string& name = "ClearTexturePass");
     virtual ~ClearTexturePass();
 
   public:

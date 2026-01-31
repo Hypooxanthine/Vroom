@@ -17,7 +17,7 @@ namespace vrm
   {
   public:
     
-    ToneMappingPass();
+    ToneMappingPass(const std::string& name = "ToneMappingPass");
     virtual ~ToneMappingPass();
 
   public:

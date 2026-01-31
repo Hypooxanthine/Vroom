@@ -21,7 +21,7 @@ namespace vrm
   {
   public:
     
-    LightClusteringPass();
+    LightClusteringPass(const std::string& name = "LightClusteringPass");
     virtual ~LightClusteringPass();
 
     const gl::Buffer& getClustersBuffer() const { return m_clustersBuffer.getBuffer(); }

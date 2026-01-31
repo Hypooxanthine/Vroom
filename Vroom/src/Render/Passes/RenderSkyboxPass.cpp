@@ -2,6 +2,7 @@
 
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
+#include "Vroom/Asset/StaticAsset/MeshAsset.h"
 #include "Vroom/Core/Profiling.h"
 #include "Vroom/Render/Abstraction/FrameBuffer.h"
 #include "Vroom/Render/Camera/CameraBasic.h"
@@ -31,7 +32,7 @@ static const float s_skyboxVertices[] = {
   1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f
 };
 
-RenderSkyboxPass::RenderSkyboxPass() {}
+RenderSkyboxPass::RenderSkyboxPass(const std::string& name) : RenderPass(name) {}
 
 RenderSkyboxPass::~RenderSkyboxPass() {}
 

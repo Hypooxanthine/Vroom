@@ -9,12 +9,13 @@
 #include "Vroom/Render/Camera/CameraBasic.h"
 #include "Vroom/Render/Clustering/LightRegistry.h"
 #include "Vroom/Render/MeshRegistry.h"
+#include "Vroom/Render/Passes/RenderPass.h"
 #include "Vroom/Render/RenderObject/RenderMesh.h"
 #include "Vroom/Render/RenderView.h"
 
 using namespace vrm;
 
-ShadowMappingPass::ShadowMappingPass() {}
+ShadowMappingPass::ShadowMappingPass(const std::string& name) : RenderPass(name) {}
 
 ShadowMappingPass::~ShadowMappingPass() {}
 

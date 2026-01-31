@@ -30,7 +30,7 @@ struct RawCluster
 
 } // namespace
 
-LightClusteringPass::LightClusteringPass() : RenderPass() {}
+LightClusteringPass::LightClusteringPass(const std::string& name) : RenderPass(name) {}
 
 LightClusteringPass::~LightClusteringPass() {}
 

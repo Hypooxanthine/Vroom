@@ -25,7 +25,7 @@ namespace vrm
   class ShadowMappingPass : public RenderPass
   {
   public:
-    ShadowMappingPass();
+    ShadowMappingPass(const std::string& name = "ShadowMappingPass");
     virtual ~ShadowMappingPass();
 
     uint32_t resolution;

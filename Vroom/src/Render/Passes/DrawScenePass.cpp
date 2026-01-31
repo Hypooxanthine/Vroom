@@ -10,7 +10,7 @@
 
 using namespace vrm;
 
-DrawSceneRenderPass::DrawSceneRenderPass() : RenderPass() {}
+DrawSceneRenderPass::DrawSceneRenderPass(const std::string& name) : RenderPass(name) {}
 
 DrawSceneRenderPass::~DrawSceneRenderPass() {}
 

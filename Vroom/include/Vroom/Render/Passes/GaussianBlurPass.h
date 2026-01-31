@@ -17,6 +17,8 @@ namespace vrm
   {
   public:
 
+    GaussianBlurPass(const std::string& name = "GaussianBlurPass");
+
     gl::FrameBuffer* framebufferA = nullptr;
     gl::FrameBuffer* framebufferB = nullptr;
 

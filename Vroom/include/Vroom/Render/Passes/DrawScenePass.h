@@ -49,7 +49,7 @@ namespace vrm
 
   public:
     
-    DrawSceneRenderPass();
+    DrawSceneRenderPass(const std::string& name = "DrawScenePass");
     virtual ~DrawSceneRenderPass();
 
   public:

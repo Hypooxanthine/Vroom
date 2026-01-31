@@ -4,26 +4,26 @@
 
 namespace vrm::gl
 {
-  class FrameBuffer;
+class FrameBuffer;
 }
 
 namespace vrm
 {
 
-  class ClearFrameBufferPass : public RenderPass
-  {
-  public:
+class ClearFrameBufferPass : public RenderPass
+{
+public:
 
-    ClearFrameBufferPass();
-    virtual ~ClearFrameBufferPass();
+  ClearFrameBufferPass(const std::string& name = "ClearFrameBufferPass");
+  virtual ~ClearFrameBufferPass();
 
-  public:
+public:
 
-    gl::FrameBuffer* framebuffer = nullptr;
+  gl::FrameBuffer* framebuffer = nullptr;
 
-  protected:
+protected:
 
-    virtual void onRender(const RenderPassContext& ctx) const override;
-  };
+  virtual void onRender(const RenderPassContext& ctx) const override;
+};
 
 } // namespace vrm

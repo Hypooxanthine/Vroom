@@ -26,6 +26,8 @@ namespace vrm
     RenderPass();
     virtual ~RenderPass();
 
+    RenderPass(const std::string& name);
+
     void init();
 
     void setup(const RenderPassContext& ctx);
@@ -65,6 +67,10 @@ namespace vrm
     inline ManagerAttorney managerInterface() { return ManagerAttorney{ this }; }
 
     inline const MaterialDefines& getDefines() const { return m_defines; }
+
+    inline const std::string& getName() const { return m_name; }
+
+    inline void setName(const std::string& name) { m_name = name; }
 
   protected:
     /**
@@ -108,7 +114,13 @@ namespace vrm
 
   private:
 
+    void _beginDebugGroup(const std::string& stage) const;
+    void _endDebugGroup() const;
+
+  private:
+
     size_t m_passIndex = 0;
+    std::string m_name = "";
     PassMaterials* m_materialsRef = nullptr;
 
   };

@@ -1,10 +1,11 @@
 #include "Vroom/Render/Passes/ClearTexturePass.h"
 
 #include "Vroom/Core/Profiling.h"
+#include "Vroom/Render/Passes/RenderPass.h"
 
 using namespace vrm;
 
-ClearTexturePass::ClearTexturePass() {}
+ClearTexturePass::ClearTexturePass(const std::string& name) : RenderPass(name) {}
 
 ClearTexturePass::~ClearTexturePass() {}
 

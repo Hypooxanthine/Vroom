@@ -1,4 +1,5 @@
 #include "Vroom/Render/RenderPipeline.h"
+#include "Vroom/Render/Abstraction/GLCore.h"
 #include "Vroom/Render/Passes/BlitFrameBufferPass.h"
 #include "Vroom/Render/Passes/ClearFrameBufferPass.h"
 #include "Vroom/Render/Passes/DrawScenePass.h"
@@ -402,7 +403,7 @@ uint32_t RenderPipeline::getEntityIndexOnPixel(const glm::ivec2& px) const
   fb->bind();
   glReadBuffer(GL_COLOR_ATTACHMENT0);
   uint32_t pixel;
-  glReadPixels(px.x, px.y, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &pixel);
+  glReadPixels(px.x, px.y, 1, 1, GL_UNSIGNED_INT, GL_RED_INTEGER, &pixel);
   glReadBuffer(GL_NONE);
   return pixel;
 }

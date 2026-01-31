@@ -6,11 +6,14 @@
 
 using namespace vrm;
 
-RenderParticlesPass::RenderParticlesPass() {}
+RenderParticlesPass::RenderParticlesPass(const std::string& name) : RenderPass(name)
+{}
 
-RenderParticlesPass::~RenderParticlesPass() {}
+RenderParticlesPass::~RenderParticlesPass()
+{}
 
-void RenderParticlesPass::onInit() {}
+void RenderParticlesPass::onInit()
+{}
 
 void RenderParticlesPass::onSetup(const RenderPassContext& ctx)
 {

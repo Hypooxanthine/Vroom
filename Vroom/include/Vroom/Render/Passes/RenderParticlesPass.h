@@ -10,7 +10,7 @@ namespace vrm
   {
   public:
 
-    RenderParticlesPass();
+    RenderParticlesPass(const std::string& name = "RenderParticlesPass");
     ~RenderParticlesPass();
 
     RenderParticlesPass& operator=(const RenderParticlesPass& other) = delete;

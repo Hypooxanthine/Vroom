@@ -5,7 +5,7 @@
 
 using namespace vrm;
 
-BlitFrameBufferPass::BlitFrameBufferPass() : RenderPass() {}
+BlitFrameBufferPass::BlitFrameBufferPass(const std::string& name) : RenderPass(name) {}
 
 BlitFrameBufferPass::~BlitFrameBufferPass() {}
 
