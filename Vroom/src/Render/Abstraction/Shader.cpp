@@ -139,7 +139,7 @@ Shader::GLString Shader::getError()
 {
   auto error    = std::move(m_errorRecord);
   m_errorRecord = "";
-  return std::move(error);
+  return error;
 }
 
 void Shader::unload()

@@ -75,7 +75,7 @@ json TransformComponentData::serialize() const
     to_json(scale, this->scale);
   }
 
-  return std::move(j);
+  return j;
 }
 
 bool TransformComponentData::deserialize(const json& j)
@@ -163,7 +163,7 @@ json MeshComponentData::serialize() const
     visibleVal           = this->visible;
   }
 
-  return std::move(j);
+  return j;
 }
 
 bool MeshComponentData::deserialize(const json& j)
@@ -233,7 +233,7 @@ json SkyboxComponentData::serialize() const
     rsc              = formatPath(this->resourceName);
   }
 
-  return std::move(j);
+  return j;
 }
 
 bool SkyboxComponentData::deserialize(const json& j)
@@ -310,7 +310,7 @@ json DirectionalLightComponentData::serialize() const
     castsShadows              = this->castsShadows;
   }
 
-  return std::move(j);
+  return j;
 }
 
 bool DirectionalLightComponentData::deserialize(const json& j)
@@ -432,7 +432,7 @@ json PointLightComponentData::serialize() const
     json& quadraticAttenuation        = quadraticAttenuationParam["value"];
     to_json(quadraticAttenuation, this->quadraticAttenuation);
   }
-  return std::move(j);
+  return j;
 }
 
 bool PointLightComponentData::deserialize(const json& j)
@@ -523,7 +523,7 @@ json ScriptComponentData::serialize() const
     scriptName              = formatPath(this->resourceName);
   }
 
-  return std::move(j);
+  return j;
 }
 
 bool ScriptComponentData::deserialize(const json& j)

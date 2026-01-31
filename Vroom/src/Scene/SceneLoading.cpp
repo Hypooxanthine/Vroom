@@ -149,5 +149,5 @@ SceneData Scene::getSceneData() const
 
   addNodeRecursive(getRoot(), data, "", SceneNodeData::EType::eRoot);
 
-  return std::move(data);
+  return data;
 }
