@@ -59,6 +59,7 @@ namespace vrm
     void watchExposedTexture(const std::string& name);
     const std::string& getWatchedTexture() const { return m_watchedTexture; }
 
+    void setEntityPickingEnabled(bool enabled = true);
     uint32_t getEntityIndexOnPixel(const glm::ivec2& px) const;
 
   public:
@@ -97,6 +98,8 @@ namespace vrm
     // Optional: m_finalTexture will point to the watched texture, if asked
     // --> useful to visualize an intermediate texture resource of the pipeline
     std::string m_watchedTexture = "";
+
+    bool m_entityPickingEnabled = true;
 
     bool m_dirty = true;
 

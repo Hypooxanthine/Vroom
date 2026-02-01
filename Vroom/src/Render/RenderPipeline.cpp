@@ -203,6 +203,7 @@ void RenderPipeline::generate()
   }
 
   // Entity picking
+  if (m_entityPickingEnabled)
   {
     auto& tex = *m_resources.genTexture("PickingColorTexture");
     gl::Texture::Desc desc;
@@ -211,7 +212,7 @@ void RenderPipeline::generate()
       desc.width = m_renderSettings.frameSize.x;
       desc.height = m_renderSettings.frameSize.y;
       desc.internalFormat = GL_R32UI;
-      desc.format = GL_UNSIGNED_INT;
+      desc.format = GL_RED_INTEGER;
     }
     tex.create(desc);
 
@@ -243,6 +244,7 @@ void RenderPipeline::generate()
       pass.faceCulling = DrawSceneRenderPass::EFaceCulling::eCullBack;
       pass.frontFace = DrawSceneRenderPass::EFrontFace::eCCW;
       pass.shadowsEnable = false;
+      pass.bloomEnable = false;
     }
   }
 
@@ -392,18 +394,29 @@ void RenderPipeline::execute(RenderPassContext& context)
   m_passManager.cleanup(context);
 }
 
+void RenderPipeline::setEntityPickingEnabled(bool enabled)
+{
+  if (m_entityPickingEnabled != enabled)
+  {
+    m_entityPickingEnabled = enabled;
+    m_dirty = true;
+  }
+}
+
 uint32_t RenderPipeline::getEntityIndexOnPixel(const glm::ivec2& px) const
 {
-  const gl::FrameBuffer* fb = m_resources.tryGetFramebuffer("PickingFrameBuffer");
-  if (fb == nullptr)
-  {
+  if (!m_entityPickingEnabled)
     return 0;
-  }
+
+  const gl::FrameBuffer* fb = m_resources.tryGetFramebuffer("PickingFrameBuffer");
+
+  if (fb == nullptr)
+    return 0;
 
   fb->bind();
   glReadBuffer(GL_COLOR_ATTACHMENT0);
   uint32_t pixel;
-  glReadPixels(px.x, px.y, 1, 1, GL_UNSIGNED_INT, GL_RED_INTEGER, &pixel);
+  glReadPixels(px.x, px.y, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &pixel);
   glReadBuffer(GL_NONE);
   return pixel;
 }
