@@ -4,7 +4,6 @@
 #include <Vroom/Event/CustomEvent/CustomEventManager.h>
 #include <Vroom/Event/Trigger/TriggerManager.h>
 #include <Vroom/Render/Camera/FirstPersonCamera.h>
-#include <Vroom/Tools/RuntimeLibrary.h>
 
 #include "VroomEditor/EditorCamera.h"
 #include "VroomEditor/UserInterface/UserInterfaceLayer.h"
@@ -63,7 +62,6 @@ private:
   std::string m_loadedScene = "";
 
   EditorCamera m_EditorCamera;
-  RuntimeLibrary m_scriptsRuntime;
 
   UserInterfaceLayer::ViewportInfos m_lastViewportInfos;
 

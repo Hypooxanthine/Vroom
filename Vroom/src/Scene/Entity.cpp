@@ -105,7 +105,7 @@ bool Entity::isValid() const
   &&  m_Scene->getRegistry().valid(m_Handle);
 }
 
-ScriptComponent& Entity::addScriptComponent(std::unique_ptr<ScriptComponent>&& script)
+ScriptComponent& Entity::addScriptComponent(ScriptComponentPtr&& script)
 {
   VRM_ASSERT_MSG(!hasComponent<ScriptHandler>(), "Entity already has component.");
   auto& component = getEnttRegistry().emplace<ScriptHandler>(m_Handle, std::move(script));

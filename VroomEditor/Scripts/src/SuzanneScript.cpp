@@ -4,8 +4,17 @@
 #include <Vroom/Scene/Entity.h>
 #include <Vroom/Scene/Components/TransformComponent.h>
 
+SuzanneScript::SuzanneScript()
+  : vrm::ScriptComponent()
+{
+}
+
 SuzanneScript::SuzanneScript(float circleRadius, float startAngle, float speed)
   : vrm::ScriptComponent(), m_CircleRadius(circleRadius), m_Angle(startAngle), m_Speed(speed)
+{
+}
+
+SuzanneScript::~SuzanneScript()
 {
 }
 

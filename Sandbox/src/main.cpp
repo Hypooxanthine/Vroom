@@ -46,7 +46,6 @@ protected:
 
       auto mesh = vrm::AssetManager::Get().getAsset<vrm::MeshAsset>("Resources/Meshes/sphere.obj");
       entity.addComponent<vrm::MeshComponent>(mesh);
-      entity.addScriptComponent<MovingLightScript>(lightRadius, 10.f, i * glm::two_pi<float>() / 10, lightSpeed);
       auto& transform = entity.getComponent<vrm::TransformComponent>();
       transform.setScale({ 0.2f, 0.2f, 0.2f });
     }
@@ -76,7 +75,6 @@ protected:
       auto entity = createEntity("Suzanne_" + std::to_string(i));
       auto mesh   = vrm::AssetManager::Get().getAsset<vrm::MeshAsset>("Resources/Meshes/Suzanne.obj");
       entity.addComponent<vrm::MeshComponent>(mesh);
-      entity.addScriptComponent<SuzanneScript>(suzanneRadius, i * glm::two_pi<float>() / 10, suzanneSpeed);
     }
 
     auto& gameLayer = vrm::Application::Get().getGameLayer();

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Vroom/Scene/Components/ScriptComponent.h>
+#include "ScriptApi/ScriptLibrary.h"
 
 class SuzanneScript : public vrm::ScriptComponent
 {
 public:
-  SuzanneScript() = default;
+  SuzanneScript();
   SuzanneScript(float circleRadius, float startAngle, float speed);
-  ~SuzanneScript() = default;
+  ~SuzanneScript();
 
   void onSpawn() override;
 

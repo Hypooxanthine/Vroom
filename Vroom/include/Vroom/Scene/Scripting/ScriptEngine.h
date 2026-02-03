@@ -1,14 +1,15 @@
 #pragma once
 
-#include <unordered_map>
-#include <string>
+#include <filesystem>
 #include <memory>
+#include <string>
+
 #include "Vroom/Api.h"
+#include "Vroom/Scene/Scripting/RuntimeScriptLibrary.h"
+#include "Vroom/Scene/Scripting/ScriptComponentPtr.h"
 
 namespace vrm
 {
-
-#define VRM_GEN_SCRIPT_ID(ScriptClass) "VRM_" #ScriptClass "_ID"
 
 class ScriptFactory;
 class ScriptComponent;
@@ -16,25 +17,34 @@ class ScriptComponent;
 class VRM_API ScriptEngine
 {
 public:
+
   ~ScriptEngine();
 
   static ScriptEngine& Get();
 
-  inline bool isScriptRegistered(const std::string& scriptId) const { return m_Factories.contains(scriptId); }
+  bool loadScriptLibrary(const std::filesystem::path& libraryPath);
 
-  void registerScript(const std::string& scriptId, std::unique_ptr<ScriptFactory>&& factory);
-  void unregisterScript(const std::string& scriptId);
+  inline bool isScriptRegistered(const std::string& scriptId) const
+  {
+    return m_library.scriptExists(scriptId);
+  }
 
-  [[nodiscard]] ScriptComponent* createScriptComponent(const std::string& scriptId) const;
+  [[nodiscard]] ScriptComponentPtr createScriptComponent(const std::string& scriptName) const;
 
 private:
+
+private:
+
   ScriptEngine();
 
-  ScriptEngine(const ScriptEngine&) = delete;
+  ScriptEngine(const ScriptEngine&)            = delete;
   ScriptEngine& operator=(const ScriptEngine&) = delete;
-  
+
+private:
+
   static std::unique_ptr<ScriptEngine> s_Instance;
-  std::unordered_map<std::string, std::unique_ptr<ScriptFactory>> m_Factories;
+
+  RuntimeScriptLibrary m_library;
 };
 
 } // namespace vrm

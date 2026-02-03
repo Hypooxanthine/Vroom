@@ -1,8 +1,6 @@
 #include "Vroom/Scene/Scripting/ScriptEngine.h"
 
 #include "Vroom/Core/Assert.h"
-
-#include "Vroom/Scene/Scripting/ScriptFactory.h"
 #include "Vroom/Scene/Components/ScriptComponent.h"
 
 using namespace vrm;
@@ -10,44 +8,32 @@ using namespace vrm;
 std::unique_ptr<ScriptEngine> ScriptEngine::s_Instance = nullptr;
 
 ScriptEngine::ScriptEngine()
-{
-
-}
+{}
 
 ScriptEngine::~ScriptEngine()
-{
-
-}
+{}
 
 ScriptEngine& ScriptEngine::Get()
 {
   if (!s_Instance)
   {
-    [[unlikely]]
-    s_Instance.reset(new ScriptEngine());
+    [[unlikely]] s_Instance.reset(new ScriptEngine());
   }
 
   return *s_Instance;
 }
 
-void ScriptEngine::registerScript(const std::string& scriptId, std::unique_ptr<ScriptFactory>&& factory)
+bool ScriptEngine::loadScriptLibrary(const std::filesystem::path& libraryPath)
 {
-  VRM_ASSERT_MSG(!isScriptRegistered(scriptId), "Script already registered");
-
-  m_Factories[scriptId] = std::move(factory);
+  return m_library.load(libraryPath);
 }
 
-void ScriptEngine::unregisterScript(const std::string& scriptId)
+ScriptComponentPtr ScriptEngine::createScriptComponent(const std::string& scriptName) const
 {
-  VRM_ASSERT_MSG(isScriptRegistered(scriptId), "Script is not registered");
+  VRM_ASSERT_MSG(m_library.isLoaded(), "No pointer to the script constructor. Is the librairy loaded ?");
+  VRM_ASSERT_MSG(m_library.scriptExists(scriptName), "Could not find {}", scriptName);
 
-  m_Factories.erase(scriptId);
-}
-
-ScriptComponent* ScriptEngine::createScriptComponent(const std::string& scriptId) const
-{
-  auto* script = m_Factories.at(scriptId)->create();
-  script->m_scriptName = scriptId;
-
+  ScriptComponentPtr script = m_library.createScript(scriptName);
+  script->m_scriptName = scriptName;
   return script;
 }
