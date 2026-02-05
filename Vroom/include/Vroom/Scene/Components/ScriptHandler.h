@@ -1,9 +1,11 @@
 #pragma once
 
 #include <memory>
+#include <utility>
 
 #include "Vroom/Scene/Components/ScriptComponent.h"
 #include "Vroom/Scene/Scripting/ScriptComponentPtr.h"
+#include "Vroom/Scene/Scripting/ScriptEngine.h"
 
 namespace vrm
 {
@@ -12,7 +14,7 @@ class ScriptHandler
 {
 public:
 
-  ScriptHandler(ScriptComponentPtr&& script) : m_Script(std::move(script))
+  ScriptHandler(ScriptComponentPtr&& script) : m_script(std::move(script))
   {}
 
   ScriptHandler(const ScriptHandler&)            = delete;
@@ -23,16 +25,46 @@ public:
 
   ScriptComponent& getScript()
   {
-    return *m_Script;
+    return *m_script;
   }
   const ScriptComponent& getScript() const
   {
-    return *m_Script;
+    return *m_script;
+  }
+
+  friend class ScriptEngineAttorney;
+  class ScriptEngineAttorney
+  {
+  public:
+
+    friend ScriptHandler;
+    friend class ScriptEngine;
+
+  private:
+
+    ScriptEngineAttorney(ScriptHandler& handler) : handler(handler)
+    {}
+
+    void replaceScript(ScriptComponentPtr newScript)
+    {
+      handler.m_script = {};
+      
+      handler.m_script = std::move(newScript);
+    }
+
+    ScriptHandler& handler;
+  };
+
+  ScriptEngineAttorney getScriptEngineAttorney()
+  {
+    return ScriptEngineAttorney(*this);
   }
 
 private:
 
-  ScriptComponentPtr m_Script;
+private:
+
+  ScriptComponentPtr m_script;
 };
 
 } // namespace vrm

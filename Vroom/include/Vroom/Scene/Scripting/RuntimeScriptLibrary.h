@@ -8,7 +8,6 @@
 #include "Vroom/Scene/Scripting/ScriptComponentPtr.h"
 #include "Vroom/Tools/RuntimeLibrary.h"
 
-
 namespace vrm
 {
 
@@ -26,6 +25,10 @@ public:
   RuntimeScriptLibrary(const RuntimeScriptLibrary& other)            = delete;
   RuntimeScriptLibrary& operator=(const RuntimeScriptLibrary& other) = delete;
 
+  // Enabling these constructors is very dangerous since ScriptPtr deleter holds a ptr to
+  // the RuntimeScriptLibrary itself. It would need to change the deleter behaviour by
+  // referencing the destructor function ptr instead for example, but it would disable
+  // the RuntimeScriptLibrary from keeping a count on alive entities.
   RuntimeScriptLibrary(RuntimeScriptLibrary&& other)            = delete;
   RuntimeScriptLibrary& operator=(RuntimeScriptLibrary&& other) = delete;
 
@@ -45,10 +48,10 @@ public:
   void unload();
 
   /**
-   * @brief Create a new ScriptComponent.
+   * @brief Create a new script from the loaded script library.
    *
    * @param scriptName
-   * @return ScriptComponentPtr
+   * @return ScriptComponentPtr The created script, or nullptr if scriptName does not name a script in the library.
    */
   ScriptComponentPtr createScript(const std::string& scriptName) const;
 
@@ -83,6 +86,7 @@ private:
   ScriptDestructor  m_scriptDestructor  = nullptr;
 
   std::unordered_map<std::string, ScriptData> m_scriptsData;
+  mutable size_t                              m_instanceCount = 0;
 };
 
 } // namespace vrm

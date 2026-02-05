@@ -5,8 +5,8 @@
 class SuzanneScript : public vrm::ScriptComponent
 {
 public:
+
   SuzanneScript();
-  SuzanneScript(float circleRadius, float startAngle, float speed);
   ~SuzanneScript();
 
   void onSpawn() override;
@@ -14,12 +14,14 @@ public:
   void onUpdate(const vrm::DeltaTime& dt) override;
 
 private:
+
   void updatePosition(const vrm::DeltaTime& dt);
 
 private:
+
   float m_CircleRadius = 10.f;
-  float m_Angle = 0.f;
-  float m_Speed = 3.14159f / 4.f;
+  float m_Angle        = 0.f;
+  float m_Speed        = 3.14159f / 4.f;
 };
 
 VRM_SCRIPT(SuzanneScript)

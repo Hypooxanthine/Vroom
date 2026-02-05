@@ -69,7 +69,7 @@ add_custom_target(VroomEditorResources
 
   COMMAND ${CMAKE_COMMAND} -E copy
     # Copy shared/runtime libraries
-    $<TARGET_FILE:Vroom> $<TARGET_FILE:glfw> $<TARGET_FILE:libglew_shared> $<TARGET_FILE:ScriptsLibrary> ${SCRIPTS_BUILDER}
+    $<TARGET_FILE:Vroom> $<TARGET_FILE:glfw> $<TARGET_FILE:libglew_shared>
     # Imgui default config
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini
     ${OUTPUT_DIR}
@@ -84,10 +84,11 @@ add_dependencies(VroomEditor VroomEditorResources)
 add_dependencies(VroomEditorResources Vroom glfw libglew_shared ScriptsLibrary)
 
 target_compile_definitions(VroomEditor
-  PRIVATE VRM_RUNTIME_SCRIPTS_PATH="$<TARGET_FILE_NAME:ScriptsLibrary>"
+  PRIVATE VRM_RUNTIME_SCRIPTS_PATH="$<TARGET_FILE:ScriptsLibrary>"
 )
 
 target_compile_definitions(VroomEditor
-  PRIVATE VRM_SCRIPT_BUILDER_CMD="./${SCRIPTS_BUILDER} ${CMAKE_COMMAND} ${CMAKE_BINARY_DIR}"
+  PRIVATE VRM_SCRIPT_BUILDER_CMD=\"${SCRIPTS_BUILDER}\"
+  PRIVATE VRM_CMAKE_CMD=\"${CMAKE_COMMAND}\"
+  PRIVATE VRM_BUILD_DIR=\"${CMAKE_BINARY_DIR}\"
 )
-

@@ -26,12 +26,10 @@ public:
 
   inline bool isScriptRegistered(const std::string& scriptId) const
   {
-    return m_library.scriptExists(scriptId);
+    return m_library->scriptExists(scriptId);
   }
 
   [[nodiscard]] ScriptComponentPtr createScriptComponent(const std::string& scriptName) const;
-
-private:
 
 private:
 
@@ -40,11 +38,18 @@ private:
   ScriptEngine(const ScriptEngine&)            = delete;
   ScriptEngine& operator=(const ScriptEngine&) = delete;
 
+  std::filesystem::path _copyLibraryFile(const std::filesystem::path& libPath) const;
+  bool _removeCopiedLibrary(const std::filesystem::path& libPath) const;
+  bool _checkLibCompatible(const RuntimeScriptLibrary& lib) const;
+  bool _checkScriptsCompatibles(const ScriptComponent& oldScript, const RuntimeScriptLibrary& newLib) const;
+  void _refreshLoadedScriptsUncheck(const RuntimeScriptLibrary& newLib) const;
+
 private:
 
   static std::unique_ptr<ScriptEngine> s_Instance;
 
-  RuntimeScriptLibrary m_library;
+  std::unique_ptr<RuntimeScriptLibrary> m_library;
+  std::filesystem::path m_libPath = {};
 };
 
 } // namespace vrm

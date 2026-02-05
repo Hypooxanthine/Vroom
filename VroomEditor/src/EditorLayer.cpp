@@ -129,22 +129,38 @@ void EditorLayer::importFile(const std::filesystem::path& file)
 
 void EditorLayer::buildScripts()
 {
+#ifndef VRM_PLATFORM_WINDOWS
+  // Only tested on Windows
   VRM_LOG_WARN("Not implemented");
   return;
-#ifndef VRM_SCRIPT_BUILDER_CMD
-  VRM_LOG_WARN("Aborted: build command is not set");
-  return;
-#else
-  std::string cmd = VRM_SCRIPT_BUILDER_CMD;
+#endif
 
-  VRM_LOG_INFO("Running command {}", cmd);
+#if !defined(VRM_SCRIPT_BUILDER_CMD)
+  VRM_LOG_WARN("Aborted: builder command is not set");
+  return;
+#elif !defined(VRM_CMAKE_CMD)
+  VRM_LOG_WARN("Aborted: cmake command is not set");
+  return;
+#elif !defined(VRM_BUILD_DIR)
+  VRM_LOG_WARN("Aborted: build dir not set");
+  return;
+#else  
+  std::string cmd = std::format("cmd.exe /C \"\"{}\" \"{}\" \"{}\"\"", VRM_SCRIPT_BUILDER_CMD, VRM_CMAKE_CMD, VRM_BUILD_DIR);
+
+  VRM_LOG_INFO("Running command \"{}\"", cmd);
   OS::Run(cmd, true);
 #endif
 }
 
 void EditorLayer::reloadScripts()
 {
+#ifndef VRM_PLATFORM_WINDOWS
+  // Only tested on Windows
   VRM_LOG_WARN("Not implemented");
+  return;
+#endif
+
+  _loadScriptsRuntimeLibrary();
 }
 
 void EditorLayer::onInit()

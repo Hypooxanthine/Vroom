@@ -1,5 +1,6 @@
 #include "Vroom/Scene/Scripting/RuntimeScriptLibrary.h"
 
+#include "Vroom/Core/Log.h"
 #include "Vroom/Scene/Components/ScriptComponent.h"
 #include "Vroom/Tools/RuntimeLibrary.h"
 
@@ -9,7 +10,10 @@ RuntimeScriptLibrary::RuntimeScriptLibrary()
 {}
 
 RuntimeScriptLibrary::~RuntimeScriptLibrary()
-{}
+{
+  if (isLoaded())
+    unload();
+}
 
 bool RuntimeScriptLibrary::load(const std::filesystem::path& libraryPath)
 {
@@ -55,7 +59,14 @@ bool RuntimeScriptLibrary::load(const std::filesystem::path& libraryPath)
 
 void RuntimeScriptLibrary::unload()
 {
-  assert(!isLoaded());
+  assert(isLoaded());
+  assert(m_instanceCount == 0);
+
+  if (m_instanceCount > 0)
+  {
+    VRM_LOG_WARN("Unloading the library with {} instances still being in use!", m_instanceCount);
+    m_instanceCount = 0;
+  }
 
   m_scriptsData.clear();
   m_runtimeLib.unload();
@@ -70,6 +81,7 @@ ScriptComponentPtr RuntimeScriptLibrary::createScript(const std::string& scriptN
     if (auto it = m_scriptsData.find(scriptName); it != m_scriptsData.end())
     {
       ScriptComponent* rawPtr = m_scriptConstructor(it->second.libraryIndex);
+      ++m_instanceCount;
       return ScriptComponentPtr(rawPtr, ScriptDeleter{ this });
     }
   }
@@ -82,5 +94,6 @@ void RuntimeScriptLibrary::_destroyScript(ScriptComponent* script) const
   if (m_scriptDestructor != nullptr && script != nullptr)
   {
     m_scriptDestructor(script);
+    --m_instanceCount;
   }
 }
