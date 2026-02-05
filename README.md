@@ -34,6 +34,7 @@ Vroom is a 3D game engine made with OpenGL. It is a personal project I'm doing t
   - Reflexion on user scripts for scenes (de)serialization
 - Editor
   - Assets browser + DragAndDrop from OS explorer
+  - Scripts library hot reload : build and reload at runtime from the editor
   - Scenes opening/saving
   - Meshes, materials DragAndDrop on mesh components
   - Entity picking
