@@ -5,7 +5,9 @@
 #include "Vroom/Api.h"
 #include "Vroom/Core/Assert.h"
 #include "Vroom/Generic/TypeList.h"
+#include "Vroom/Scene/Components/ScriptComponent.h"
 #include "Vroom/Scene/Components/ScriptHandler.h"
+#include "Vroom/Scene/Scripting/ScriptComponentPtr.h"
 
 namespace vrm
 {
@@ -89,13 +91,14 @@ namespace vrm
       return getEnttRegistry().emplace<T>(m_Handle, std::forward<Args>(args)...);
     }
 
-    template<typename T, typename... Args>
-    T& addScriptComponent(Args&&... args)
+    template<typename T>
+    T& addScriptComponent()
     {
-      return static_cast<T&>(addScriptComponent(std::make_unique<T>(std::forward<Args>(args)...)));
+      return static_cast<T&>(addScriptComponent(std::string(ScriptComponentTraits<T>::scriptId)));
     }
 
-    ScriptComponent& addScriptComponent(std::unique_ptr<ScriptComponent>&& script);
+    ScriptComponent& addScriptComponent(const std::string& scriptName);
+    ScriptComponent& addScriptComponent(ScriptComponentPtr&& script);
 
     /**
      * @brief Get a component from the entity.

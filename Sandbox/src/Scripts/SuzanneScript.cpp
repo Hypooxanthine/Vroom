@@ -5,13 +5,20 @@
 #include <Vroom/Scene/Entity.h>
 #include <Vroom/Scene/Components/TransformComponent.h>
 
-SuzanneScript::SuzanneScript(float circleRadius, float startAngle, float speed)
-    : vrm::ScriptComponent(), m_CircleRadius(circleRadius), m_Angle(startAngle), m_Speed(speed)
+SuzanneScript::SuzanneScript()
+    : vrm::ScriptComponent()
 {
 }
 
 SuzanneScript::~SuzanneScript()
 {
+}
+
+void SuzanneScript::init(float circleRadius, float startAngle, float speed)
+{
+  m_CircleRadius = circleRadius;
+  m_Angle        = startAngle;
+  m_Speed        = speed;
 }
 
 void SuzanneScript::onSpawn()

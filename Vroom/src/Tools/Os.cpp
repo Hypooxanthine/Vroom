@@ -6,7 +6,7 @@ using namespace vrm;
 
 void OS::Run(const std::string& command, bool detach)
 {
-  auto t = std::thread([&command]() {
+  auto t = std::thread([command]() {
     system(command.c_str());
   });
 

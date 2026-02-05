@@ -5,8 +5,10 @@
 class MovingLightScript : public vrm::ScriptComponent
 {
 public:
-    MovingLightScript(float circleRadius, float height, float startAngle, float speed);
+    MovingLightScript();
     ~MovingLightScript();
+
+    void init(float circleRadius, float height, float startAngle, float speed);
 
     void onSpawn() override;
     void onUpdate(const vrm::DeltaTime& dt) override;

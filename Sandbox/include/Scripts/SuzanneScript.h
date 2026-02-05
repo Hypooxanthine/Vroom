@@ -5,8 +5,10 @@
 class SuzanneScript : public vrm::ScriptComponent
 {
 public:
-    SuzanneScript(float circleRadius, float startAngle, float speed);
+    SuzanneScript();
     ~SuzanneScript();
+
+    void init(float circleRadius, float startAngle, float speed);
 
     void onSpawn() override;
     void onUpdate(const vrm::DeltaTime& dt) override;

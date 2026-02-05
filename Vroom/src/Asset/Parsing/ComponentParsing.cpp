@@ -9,6 +9,8 @@
 #include "Vroom/Scene/Components/SkyboxComponent.h"
 #include "Vroom/Scene/Components/TransformComponent.h"
 #include "Vroom/Scene/Entity.h"
+#include "Vroom/Scene/Scripting/ScriptComponentPtr.h"
+#include "Vroom/Scene/Scripting/ScriptEngine.h"
 
 using namespace vrm;
 
@@ -499,8 +501,7 @@ bool PointLightComponentData::deserialize(const json& j)
 void ScriptComponentData::addToEntity(Entity& entity)
 {
   VRM_CHECK_MSG(ScriptEngine::Get().isScriptRegistered(resourceName), "Script {} is not registered", resourceName);
-  std::unique_ptr<::ScriptComponent> sc;
-  sc.reset(ScriptEngine::Get().createScriptComponent(resourceName));
+  ScriptComponentPtr sc = ScriptEngine::Get().createScriptComponent(resourceName);
   entity.addScriptComponent(std::move(sc));
 }
 

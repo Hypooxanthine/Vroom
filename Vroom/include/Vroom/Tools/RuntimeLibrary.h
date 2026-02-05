@@ -8,62 +8,72 @@
 namespace vrm
 {
 
-  class VRM_API RuntimeLibrary
+class VRM_API RuntimeLibrary
+{
+public:
+
+  RuntimeLibrary();
+  ~RuntimeLibrary();
+
+  RuntimeLibrary(const RuntimeLibrary& other)            = delete;
+  RuntimeLibrary& operator=(const RuntimeLibrary& other) = delete;
+
+  RuntimeLibrary(RuntimeLibrary&& other);
+  RuntimeLibrary& operator=(RuntimeLibrary&& other);
+
+  inline static consteval bool IsPlatformSupported()
   {
-  public:
-    RuntimeLibrary();
-    ~RuntimeLibrary();
-
-    inline static consteval bool IsPlatformSupported()
-    {
 #if defined(VRM_PLATFORM_LINUX) || defined(VRM_PLATFORM_WINDOWS)
-      return true;
+    return true;
 #endif
-      return false;
-    }
+    return false;
+  }
 
-    bool load(const std::filesystem::path& path);
-    void unload();
+  bool load(const std::filesystem::path& path);
+  void unload();
 
-    template <typename Fn>
-    inline Fn getSymbolCstyle(const std::string& name)
-    {
-      void* symbol = _tryGetCachedSymbol(name);
+  template <typename Fn>
+  inline Fn getSymbolCstyle(const std::string& name)
+  {
+    void* symbol = _tryGetCachedSymbol(name);
 
-      if (!symbol)
-        symbol = _getSymbol(name);
+    if (!symbol)
+      symbol = _getSymbol(name);
 
-      return (Fn)symbol;
-    }
+    return (Fn)symbol;
+  }
 
-    template <typename Signature>
-    inline Signature* getSymbol(const std::string& name)
-    {
-      return getSymbolCstyle<Signature*>(name);
-    }
+  template <typename Signature>
+  inline Signature* getSymbol(const std::string& name)
+  {
+    return getSymbolCstyle<Signature*>(name);
+  }
 
+  inline bool isLoaded() const
+  {
+    return _isLoaded();
+  }
 
-    inline bool isLoaded() const { return _isLoaded(); }
+private:
 
-  private:
+  void* _tryGetCachedSymbol(const std::string& name);
 
-    void* _tryGetCachedSymbol(const std::string& name);
+private: // Platform specific
 
-  private: // Platform specific
-    void _init();
-    void _cleanup();
+  void _init();
+  void _cleanup();
 
-    bool _isLoaded() const;
-    bool _load(const std::filesystem::path& path);
-    void _unload();
+  bool _isLoaded() const;
+  bool _load(const std::filesystem::path& path);
+  void _unload();
 
-    void* _getSymbol(const std::string& name);
+  void* _getSymbol(const std::string& name);
 
-  private:
+private:
 
-    struct Impl;
-    Impl* m_impl = nullptr;
-    std::unordered_map<std::string, void*> m_cachedSymbols;
-  };
+  struct Impl;
+  Impl*                                  m_impl = nullptr;
+  std::unordered_map<std::string, void*> m_cachedSymbols;
+};
 
-}
+} // namespace vrm

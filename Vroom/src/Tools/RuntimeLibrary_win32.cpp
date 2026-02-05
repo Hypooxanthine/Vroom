@@ -2,7 +2,7 @@
 
 #include <windows.h>
 
-#include "Vroom/Core/Assert.h"
+#include "Vroom/Core/Log.h"
 #include "Vroom/Tools/RuntimeLibrary.h"
 
 #define IMPL (*m_impl)

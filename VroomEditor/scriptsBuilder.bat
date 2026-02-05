@@ -13,7 +13,3 @@ if "%~2"=="" (
 )
 
 "%~1" --build "%~2" --target ScriptsLibrary
-
-echo.
-echo Press any key to continue...
-pause >nul
