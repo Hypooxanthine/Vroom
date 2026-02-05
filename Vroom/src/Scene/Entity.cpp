@@ -6,6 +6,7 @@
 
 #include "Vroom/Scene/Components/NameComponent.h"
 #include "Vroom/Scene/Components/HierarchyComponent.h"
+#include "Vroom/Scene/Scripting/ScriptEngine.h"
 
 namespace vrm
 {
@@ -103,6 +104,11 @@ bool Entity::isValid() const
       m_Handle != entt::null
   &&  m_Scene == &Application::Get().getGameLayer().getScene()
   &&  m_Scene->getRegistry().valid(m_Handle);
+}
+
+ScriptComponent& Entity::addScriptComponent(const std::string& scriptName)
+{
+  return addScriptComponent(ScriptEngine::Get().createScriptComponent(scriptName));
 }
 
 ScriptComponent& Entity::addScriptComponent(ScriptComponentPtr&& script)
