@@ -73,6 +73,7 @@ add_subdirectory("deps")
 # ----- Subdirectories -----
 
 add_subdirectory ("Vroom")
+add_subdirectory("ScriptApi")
 add_subdirectory("Sandbox")
 add_subdirectory("VroomEditor")
 

@@ -13,6 +13,7 @@ set(LIBRARIES
   ImGuizmo
   ImPlot
   Vroom
+  ScriptApi
 )
 
 # ----- Project directories -----

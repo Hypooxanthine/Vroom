@@ -6,12 +6,13 @@
 #include <Vroom/Core/Log.h>
 #include <Vroom/Scene/Components/ScriptComponent.h>
 
+#include "ScriptApi/Api.h"
 #include "ScriptApi/ScriptFactory.h"
 
 namespace vrm
 {
 
-class ScriptLibrary
+class VRM_SCRIPT_API ScriptLibrary
 {
 public:
 
