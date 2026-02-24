@@ -56,7 +56,7 @@ endif()
 # ----- Project general definitions -----
 
 # Root directory
-get_filename_component(ROOT "${CMAKE_SOURCE_DIR}" ABSOLUTE)
+get_filename_component(ROOT "${CMAKE_CURRENT_SOURCE_DIR}" ABSOLUTE)
 
 # Resource directories
 set(ENGINE_RESOURCE_DIR   ${ROOT}/Vroom/Resources)
