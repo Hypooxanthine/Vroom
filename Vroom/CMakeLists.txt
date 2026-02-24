@@ -56,12 +56,40 @@ target_include_directories(Vroom_static    PUBLIC  ${VENDOR_DIR} ${INCLUDE_DIR})
 target_link_libraries(Vroom_static                 ${LIBRARIES})
 target_compile_definitions(Vroom_static PRIVATE "VRM_TARGET_VROOM" "VRM_STATIC")
 
+if (WIN32)
+  target_compile_definitions(Vroom_static
+    PUBLIC
+      VRM_PLATFORM_WINDOWS=1
+  )
+endif()
+
+if (UNIX)
+  target_compile_definitions(Vroom_static
+    PUBLIC
+      VRM_PLATFORM_LINUX=1
+  )
+endif()
+
 add_library(Vroom                   SHARED  ${SOURCES} ${HEADERS})
 target_include_directories(Vroom    PUBLIC  ${VENDOR_DIR} ${INCLUDE_DIR})
 target_link_libraries(Vroom                 ${LIBRARIES})
 target_compile_definitions(Vroom PRIVATE "VRM_TARGET_VROOM")
 if(UNIX)
   target_compile_options(Vroom PRIVATE -fvisibility=hidden)
+endif()
+
+if (WIN32)
+  target_compile_definitions(Vroom
+    PUBLIC
+      VRM_PLATFORM_WINDOWS=1
+  )
+endif()
+
+if (UNIX)
+  target_compile_definitions(Vroom
+    PUBLIC
+      VRM_PLATFORM_LINUX=1
+  )
 endif()
 
 # ----- Specific settings -----

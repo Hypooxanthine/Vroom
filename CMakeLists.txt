@@ -31,15 +31,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 #     add_compile_options(-Wno-volatile)
 # endif(UNIX)
 
-# Preprocessor defines
-if (WIN32)
-    add_compile_definitions(VRM_PLATFORM_WINDOWS=1)
-endif()
-
-if (UNIX)
-    add_compile_definitions(VRM_PLATFORM_LINUX=1)
-endif()
-
 add_compile_definitions(
   $<$<CONFIG:Debug>:VRM_DEBUG>
   $<$<CONFIG:Release>:VRM_RELEASE>
