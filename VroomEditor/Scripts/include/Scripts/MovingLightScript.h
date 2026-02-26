@@ -2,7 +2,7 @@
 
 #include <Vroom/Scene/Components/ScriptComponent.h>
 
-#include "ScriptApi/ScriptLibrary.h"
+#include "ScriptApi/ScriptApi.h"
 
 
 class MovingLightScript : public vrm::ScriptComponent

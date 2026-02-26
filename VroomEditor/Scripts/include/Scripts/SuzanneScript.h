@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ScriptApi/ScriptLibrary.h"
+#include "ScriptApi/ScriptApi.h"
 
 class SuzanneScript : public vrm::ScriptComponent
 {

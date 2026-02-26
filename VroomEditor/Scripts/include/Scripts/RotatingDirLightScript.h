@@ -4,7 +4,7 @@
 
 #include <Vroom/Scene/Components/ScriptComponent.h>
 
-#include "ScriptApi/ScriptLibrary.h"
+#include "ScriptApi/ScriptApi.h"
 
 
 class RotatingDirLightScript : public vrm::ScriptComponent

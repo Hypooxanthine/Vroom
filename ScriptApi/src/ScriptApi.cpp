@@ -2,17 +2,17 @@
 
 #include "ScriptApi/ScriptLibrary.h"
 
-const char* VRM_ScriptLibrary_GetLibraryName()
+VRM_SCRIPT_API_FUNCTION_IMPL(const char*, VRM_ScriptLibrary_GetLibraryName, (), ())
 {
   return "EditorScriptLibrary";
 }
 
-size_t VRM_ScriptLibrary_GetScriptCount()
+VRM_SCRIPT_API_FUNCTION_IMPL(size_t, VRM_ScriptLibrary_GetScriptCount, (), ())
 {
   return vrm::ScriptLibrary::Get().getFactories().size();
 }
 
-const char* VRM_ScriptLibrary_GetScriptName(size_t index)
+VRM_SCRIPT_API_FUNCTION_IMPL(const char*, VRM_ScriptLibrary_GetScriptName, (size_t index), (index))
 {
   const auto& factories = vrm::ScriptLibrary::Get().getFactories();
 
@@ -26,7 +26,7 @@ const char* VRM_ScriptLibrary_GetScriptName(size_t index)
   }
 }
 
-vrm::ScriptComponent* VRM_ScriptLibrary_CreateScript(size_t index)
+VRM_SCRIPT_API_FUNCTION_IMPL(vrm::ScriptComponent*, VRM_ScriptLibrary_CreateScript, (size_t index), (index))
 {
   const auto& factories = vrm::ScriptLibrary::Get().getFactories();
 
@@ -40,7 +40,7 @@ vrm::ScriptComponent* VRM_ScriptLibrary_CreateScript(size_t index)
   }
 }
 
-void VRM_ScriptLibrary_DestroyScript(vrm::ScriptComponent* script)
+VRM_SCRIPT_API_FUNCTION_IMPL(void, VRM_ScriptLibrary_DestroyScript, (vrm::ScriptComponent* script), (script))
 {
   delete script;
 }

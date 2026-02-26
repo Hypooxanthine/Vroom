@@ -2,14 +2,13 @@
 
 #include <string>
 
-#include "ScriptApi/Api.h"
 
 namespace vrm
 {
 
 class ScriptComponent;
 
-class VRM_SCRIPT_API ScriptFactory
+class ScriptFactory
 {
 public:
 
