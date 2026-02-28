@@ -38,6 +38,7 @@ namespace vrm
   private:
     
     void _handleFileDrop(const OSFileDrop& dropData);
+    void _handleContextWindow();
 
   private:
     const std::filesystem::path m_ResourcesPath;

@@ -1,25 +1,25 @@
 #include "VroomEditor/UserInterface/AssetBrowser/AssetUtils.h"
-
+#include <filesystem>
 #include <fstream>
+#include <string>
 #include <thread>
 
-#include "Vroom/Core/Log.h"
-
-#include "Vroom/Asset/Parsing/Json.h"
-
+#include "VroomEditor/UserInterface/AssetBrowser/AssetDirectory.h"
 #include "VroomEditor/UserInterface/AssetBrowser/AssetElement.h"
 #include "VroomEditor/UserInterface/AssetBrowser/AssetFile.h"
-#include "VroomEditor/UserInterface/AssetBrowser/AssetDirectory.h"
-#include "VroomEditor/UserInterface/AssetBrowser/AssetFileSceneAsset.h"
-#include "VroomEditor/UserInterface/AssetBrowser/AssetFileMeshAsset.h"
 #include "VroomEditor/UserInterface/AssetBrowser/AssetFileMaterialAsset.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetFileMeshAsset.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetFileSceneAsset.h"
+
+#include "Vroom/Asset/Parsing/Json.h"
+#include "Vroom/Core/Log.h"
 
 using namespace vrm;
 
 std::filesystem::path AssetUtils::GetMetaName(const std::filesystem::path& baseName)
 {
-  std::filesystem::path meta = baseName;
-  meta += ".meta";
+  std::filesystem::path meta  = baseName;
+  meta                       += ".meta";
   return meta;
 }
 
@@ -62,10 +62,10 @@ std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const std::filesyst
     VRM_LOG_WARN("Meta file {} exists but could not open it", metaDataPath.string());
     return nullptr;
   }
-
 }
 
-std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const MetaFile& meta, const std::filesystem::path& filePath)
+std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const MetaFile&              meta,
+                                                             const std::filesystem::path& filePath)
 {
   switch (meta.Type)
   {
@@ -83,7 +83,7 @@ std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const MetaFile& met
 
 bool AssetUtils::CreateMetaFile(const MetaFile& meta, const std::filesystem::path& filePath)
 {
-  std::ofstream ofs;
+  std::ofstream         ofs;
   std::filesystem::path metaPath = GetMetaName(filePath);
   ofs.open(metaPath, std::fstream::trunc);
 
@@ -116,8 +116,8 @@ static void OpenNativeFileExplorer_Impl(const std::filesystem::path& path)
   return;
 #endif
 
-  std::string strPath = std::filesystem::absolute(path).string();
-  cmd += " \"" + strPath + "\"";
+  std::string strPath  = std::filesystem::absolute(path).string();
+  cmd                 += " \"" + strPath + "\"";
 
   system(cmd.c_str());
 }
@@ -127,13 +127,34 @@ void AssetUtils::OpenNativeFileExplorer(const std::filesystem::path& path)
   std::thread(OpenNativeFileExplorer_Impl, path).detach();
 }
 
+std::filesystem::path AssetUtils::FindFreeAssetName(const std::filesystem::path& basePath)
+{
+  if (!basePath.has_filename())
+  {
+    return {};
+  }
+
+  size_t                i             = 1;
+  std::filesystem::path currentPath   = basePath;
+  std::string           baseStem      = basePath.stem().string();
+  std::string           baseExtension = basePath.extension().string();
+
+  while (std::filesystem::exists(currentPath))
+  {
+    ++i;
+    std::filesystem::path newFileName = baseStem + "_" + std::to_string(i) + baseExtension;
+    currentPath.replace_filename(newFileName);
+  }
+
+  return currentPath;
+}
+
 bool AssetUtils::CreateDirectory(const std::filesystem::path& path)
 {
   try
   {
     std::filesystem::create_directory(path);
-  }
-  catch(const std::exception& e)
+  } catch (const std::exception& e)
   {
     return false;
   }
@@ -158,8 +179,7 @@ bool AssetUtils::DeleteAssetElement(const std::filesystem::path& path)
     {
       fs::remove_all(path);
     }
-  }
-  catch(const std::exception& e)
+  } catch (const std::exception& e)
   {
     return false;
   }
@@ -182,8 +202,7 @@ bool AssetUtils::RenameAssetElement(const std::filesystem::path& assetPath, cons
       fs::path newMetaPath = GetMetaName(targetName);
       fs::rename(metaPath, newMetaPath);
     }
-  }
-  catch(const std::exception& e)
+  } catch (const std::exception& e)
   {
     return false;
   }

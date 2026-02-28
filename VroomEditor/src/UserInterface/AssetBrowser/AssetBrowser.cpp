@@ -1,38 +1,38 @@
 #include "VroomEditor/UserInterface/AssetBrowser/AssetBrowser.h"
-
+#include <fstream>
 #include <imgui.h>
 #include <imgui_internal.h>
 
 #include "VroomEditor/EditorLayer.h"
-
-#include "VroomEditor/UserInterface/AssetBrowser/AssetUtils.h"
-#include "VroomEditor/UserInterface/AssetBrowser/AssetParentDir.h"
-#include "VroomEditor/UserInterface/OSFileDrop.h"
 #include "VroomEditor/Import/ModelImporter.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetParentDir.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetUtils.h"
+#include "VroomEditor/UserInterface/OSFileDrop.h"
 
+#include "Vroom/Asset/AssetData/SceneData.h"
+#include "Vroom/Asset/Parsing/SceneParsing.h"
 #include "Vroom/Core/Log.h"
+#include "Vroom/Scene/Scene.h"
+#include "nlohmann/json_fwd.hpp"
 
 using namespace vrm;
 
-AssetBrowser::AssetBrowser(const std::filesystem::path &resourcesPath)
-    : ImGuiElement(),
-      m_ResourcesPath(std::filesystem::canonical(resourcesPath)),
-      m_CurrentPath(m_ResourcesPath)
+AssetBrowser::AssetBrowser(const std::filesystem::path& resourcesPath)
+  : ImGuiElement(), m_ResourcesPath(std::filesystem::canonical(resourcesPath)), m_CurrentPath(m_ResourcesPath)
 {
   updateDirectoryContent();
 }
 
 AssetBrowser::~AssetBrowser()
-{
-}
+{}
 
-static bool IsChildOf(const std::filesystem::path &parent, const std::filesystem::path &child)
+static bool IsChildOf(const std::filesystem::path& parent, const std::filesystem::path& child)
 {
   std::filesystem::path relative = child.lexically_relative(parent);
   return !relative.empty() && relative.native()[0] != '.';
 }
 
-void AssetBrowser::setCurrentPath(const std::filesystem::path &newPath)
+void AssetBrowser::setCurrentPath(const std::filesystem::path& newPath)
 {
   auto p = std::filesystem::canonical(newPath);
 
@@ -52,14 +52,14 @@ void AssetBrowser::updateDirectoryContent()
   {
     m_Assets.emplace_back().reset(new AssetParentDir(m_CurrentPath.parent_path()));
   }
-  
+
   std::vector<std::unique_ptr<vrm::AssetElement>> dirs;
   std::vector<std::unique_ptr<vrm::AssetElement>> files;
 
-  for (const auto &entry : std::filesystem::directory_iterator(m_CurrentPath))
+  for (const auto& entry : std::filesystem::directory_iterator(m_CurrentPath))
   {
     auto p = entry.path();
-    p = p.lexically_relative(m_ResourcesPath.parent_path());
+    p      = p.lexically_relative(m_ResourcesPath.parent_path());
     // VRM_LOG_TRACE("Element: {}", p.string());
     auto element = AssetUtils::CreateAssetElement(p);
 
@@ -77,13 +77,10 @@ void AssetBrowser::updateDirectoryContent()
   }
 
   m_Assets.reserve(m_Assets.size() + dirs.size() + files.size());
-  for (auto&& elem : dirs)
-    m_Assets.emplace_back(std::move(elem));
-  for (auto&& elem : files)
-    m_Assets.emplace_back(std::move(elem));
+  for (auto&& elem : dirs) m_Assets.emplace_back(std::move(elem));
+  for (auto&& elem : files) m_Assets.emplace_back(std::move(elem));
 
-  for (auto& elem : m_Assets)
-    elem->setBrowser(this);
+  for (auto& elem : m_Assets) elem->setBrowser(this);
 }
 
 AssetElement* AssetBrowser::findCurrentDirElement(const std::string& elementName)
@@ -124,7 +121,11 @@ void AssetBrowser::toggleSelectElement(const AssetElement* element)
     unselectElement();
   }
 
-  auto it = std::find_if(m_Assets.begin(), m_Assets.end(), [&element](const std::unique_ptr<AssetElement>& elem) { return elem.get() == element;});
+  auto it = std::find_if(m_Assets.begin(), m_Assets.end(),
+                         [&element](const std::unique_ptr<AssetElement>& elem)
+                         {
+                           return elem.get() == element;
+                         });
 
   if (it == m_Assets.end())
   {
@@ -153,7 +154,11 @@ void AssetBrowser::selectElement(const AssetElement* element)
 
   unselectElement(); // If any is selected, stop it
 
-  auto it = std::find_if(m_Assets.begin(), m_Assets.end(), [&element](const std::unique_ptr<AssetElement>& elem) { return elem.get() == element;});
+  auto it = std::find_if(m_Assets.begin(), m_Assets.end(),
+                         [&element](const std::unique_ptr<AssetElement>& elem)
+                         {
+                           return elem.get() == element;
+                         });
 
   if (it == m_Assets.end())
   {
@@ -203,8 +208,8 @@ void AssetBrowser::onImgui()
 {
   if (ImGui::Begin("Asset browser", m_open))
   {
-    static constexpr char sep = std::filesystem::path::preferred_separator;
-    std::string displayPath = sep + m_CurrentPath.lexically_relative(m_ResourcesPath.parent_path()).string();
+    static constexpr char sep         = std::filesystem::path::preferred_separator;
+    std::string           displayPath = sep + m_CurrentPath.lexically_relative(m_ResourcesPath.parent_path()).string();
     if (!displayPath.ends_with(sep))
       displayPath += sep;
 
@@ -212,13 +217,12 @@ void AssetBrowser::onImgui()
     ImGui::TextWrapped("%s", displayPath.c_str());
     ImGui::PopID();
 
-    bool first = true;
+    bool  first       = true;
     float windowWidth = ImGui::GetContentRegionAvail().x;
 
     ImVec2 fileDropStart = ImGui::GetCursorScreenPos();
-    
 
-    for (auto &elem : m_Assets)
+    for (auto& elem : m_Assets)
     {
       if (first)
         first = false;
@@ -236,36 +240,18 @@ void AssetBrowser::onImgui()
     // windowSize.y = ImGui::GetCursorPosY() - windowPos.y;
     ImRect regionBox = { fileDropStart, ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMax() };
 
-    if (ImGui::BeginPopupContextWindow("##browserpopup", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
+    if (ImGui::BeginPopupContextWindow("##browserpopup",
+                                       ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
     {
-      if (ImGui::Selectable("Create directory"))
-      {
-        EditorLayer::Get().pushFrameEndRoutine([this](auto& layer) {
-          static const std::string newDirName = "NewDirectory";
-          if (AssetUtils::CreateDirectory(m_CurrentPath / newDirName))
-          {
-            updateDirectoryContent();
-            AssetElement* elem = findCurrentDirElement(newDirName);
-            if (elem) // Should always be true
-            {
-              toggleSelectElement(elem);
-              elem->setRenaming();
-            }
-          }
-        });
-      }
-
-      if (ImGui::Selectable("Open in OS explorer"))
-      {
-        AssetUtils::OpenNativeFileExplorer(m_CurrentPath);
-      }
+      _handleContextWindow();
 
       ImGui::EndPopup();
     }
-    
+
     if (ImGui::BeginDragDropTargetCustom(regionBox, ImGui::GetID("FileDropTarget")))
     {
-      if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("OSFileDrop"); payload && payload->DataSize == sizeof(OSFileDrop))
+      if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("OSFileDrop");
+          payload && payload->DataSize == sizeof(OSFileDrop))
       {
         OSFileDrop* fileDrop = reinterpret_cast<OSFileDrop*>(payload->Data);
         _handleFileDrop(*fileDrop);
@@ -282,9 +268,9 @@ void AssetBrowser::_handleFileDrop(const OSFileDrop& dropData)
 {
   VRM_ASSERT(dropData.files);
   VRM_LOG_TRACE("Dropped {}", dropData.files);
-  
+
   std::filesystem::path from = dropData.files;
-  std::filesystem::path to = m_CurrentPath;
+  std::filesystem::path to   = m_CurrentPath;
   if (from.has_filename())
   {
     if (true)
@@ -315,13 +301,73 @@ void AssetBrowser::_handleFileDrop(const OSFileDrop& dropData)
     }
     else
     {
-      std::filesystem::copy(from, to, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
+      std::filesystem::copy(
+        from, to, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
       VRM_LOG_TRACE("Successfully copied from {} to {}", from.string(), to.string());
       updateDirectoryContent();
     }
-  }
-  catch (const std::exception& e)
+  } catch (const std::exception& e)
   {
     VRM_LOG_WARN("Could not copy {} to {}: {}", from.string(), to.string(), e.what());
+  }
+}
+
+void AssetBrowser::_handleContextWindow()
+{
+  if (ImGui::Selectable("Create directory"))
+  {
+    EditorLayer::Get().pushFrameEndRoutine(
+      [this](auto& layer)
+      {
+        static const std::string newDirName = "NewDirectory";
+        if (AssetUtils::CreateDirectory(m_CurrentPath / newDirName))
+        {
+          updateDirectoryContent();
+          AssetElement* elem = findCurrentDirElement(newDirName);
+          if (elem) // Should always be true
+          {
+            toggleSelectElement(elem);
+            elem->setRenaming();
+          }
+        }
+      });
+  }
+
+  if (ImGui::Selectable("Open in OS explorer"))
+  {
+    AssetUtils::OpenNativeFileExplorer(m_CurrentPath);
+  }
+
+  if (ImGui::BeginMenu("Create new..."))
+  {
+    if (ImGui::MenuItem("Scene"))
+    {
+      EditorLayer::Get().pushFrameEndRoutine(
+        [this](auto& layer)
+        {
+          std::filesystem::path    newScenePath = AssetUtils::FindFreeAssetName(m_CurrentPath / "NewScene.json");
+          std::ofstream            ofs(newScenePath);
+
+          if (ofs.is_open())
+          {
+            nlohmann::json j = SceneData();
+            ofs << j;
+
+            MetaFile meta;
+            meta.Type = MetaFile::EType::eScene;
+            AssetUtils::CreateMetaFile(meta, newScenePath);
+
+            updateDirectoryContent();
+            AssetElement* elem = findCurrentDirElement(newScenePath.filename().string());
+            if (elem) // Should always be true
+            {
+              toggleSelectElement(elem);
+              elem->setRenaming();
+            }
+          }
+        });
+    }
+
+    ImGui::EndMenu();
   }
 }

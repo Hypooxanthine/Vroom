@@ -48,6 +48,8 @@ namespace vrm
 
     static void OpenNativeFileExplorer(const std::filesystem::path& path);
 
+    static std::filesystem::path FindFreeAssetName(const std::filesystem::path& basePath);
+
     static bool CreateDirectory(const std::filesystem::path& path);
 
     // File or directory. Will check for meta files and remove them if exist
