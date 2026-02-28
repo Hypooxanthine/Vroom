@@ -70,3 +70,4 @@ docs/*
 !Vroom/Resources/**
 !Sandbox/Resources/**
 !VroomEditor/Resources/**
+!VroomEditor/DefaultResources/**

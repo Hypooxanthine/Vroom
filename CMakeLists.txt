@@ -4,6 +4,8 @@ set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API OFF)
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP OFF)
 
+include(cmake/vroom.cmake)
+
 # ----- CMake settings -----
 
 # Policies
@@ -51,7 +53,6 @@ get_filename_component(ROOT "${CMAKE_CURRENT_SOURCE_DIR}" ABSOLUTE)
 
 # Resource directories
 set(ENGINE_RESOURCE_DIR   ${ROOT}/Vroom/Resources)
-set(EDITOR_RESOURCE_DIR   ${ROOT}/VroomEditor/Resources)
 
 # ----- Solution definition -----
 

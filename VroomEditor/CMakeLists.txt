@@ -1,4 +1,13 @@
-add_subdirectory("Scripts")
+
+# ----- Options -----
+
+option(VROOM_ENABLE_EXAMPLE_EDITOR "Enable Vroom editor module" ON)
+
+# ----- Subdirectories -----
+
+if (VROOM_ENABLE_EXAMPLE_EDITOR)
+  add_subdirectory("Scripts")
+endif()
 
 # ----- Project definition -----
 
@@ -54,39 +63,34 @@ endif()
 
 # ----- Copying resource files -----
 
-set(OUTPUT_DIR $<TARGET_FILE_DIR:VroomEditor>)
-set(OUTPUT_RESOURCES_DIR ${OUTPUT_DIR}/Resources)
-
 if (WIN32)
   set(SCRIPTS_BUILDER ${CMAKE_CURRENT_SOURCE_DIR}/scriptsBuilder.bat)
 elseif (UNIX)
   set(SCRIPTS_BUILDER ${CMAKE_CURRENT_SOURCE_DIR}/scriptsBuilder.sh)
 endif()
 
-add_custom_target(VroomEditorResources
-  COMMAND ${CMAKE_COMMAND} -E make_directory
-    # Create /Resources dir
-    ${OUTPUT_RESOURCES_DIR}
+add_resources_target(VroomEngineResources ${ENGINE_RESOURCE_DIR})
+add_resources_target(VroomEditorResources ${CMAKE_CURRENT_SOURCE_DIR}/Resources)
 
+if (VROOM_ENABLE_EXAMPLE_EDITOR)
+  add_resources_target(VroomEditorDefaultResources ${CMAKE_CURRENT_SOURCE_DIR}/DefaultResources/Resources)
+endif()
+
+add_custom_target(VroomEditorOtherResources
   COMMAND ${CMAKE_COMMAND} -E copy
-    # Copy shared/runtime libraries
+    # Shared/runtime libraries
     $<TARGET_FILE:Vroom> $<TARGET_FILE:glfw> $<TARGET_FILE:libglew_shared>
     # Imgui default config
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini
-    ${OUTPUT_DIR}
-  
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-    # Copy Resources dirs
-    ${ENGINE_RESOURCE_DIR} ${EDITOR_RESOURCE_DIR}
-    ${OUTPUT_RESOURCES_DIR}
+    $<TARGET_FILE_DIR:VroomEditor>
 )
 
-add_dependencies(VroomEditor VroomEditorResources)
-add_dependencies(VroomEditorResources Vroom glfw libglew_shared ScriptsLibrary)
+add_dependencies(VroomEditor VroomEditorOtherResources)
+add_dependencies(VroomEditorOtherResources Vroom glfw libglew_shared)
 
-target_compile_definitions(VroomEditor
-  PRIVATE VRM_RUNTIME_SCRIPTS_PATH="$<TARGET_FILE:ScriptsLibrary>"
-)
+if (VROOM_ENABLE_EXAMPLE_EDITOR)
+  set_scripts_library(ScriptsLibrary)
+endif()
 
 target_compile_definitions(VroomEditor
   PRIVATE VRM_SCRIPT_BUILDER_CMD=\"${SCRIPTS_BUILDER}\"
