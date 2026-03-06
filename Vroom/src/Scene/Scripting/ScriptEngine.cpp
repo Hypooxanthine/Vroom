@@ -104,16 +104,20 @@ std::filesystem::path ScriptEngine::_copyLibraryFile(const std::filesystem::path
 #ifdef VRM_DEBUG
   std::filesystem::path symbolsPath = libPath;
   symbolsPath.replace_extension(std::filesystem::path{ "pdb" });
-  std::filesystem::path copiedSymbolsPath = copiedLibPath;
-  copiedSymbolsPath.replace_extension(std::filesystem::path{ "pdb" });
 
-  try
+  if (std::filesystem::exists(symbolsPath))
   {
-    std::filesystem::copy_file(symbolsPath, copiedSymbolsPath);
-  } catch (std::filesystem::filesystem_error& e)
-  {
-    VRM_LOG_ERROR("Could not copy symbols {} to {}", symbolsPath.string(), copiedSymbolsPath.string());
-    // Not false, but no debug symbols
+    std::filesystem::path copiedSymbolsPath = copiedLibPath;
+    copiedSymbolsPath.replace_extension(std::filesystem::path{ "pdb" });
+
+    try
+    {
+      std::filesystem::copy_file(symbolsPath, copiedSymbolsPath);
+    } catch (std::filesystem::filesystem_error& e)
+    {
+      VRM_LOG_ERROR("Could not copy symbols {} to {}", symbolsPath.string(), copiedSymbolsPath.string());
+      // Not false, but no debug symbols
+    }
   }
 #endif
 

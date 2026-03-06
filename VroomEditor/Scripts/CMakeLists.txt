@@ -22,6 +22,11 @@ target_include_directories(ScriptsLibrary   PRIVATE  ${INCLUDE_DIR})
 target_link_libraries(ScriptsLibrary        PRIVATE  Vroom ScriptApi)
 
 # Compile options
+
+if(UNIX)
+  target_compile_options(ScriptsLibrary PRIVATE -fvisibility=hidden)
+endif()
+
 if (MSVC)
     target_compile_options(ScriptsLibrary PRIVATE /MP)
 endif()

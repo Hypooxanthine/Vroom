@@ -81,7 +81,7 @@ void* RuntimeLibrary::_getSymbol(const std::string& name)
 
   if (err)
   {
-    VRM_LOG_ERROR("Could not load symbol {} . Error log: {}", name, err);
+    VRM_LOG_ERROR("Could not load symbol \"{}\". Error log: {}", name, err);
     return nullptr;
   }
 
