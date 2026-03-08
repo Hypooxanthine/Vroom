@@ -1,20 +1,10 @@
 
 
 
-#if defined(VRM_PLATFORM_LINUX)
-  #if defined(DUM_STATIC)
-    #define DUM_API
-  #else
-    #define DUM_API __attribute__ ((visibility ("default")))
-  #endif
-#elif defined(VRM_PLATFORM_WINDOWS)
-  #if defined(DUM_STATIC)
-    #define DUM_API
-  #elif defined(DUM_TARGET_DUMMYLIB)
-    #define DUM_API __declspec(dllexport)
-  #else
-    #define DUM_API __declspec(dllimport)
-  #endif
+#if defined(__GNUC__)
+  #define DUM_API __attribute__ ((visibility ("default")))
+#elif defined(_MSC_VER)
+  #define DUM_API __declspec(dllexport)
 #else
   #define DUM_API
 #endif
