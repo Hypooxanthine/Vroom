@@ -56,7 +56,7 @@ public:
   AssetHandle<T> getAsset(const std::filesystem::path& assetID)
   {
     AssetHandle<T> asset = tryGetAsset<T>(assetID);
-    VRM_DEBUG_ASSERT_MSG(asset.isValid(), "Could not load {}",
+    VRM_ASSERT_MSG(asset.isValid(), "Could not load {}",
                          assetID.string());
 
     return asset;
