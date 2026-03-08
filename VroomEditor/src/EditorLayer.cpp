@@ -118,7 +118,7 @@ void EditorLayer::saveScene()
     std::ofstream ofs;
     ofs.open(m_loadedScene, std::ios_base::trunc);
 
-    ofs << j;
+    ofs << j.dump(2);
   }
 
   AssetManager::Get().reloadAsset<SceneAsset>(m_loadedScene);

@@ -90,7 +90,7 @@ bool AssetUtils::CreateMetaFile(const MetaFile& meta, const std::filesystem::pat
   if (ofs.is_open())
   {
     json j = meta;
-    ofs << j;
+    ofs << j.dump(2);
 
     return true;
   }

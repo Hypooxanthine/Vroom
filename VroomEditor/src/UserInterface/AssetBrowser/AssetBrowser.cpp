@@ -1,4 +1,5 @@
 #include "VroomEditor/UserInterface/AssetBrowser/AssetBrowser.h"
+#include <filesystem>
 #include <fstream>
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -7,6 +8,7 @@
 #include "VroomEditor/Import/ModelImporter.h"
 #include "VroomEditor/UserInterface/AssetBrowser/AssetParentDir.h"
 #include "VroomEditor/UserInterface/AssetBrowser/AssetUtils.h"
+#include "VroomEditor/UserInterface/AssetBrowser/BrowserNode.h"
 #include "VroomEditor/UserInterface/OSFileDrop.h"
 
 #include "Vroom/Asset/AssetData/SceneData.h"
@@ -16,9 +18,9 @@
 #include "nlohmann/json_fwd.hpp"
 
 using namespace vrm;
+namespace fs = std::filesystem;
 
-AssetBrowser::AssetBrowser(const std::filesystem::path& resourcesPath)
-  : ImGuiElement(), m_ResourcesPath(std::filesystem::canonical(resourcesPath)), m_CurrentPath(m_ResourcesPath)
+AssetBrowser::AssetBrowser() : ImGuiElement()
 {
   updateDirectoryContent();
 }
@@ -26,19 +28,36 @@ AssetBrowser::AssetBrowser(const std::filesystem::path& resourcesPath)
 AssetBrowser::~AssetBrowser()
 {}
 
-static bool IsChildOf(const std::filesystem::path& parent, const std::filesystem::path& child)
+void AssetBrowser::addRootPath(const std::filesystem::path& newRootPath)
 {
-  std::filesystem::path relative = child.lexically_relative(parent);
-  return !relative.empty() && relative.native()[0] != '.';
+  m_rootNodes.emplace_back(newRootPath, newRootPath);
+  updateDirectoryContent();
 }
 
 void AssetBrowser::setCurrentPath(const std::filesystem::path& newPath)
 {
-  auto p = std::filesystem::canonical(newPath);
-
-  if (p != m_CurrentPath && std::filesystem::is_directory(p) && (p == m_ResourcesPath || IsChildOf(m_ResourcesPath, p)))
+  if (!m_currentNode.comparePath(newPath))
   {
-    m_CurrentPath = p;
+    // Finding the root of the new path
+    const BrowserNode* root = nullptr;
+
+    if (newPath != fs::path{})
+    {
+      for (const BrowserNode& candidateRoot : m_rootNodes)
+      {
+        if (_isChildOf(newPath, candidateRoot.getPath()))
+        {
+          root = &candidateRoot;
+          break;
+        }
+      }
+    }
+
+    if (root)
+      m_currentNode = BrowserNode(newPath, root->getPath());
+    else
+      m_currentNode = BrowserNode(); // Virtual root
+
     updateDirectoryContent();
   }
 }
@@ -48,25 +67,35 @@ void AssetBrowser::updateDirectoryContent()
   m_Assets.clear();
   m_selectedAsset = nullptr;
 
-  if (m_CurrentPath != m_ResourcesPath)
+  if (m_currentNode.ok())
   {
-    m_Assets.emplace_back().reset(new AssetParentDir(m_CurrentPath.parent_path()));
+    m_Assets.emplace_back().reset(new AssetParentDir(m_currentNode.getParent().getPath()));
   }
 
   std::vector<std::unique_ptr<vrm::AssetElement>> dirs;
   std::vector<std::unique_ptr<vrm::AssetElement>> files;
 
-  for (const auto& entry : std::filesystem::directory_iterator(m_CurrentPath))
+  std::unique_ptr<std::vector<BrowserNode>> ptrIfRootNodes;
+  std::span<BrowserNode>                    nodesToIterateOn;
+
+  if (m_currentNode.ok())
   {
-    auto p = entry.path();
-    p      = p.lexically_relative(m_ResourcesPath.parent_path());
-    // VRM_LOG_TRACE("Element: {}", p.string());
-    auto element = AssetUtils::CreateAssetElement(p);
+    ptrIfRootNodes   = std::make_unique<std::vector<BrowserNode>>(m_currentNode.getChildren());
+    nodesToIterateOn = *ptrIfRootNodes;
+  }
+  else
+  {
+    nodesToIterateOn = m_rootNodes;
+  }
+
+  for (const BrowserNode& child : nodesToIterateOn)
+  {
+    auto element = AssetUtils::CreateAssetElement(child.getPath());
 
     if (element == nullptr)
       continue;
 
-    if (entry.is_directory())
+    if (child.isDirectory())
     {
       dirs.emplace_back(std::move(element));
     }
@@ -209,7 +238,11 @@ void AssetBrowser::onImgui()
   if (ImGui::Begin("Asset browser", m_open))
   {
     static constexpr char sep         = std::filesystem::path::preferred_separator;
-    std::string           displayPath = sep + m_CurrentPath.lexically_relative(m_ResourcesPath.parent_path()).string();
+    std::string           displayPath(&sep, 1);
+    
+    if (m_currentNode.ok())
+      displayPath += m_currentNode.getPathFromToRoot().string();
+
     if (!displayPath.ends_with(sep))
       displayPath += sep;
 
@@ -264,13 +297,29 @@ void AssetBrowser::onImgui()
   ImGui::End();
 }
 
+bool AssetBrowser::_isChildOf(const std::filesystem::path& child, const std::filesystem::path& parent) const
+{
+  if (child == parent)
+    return true;
+
+  std::filesystem::path relative = child.lexically_relative(parent);
+  return (!relative.empty() && relative.native()[0] != '.');
+}
+
 void AssetBrowser::_handleFileDrop(const OSFileDrop& dropData)
 {
   VRM_ASSERT(dropData.files);
   VRM_LOG_TRACE("Dropped {}", dropData.files);
 
+  if (!m_currentNode.ok())
+  {
+    // Cannot drop a file on the virtual root
+    VRM_LOG_WARN("Cannot drop a file in the browser root");
+    return;
+  }
+
   std::filesystem::path from = dropData.files;
-  std::filesystem::path to   = m_CurrentPath;
+  std::filesystem::path to   = m_currentNode.getPath();
   if (from.has_filename())
   {
     if (true)
@@ -320,7 +369,7 @@ void AssetBrowser::_handleContextWindow()
       [this](auto& layer)
       {
         static const std::string newDirName = "NewDirectory";
-        if (AssetUtils::CreateDirectory(m_CurrentPath / newDirName))
+        if (AssetUtils::CreateDirectory(m_currentNode.getPath() / newDirName))
         {
           updateDirectoryContent();
           AssetElement* elem = findCurrentDirElement(newDirName);
@@ -335,7 +384,7 @@ void AssetBrowser::_handleContextWindow()
 
   if (ImGui::Selectable("Open in OS explorer"))
   {
-    AssetUtils::OpenNativeFileExplorer(m_CurrentPath);
+    AssetUtils::OpenNativeFileExplorer(m_currentNode.getPath());
   }
 
   if (ImGui::BeginMenu("Create new..."))
@@ -345,13 +394,14 @@ void AssetBrowser::_handleContextWindow()
       EditorLayer::Get().pushFrameEndRoutine(
         [this](auto& layer)
         {
-          std::filesystem::path    newScenePath = AssetUtils::FindFreeAssetName(m_CurrentPath / "NewScene.json");
-          std::ofstream            ofs(newScenePath);
+          std::filesystem::path newScenePath = AssetUtils::FindFreeAssetName(m_currentNode.getPath() / "NewScene.json");
+          std::ofstream         ofs(newScenePath);
 
           if (ofs.is_open())
           {
             nlohmann::json j = SceneData();
-            ofs << j;
+            ofs << j.dump(2);
+            ofs.close();
 
             MetaFile meta;
             meta.Type = MetaFile::EType::eScene;

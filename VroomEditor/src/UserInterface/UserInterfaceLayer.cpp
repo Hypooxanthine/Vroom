@@ -35,16 +35,19 @@ static UserInterfaceLayer* INSTANCE;
 
 UserInterfaceLayer::UserInterfaceLayer() : Layer(), m_Font(nullptr)
 {
-  VRM_ASSERT_MSG(INSTANCE == nullptr,
-                 "Only one instance of UserInterfaceLayer is allowed");
+  VRM_ASSERT_MSG(INSTANCE == nullptr, "Only one instance of UserInterfaceLayer is allowed");
   INSTANCE = this;
 
   m_openFlags.fill(true);
 }
 
-UserInterfaceLayer::~UserInterfaceLayer() {}
+UserInterfaceLayer::~UserInterfaceLayer()
+{}
 
-UserInterfaceLayer& UserInterfaceLayer::Get() { return *INSTANCE; }
+UserInterfaceLayer& UserInterfaceLayer::Get()
+{
+  return *INSTANCE;
+}
 
 void UserInterfaceLayer::onInit()
 {
@@ -59,31 +62,32 @@ void UserInterfaceLayer::onInit()
   ImGuiIO& io     = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-  ImGui_ImplGlfw_InitForOpenGL(Application::Get().getWindow().getGLFWHandle(),
-                               true);
+  ImGui_ImplGlfw_InitForOpenGL(Application::Get().getWindow().getGLFWHandle(), true);
   ImGui_ImplOpenGL3_Init("#version 450");
 
-  m_Font = io.Fonts->AddFontFromFileTTF(
-    "Resources/Editor/Appearance/Fonts/Roboto/Roboto-Regular.ttf", 24.0f);
+  m_Font = io.Fonts->AddFontFromFileTTF("Resources/Editor/Appearance/Fonts/Roboto/Roboto-Regular.ttf", 24.0f);
   VRM_ASSERT_MSG(m_Font, "Failed to load font.");
 
   // Interfaces setup
   emplaceImGuiElement<MainMenuBar>(EInterfaceElement::eMainMenuBar);
-  emplaceImGuiElement<editor::ProfilingPanel>(
-    EInterfaceElement::eProfilingPanel);
-  emplaceImGuiElement<RenderSettingsPanel>(
-    EInterfaceElement::eRenderSettingsPanel);
+  emplaceImGuiElement<editor::ProfilingPanel>(EInterfaceElement::eProfilingPanel);
+  emplaceImGuiElement<RenderSettingsPanel>(EInterfaceElement::eRenderSettingsPanel);
   emplaceImGuiElement<Viewport>(EInterfaceElement::eViewport);
-  emplaceImGuiElement<AssetBrowser>(EInterfaceElement::eAssetBrowser);
-  emplaceImGuiElement<SceneGraph>(EInterfaceElement::eSceneGraph);
-  emplaceImGuiElement<EditorPreferences>(EInterfaceElement::eEditorPreferences,
-                                         false);
-  emplaceImGuiElement<EntityEditor>(EInterfaceElement::eEntityEditor);
-  emplaceImGuiElement<editor::ParticleSystemEditor>(
-    EInterfaceElement::eParticleSystemEditor, false);
 
-  m_CustomEventManager.createCustomEvent("OSFileDrop")
-    .bindInput(Event::Type::FileDrop);
+  auto& assetsBrowser = emplaceImGuiElement<AssetBrowser>(EInterfaceElement::eAssetBrowser);
+  assetsBrowser.addRootPath("Resources/Engine");
+  assetsBrowser.addRootPath("Resources/Editor");
+
+  #ifdef VRM_GAME_RSC_DIR_PATH
+  assetsBrowser.addRootPath(VRM_GAME_RSC_DIR_PATH);
+  #endif
+
+  emplaceImGuiElement<SceneGraph>(EInterfaceElement::eSceneGraph);
+  emplaceImGuiElement<EditorPreferences>(EInterfaceElement::eEditorPreferences, false);
+  emplaceImGuiElement<EntityEditor>(EInterfaceElement::eEntityEditor);
+  emplaceImGuiElement<editor::ParticleSystemEditor>(EInterfaceElement::eParticleSystemEditor, false);
+
+  m_CustomEventManager.createCustomEvent("OSFileDrop").bindInput(Event::Type::FileDrop);
   m_CustomEventManager.bindPermanentCallback("OSFileDrop",
                                              [this](const Event& e)
                                              {
@@ -91,8 +95,7 @@ void UserInterfaceLayer::onInit()
                                                e.handled = true;
                                              });
 
-  m_CustomEventManager.createCustomEvent("OSDragEnter")
-    .bindInput(Event::Type::FileDragEnter);
+  m_CustomEventManager.createCustomEvent("OSDragEnter").bindInput(Event::Type::FileDragEnter);
   m_CustomEventManager.bindPermanentCallback("OSDragEnter",
                                              [this](const Event& e)
                                              {
@@ -100,8 +103,7 @@ void UserInterfaceLayer::onInit()
                                                e.handled                = true;
                                              });
 
-  m_CustomEventManager.createCustomEvent("OSDragLeave")
-    .bindInput(Event::Type::FileDragLeave);
+  m_CustomEventManager.createCustomEvent("OSDragLeave").bindInput(Event::Type::FileDragLeave);
   m_CustomEventManager.bindPermanentCallback("OSDragLeave",
                                              [this](const Event& e)
                                              {
@@ -110,7 +112,10 @@ void UserInterfaceLayer::onInit()
                                              });
 
   ImGui::StyleColorsDark();
-  if (!_loadImguiStyle()) { ImGui::StyleColorsDark(); }
+  if (!_loadImguiStyle())
+  {
+    ImGui::StyleColorsDark();
+  }
 }
 
 void UserInterfaceLayer::onEnd()
@@ -128,14 +133,12 @@ void UserInterfaceLayer::onUpdate(const DeltaTime& dt)
 {
   m_fileDrop.clear();
   auto& viewport = VRM_EDITOR_UI_ELEMENT(Viewport);
-  viewport.setRenderTexture(Application::Get()
-                              .getMainSceneRenderer()
-                              .getRenderPipeline()
-                              .getRenderedTexture());
+  viewport.setRenderTexture(Application::Get().getMainSceneRenderer().getRenderPipeline().getRenderedTexture());
 
   for (auto& element : m_elements)
   {
-    if (element) element->update(dt);
+    if (element)
+      element->update(dt);
   }
 }
 
@@ -144,7 +147,8 @@ void UserInterfaceLayer::onRender()
   VRM_PROFILE_SCOPE("UserInterfaceLayer::onRender");
   for (auto& element : m_elements)
   {
-    if (element) element->render();
+    if (element)
+      element->render();
   }
 
   gl::FrameBuffer::GetDefaultFrameBuffer().bind();
@@ -171,16 +175,17 @@ void UserInterfaceLayer::renderImgui()
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceExtern))
     {
       if (m_fileDrop.files)
-        ImGui::SetDragDropPayload("OSFileDrop", &m_fileDrop,
-                                  sizeof(m_fileDrop));
-      else ImGui::SetDragDropPayload("OSFileDrop", nullptr, 0);
+        ImGui::SetDragDropPayload("OSFileDrop", &m_fileDrop, sizeof(m_fileDrop));
+      else
+        ImGui::SetDragDropPayload("OSFileDrop", nullptr, 0);
       ImGui::EndDragDropSource();
     }
   }
 
   for (auto& element : m_elements)
   {
-    if (element) element->renderImgui();
+    if (element)
+      element->renderImgui();
   }
 
   ImGui::PopFont();
@@ -228,8 +233,7 @@ bool UserInterfaceLayer::_loadImguiStyle()
       ifs >> j;
     } catch (const std::exception& e)
     {
-      VRM_LOG_ERROR("Could not parse imgui style {} into json. Error:\n{}",
-                    s_imguiStyleFile.string(), e.what());
+      VRM_LOG_ERROR("Could not parse imgui style {} into json. Error:\n{}", s_imguiStyleFile.string(), e.what());
       return false;
     }
 
@@ -239,9 +243,8 @@ bool UserInterfaceLayer::_loadImguiStyle()
       nlohmann::adl_serializer<ImGuiStyle>().from_json(j, style);
     } catch (const std::exception& e)
     {
-      VRM_LOG_ERROR(
-        "Could not parse imgui style {} into an ImGuiStyle. Error:\n{}",
-        s_imguiStyleFile.string(), e.what());
+      VRM_LOG_ERROR("Could not parse imgui style {} into an ImGuiStyle. Error:\n{}", s_imguiStyleFile.string(),
+                    e.what());
       return false;
     }
   }
@@ -262,8 +265,7 @@ void UserInterfaceLayer::saveImguiStyle(const ImGuiStyle& style) const
       std::filesystem::create_directories(s_imguiStyleFile.parent_path());
   } catch (const std::filesystem::filesystem_error& e)
   {
-    VRM_LOG_WARN("Could not create directory {}. Error: {}",
-                 s_imguiStyleFile.parent_path().string(), e.what());
+    VRM_LOG_WARN("Could not create directory {}. Error: {}", s_imguiStyleFile.parent_path().string(), e.what());
     return;
   }
 

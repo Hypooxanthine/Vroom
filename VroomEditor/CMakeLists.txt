@@ -73,7 +73,7 @@ add_resources_target(VroomEngineResources ${ENGINE_RESOURCE_DIR})
 add_resources_target(VroomEditorResources ${CMAKE_CURRENT_SOURCE_DIR}/Resources)
 
 if (VROOM_ENABLE_EXAMPLE_EDITOR)
-  add_resources_target(VroomEditorDefaultResources ${CMAKE_CURRENT_SOURCE_DIR}/DefaultResources/Resources)
+  set_game_rsc_dir(${CMAKE_CURRENT_SOURCE_DIR}/DefaultResources/Resources)
 endif()
 
 add_custom_target(VroomEditorOtherResources
