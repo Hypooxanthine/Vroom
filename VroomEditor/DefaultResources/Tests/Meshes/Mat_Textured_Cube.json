@@ -5,7 +5,7 @@
     "u_diffuse": {
       "Type": "sampler2D",
       "Value": {
-        "resourceName": "Resources/Editor/Tests/Textures/Texture_Textured_Cube.png",
+        "resourceName": "DefaultResources/Tests/Textures/Texture_Textured_Cube.png",
         "wrappingMode": "Clamp"
       }
     },
