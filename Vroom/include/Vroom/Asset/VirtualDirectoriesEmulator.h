@@ -47,6 +47,13 @@ public:
    */
   bool addDirectory(const std::filesystem::path& realDirPath);
 
+  /**
+   * @brief Resolve a real path from a virtual path.
+   *
+   * @param path The virtual path.
+   * @return std::filesystem::path The resolved path. Empty if it could not be
+   * resolved.
+   */
   std::filesystem::path findPath(const std::filesystem::path& path) const;
 
   /**

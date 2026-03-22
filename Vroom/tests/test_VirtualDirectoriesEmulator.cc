@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "Vroom/Asset/VirtualDirectoriesEmulator.h"
-#include "Vroom/Core/Log.h"
 
 class TestVirtualDirectoriesEmulator : public testing::Test
 {
@@ -13,7 +12,6 @@ protected:
 
   void SetUp() override
   {
-    vrm::Log::Init();
     try
     {
       if (std::filesystem::exists("tmp"))
