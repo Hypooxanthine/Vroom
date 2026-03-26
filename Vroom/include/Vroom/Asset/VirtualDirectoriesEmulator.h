@@ -22,6 +22,28 @@ class VRM_API VirtualDirectoriesEmulator
 {
 public:
 
+  /**
+   * @brief Representation of a virtual directory.
+
+    If the virtual path is "my/virtual/dir/" and the real path is
+   "real/path"/, accessing the virtual path "my/virtual/dir/resources/mesh.obj"
+    will be resolved as "real/path/resources/mesh.obj"
+   *
+   */
+  struct VirtualDir
+  {
+    /// @brief The real path of the virtual dir on disk.
+    std::filesystem::path realPath;
+
+    /**
+     * @brief The virtual path: from which path it can be accessed.
+     *
+     */
+    std::filesystem::path virtualPath;
+  };
+
+public:
+
   VirtualDirectoriesEmulator();
 
   /**
@@ -48,6 +70,13 @@ public:
   bool addDirectory(const std::filesystem::path& realDirPath);
 
   /**
+   * @brief Get the list of virtual directories added to the emulator.
+   *
+   * @return std::vector<VirtualDir> The virtual directories.
+   */
+  std::vector<VirtualDir> getDirectories() const;
+
+  /**
    * @brief Resolve a real path from a virtual path.
    *
    * @param path The virtual path.
@@ -66,14 +95,6 @@ public:
    */
   std::vector<std::filesystem::path>
   getChildren(const std::filesystem::path& path) const;
-
-private:
-
-  struct VirtualDir
-  {
-    std::filesystem::path realPath;
-    std::filesystem::path virtualPath;
-  };
 
 private:
 

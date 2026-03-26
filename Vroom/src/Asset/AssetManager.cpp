@@ -39,6 +39,11 @@ AssetManager& AssetManager::Get()
   return *s_Instance;
 }
 
+const VirtualDirectoriesEmulator& AssetManager::getVirtualPathEmulator() const
+{
+  return m_virtualDirs;
+}
+
 void AssetManager::_clear()
 {
   m_keys.clear();

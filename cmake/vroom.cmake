@@ -34,10 +34,6 @@ function(set_game_rsc_dir SOURCE_DIR)
     PRIVATE VRM_GAME_RSC_DIR_PATH="${SOURCE_DIR}"
   )
 
-  target_compile_definitions(VroomEditor
-    PRIVATE VRM_GAME_RSC_DIR_PATH="${SOURCE_DIR}"
-  )
-
 endfunction()
 
 function(set_scripts_library SCRIPTS_TARGET_NAME)

@@ -43,6 +43,8 @@ public:
    */
   static AssetManager& Get();
 
+  const VirtualDirectoriesEmulator& getVirtualPathEmulator() const;
+
   /**
    * @brief Get an asset by its ID. If the asset is not loaded, it will be
    * loaded first. You may want to load multiple assets at the start of the

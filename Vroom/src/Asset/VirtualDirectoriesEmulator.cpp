@@ -35,6 +35,12 @@ bool VirtualDirectoriesEmulator::addDirectory(const fs::path& realDirPath)
   return addDirectory(realDirPath, virtualPath);
 }
 
+std::vector<VirtualDirectoriesEmulator::VirtualDir>
+VirtualDirectoriesEmulator::getDirectories() const
+{
+  return m_virtualDirs;
+}
+
 fs::path VirtualDirectoriesEmulator::findPath(const fs::path& path) const
 {
   fs::path result;
