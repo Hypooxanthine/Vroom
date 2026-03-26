@@ -1,45 +1,71 @@
 #include "Vroom/Asset/AssetManager.h"
+#include <filesystem>
 
-namespace vrm
+using namespace vrm;
+
+std::unique_ptr<AssetManager> AssetManager::s_Instance = nullptr;
+
+AssetManager::AssetManager()
 {
+#ifdef VRM_GAME_RSC_DIR_PATH
+  m_virtualDirs.addDirectory(VRM_GAME_RSC_DIR_PATH);
+#endif
+}
 
-  std::unique_ptr<AssetManager> AssetManager::s_Instance = nullptr;
+AssetManager::~AssetManager()
+{
+  _clear();
+}
 
-  AssetManager::~AssetManager()
+void AssetManager::Init()
+{
+  VRM_ASSERT_MSG(s_Instance == nullptr, "AssetManager already initialized.");
+
+  auto* privateAssetManager = new AssetManager();
+  s_Instance = std::unique_ptr<AssetManager>(privateAssetManager);
+}
+
+void AssetManager::Shutdown()
+{
+  if (s_Instance)
   {
-    _clear();
+    s_Instance = nullptr;
   }
+}
 
-  void AssetManager::Init()
+AssetManager& AssetManager::Get()
+{
+  VRM_ASSERT_MSG(s_Instance != nullptr, "AssetManager not initialized.");
+  return *s_Instance;
+}
+
+void AssetManager::_clear()
+{
+  m_keys.clear();
+  for (auto rit = m_assets.rbegin(); rit != m_assets.rend(); ++rit)
   {
-    VRM_ASSERT_MSG(s_Instance == nullptr, "AssetManager already initialized.");
-
-    auto* privateAssetManager = new AssetManager();
-    s_Instance = std::unique_ptr<AssetManager>(privateAssetManager);
+    rit->reset();
   }
+  m_assets.clear();
+}
 
-  void AssetManager::Shutdown()
-  {
-    if (s_Instance)
-    {
-      s_Instance = nullptr;
-    }
-  }
+bool AssetManager::isAssetLoaded(const std::filesystem::path& assetID)
+{
+  return m_keys.contains(_formatAssetId(assetID));
+}
 
-  AssetManager& AssetManager::Get()
-  {
-    VRM_ASSERT_MSG(s_Instance != nullptr, "AssetManager not initialized.");
-    return *s_Instance;
-  }
+std::filesystem::path AssetManager::_resolveVirtualPath(
+  const std::filesystem::path& virtualPath) const
+{
+  return m_virtualDirs.findPath(virtualPath);
+}
 
-  void AssetManager::_clear()
-  {
-    m_keys.clear();
-    for (auto rit = m_assets.rbegin(); rit != m_assets.rend(); ++rit)
-    {
-      rit->release();
-    }
-    m_assets.clear();
-  }
-
-} // namespace vrm
+std::filesystem::path
+AssetManager::_formatAssetId(const std::filesystem::path& assetID) const
+{
+  auto normalized = assetID.lexically_normal();
+  if (assetID.is_absolute())
+    return normalized.lexically_relative(std::filesystem::current_path());
+  else
+   return normalized;
+}

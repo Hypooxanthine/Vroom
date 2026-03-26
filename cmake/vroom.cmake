@@ -30,6 +30,10 @@ endfunction()
 
 function(set_game_rsc_dir SOURCE_DIR)
 
+  target_compile_definitions(Vroom
+    PRIVATE VRM_GAME_RSC_DIR_PATH="${SOURCE_DIR}"
+  )
+
   target_compile_definitions(VroomEditor
     PRIVATE VRM_GAME_RSC_DIR_PATH="${SOURCE_DIR}"
   )

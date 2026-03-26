@@ -8,6 +8,7 @@
 #include "Vroom/Api.h"
 #include "Vroom/Asset/AssetHandle.h"
 #include "Vroom/Asset/StaticAsset/StaticAsset.h"
+#include "Vroom/Asset/VirtualDirectoriesEmulator.h"
 #include "Vroom/Core/Assert.h"
 
 namespace vrm
@@ -56,8 +57,7 @@ public:
   AssetHandle<T> getAsset(const std::filesystem::path& assetID)
   {
     AssetHandle<T> asset = tryGetAsset<T>(assetID);
-    VRM_ASSERT_MSG(asset.isValid(), "Could not load {}",
-                         assetID.string());
+    VRM_ASSERT_MSG(asset.isValid(), "Could not load {}", assetID.string());
 
     return asset;
   }
@@ -76,12 +76,14 @@ public:
   template <typename T>
   AssetHandle<T> tryGetAsset(const std::filesystem::path& assetID)
   {
-    if (!tryLoadAsset<T>(assetID)) return {};
+    if (!tryLoadAsset<T>(assetID))
+      return {};
 
     size_t index = m_keys.at(_formatAssetId(assetID));
 
     T* asT = dynamic_cast<T*>(m_assets.at(index).get());
-    if (asT == nullptr) return {};
+    if (asT == nullptr)
+      return {};
 
     return AssetHandle<T>{ *asT };
   }
@@ -110,21 +112,24 @@ public:
   template <typename T>
   bool tryLoadAsset(const std::filesystem::path& assetID)
   {
-    return isAssetLoaded(assetID) || tryReloadAsset<T>(assetID.string());
+    return isAssetLoaded(assetID) || tryReloadAsset<T>(assetID);
   }
 
   template <typename T>
   inline bool tryReloadAsset(const std::filesystem::path& assetID)
   {
-    auto asset = std::make_unique<T>();
-    if (!asset->load(_formatAssetId(assetID).string()))
+    auto                  asset        = std::make_unique<T>();
+    std::filesystem::path resolvedPath = _resolveVirtualPath(assetID);
+
+    if (!asset->load(resolvedPath.string()))
     {
       return false;
     }
 
+    std::filesystem::path formattedPath = _formatAssetId(assetID);
     decltype(m_assets)::iterator assetIt;
 
-    if (auto keyIt = m_keys.find(_formatAssetId(assetID));
+    if (auto keyIt = m_keys.find(formattedPath);
         keyIt != m_keys.end())
     {
       // Asset is already loaded
@@ -134,7 +139,7 @@ public:
     }
     else
     {
-      m_keys.insert({ _formatAssetId(assetID), m_assets.size() });
+      m_keys.insert({ formattedPath, m_assets.size() });
       assetIt = m_assets.emplace(m_assets.end());
     }
 
@@ -150,27 +155,25 @@ public:
    * @return true If the asset is loaded.
    * @return false If the asset is not loaded.
    */
-  bool isAssetLoaded(const std::filesystem::path& assetID)
-  {
-    return m_keys.contains(_formatAssetId(assetID));
-  }
+  bool isAssetLoaded(const std::filesystem::path& assetID);
 
 private:
 
-  AssetManager() = default;
+  AssetManager();
 
   void _clear();
 
   std::filesystem::path
-  _formatAssetId(const std::filesystem::path& assetID) const
-  {
-    return std::filesystem::relative(assetID);
-  }
+  _resolveVirtualPath(const std::filesystem::path& virtualPath) const;
+
+  std::filesystem::path
+  _formatAssetId(const std::filesystem::path& assetID) const;
 
 private:
 
   static std::unique_ptr<AssetManager> s_Instance;
 
+  VirtualDirectoriesEmulator                        m_virtualDirs;
   std::vector<std::unique_ptr<StaticAsset>>         m_assets;
   std::unordered_map<std::filesystem::path, size_t> m_keys;
 };
