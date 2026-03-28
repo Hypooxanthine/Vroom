@@ -1,6 +1,7 @@
 #pragma once
 
 #include <entt/entt.hpp>
+#include <utility>
 
 #include "Vroom/Api.h"
 #include "Vroom/Core/Assert.h"
@@ -89,6 +90,23 @@ namespace vrm
     {
       VRM_ASSERT_MSG(!hasComponent<T>(), "Entity already has component.");
       return getEnttRegistry().emplace<T>(m_Handle, std::forward<Args>(args)...);
+    }
+
+    /**
+     * @brief Get a component if it exists, or create it if not.
+     * 
+     * @tparam T The type of the component.
+     * @tparam Args The types of the arguments to pass to the component constructor.
+     * @param args The arguments to pass to the component constructor (discarded if the component already exists).
+     * @return T& The reference to the get/added component.
+     */
+    template<typename T, typename... Args>
+    T& getOrAddComponent(Args&&... args)
+    {
+      if (hasComponent<T>())
+        return getComponent<T>();
+      else
+        return addComponent<T>(std::forward<Args>(args)...);
     }
 
     template<typename T>
