@@ -124,7 +124,8 @@ bool TransformComponentData::deserialize(const json& j)
 void MeshComponentData::addToEntity(Entity& entity)
 {
   auto& mc = entity.addComponent<MeshComponent>();
-  mc.setMesh(AssetManager::Get().getAsset<MeshAsset>(resourceName));
+  if (!resourceName.empty())
+    mc.setMesh(AssetManager::Get().getAsset<MeshAsset>(resourceName));
   mc.setCastsShadow(this->castsShadow);
   mc.setVisible(this->visible);
 }

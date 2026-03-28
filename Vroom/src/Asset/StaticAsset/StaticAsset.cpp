@@ -2,16 +2,11 @@
 
 #include <filesystem>
 #include <algorithm>
-#include "Vroom/Core/Log.h"
 
 using namespace vrm;
 
 StaticAsset::~StaticAsset()
 {
-  if (getInstanceCount() > 0)
-  {
-    VRM_LOG_WARN("Static asset deleted but still referenced. Some handles are dangling!");
-  }
 }
 
 void StaticAsset::notifyNewInstance() const
