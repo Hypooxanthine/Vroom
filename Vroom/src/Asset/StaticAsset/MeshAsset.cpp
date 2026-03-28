@@ -32,7 +32,7 @@ void MeshAsset::addSubmesh(const MeshData& mesh, MaterialAsset::Handle instance)
 
 void MeshAsset::addSubmesh(const MeshData& mesh)
 {
-  MaterialAsset::Handle materialInstance = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/Mat_Default.asset");
+  MaterialAsset::Handle materialInstance = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/DefaultMaterial.json");
   m_SubMeshes.emplace_back(SubMesh(RenderMesh(mesh), MeshData(mesh), materialInstance));
 }
 
