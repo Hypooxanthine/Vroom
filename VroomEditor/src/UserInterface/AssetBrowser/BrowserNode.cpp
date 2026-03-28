@@ -16,7 +16,7 @@ BrowserNode::~BrowserNode()
 
 bool BrowserNode::ok() const
 {
-  return std::filesystem::exists(m_path) && std::filesystem::exists(m_root);
+  return m_path != "" && std::filesystem::exists(m_path) && std::filesystem::exists(m_root);
 }
 
 bool BrowserNode::isDirectory() const

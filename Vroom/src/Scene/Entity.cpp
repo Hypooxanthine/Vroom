@@ -116,8 +116,11 @@ ScriptComponent& Entity::addScriptComponent(ScriptComponentPtr&& script)
   VRM_ASSERT_MSG(!hasComponent<ScriptHandler>(), "Entity already has component.");
   auto& component = getEnttRegistry().emplace<ScriptHandler>(m_Handle, std::move(script));
   
+  // Setting up the entity
   component.getScript().setEntityHandle(m_Handle);
   component.getScript().setSceneRef(m_Scene);
+
+  component.getScript().onInit();
 
   if (m_Scene->hasSpawned())
   {

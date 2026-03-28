@@ -27,10 +27,35 @@ public:
   ScriptComponent& operator=(ScriptComponent&&)      = delete;
   virtual ~ScriptComponent()                         = default;
 
+  /**
+   * @brief Called when the script is created. The scene is not necessarly playing,
+   for example in the editor, when the script is added to an entity manually or when
+   a scene is loaded.
+   * 
+   */
+  virtual void onInit()
+  {}
+
+  /**
+   * @brief Called when the scene started playing or when the script
+   is added to an entity in a playing scene.
+   * 
+   */
   virtual void onSpawn()
   {}
+
+  /**
+   * @brief Called once per frame by a playing scene.
+   * 
+   * @param dt Ellapsed time since the last frame.
+   */
   virtual void onUpdate(const DeltaTime& dt)
   {}
+
+  /**
+   * @brief When the script is destroyed
+   * 
+   */
   virtual void onDestroy()
   {}
 
