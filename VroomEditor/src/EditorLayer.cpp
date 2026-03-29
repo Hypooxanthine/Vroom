@@ -17,6 +17,7 @@
 #include "Vroom/Asset/StaticAsset/SceneAsset.h"
 #include "Vroom/Core/Layer.h"
 #include "Vroom/Core/Profiling.h"
+#include "Vroom/Tools/Os.h"
 #include "Vroom/Render/DynamicRenderSettings.h"
 #include "Vroom/Render/RenderPipeline.h"
 #include "Vroom/Render/RenderSettings.h"
