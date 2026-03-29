@@ -6,7 +6,7 @@
 
 using namespace vrm;
 
-std::future<int> OS::RunInShell(const std::string& script, bool detach)
+std::future<int> OS::RunInShell(const std::string& script)
 {
   std::string shellCmd = "gnome-terminal -- bash -c \"" + script + "; exec bash\"";
 
