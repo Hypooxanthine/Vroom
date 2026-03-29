@@ -2,6 +2,7 @@
 
 #include <entt/entt.hpp>
 #include <utility>
+#include <list>
 
 #include "Vroom/Api.h"
 #include "Vroom/Core/Assert.h"
