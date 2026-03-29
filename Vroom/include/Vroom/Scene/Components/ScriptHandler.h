@@ -47,9 +47,8 @@ public:
 
     void replaceScript(ScriptComponentPtr newScript)
     {
-      handler.m_script = {};
-      
       handler.m_script = std::move(newScript);
+      handler.m_script->onInit();
     }
 
     ScriptHandler& handler;

@@ -1,10 +1,12 @@
 #include "VroomEditor/UserInterface/MainMenuBar.h"
+#include <future>
 #include <imgui.h>
 
 #include <Vroom/Core/Application.h>
 
 #include "VroomEditor/EditorLayer.h"
 
+#include "Vroom/Core/Log.h"
 #include "Vroom/Core/Profiling.h"
 
 using namespace vrm;
@@ -97,8 +99,33 @@ void MainMenuBar::onImgui()
     }
     if (ImGui::BeginMenu("Scripts"))
     {
-      if (ImGui::MenuItem("Build")) { EditorLayer::Get().buildScripts(); }
+      bool disableBuild = m_buildScriptRet.valid();
+
+      if (disableBuild)
+        ImGui::BeginDisabled();
+      {
+        if (ImGui::MenuItem("Build"))
+        {
+          m_buildScriptRet = EditorLayer::Get().buildScriptsAsync();
+        }
+      }
+      if (disableBuild)
+        ImGui::EndDisabled();
+
       if (ImGui::MenuItem("Reload")) { EditorLayer::Get().reloadScripts(); }
+      
+      if (disableBuild)
+        ImGui::BeginDisabled();
+
+      {
+        if (ImGui::MenuItem("Build & Reload"))
+        {
+          m_buildScriptRet = EditorLayer::Get().buildAndReloadAsync();
+        }
+      }
+      if (disableBuild)
+        ImGui::EndDisabled();
+
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Help"))
@@ -117,5 +144,18 @@ void MainMenuBar::onImgui()
   {
     ImGui::Text("This feature is not implemented yet.");
     ImGui::EndPopup();
+  }
+}
+
+void MainMenuBar::onUpdate(const DeltaTime& dt)
+{
+  if (m_buildScriptRet.valid() && m_buildScriptRet.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+  {
+    if (!m_buildScriptRet.get())
+    {
+      VRM_LOG_ERROR("The build command has failed");
+    }
+
+    m_buildScriptRet = {};
   }
 }

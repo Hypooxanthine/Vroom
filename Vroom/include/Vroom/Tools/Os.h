@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vroom/Api.h"
+#include <future>
 #include <string>
 
 namespace vrm
@@ -10,9 +11,9 @@ namespace vrm
   {
   public:
 
-    static void Run(const std::string& command, bool detach);
+    [[nodiscard]] static std::future<int> Run(const std::string& command);
 
-    static void RunInShell(const std::string& script, bool detach);
+    [[nodiscard]] static std::future<int> RunInShell(const std::string& script);
 
   };
 

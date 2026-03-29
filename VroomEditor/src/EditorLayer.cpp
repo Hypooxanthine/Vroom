@@ -1,6 +1,7 @@
 #include "VroomEditor/EditorLayer.h"
 #include <filesystem>
 #include <fstream>
+#include <future>
 
 #include <Vroom/Asset/Parsing/SceneParsing.h>
 #include <Vroom/Core/Application.h>
@@ -14,13 +15,13 @@
 
 #include "Vroom/Asset/AssetManager.h"
 #include "Vroom/Asset/StaticAsset/SceneAsset.h"
+#include "Vroom/Core/Layer.h"
 #include "Vroom/Core/Profiling.h"
 #include "Vroom/Render/DynamicRenderSettings.h"
 #include "Vroom/Render/RenderPipeline.h"
 #include "Vroom/Render/RenderSettings.h"
 #include "Vroom/Scene/Scene.h"
 #include "Vroom/Scene/Scripting/ScriptEngine.h"
-#include "Vroom/Tools/Os.h"
 
 #ifdef VRM_RUNTIME_SCRIPTS_PATH
 static const std::filesystem::path g_scriptLibraryPath = VRM_RUNTIME_SCRIPTS_PATH;
@@ -127,7 +128,7 @@ void EditorLayer::saveScene()
 void EditorLayer::importFile(const std::filesystem::path& file)
 {}
 
-void EditorLayer::buildScripts()
+std::future<bool> EditorLayer::buildScriptsAsync()
 {
 #ifndef VRM_PLATFORM_WINDOWS
   // Only tested on Windows
@@ -144,11 +145,21 @@ void EditorLayer::buildScripts()
 #elif !defined(VRM_BUILD_DIR)
   VRM_LOG_WARN("Aborted: build dir not set");
   return;
+#elif !defined(VRM_SCRIPT_LIBRARY_TARGET_NAME)
+  VRM_LOG_WARN("Aborted: script library target name not set");
+  std::promise<bool> promise;
+  promise.set_value(false);
+  return promise.get_future();
 #else  
-  std::string cmd = std::format("cmd.exe /C \"\"{}\" \"{}\" \"{}\"\"", VRM_SCRIPT_BUILDER_CMD, VRM_CMAKE_CMD, VRM_BUILD_DIR);
+  std::string cmd = std::format("cmd.exe /C \"\"{}\" \"{}\" \"{}\" \"{}\"\"", VRM_SCRIPT_BUILDER_CMD, VRM_CMAKE_CMD, VRM_BUILD_DIR, VRM_SCRIPT_LIBRARY_TARGET_NAME);
 
   VRM_LOG_INFO("Running command \"{}\"", cmd);
-  OS::Run(cmd, true);
+  return std::async([](const std::string& command){
+    std::future<int> ret = OS::Run(command);
+    ret.wait();
+    return ret.get() == 0;
+  }, cmd);
+
 #endif
 }
 
@@ -161,6 +172,25 @@ void EditorLayer::reloadScripts()
 #endif
 
   _loadScriptsRuntimeLibrary();
+}
+
+std::future<bool> EditorLayer::buildAndReloadAsync()
+{
+  return std::async([this](){
+    std::future<bool> buildRes = buildScriptsAsync();
+    buildRes.wait();
+
+    bool buildOk = buildRes.get();
+
+    if (buildOk)
+    {
+      pushFrameEndRoutine([this](Layer& layer){
+        reloadScripts();
+      });
+    }
+
+    return buildOk;
+  });
 }
 
 void EditorLayer::onInit()

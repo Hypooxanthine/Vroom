@@ -1,5 +1,6 @@
 #pragma once
 
+#include <future>
 #include <Vroom/Core/Layer.h>
 #include <Vroom/Event/CustomEvent/CustomEventManager.h>
 #include <Vroom/Event/Trigger/TriggerManager.h>
@@ -39,8 +40,9 @@ public:
 
   void importFile(const std::filesystem::path& file);
 
-  void buildScripts();
+  [[nodiscard]] std::future<bool> buildScriptsAsync();
   void reloadScripts();
+  [[nodiscard]] std::future<bool> buildAndReloadAsync();
 
   inline const CameraBasic& getCurrentCamera() const { return m_EditorCamera;}
 

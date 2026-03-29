@@ -39,6 +39,7 @@ endfunction()
 function(set_scripts_library SCRIPTS_TARGET_NAME)
 
   target_compile_definitions(VroomEditor
+    PRIVATE VRM_SCRIPT_LIBRARY_TARGET_NAME="${SCRIPTS_TARGET_NAME}"
     PRIVATE VRM_RUNTIME_SCRIPTS_PATH="$<TARGET_FILE:${SCRIPTS_TARGET_NAME}>"
   )
   
