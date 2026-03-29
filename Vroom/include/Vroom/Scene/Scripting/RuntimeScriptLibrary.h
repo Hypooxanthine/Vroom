@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <filesystem>
+#include <vector>
 #include <unordered_map>
 
 #include "Vroom/Scene/Components/ScriptComponent.h"
@@ -57,9 +58,10 @@ public:
 
   inline bool scriptExists(const std::string& scriptName) const
   {
-    assert(isLoaded());
-    return m_scriptsData.contains(scriptName);
+    return isLoaded() && m_scriptsData.contains(scriptName);
   }
+
+  std::vector<std::string> getScriptNames() const;
 
 private:
 

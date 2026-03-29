@@ -9,6 +9,7 @@
 #include "Vroom/Asset/StaticAsset/CubemapAsset.h"
 #include "Vroom/Asset/StaticAsset/MaterialAsset.h"
 #include "Vroom/Asset/StaticAsset/MeshAsset.h"
+#include "Vroom/Asset/StaticAsset/ScriptAsset.h"
 #include "misc/cpp/imgui_stdlib.h"
 
 namespace vrm
@@ -47,6 +48,7 @@ private:
 using MeshSelector     = AssetSelector<MeshAsset>;
 using MaterialSelector = AssetSelector<MaterialAsset>;
 using CubemapSelector  = AssetSelector<CubemapAsset>;
+using ScriptSelector   = AssetSelector<ScriptAsset>;
 
 template <typename SelectorType>
 struct AssetSelectorTraits;
@@ -75,6 +77,16 @@ struct AssetSelectorTraits<CubemapAsset>
   static consteval const char* GetDragDropTargetName()
   {
     return "CubemapAsset";
+  }
+};
+
+template <>
+struct AssetSelectorTraits<ScriptAsset>
+{
+  static consteval const char* GetDisplayName() { return "Script"; }
+  static consteval const char* GetDragDropTargetName()
+  {
+    return "ScriptAsset";
   }
 };
 

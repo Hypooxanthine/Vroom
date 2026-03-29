@@ -1,5 +1,7 @@
 #include "Vroom/Scene/Scripting/RuntimeScriptLibrary.h"
 
+#include <algorithm>
+
 #include "Vroom/Core/Log.h"
 #include "Vroom/Scene/Components/ScriptComponent.h"
 #include "Vroom/Tools/RuntimeLibrary.h"
@@ -96,4 +98,18 @@ void RuntimeScriptLibrary::_destroyScript(ScriptComponent* script) const
     m_scriptDestructor(script);
     --m_instanceCount;
   }
+}
+
+std::vector<std::string> RuntimeScriptLibrary::getScriptNames() const
+{
+  std::vector<std::string> names;
+  names.reserve(m_scriptsData.size());
+
+  for (const auto& [scriptName, data] : m_scriptsData)
+  {
+    names.emplace_back(scriptName);
+  }
+
+  std::sort(names.begin(), names.end());
+  return names;
 }

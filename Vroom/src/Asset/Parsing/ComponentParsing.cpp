@@ -6,6 +6,7 @@
 #include "Vroom/Scene/Components/DirectionalLightComponent.h"
 #include "Vroom/Scene/Components/MeshComponent.h"
 #include "Vroom/Scene/Components/PointLightComponent.h"
+#include "Vroom/Scene/Components/ScriptHandler.h"
 #include "Vroom/Scene/Components/SkyboxComponent.h"
 #include "Vroom/Scene/Components/TransformComponent.h"
 #include "Vroom/Scene/Entity.h"
@@ -501,6 +502,12 @@ bool PointLightComponentData::deserialize(const json& j)
 
 void ScriptComponentData::addToEntity(Entity& entity)
 {
+  if (resourceName.empty())
+  {
+    entity.addComponent<ScriptHandler>();
+    return;
+  }
+
   VRM_CHECK_MSG(ScriptEngine::Get().isScriptRegistered(resourceName), "Script {} is not registered", resourceName);
   ScriptComponentPtr sc = ScriptEngine::Get().createScriptComponent(resourceName);
   entity.addScriptComponent(std::move(sc));
@@ -508,8 +515,15 @@ void ScriptComponentData::addToEntity(Entity& entity)
 
 void ScriptComponentData::getFromEntity(const Entity& entity)
 {
-  const auto& sc     = entity.getScriptComponent();
-  this->resourceName = sc.getScriptName();
+  const auto& scriptHandler = entity.getComponent<ScriptHandler>();
+  if (scriptHandler.hasScript())
+  {
+    this->resourceName = scriptHandler.getScript().getScriptName();
+  }
+  else
+  {
+    this->resourceName.clear();
+  }
 }
 
 json ScriptComponentData::serialize() const

@@ -123,6 +123,12 @@ public:
     auto                  asset        = std::make_unique<T>();
     std::filesystem::path resolvedPath = _resolveVirtualPath(assetID);
 
+    if (resolvedPath.empty())
+    {
+      // Some asset types are identified by IDs rather than filesystem paths.
+      resolvedPath = assetID;
+    }
+
     if (!asset->load(resolvedPath.string()))
     {
       return false;

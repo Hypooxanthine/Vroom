@@ -75,6 +75,14 @@ ScriptComponentPtr ScriptEngine::createScriptComponent(const std::string& script
   return script;
 }
 
+std::vector<std::string> ScriptEngine::getRegisteredScriptIds() const
+{
+  if (!m_library->isLoaded())
+    return {};
+
+  return m_library->getScriptNames();
+}
+
 std::filesystem::path ScriptEngine::_copyLibraryFile(const std::filesystem::path& libPath) const
 {
   std::filesystem::path copiedLibPath = std::tmpnam(nullptr);
@@ -157,6 +165,9 @@ bool ScriptEngine::_checkLibCompatible(const RuntimeScriptLibrary& lib) const
   {
     auto& scriptHandler = scriptHandlersView.get<ScriptHandler>(entity);
 
+    if (!scriptHandler.hasScript())
+      continue;
+
     if (!_checkScriptsCompatibles(scriptHandler.getScript(), lib))
       return false;
   }
@@ -178,6 +189,9 @@ void ScriptEngine::_refreshLoadedScriptsUncheck(const RuntimeScriptLibrary& newL
   for (auto entity : scriptHandlersView)
   {
     auto& handler = scriptHandlersView.get<ScriptHandler>(entity);
+
+    if (!handler.hasScript())
+      continue;
 
     ScriptComponentPtr newScript = newLib.createScript(handler.getScript().getScriptName());
 

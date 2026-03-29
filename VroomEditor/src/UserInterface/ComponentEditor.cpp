@@ -6,6 +6,7 @@
 #include <Vroom/Asset/AssetManager.h>
 #include <Vroom/Asset/StaticAsset/CubemapAsset.h>
 #include <Vroom/Asset/StaticAsset/MeshAsset.h>
+#include <Vroom/Asset/StaticAsset/ScriptAsset.h>
 #include <Vroom/Scene/Scene.h>
 
 #include "imgui.h"
@@ -83,6 +84,8 @@ void ComponentEditor::EditEntity(Entity& e)
     AddComponentItem<PointLightComponent>(e, "Point light");
     AddComponentItem<MeshComponent>(e, "Mesh");
     AddComponentItem<SkyboxComponent>(e, "Skybox");
+
+    AddComponentItem<ScriptHandler>(e, "Script");
 
     ImGui::EndCombo();
   }
@@ -345,7 +348,7 @@ void MeshComponentEditor::editEntityComponent(Entity& e) const
     component.setCastsShadow(castsShadow);
 }
 
-VRM_REGISTER_COMPONENT_EDITOR(SkyboxComponent, "Skybox component", false)
+VRM_REGISTER_COMPONENT_EDITOR(SkyboxComponent, "Skybox component", true)
 void SkyboxComponentEditor::editEntityComponent(Entity& e) const
 {
   auto& component = get(e);
@@ -355,5 +358,43 @@ void SkyboxComponentEditor::editEntityComponent(Entity& e) const
   if (selector.getChanged())
   {
     component.setCubemapAsset(selector.getAsset());
+  }
+}
+
+VRM_REGISTER_COMPONENT_EDITOR(ScriptHandler, "Script component", true)
+void ScriptHandlerEditor::editEntityComponent(Entity& e) const
+{
+  auto& component = get(e);
+
+  const bool        hasScript       = component.hasScript();
+  const std::string currentScriptId = hasScript ? component.getScript().getScriptName() : "";
+  ScriptAsset::Handle selectedScript{};
+  if (hasScript)
+  {
+    selectedScript = AssetManager::Get().tryGetAsset<ScriptAsset>(currentScriptId);
+  }
+
+  ScriptSelector selector(selectedScript);
+  selector.renderImgui();
+
+  if (selector.getChanged())
+  {
+    auto selectedScriptAsset = selector.getAsset();
+    if (selectedScriptAsset.isValid())
+    {
+      const std::string requestedScriptId = selectedScriptAsset->getScriptId();
+      if (requestedScriptId != currentScriptId)
+      {
+        Entity targetEntity = e;
+        EditorLayer::Get().pushFrameEndRoutine(
+          [targetEntity, requestedScriptId](auto&) mutable {
+            if (!targetEntity.isValid() || !targetEntity.hasComponent<ScriptHandler>())
+              return;
+
+            targetEntity.removeComponent<ScriptHandler>();
+            targetEntity.addScriptComponent(requestedScriptId);
+          });
+      }
+    }
   }
 }

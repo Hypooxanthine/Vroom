@@ -115,6 +115,8 @@ ScriptComponent& Entity::addScriptComponent(ScriptComponentPtr&& script)
 {
   VRM_ASSERT_MSG(!hasComponent<ScriptHandler>(), "Entity already has component.");
   auto& component = getEnttRegistry().emplace<ScriptHandler>(m_Handle, std::move(script));
+
+  VRM_ASSERT_MSG(component.hasScript(), "Cannot add an empty script through addScriptComponent. Use ScriptHandler component directly.");
   
   // Setting up the entity
   component.getScript().setEntityHandle(m_Handle);

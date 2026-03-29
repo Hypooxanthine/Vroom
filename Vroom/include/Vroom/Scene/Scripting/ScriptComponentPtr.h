@@ -2,13 +2,15 @@
 
 #include <memory>
 
+#include "Vroom/Api.h"
+
 namespace vrm
 {
 
 class ScriptComponent;
 class RuntimeScriptLibrary;
 
-struct ScriptDeleter
+struct VRM_API ScriptDeleter
 {
   const RuntimeScriptLibrary* owner = nullptr;
 

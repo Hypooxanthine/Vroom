@@ -50,7 +50,10 @@ void Scene::update(const DeltaTime& dt)
   for (auto entity : viewScripts)
   {
     auto& scriptHandler = viewScripts.get<ScriptHandler>(entity);
-    scriptHandler.getScript().onUpdate(dt);
+    if (scriptHandler.hasScript())
+    {
+      scriptHandler.getScript().onUpdate(dt);
+    }
   }
 }
 
@@ -142,7 +145,11 @@ void Scene::spawn()
   {
     if (current.hasScriptComponent())
     {
-      current.getScriptComponent().onSpawn();
+      auto& scriptHandler = current.getComponent<ScriptHandler>();
+      if (scriptHandler.hasScript())
+      {
+        scriptHandler.getScript().onSpawn();
+      }
     }
 
     return true;
@@ -315,7 +322,14 @@ void Scene::destroyEntityRecursive(Entity entity)
 
   for (auto child : children) { destroyEntityRecursive(child); }
 
-  if (entity.hasScriptComponent()) { entity.getScriptComponent().onDestroy(); }
+  if (entity.hasScriptComponent())
+  {
+    auto& scriptHandler = entity.getComponent<ScriptHandler>();
+    if (scriptHandler.hasScript())
+    {
+      scriptHandler.getScript().onDestroy();
+    }
+  }
 
   m_EntitiesByName.erase(entity.getName());
   m_Registry.destroy(entity);

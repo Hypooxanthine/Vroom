@@ -7,6 +7,7 @@
 #include "VroomEditor/EditorLayer.h"
 #include "VroomEditor/Import/ModelImporter.h"
 #include "VroomEditor/UserInterface/AssetBrowser/AssetParentDir.h"
+#include "VroomEditor/UserInterface/AssetBrowser/AssetFileScriptAsset.h"
 #include "VroomEditor/UserInterface/AssetBrowser/AssetUtils.h"
 #include "VroomEditor/UserInterface/AssetBrowser/BrowserNode.h"
 #include "VroomEditor/UserInterface/OSFileDrop.h"
@@ -15,6 +16,7 @@
 #include "Vroom/Asset/Parsing/SceneParsing.h"
 #include "Vroom/Core/Log.h"
 #include "Vroom/Scene/Scene.h"
+#include "Vroom/Scene/Scripting/ScriptEngine.h"
 #include "nlohmann/json_fwd.hpp"
 
 using namespace vrm;
@@ -108,6 +110,18 @@ void AssetBrowser::updateDirectoryContent()
   m_Assets.reserve(m_Assets.size() + dirs.size() + files.size());
   for (auto&& elem : dirs) m_Assets.emplace_back(std::move(elem));
   for (auto&& elem : files) m_Assets.emplace_back(std::move(elem));
+
+  if (!m_currentNode.ok())
+  {
+    const auto scriptIds = ScriptEngine::Get().getRegisteredScriptIds();
+    m_Assets.reserve(m_Assets.size() + scriptIds.size());
+
+    for (const auto& scriptId : scriptIds)
+    {
+      std::filesystem::path virtualPath = scriptId;
+      m_Assets.emplace_back(std::make_unique<AssetFileScriptAsset>(virtualPath));
+    }
+  }
 
   for (auto& elem : m_Assets) elem->setBrowser(this);
 }

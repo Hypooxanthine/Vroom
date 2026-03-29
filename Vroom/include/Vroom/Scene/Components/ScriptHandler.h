@@ -3,6 +3,7 @@
 #include <memory>
 #include <utility>
 
+#include "Vroom/Core/Assert.h"
 #include "Vroom/Scene/Components/ScriptComponent.h"
 #include "Vroom/Scene/Scripting/ScriptComponentPtr.h"
 #include "Vroom/Scene/Scripting/ScriptEngine.h"
@@ -14,6 +15,7 @@ class ScriptHandler
 {
 public:
 
+  ScriptHandler() = default;
   ScriptHandler(ScriptComponentPtr&& script) : m_script(std::move(script))
   {}
 
@@ -23,12 +25,19 @@ public:
   ScriptHandler& operator=(ScriptHandler&&)      = delete;
   virtual ~ScriptHandler()                       = default;
 
+  bool hasScript() const
+  {
+    return m_script != nullptr;
+  }
+
   ScriptComponent& getScript()
   {
+    VRM_ASSERT_MSG(hasScript(), "ScriptHandler has no script assigned.");
     return *m_script;
   }
   const ScriptComponent& getScript() const
   {
+    VRM_ASSERT_MSG(hasScript(), "ScriptHandler has no script assigned.");
     return *m_script;
   }
 
@@ -48,7 +57,10 @@ public:
     void replaceScript(ScriptComponentPtr newScript)
     {
       handler.m_script = std::move(newScript);
-      handler.m_script->onInit();
+      if (handler.m_script != nullptr)
+      {
+        handler.m_script->onInit();
+      }
     }
 
     ScriptHandler& handler;

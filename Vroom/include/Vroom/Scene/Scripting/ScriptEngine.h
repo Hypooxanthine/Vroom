@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "Vroom/Api.h"
 #include "Vroom/Scene/Scripting/RuntimeScriptLibrary.h"
@@ -26,8 +27,10 @@ public:
 
   inline bool isScriptRegistered(const std::string& scriptId) const
   {
-    return m_library->scriptExists(scriptId);
+    return m_library->isLoaded() && m_library->scriptExists(scriptId);
   }
+
+  std::vector<std::string> getRegisteredScriptIds() const;
 
   [[nodiscard]] ScriptComponentPtr createScriptComponent(const std::string& scriptName) const;
 
