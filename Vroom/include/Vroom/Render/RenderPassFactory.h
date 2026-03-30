@@ -18,7 +18,7 @@ public:
 };
 
 template <typename T>
-class DefaultRenderPassFactory : RenderPassFactory
+class DefaultRenderPassFactory : public RenderPassFactory
 {
 public:
 
