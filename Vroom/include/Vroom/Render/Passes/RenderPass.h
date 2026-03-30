@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "Vroom/Api.h"
 #include "Vroom/Render/RenderViewport.h"
 #include "Vroom/Render/MaterialDefines.h"
 #include "Vroom/Render/PassMaterials.h"
@@ -20,7 +21,7 @@ namespace vrm
   struct RenderPassContext;
   class CameraBasic;
 
-  class RenderPass
+  class VRM_API RenderPass
   {
   public:
     RenderPass();
