@@ -74,6 +74,11 @@ add_library(Vroom                   SHARED  ${SOURCES} ${HEADERS})
 target_include_directories(Vroom    PUBLIC  ${VENDOR_DIR} ${INCLUDE_DIR})
 target_link_libraries(Vroom                 ${LIBRARIES})
 target_compile_definitions(Vroom PRIVATE "VRM_TARGET_VROOM")
+
+# Enable glm experimental features for all projects
+target_compile_definitions(Vroom        PUBLIC GLM_ENABLE_EXPERIMENTAL=1)
+target_compile_definitions(Vroom_static PUBLIC GLM_ENABLE_EXPERIMENTAL=1)
+
 if(UNIX)
   target_compile_options(Vroom PRIVATE -fvisibility=hidden)
 endif()

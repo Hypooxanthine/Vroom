@@ -38,9 +38,6 @@ add_compile_definitions(
   $<$<CONFIG:Release>:VRM_RELEASE>
 )
 
-# Enable glm experimental features for all projects
-add_compile_definitions(GLM_ENABLE_EXPERIMENTAL=1)
-
 # Visual Studio specific settings
 if (CMAKE_GENERATOR MATCHES "Visual Studio")
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT VroomEditor)
