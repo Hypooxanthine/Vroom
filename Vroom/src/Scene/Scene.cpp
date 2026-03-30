@@ -325,6 +325,9 @@ void Scene::destroyEntityRecursive(Entity entity)
   if (entity.hasScriptComponent())
   {
     auto& scriptHandler = entity.getComponent<ScriptHandler>();
+
+    // Destroying the script first (not doign it in the destructor of ScriptComponent):
+    // it will have the context of its entity untouched to do whatever it wants.
     if (scriptHandler.hasScript())
     {
       scriptHandler.getScript().onDestroy();

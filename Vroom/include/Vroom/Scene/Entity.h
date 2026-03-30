@@ -248,6 +248,13 @@ namespace vrm
     void removeComponentInternal()
     {
       VRM_ASSERT_MSG(hasComponent<T>(), "Entity does not have component.");
+
+      if constexpr (std::is_same_v<T, ScriptHandler>)
+      {
+        auto handler = getComponent<T>();
+        if (handler.hasScript())
+          handler.getScript().onDestroy();
+      }
       getEnttRegistry().remove<T>(m_Handle);
     }
 
