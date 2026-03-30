@@ -251,7 +251,7 @@ namespace vrm
 
       if constexpr (std::is_same_v<T, ScriptHandler>)
       {
-        auto handler = getComponent<T>();
+        auto& handler = getComponent<T>();
         if (handler.hasScript())
           handler.getScript().onDestroy();
       }

@@ -1,108 +1,155 @@
 #pragma once
 
+#include <array>
+#include <cstddef>
+
 #include "Vroom/Api.h"
-#include "Vroom/Render/ParticleEmitterRegistry.h"
-#include "Vroom/Render/Passes/RenderPassManager.h"
-#include "Vroom/Render/RenderResources.h"
 #include "Vroom/Render/DynamicRenderSettings.h"
+#include "Vroom/Render/ParticleEmitterRegistry.h"
+#include "Vroom/Render/Passes/CustomPassSlot.h"
+#include "Vroom/Render/Passes/RenderPassManager.h"
+#include "Vroom/Render/RenderPassFactory.h"
+#include "Vroom/Render/RenderResources.h"
 #include "Vroom/Render/RenderSettings.h"
 
 namespace vrm
 {
 
-  class MeshRegistry;
-  class LightRegistry;
-  class RenderSkybox;
+class MeshRegistry;
+class LightRegistry;
+class RenderSkybox;
 
-  // This should definitely become a RenderScene
-  // It will probably be needed when the engine will support culling.
-  struct RenderPipelineContext
+// This should definitely become a RenderScene
+// It will probably be needed when the engine will support culling.
+struct RenderPipelineContext
+{
+  MeshRegistry*            meshes           = nullptr;
+  LightRegistry*           lights           = nullptr;
+  RenderSkybox*            skybox           = nullptr;
+  ParticleEmitterRegistry* particleEmitters = nullptr;
+};
+
+class VRM_API RenderPipeline
+{
+public:
+
+  friend struct RendererAttorney;
+
+  enum class ECustomSlot
   {
-    MeshRegistry* meshes = nullptr;
-    LightRegistry* lights = nullptr;
-    RenderSkybox* skybox = nullptr;
-    ParticleEmitterRegistry* particleEmitters = nullptr;
+    eFirst = 0,
+    ePostRenderScene,
+    eEnd,
+    eCount
   };
 
-  class VRM_API RenderPipeline
+public:
+
+  RenderPipeline();
+  ~RenderPipeline();
+
+  RenderPipeline& operator=(const RenderPipeline& other) = delete;
+  RenderPipeline(const RenderPipeline& other)            = delete;
+
+  RenderPipeline& operator=(RenderPipeline&& other) = delete;
+  RenderPipeline(RenderPipeline&& other)            = delete;
+
+  inline void setContext(const RenderPipelineContext& context)
   {
-  public:
+    m_context = context;
+  }
 
-    friend struct RendererAttorney;
+  void generateIfDirty();
+  void generate();
+  void execute(RenderPassContext& context);
 
-  public:
+  void addCustomPass(ECustomSlot slot, std::unique_ptr<RenderPassFactory>&& passFactory);
 
-    RenderPipeline();
-    ~RenderPipeline();
-    
-    RenderPipeline& operator=(const RenderPipeline& other) = delete;
-    RenderPipeline(const RenderPipeline& other) = delete;
-    
-    RenderPipeline& operator=(RenderPipeline&& other) = delete;
-    RenderPipeline(RenderPipeline&& other) = delete;
+  void        setRenderSettings(const RenderSettings& settings);
+  inline void setDynamicRenderSettings(const DynamicRenderSettings& settings)
+  {
+    m_dynamicSettings = settings;
+  }
 
-    inline void setContext(const RenderPipelineContext& context) { m_context = context; }
-    
-    void generateIfDirty();
-    void generate();
-    void execute(RenderPassContext& context);
+  inline const RenderSettings& getRenderSettings() const
+  {
+    return m_renderSettings;
+  }
+  inline const DynamicRenderSettings& getDynamicRenderSettings() const
+  {
+    return m_dynamicSettings;
+  }
 
-    void setRenderSettings(const RenderSettings& settings);
-    inline void setDynamicRenderSettings(const DynamicRenderSettings& settings) { m_dynamicSettings = settings; }
+  const gl::Texture* getRenderedTexture() const
+  {
+    return m_finalTexture;
+  }
 
-    inline const RenderSettings& getRenderSettings() const { return m_renderSettings; }
-    inline const DynamicRenderSettings& getDynamicRenderSettings() const { return m_dynamicSettings; }
+  const std::vector<std::string>& getExposedTextureNames() const
+  {
+    return m_resources.getExposedTextures();
+  }
+  void               watchExposedTexture(const std::string& name);
+  const std::string& getWatchedTexture() const
+  {
+    return m_watchedTexture;
+  }
 
-    const gl::Texture* getRenderedTexture() const { return m_finalTexture; }
-    
-    const std::vector<std::string>& getExposedTextureNames() const { return m_resources.getExposedTextures(); }
-    void watchExposedTexture(const std::string& name);
-    const std::string& getWatchedTexture() const { return m_watchedTexture; }
+  void     setEntityPickingEnabled(bool enabled = true);
+  uint32_t getEntityIndexOnPixel(const glm::ivec2& px) const;
 
-    void setEntityPickingEnabled(bool enabled = true);
-    uint32_t getEntityIndexOnPixel(const glm::ivec2& px) const;
+public:
 
-  public:
+  struct RendererAttorney
+  {
+    friend RenderPipeline;
+    friend class Renderer;
 
-    struct RendererAttorney
+  private:
+
+    RendererAttorney(RenderPipeline& pipeline) : pipeline(pipeline)
+    {}
+
+    RenderPipeline& pipeline;
+
+    inline void setFrameSize(const glm::uvec2& frameSize)
     {
-      friend RenderPipeline;
-      friend class Renderer;
-
-    private:
-      RendererAttorney(RenderPipeline& pipeline) : pipeline(pipeline) {}
-
-      RenderPipeline& pipeline;
-
-      inline void setFrameSize(const glm::uvec2& frameSize) { pipeline.m_renderSettings.frameSize = frameSize; pipeline.m_dirty = true; }
-    };
-
-    inline RendererAttorney getRendererAttorney() { return RendererAttorney(*this); }
-
-  private:
-
-    void _updateFinalTextureWithWatched();
-
-  private:
-
-    RenderPassManager m_passManager;    
-    
-    RenderPipelineContext m_context;
-    RenderSettings m_renderSettings;
-    DynamicRenderSettings m_dynamicSettings;
-    
-    RenderResources m_resources;
-    gl::Texture* m_finalTexture = nullptr;
-    gl::FrameBuffer* m_renderFrameBuffer = nullptr;
-
-    // Optional: m_finalTexture will point to the watched texture, if asked
-    // --> useful to visualize an intermediate texture resource of the pipeline
-    std::string m_watchedTexture = "";
-
-    bool m_entityPickingEnabled = true;
-
-    bool m_dirty = true;
-
+      pipeline.m_renderSettings.frameSize = frameSize;
+      pipeline.m_dirty                    = true;
+    }
   };
 
-}
+  inline RendererAttorney getRendererAttorney()
+  {
+    return RendererAttorney(*this);
+  }
+
+private:
+
+  void _pushCustomPasses(ECustomSlot slot);
+  void _updateFinalTextureWithWatched();
+
+private:
+
+  std::array<CustomPassSlot, (size_t)ECustomSlot::eCount> m_customPasses;
+
+  RenderPassManager m_passManager;
+
+  RenderPipelineContext m_context;
+  RenderSettings        m_renderSettings;
+  DynamicRenderSettings m_dynamicSettings;
+
+  RenderResources  m_resources;
+  gl::Texture*     m_finalTexture      = nullptr;
+  gl::FrameBuffer* m_renderFrameBuffer = nullptr;
+
+  // Optional: m_finalTexture will point to the watched texture, if asked
+  // --> useful to visualize an intermediate texture resource of the pipeline
+  std::string m_watchedTexture = "";
+
+  bool m_entityPickingEnabled = true;
+
+  bool m_dirty = true;
+};
+
+} // namespace vrm

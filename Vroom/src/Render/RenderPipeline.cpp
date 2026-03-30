@@ -1,4 +1,6 @@
 #include "Vroom/Render/RenderPipeline.h"
+#include <cstddef>
+#include <memory>
 #include "Vroom/Render/Abstraction/GLCore.h"
 #include "Vroom/Render/Passes/BlitFrameBufferPass.h"
 #include "Vroom/Render/Passes/ClearFrameBufferPass.h"
@@ -9,6 +11,7 @@
 #include "Vroom/Render/Passes/RenderSkyboxPass.h"
 #include "Vroom/Render/Passes/ShadowMappingPass.h"
 #include "Vroom/Render/Passes/ToneMappingPass.h"
+#include "Vroom/Render/RenderPassFactory.h"
 
 using namespace vrm;
 
@@ -45,6 +48,9 @@ void RenderPipeline::generate()
   auto aa = m_renderSettings.antiAliasingLevel;
   bool aaOK = (aa != 0 && ((aa & (aa - 1)) == 0));
   VRM_ASSERT_MSG(aaOK, "Invalid antialiasing value: {}", aa);
+  
+  // First custom passes
+  _pushCustomPasses(ECustomSlot::eFirst);
 
   // Render frame buffer
   {
@@ -187,6 +193,8 @@ void RenderPipeline::generate()
       pass.storageBufferParameters.emplace_back("LightMatricesBlock", &m_resources.tryGetAutoBuffer("LightMatricesStorageBuffer")->getBuffer());
     }
   }
+
+  _pushCustomPasses(ECustomSlot::ePostRenderScene);
 
   // Skybox
   {
@@ -376,6 +384,8 @@ void RenderPipeline::generate()
     }
   }
 
+  _pushCustomPasses(ECustomSlot::eEnd);
+
   _updateFinalTextureWithWatched();
 
   m_passManager.init();
@@ -421,6 +431,12 @@ uint32_t RenderPipeline::getEntityIndexOnPixel(const glm::ivec2& px) const
   return pixel;
 }
 
+void RenderPipeline::addCustomPass(ECustomSlot slot, std::unique_ptr<RenderPassFactory>&& passFactory)
+{
+  m_customPasses.at((size_t)slot).pushPass(std::move(passFactory));
+  m_dirty = true;
+}
+
 void RenderPipeline::setRenderSettings(const RenderSettings& settings)
 {
   if (settings != m_renderSettings)
@@ -438,6 +454,14 @@ void RenderPipeline::watchExposedTexture(const std::string& name)
   m_watchedTexture = name;
 
   _updateFinalTextureWithWatched();
+}
+
+void RenderPipeline::_pushCustomPasses(ECustomSlot slot)
+{
+  for (const std::unique_ptr<RenderPassFactory>& factory : m_customPasses.at((size_t)slot))
+  {
+    m_passManager.pushPass(factory->createPass());
+  }
 }
 
 void RenderPipeline::_updateFinalTextureWithWatched()
