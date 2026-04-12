@@ -1,5 +1,7 @@
 project(vendor)
 
+include(FetchContent)
+
 # ----- STB_IMAGE -----
 
 add_library(
@@ -13,3 +15,11 @@ target_include_directories(
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/stb_image/include
 )
+
+# ----- Nlohmann::json -----
+
+FetchContent_Declare(
+  json
+  URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+)
+FetchContent_MakeAvailable(json)

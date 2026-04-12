@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
-#include <Vroom/Asset/StaticAsset/MeshAsset.h>
-#include <Vroom/Asset/AssetManager.h>
-#include <Vroom/Core/Application.h>
+#include <AssetManager/MeshAsset.h>
+#include <AssetManager/AssetManager.h>
+#include <Application/Application.h>
+#include <RenderObjects/Mesh.h>
 
 #include <fstream>
 
@@ -76,5 +77,5 @@ TEST_F(TestMeshAsset, LoadObjCorrect)
 TEST_F(TestMeshAsset, GetRenderMesh)
 {
     meshAsset->load(pathOK);
-    EXPECT_NO_THROW(const vrm::RenderMesh& renderMesh = meshAsset->getSubMeshes().begin()->renderMesh;);
+    EXPECT_NO_THROW(const vrm::render::Mesh& renderMesh = meshAsset->getSubMeshes().begin()->renderMesh;);
 }

@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <glm/glm.hpp>
-#include <Vroom/Render/RenderView.h>
-#include <Vroom/Render/Camera/CameraBasic.h>
-#include <Vroom/Render/Camera/FirstPersonCamera.h>
+#include <Renderer/RenderView.h>
+#include <Renderer/CameraBasic.h>
+#include <Renderer/FirstPersonCamera.h>
 
 class TestRenderView : public testing::Test
 {

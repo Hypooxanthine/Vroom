@@ -29,16 +29,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Warnings
-# if (UNIX)
-#     add_compile_options(-Wno-volatile)
-# endif(UNIX)
-
-add_compile_definitions(
-  $<$<CONFIG:Debug>:VRM_DEBUG>
-  $<$<CONFIG:Release>:VRM_RELEASE>
-)
-
 # Visual Studio specific settings
 if (CMAKE_GENERATOR MATCHES "Visual Studio")
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT VroomEditor)

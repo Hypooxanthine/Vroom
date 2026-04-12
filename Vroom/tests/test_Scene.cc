@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <Vroom/Scene/Scene.h>
-#include <Vroom/Scene/Entity.h>
-#include <Vroom/Scene/Components/NameComponent.h>
+#include <Scene/Scene.h>
+#include <Scene/Entity.h>
+#include <Scene/NameComponent.h>
 
 class SceneTest : public testing::Test
 {

@@ -129,7 +129,7 @@ void EditorLayer::importFile(const std::filesystem::path& file)
 
 std::future<bool> EditorLayer::buildScriptsAsync()
 {
-#ifndef VRM_PLATFORM_WINDOWS
+#ifndef _MSC_VER
   // Only tested on Windows
   VRM_LOG_WARN("Not implemented");
   return;
@@ -170,7 +170,7 @@ std::future<bool> EditorLayer::buildScriptsAsync()
 
 void EditorLayer::reloadScripts()
 {
-#ifndef VRM_PLATFORM_WINDOWS
+#ifndef _MSC_VER
   // Only tested on Windows
   VRM_LOG_WARN("Not implemented");
   return;

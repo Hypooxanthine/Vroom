@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <Vroom/Render/RenderLayout.h>
-#include <Vroom/Render/Camera/CameraBasic.h>
-#include "Vroom/Render/Camera/OrthographicCamera.h"
+#include <Renderer/RenderLayout.h>
+#include <Renderer/CameraBasic.h>
+#include "Renderer/OrthographicCamera.h"
 
 class TestRenderLayout : public testing::Test
 {

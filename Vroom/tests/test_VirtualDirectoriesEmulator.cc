@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-#include "Vroom/Asset/VirtualDirectoriesEmulator.h"
+#include "AssetManager/VirtualDirectoriesEmulator.h"
 
 class TestVirtualDirectoriesEmulator : public testing::Test
 {

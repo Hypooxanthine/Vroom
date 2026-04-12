@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <Vroom/Asset/StaticAsset/StaticAsset.h>
+#include <AssetManager/StaticAsset.h>
 
 class TestClass : public vrm::StaticAsset
 {

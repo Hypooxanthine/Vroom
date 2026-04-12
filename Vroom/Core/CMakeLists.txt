@@ -21,10 +21,5 @@ module_compile_definition(
 
 # Everyone
 module_compile_definition(Core PUBLIC GLM_ENABLE_EXPERIMENTAL=1)
-if (WIN32)
-  module_compile_definition(Core PUBLIC VRM_PLATFORM_WINDOWS=1)
-elseif (UNIX)
-  module_compile_definition(Core PUBLIC VRM_PLATFORM_LINUX=1)
-endif()
 
 # ----- Compile options -----

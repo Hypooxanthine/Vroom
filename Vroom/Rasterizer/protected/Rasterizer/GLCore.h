@@ -6,7 +6,7 @@
 #include "Core/Log.h"
 
 
-#ifdef VRM_DEBUG
+#ifdef _DEBUG
 /**
  * To be wrapped around an OpenGL function. Will display errors in debug mode.
  */
