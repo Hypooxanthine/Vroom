@@ -43,13 +43,13 @@ module_compile_definition(
 def _api_header_content(macro_name: str) -> str:
     return f"""#pragma once
 
-#if defined(VRM_PLATFORM_LINUX)
+#if defined(__GNUC__)
   #if defined(VRM_{macro_name}_EXPORTS)
     #define VRM_{macro_name}_API __attribute__ ((visibility (\"default\")))
   #else
     #define VRM_{macro_name}_API
   #endif
-#elif defined(VRM_PLATFORM_WINDOWS)
+#elif defined(_MSC_VER)
   #if defined(VRM_{macro_name}_EXPORTS)
     #define VRM_{macro_name}_API __declspec(dllexport)
   #else

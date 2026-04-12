@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Renderer/Api.h"
 #include "Renderer/CameraBasic.h"
 #include "Renderer/RenderViewport.h"
 
@@ -47,7 +48,7 @@ namespace vrm::render
   
   using NormalizedView = ViewBase<float>;
 
-  class View : public ViewBase<glm::uint>
+  class VRM_RENDERER_API View : public ViewBase<glm::uint>
   {
   public:
 

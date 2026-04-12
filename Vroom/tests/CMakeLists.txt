@@ -23,14 +23,13 @@ include_directories(Vroom PUBLIC
 file(GLOB_RECURSE TEST_SOURCES  *.cc)
 
 add_executable(VroomTests ${TEST_SOURCES})
-target_compile_definitions(VroomTests PRIVATE "VRM_STATIC")
 
 add_dependencies(VroomTests DummyLib)
 
 enable_testing()
 
 target_link_libraries(VroomTests
-    Vroom_static
+    Application_protected
     GTest::gtest_main
 )
 
@@ -51,8 +50,9 @@ add_custom_target(VroomTestsResources
 
   COMMAND ${CMAKE_COMMAND} -E copy
     # Copy shared/runtime libraries
-    $<TARGET_FILE:glfw> $<TARGET_FILE:libglew_shared> $<TARGET_FILE:DummyLib>
+    $<TARGET_RUNTIME_DLLS:VroomTests>
     ${OUTPUT_DIR}
+  COMMAND_EXPAND_LISTS
   
   COMMAND ${CMAKE_COMMAND} -E copy_directory
     # Copy Resources dirs

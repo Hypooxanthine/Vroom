@@ -38,13 +38,13 @@
     VRM_CRASH_NO_MSG();                                                                                                                           \
   }
 
-#ifdef VRM_DEBUG
+#ifdef _DEBUG
 #define VRM_DEBUG_ASSERT(x) VRM_ASSERT(x)
 #else
 #define VRM_DEBUG_ASSERT(x)
 #endif
 
-#ifdef VRM_DEBUG
+#ifdef _DEBUG
 #define VRM_DEBUG_ASSERT_MSG(x, ...) VRM_ASSERT_MSG(x, __VA_ARGS__)
 #else
 #define VRM_DEBUG_ASSERT_MSG(x, ...)

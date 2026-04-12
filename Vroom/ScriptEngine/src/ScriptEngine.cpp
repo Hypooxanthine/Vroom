@@ -105,9 +105,9 @@ std::filesystem::path ScriptEngine::_copyLibraryFile(const std::filesystem::path
 {
   std::filesystem::path copiedLibPath = std::tmpnam(nullptr);
 
-#if defined(VRM_PLATFORM_WINDOWS)
+#if defined(_)
   copiedLibPath += ".dll";
-#elif defined(VRM_PLATFORM_LINUX)
+#elif defined(__linux__)
   copiedLibPath += ".so";
 #endif
 
@@ -127,7 +127,7 @@ std::filesystem::path ScriptEngine::_copyLibraryFile(const std::filesystem::path
     return {};
   }
 
-#ifdef VRM_DEBUG
+#ifdef _DEBUG
   std::filesystem::path symbolsPath = libPath;
   symbolsPath.replace_extension(std::filesystem::path{ "pdb" });
 
@@ -152,7 +152,7 @@ std::filesystem::path ScriptEngine::_copyLibraryFile(const std::filesystem::path
 
 bool ScriptEngine::_removeCopiedLibrary() const
 {
-#ifdef VRM_DEBUG
+#ifdef _DEBUG
   std::filesystem::path copiedSymbolsPath = m_libPath;
   copiedSymbolsPath.replace_extension(std::filesystem::path{ "pdb" });
 

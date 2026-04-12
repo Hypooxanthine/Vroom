@@ -9,8 +9,7 @@
             "installDir": "${sourceDir}/install/${presetName}",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "cl.exe",
-                "CMAKE_CXX_COMPILER": "cl.exe",
-                "VRM_PLATFORM_WINDOWS": "ON"
+                "CMAKE_CXX_COMPILER": "cl.exe"
             },
             "condition": {
                 "type": "equals",
@@ -24,9 +23,6 @@
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "installDir": "${sourceDir}/install/${presetName}",
-            "cacheVariables": {
-                "VRM_PLATFORM_LINUX": "ON"
-            },
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
@@ -38,8 +34,7 @@
             "hidden": true,
             "inherits": "windows-base",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "VRM_DEBUG": "ON"
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
@@ -47,8 +42,7 @@
             "hidden": true,
             "inherits": "windows-base",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "VRM_RELEASE": "ON"
+                "CMAKE_BUILD_TYPE": "Release"
             }
         },
         {
@@ -74,8 +68,7 @@
             "hidden": true,
             "inherits": "linux-base",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "VRM_DEBUG": "ON"
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
@@ -83,8 +76,7 @@
             "hidden": true,
             "inherits": "linux-base",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "VRM_RELEASE": "ON"
+                "CMAKE_BUILD_TYPE": "Release"
             }
         },
         {

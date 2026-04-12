@@ -1,12 +1,13 @@
-#include <gtest/gtest.h>
-#include <Vroom/Asset/Asset.h>
-#include <Vroom/Core/Application.h>
-#include <Vroom/Asset/AssetManager.h>
-
+#include <Application/Application.h>
+#include <AssetManager/AssetManager.h>
+#include <AssetManager/MeshAsset.h>
 #include <fstream>
+#include <gtest/gtest.h>
 
-class AssetManagerTest : public testing::Test {
+class AssetManagerTest : public testing::Test
+{
 protected:
+
   void SetUp() override
   {
     app = new vrm::Application(0, nullptr);
@@ -29,8 +30,8 @@ protected:
   }
 
   vrm::Application* app;
-  std::string pathOK = "test_mesh.obj";
-  std::string pathFail = "test_mesh_fail.obj";
+  std::string       pathOK   = "test_mesh.obj";
+  std::string       pathFail = "test_mesh_fail.obj";
 };
 
 TEST_F(AssetManagerTest, IsAssetLoaded)
@@ -42,24 +43,18 @@ TEST_F(AssetManagerTest, IsAssetLoaded)
 
 TEST_F(AssetManagerTest, GetAssetFirstTime)
 {
-  EXPECT_NO_THROW(
-    vrm::MeshAsset::Handle asset = vrm::AssetManager::Get().getAsset<vrm::MeshAsset>(pathOK)
-  );
+  EXPECT_NO_THROW(vrm::MeshAsset::Handle asset = vrm::AssetManager::Get().getAsset<vrm::MeshAsset>(pathOK));
 }
 
 TEST_F(AssetManagerTest, GetAssetSecondTime)
 {
   vrm::MeshAsset::Handle asset = vrm::AssetManager::Get().getAsset<vrm::MeshAsset>(pathOK);
 
-  EXPECT_NO_THROW(
-    vrm::MeshAsset::Handle asset2 = vrm::AssetManager::Get().getAsset<vrm::MeshAsset>(pathOK)
-  );
+  EXPECT_NO_THROW(vrm::MeshAsset::Handle asset2 = vrm::AssetManager::Get().getAsset<vrm::MeshAsset>(pathOK));
 }
 
 TEST_F(AssetManagerTest, GetAssetDifferentType)
 {
   EXPECT_NO_THROW(vrm::AssetManager::Get().loadAsset<vrm::MeshAsset>(pathOK));
-  EXPECT_ANY_THROW(
-    vrm::MaterialAsset::Handle mat = vrm::AssetManager::Get().getAsset<vrm::MaterialAsset>(pathOK)
-  );
+  EXPECT_ANY_THROW(vrm::MaterialAsset::Handle mat = vrm::AssetManager::Get().getAsset<vrm::MaterialAsset>(pathOK));
 }

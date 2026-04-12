@@ -23,7 +23,7 @@ public:
 
   inline static consteval bool IsPlatformSupported()
   {
-#if defined(VRM_PLATFORM_LINUX) || defined(VRM_PLATFORM_WINDOWS)
+#if defined(__GNUC__) || defined(_MSC_VER)
     return true;
 #endif
     return false;

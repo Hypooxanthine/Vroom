@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <Vroom/DataStructure/LinearRegistry.h>
+#include <Tools/LinearRegistry.h>
 
 TEST(test_LinearRegistry, TestAddElement)
 {

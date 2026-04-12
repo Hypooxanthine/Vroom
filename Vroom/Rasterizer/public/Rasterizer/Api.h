@@ -1,12 +1,12 @@
 #pragma once
 
-#if defined(VRM_PLATFORM_LINUX)
+#if defined(__GNUC__)
   #if defined(VRM_RASTERIZER_EXPORTS)
     #define VRM_RASTERIZER_API __attribute__ ((visibility ("default")))
   #else
     #define VRM_RASTERIZER_API
   #endif
-#elif defined(VRM_PLATFORM_WINDOWS) 
+#elif defined(_MSC_VER) 
   #if defined(VRM_RASTERIZER_EXPORTS)
     #define VRM_RASTERIZER_API __declspec(dllexport)
   #else

@@ -48,19 +48,16 @@ function(module_include_dirs MODULE_NAME)
 
   if(MOD_PRIVATE)
     target_include_directories(${PRIVATE_TARGET} PRIVATE ${MOD_PRIVATE})
-    message("Target: ${PRIVATE_TARGET}, includes: ${MOD_PRIVATE}")
   endif()
   
   if(MOD_PUBLIC)
     target_include_directories(${PRIVATE_TARGET} PRIVATE   ${MOD_PUBLIC})
     target_include_directories(${PUBLIC_TARGET}  INTERFACE ${MOD_PUBLIC})
-    message("Target: ${PRIVATE_TARGET}, includes: ${MOD_PUBLIC}")
   endif()
 
   if(MOD_PROTECTED)
     target_include_directories(${PRIVATE_TARGET}   PRIVATE   ${MOD_PROTECTED})
     target_include_directories(${PROTECTED_TARGET} INTERFACE ${MOD_PROTECTED})
-    message("Target: ${PRIVATE_TARGET}, includes: ${MOD_PROTECTED}")
   endif()
 
 endfunction()
@@ -83,10 +80,10 @@ function(add_module MODULE_NAME)
   # --- Libraries creation ---
 
   add_library(${PRIVATE_TARGET} SHARED)
-  # set_target_properties(${PRIVATE_TARGET} PROPERTIES
-  #   OUTPUT_NAME_DEBUG "${MODULE_NAME}"
-  #   DEBUG_POSTFIX     "d"
-  # )
+  set_target_properties(${PRIVATE_TARGET} PROPERTIES
+    OUTPUT_NAME_DEBUG "vrm${MODULE_NAME}"
+    DEBUG_POSTFIX     "d"
+  )
 
   add_library(${PUBLIC_TARGET} INTERFACE)
   # Public target interfaces the private target, but nothing is forwarded
@@ -137,8 +134,6 @@ function(module_link_modules MODULE_NAME)
     # Forward through the protected and public interface
     target_link_libraries(${PROTECTED_TARGET} INTERFACE ${DEP_PROTECTED_TARGET})
     target_link_libraries(${PUBLIC_TARGET}    INTERFACE ${DEP_PUBLIC_TARGET})
-
-    message("${MODULE_NAME} depends on ${DEP_MODULE}")
   endforeach()
 
 endfunction()

@@ -4,9 +4,9 @@
  * on the ScriptApi project.
  */
 
-#if defined(VRM_PLATFORM_LINUX)
+#if defined(__GNUC__)
   #define VRM_EXPORT_SYMBOLS __attribute__((visibility ("default")))
-#elif defined(VRM_PLATFORM_WINDOWS)
+#elif defined(_MSC_VER)
   #define VRM_EXPORT_SYMBOLS __declspec(dllexport)
 #else
   static_assert(false, "Unsupported platform");
