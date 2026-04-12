@@ -62,7 +62,7 @@ add_custom_target(VroomEditorOtherResources
 )
 
 add_dependencies(VroomEditor VroomEditorOtherResources)
-add_dependencies(VroomEditorOtherResources Editor_protected)
+add_dependencies(VroomEditorOtherResources Editor_private)
 
 target_compile_definitions(VroomEditor
   PRIVATE VRM_SCRIPT_BUILDER_CMD=\"${SCRIPTS_BUILDER}\"
