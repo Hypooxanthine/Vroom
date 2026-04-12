@@ -30,7 +30,7 @@ endfunction()
 
 function(set_game_rsc_dir SOURCE_DIR)
 
-  target_compile_definitions(Vroom
+  target_compile_definitions(AssetManager_private
     PRIVATE VRM_GAME_RSC_DIR_PATH="${SOURCE_DIR}"
   )
 
@@ -38,11 +38,11 @@ endfunction()
 
 function(set_scripts_library SCRIPTS_TARGET_NAME)
 
-  target_compile_definitions(VroomEditor
+  target_compile_definitions(Editor_private
     PRIVATE VRM_SCRIPT_LIBRARY_TARGET_NAME="${SCRIPTS_TARGET_NAME}"
     PRIVATE VRM_RUNTIME_SCRIPTS_PATH="$<TARGET_FILE:${SCRIPTS_TARGET_NAME}>"
   )
   
-  add_dependencies(VroomEditor ${SCRIPTS_TARGET_NAME})
+  add_dependencies(Editor_private ${SCRIPTS_TARGET_NAME})
   
 endfunction()

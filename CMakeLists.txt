@@ -5,6 +5,7 @@ set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API OFF)
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP OFF)
 
 include(cmake/vroom.cmake)
+include(cmake/modules.cmake)
 
 # ----- CMake settings -----
 
@@ -55,16 +56,10 @@ set(ENGINE_RESOURCE_DIR   ${ROOT}/Vroom/Resources)
 
 project ("VroomSolution")
 
-# ----- Subdmodules -----
-
-add_subdirectory("deps")
-
 # ----- Subdirectories -----
 
-add_subdirectory ("Vroom")
-add_subdirectory("ScriptApi")
-add_subdirectory("Sandbox")
-add_subdirectory("VroomEditor")
+add_subdirectory("deps")
+add_subdirectory("Vroom")
 
 # ----- Testing -----
 

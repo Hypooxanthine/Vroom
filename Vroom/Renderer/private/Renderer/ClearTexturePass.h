@@ -1,0 +1,35 @@
+#pragma once
+
+#include <glm/glm.hpp>
+
+#include "Rasterizer/GLCore.h"
+#include "Renderer/RenderPass.h"
+
+namespace vrm
+{
+
+  class CameraBasic;
+  
+  class ClearTexturePass : public RenderPass
+  {
+  public:
+    
+    ClearTexturePass(const std::string& name = "ClearTexturePass");
+    virtual ~ClearTexturePass();
+
+  public:
+
+    GLuint texture = 0;
+    GLint level = 0;
+    GLenum format = 0;
+    GLenum type = 0;
+    const void * clearValue = nullptr;
+
+  protected:
+
+    virtual void onInit() override;
+
+    virtual void onRender(const RenderPassContext& ctx) const override;
+  };
+
+} // namespace vrm 

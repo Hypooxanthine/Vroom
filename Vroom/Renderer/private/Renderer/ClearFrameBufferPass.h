@@ -1,0 +1,29 @@
+#pragma once
+
+#include "Renderer/RenderPass.h"
+
+namespace vrm::gl
+{
+class FrameBuffer;
+}
+
+namespace vrm
+{
+
+class ClearFrameBufferPass : public RenderPass
+{
+public:
+
+  ClearFrameBufferPass(const std::string& name = "ClearFrameBufferPass");
+  virtual ~ClearFrameBufferPass();
+
+public:
+
+  gl::FrameBuffer* framebuffer = nullptr;
+
+protected:
+
+  virtual void onRender(const RenderPassContext& ctx) const override;
+};
+
+} // namespace vrm

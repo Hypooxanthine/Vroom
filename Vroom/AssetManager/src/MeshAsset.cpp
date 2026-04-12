@@ -1,0 +1,142 @@
+#include "AssetManager/MeshAsset.h"
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
+#include "AssetManager/AssetManager.h"
+#include "AssetManager/MaterialAsset.h"
+
+using namespace vrm;
+
+MeshAsset::SubMesh::SubMesh(render::Mesh&& render, MeshData&& data, MaterialAsset::Handle instance)
+  : renderMesh(std::move(render)), meshData(std::move(data)), materialInstance(instance)
+{}
+
+MeshAsset::MeshAsset() : StaticAsset()
+{}
+
+MeshAsset::~MeshAsset()
+{}
+
+void MeshAsset::addSubmesh(const MeshData& mesh, MaterialAsset::Handle instance)
+{
+  m_SubMeshes.emplace_back(SubMesh(render::Mesh(mesh), MeshData(mesh), instance));
+}
+
+void MeshAsset::addSubmesh(const MeshData& mesh)
+{
+  MaterialAsset::Handle materialInstance =
+    AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/DefaultMaterial.json");
+  m_SubMeshes.emplace_back(SubMesh(render::Mesh(mesh), MeshData(mesh), materialInstance));
+}
+
+void MeshAsset::clear()
+{
+  m_SubMeshes.clear();
+}
+
+bool MeshAsset::loadImpl(const std::string& filePath)
+{
+  VRM_LOG_TRACE("Loading mesh: {}", filePath);
+
+  Assimp::Importer importer;
+  const aiScene*   scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals
+                                                         | aiProcess_CalcTangentSpace | aiProcess_FindInvalidData);
+
+  if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+  {
+    VRM_LOG_ERROR("Failed to load mesh: {}. Error: {}", filePath, importer.GetErrorString());
+    return false;
+  }
+
+  _processNode(scene->mRootNode, scene);
+
+  // m_SubMeshes.clear();
+  // return loadObj(filePath);
+
+  return true;
+}
+
+void MeshAsset::_processNode(aiNode* node, const aiScene* scene)
+{
+  for (unsigned int i = 0; i < node->mNumMeshes; i++)
+  {
+    aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+    _processMesh(mesh, scene);
+  }
+
+  for (unsigned int i = 0; i < node->mNumChildren; i++)
+  {
+    _processNode(node->mChildren[i], scene);
+  }
+}
+
+void MeshAsset::_processMesh(aiMesh* mesh, const aiScene* scene)
+{
+  std::vector<Vertex> vertices;
+  vertices.reserve(mesh->mNumVertices);
+
+  for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+  {
+    Vertex& v = vertices.emplace_back();
+
+    const aiVector3D& aPosition = mesh->mVertices[i];
+    v.position                  = glm::vec3{ aPosition.x, aPosition.y, aPosition.z };
+
+    const aiVector3D& aNormal = mesh->mNormals[i];
+    v.normal                  = glm::vec3{ aNormal.x, aNormal.y, aNormal.z };
+
+    if (mesh->mTextureCoords[0])
+    {
+      const aiVector3D& aTexCoords = mesh->mTextureCoords[0][i];
+      v.texCoords                  = glm::vec2{ aTexCoords.x, aTexCoords.y };
+    }
+
+    if (mesh->HasTangentsAndBitangents())
+    {
+      const aiVector3D& aTangent   = mesh->mTangents[i];
+      const aiVector3D& aBitangent = mesh->mBitangents[i];
+      v.tangent                    = glm::vec3{ aTangent.x, aTangent.y, aTangent.z };
+      v.bitangent                  = glm::vec3{ aBitangent.x, aBitangent.y, aBitangent.z };
+    }
+  }
+
+  std::vector<unsigned int> indices;
+  indices.reserve(mesh->mNumFaces * 3);
+
+  for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
+  {
+    const aiFace& f = mesh->mFaces[i];
+    for (unsigned int j = 0; j < f.mNumIndices; ++j)
+    {
+      indices.emplace_back(f.mIndices[j]);
+    }
+  }
+
+  MeshData     meshData(std::move(vertices), std::move(indices));
+  render::Mesh renderMesh(meshData);
+  std::string  matName = scene->mMaterials[mesh->mMaterialIndex]->GetName().C_Str();
+  if (matName == AI_DEFAULT_MATERIAL_NAME)
+  {
+    matName = "Resources/Engine/Material/DefaultMaterial.json";
+  }
+  else if (matName.empty())
+  {
+    matName = applyPathOrder("GenMat_" + std::to_string(mesh->mMaterialIndex));
+  }
+  else
+  {
+    matName = applyPathOrder(matName);
+  }
+
+  MaterialAsset::Handle mat;
+  std::string           path = applyPathOrder(matName);
+  if (AssetManager::Get().tryLoadAsset<MaterialAsset>(path))
+    mat = AssetManager::Get().getAsset<MaterialAsset>(path);
+  else
+  {
+    VRM_LOG_WARN("Couldn't load material \"{}\", falling back to default material.", matName);
+    mat = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/DefaultMaterial.json");
+  }
+  m_SubMeshes.emplace_back(std::move(renderMesh), std::move(meshData), mat);
+}

@@ -1,0 +1,399 @@
+#include "Editor/EditorLayer.h"
+#include <Application/Application.h>
+#include <Application/GameLayer.h>
+#include <AssetManager/SceneParsing.h>
+#include <Renderer/Renderer.h>
+#include <Window/Window.h>
+#include <filesystem>
+#include <fstream>
+#include <future>
+
+#include "Application/Layer.h"
+#include "AssetManager/AssetManager.h"
+#include "AssetManager/SceneAsset.h"
+#include "Core/Profiling.h"
+#include "Editor/SceneGraph.h"
+#include "Editor/UserInterfaceLayer.h"
+#include "Editor/Viewport.h"
+#include "Renderer/DynamicRenderSettings.h"
+#include "Renderer/RenderPipeline.h"
+#include "Renderer/RenderSettings.h"
+#include "Scene/Scene.h"
+#include "ScriptEngine/ScriptEngine.h"
+#include "Tools/Os.h"
+
+#ifdef VRM_RUNTIME_SCRIPTS_PATH
+static const std::filesystem::path g_scriptLibraryPath = VRM_RUNTIME_SCRIPTS_PATH;
+#else
+static const std::filesystem::path g_scriptLibraryPath = "";
+#endif
+
+using namespace vrm;
+
+static EditorLayer* INSTANCE = nullptr;
+
+EditorLayer::EditorLayer()
+  : m_EditorCamera(0.1f, 100.f, glm::radians(90.f), 0.f, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f))
+{
+  VRM_ASSERT_MSG(INSTANCE == nullptr, "Only one instance of EditorLayer is allowed");
+  INSTANCE = this;
+  // We need to load a first scene before initialization of layers, because game
+  // layer will be initialized first. Just loading the default scene.
+  unloadScene(true);
+}
+
+EditorLayer::~EditorLayer()
+{
+  INSTANCE = nullptr;
+}
+
+EditorLayer& EditorLayer::Get()
+{
+  return *INSTANCE;
+}
+
+void EditorLayer::loadScene(const std::string& name, std::unique_ptr<Scene>&& scene)
+{
+  auto& gameLayer = Application::Get().getGameLayer();
+
+  // Using the same settings
+  if (gameLayer.isSceneLoaded())
+  {
+    RenderPipeline&       oldPipeline = gameLayer.getScene().getRenderer().getRenderPipeline();
+    RenderSettings        settings    = oldPipeline.getRenderSettings();
+    DynamicRenderSettings dynSettings = oldPipeline.getDynamicRenderSettings();
+
+    scene->getRenderer().setFrameSize({ m_lastViewportInfos.width, m_lastViewportInfos.height });
+    RenderPipeline& newPipeline = scene->getRenderer().getRenderPipeline();
+    newPipeline.setRenderSettings(settings);
+    newPipeline.setDynamicRenderSettings(dynSettings);
+  }
+
+  scene->setCamera(&m_EditorCamera);
+
+  gameLayer.loadScene(std::move(scene));
+  m_loadedScene = name;
+}
+
+void EditorLayer::loadScene(const std::string& sceneAssetName)
+{
+  VRM_LOG_INFO("Loading scene...");
+  auto scene = std::make_unique<Scene>();
+  scene->loadFromAsset(AssetManager::Get().getAsset<SceneAsset>(sceneAssetName));
+  loadScene(sceneAssetName, std::move(scene));
+}
+
+void EditorLayer::unloadScene(bool force)
+{
+  if (isSceneLoaded() || force)
+  {
+    loadScene<Scene>("");
+  }
+}
+
+void EditorLayer::saveScene()
+{
+  if (!isSceneLoaded())
+  {
+    VRM_LOG_WARN("Could not save scene: no scene is loaded");
+    return;
+  }
+
+  auto&        gameLayer = Application::Get().getGameLayer();
+  const Scene& scene     = gameLayer.getScene();
+  SceneData    data      = scene.getSceneData();
+
+  json j;
+
+  try
+  {
+    j = data;
+  } catch (const nlohmann::json::exception& e)
+  {
+    VRM_LOG_ERROR("Error while serializing scene to json: {}", e.what());
+    return;
+  }
+
+  {
+    std::ofstream ofs;
+    ofs.open(m_loadedScene, std::ios_base::trunc);
+
+    ofs << j.dump(2);
+  }
+
+  AssetManager::Get().reloadAsset<SceneAsset>(m_loadedScene);
+}
+
+void EditorLayer::importFile(const std::filesystem::path& file)
+{}
+
+std::future<bool> EditorLayer::buildScriptsAsync()
+{
+#ifndef VRM_PLATFORM_WINDOWS
+  // Only tested on Windows
+  VRM_LOG_WARN("Not implemented");
+  return;
+#endif
+
+#if !defined(VRM_SCRIPT_BUILDER_CMD)
+  VRM_LOG_WARN("Aborted: builder command is not set");
+  std::promise<bool> promise;
+  promise.set_value(false);
+  return promise.get_future();
+#elif !defined(VRM_CMAKE_CMD)
+  VRM_LOG_WARN("Aborted: cmake command is not set");
+  return;
+#elif !defined(VRM_BUILD_DIR)
+  VRM_LOG_WARN("Aborted: build dir not set");
+  return;
+#elif !defined(VRM_SCRIPT_LIBRARY_TARGET_NAME)
+  VRM_LOG_WARN("Aborted: script library target name not set");
+  std::promise<bool> promise;
+  promise.set_value(false);
+  return promise.get_future();
+#else
+  std::string cmd = std::format("cmd.exe /C \"\"{}\" \"{}\" \"{}\" \"{}\"\"", VRM_SCRIPT_BUILDER_CMD, VRM_CMAKE_CMD,
+                                VRM_BUILD_DIR, VRM_SCRIPT_LIBRARY_TARGET_NAME);
+
+  VRM_LOG_INFO("Running command \"{}\"", cmd);
+  return std::async(
+    [](const std::string& command)
+    {
+      std::future<int> ret = OS::Run(command);
+      ret.wait();
+      return ret.get() == 0;
+    },
+    cmd);
+
+#endif
+}
+
+void EditorLayer::reloadScripts()
+{
+#ifndef VRM_PLATFORM_WINDOWS
+  // Only tested on Windows
+  VRM_LOG_WARN("Not implemented");
+  return;
+#endif
+
+  _loadScriptsRuntimeLibrary();
+}
+
+std::future<bool> EditorLayer::buildAndReloadAsync()
+{
+  return std::async(
+    [this]()
+    {
+      std::future<bool> buildRes = buildScriptsAsync();
+      buildRes.wait();
+
+      bool buildOk = buildRes.get();
+
+      if (buildOk)
+      {
+        pushFrameEndRoutine(
+          [this](Layer& layer)
+          {
+            reloadScripts();
+          });
+      }
+
+      return buildOk;
+    });
+}
+
+void EditorLayer::onInit()
+{
+  // Engine setup
+  auto& app = Application::Get();
+  app.getGameLayer().setShouldHandleEvents(false);
+  app.getGameLayer().setShouldUpdate(false);
+  app.getGameLayer().setShouldRender(true);
+
+  // Events setup
+  m_CustomEventManager.createCustomEvent("Exit").bindInput(Event::Type::Exit);
+
+  m_CustomEventManager.bindPermanentCallback("Exit",
+                                             [](const Event& e)
+                                             {
+                                               Application::Get().exit();
+                                             });
+
+  // Events
+  m_CustomEventManager.createCustomEvent("EditorCameraRotation").bindInput(Event::Type::MouseMoved);
+  m_CustomEventManager.bindPermanentCallback("EditorCameraRotation",
+                                             [this](const Event& e)
+                                             {
+                                               m_EditorCamera.submitLookRight(static_cast<float>(e.mouseDeltaX));
+                                               m_EditorCamera.submitLookUp(static_cast<float>(-e.mouseDeltaY));
+                                               e.handled = true;
+                                             });
+
+  m_TriggerManager.createTrigger("MoveForward").bindInput(vrm::KeyCode::W);
+  m_TriggerManager.bindPermanentCallback("MoveForward",
+                                         [this](bool triggered)
+                                         {
+                                           if (triggered)
+                                             UserInterfaceLayer::Get().getViewport().allowActivation();
+                                           m_EditorCamera.addMoveForward(triggered ? 1.f : -1.f);
+                                         });
+
+  m_TriggerManager.createTrigger("MoveBackward").bindInput(vrm::KeyCode::S);
+  m_TriggerManager.bindPermanentCallback("MoveBackward",
+                                         [this](bool triggered)
+                                         {
+                                           if (triggered)
+                                             UserInterfaceLayer::Get().getViewport().allowActivation();
+                                           m_EditorCamera.addMoveForward(-(triggered ? 1.f : -1.f));
+                                         });
+
+  m_TriggerManager.createTrigger("MoveRight").bindInput(vrm::KeyCode::D);
+  m_TriggerManager.bindPermanentCallback("MoveRight",
+                                         [this](bool triggered)
+                                         {
+                                           if (triggered)
+                                             UserInterfaceLayer::Get().getViewport().allowActivation();
+                                           m_EditorCamera.addMoveRight(triggered ? 1.f : -1.f);
+                                         });
+
+  m_TriggerManager.createTrigger("MoveLeft").bindInput(vrm::KeyCode::A);
+  m_TriggerManager.bindPermanentCallback("MoveLeft",
+                                         [this](bool triggered)
+                                         {
+                                           if (triggered)
+                                             UserInterfaceLayer::Get().getViewport().allowActivation();
+                                           m_EditorCamera.addMoveRight(-(triggered ? 1.f : -1.f));
+                                         });
+
+  m_TriggerManager.createTrigger("MoveUp").bindInput(vrm::KeyCode::Space);
+  m_TriggerManager.bindPermanentCallback("MoveUp",
+                                         [this](bool triggered)
+                                         {
+                                           if (triggered)
+                                             UserInterfaceLayer::Get().getViewport().allowActivation();
+                                           m_EditorCamera.addMoveUp(triggered ? 1.f : -1.f);
+                                         });
+
+  m_TriggerManager.createTrigger("MoveDown").bindInput(vrm::KeyCode::LeftShift);
+  m_TriggerManager.bindPermanentCallback("MoveDown",
+                                         [this](bool triggered)
+                                         {
+                                           if (triggered)
+                                             UserInterfaceLayer::Get().getViewport().allowActivation();
+                                           m_EditorCamera.addMoveUp(-(triggered ? 1.f : -1.f));
+                                         });
+
+  // Scripts
+  _loadScriptsRuntimeLibrary();
+}
+
+void EditorLayer::onEnd()
+{}
+
+void EditorLayer::onUpdate(const DeltaTime& dt)
+{
+  VRM_PROFILE_SCOPE("EditorLayer::onUpdate");
+  auto& app = Application::Get();
+
+  const auto& viewportInfo = UserInterfaceLayer::Get().getViewportInfo();
+
+  if (viewportInfo.justChangedSize)
+    onViewportResize(viewportInfo.width, viewportInfo.height);
+
+  // If the viewport is active, we update the editor camera
+  const bool cameraInputs = viewportInfo.active;
+
+  if (cameraInputs)
+  {
+    m_EditorCamera.onUpdate(dt);
+  }
+  else
+  {
+    // m_EditorCamera.clearInputs();
+  }
+
+  const bool cursorVisible = !viewportInfo.active;
+  app.getWindow().setCursorVisible(cursorVisible);
+
+  const bool simul     = viewportInfo.simulating;
+  const bool lastSimul = m_lastViewportInfos.simulating;
+
+  const bool playing     = viewportInfo.playing;
+  const bool lastPlaying = m_lastViewportInfos.playing;
+
+  const bool updt     = (simul || playing) && !viewportInfo.paused;
+  const bool lastUpdt = (lastSimul || lastPlaying) && !m_lastViewportInfos.paused;
+
+  if (updt != lastUpdt)
+  {
+    app.getGameLayer().setShouldUpdate(updt);
+  }
+
+  if (playing != lastPlaying)
+  {
+    if (playing)
+    {
+      Application::Get().getGameLayer().getScene().spawn();
+    }
+    else
+    {
+      // Reloading scene
+      if (isSceneLoaded())
+        loadScene(m_loadedScene);
+    }
+  }
+
+  if (simul != lastSimul)
+  {
+    if (simul)
+    {
+      // When simulating started
+    }
+    else
+    {
+      // Reloading scene
+      if (isSceneLoaded())
+        loadScene(m_loadedScene);
+    }
+  }
+
+  m_lastViewportInfos = viewportInfo;
+}
+
+void EditorLayer::onRender()
+{}
+
+void EditorLayer::onEvent(vrm::Event& e)
+{
+  m_CustomEventManager.check(e);
+  m_TriggerManager.check(e);
+}
+
+void EditorLayer::onViewportResize(int newWidth, int newHeight)
+{
+  Application::Get().getMainScene().onWindowResized({ newWidth, newHeight });
+}
+
+void EditorLayer::_loadScriptsRuntimeLibrary()
+{
+  VRM_LOG_INFO("Loading scripts");
+
+  bool ok;
+  if (std::filesystem::exists(g_scriptLibraryPath))
+  {
+    if (!(ok = ScriptEngine::Get().loadScriptLibrary(g_scriptLibraryPath)))
+    {
+      VRM_LOG_ERROR("Error while loading scripts runtime library {}", g_scriptLibraryPath.string());
+    }
+  }
+  else
+  {
+    VRM_LOG_WARN("No scripts runtime library path");
+    ok = false;
+  }
+
+  if (ok)
+  {
+    VRM_LOG_INFO("Scripts runtime library {} loaded", g_scriptLibraryPath.string());
+  }
+}
