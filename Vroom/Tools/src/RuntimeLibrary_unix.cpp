@@ -2,8 +2,8 @@
 
 #include <dlfcn.h>
 
-#include "Vroom/Core/Assert.h"
-#include "Vroom/Tools/RuntimeLibrary.h"
+#include "Core/Assert.h"
+#include "Tools/RuntimeLibrary.h"
 
 #define IMPL (*m_impl)
 
