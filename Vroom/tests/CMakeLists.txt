@@ -29,8 +29,8 @@ add_dependencies(VroomTests DummyLib)
 enable_testing()
 
 target_link_libraries(VroomTests
-    Application_protected
-    GTest::gtest_main
+  Application_protected
+  GTest::gtest_main
 )
 
 include(GoogleTest)
@@ -61,7 +61,7 @@ add_custom_target(VroomTestsResources
 )
 
 add_dependencies(VroomTests VroomTestsResources)
-add_dependencies(VroomTestsResources glfw libglew_shared)
+add_dependencies(VroomTestsResources Application_private)
 
 get_target_property(VRM_TEST_DUMMYLIB_FILENAME DummyLib TARGET_FILE_NAME)
 target_compile_definitions(VroomTests
