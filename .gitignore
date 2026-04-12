@@ -69,5 +69,5 @@ docs/*
 !dependencies/**
 !Vroom/Resources/**
 !Sandbox/Resources/**
-!VroomEditor/Resources/**
-!VroomEditor/DefaultResources/**
+!Vroom/Vroom/Editor/Resources/**
+!Vroom/Vroom/Editor/DefaultResources/**

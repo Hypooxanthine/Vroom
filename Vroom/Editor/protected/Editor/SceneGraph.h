@@ -1,0 +1,49 @@
+#pragma once
+
+#include <Scene/Entity.h>
+
+#include "Editor/ImGuiElement.h"
+
+namespace vrm
+{
+
+class Entity;
+class Scene;
+class EntityEditor;
+
+class SceneGraph : public ImGuiElement
+{
+public:
+  SceneGraph();
+  virtual ~SceneGraph();
+
+protected:
+
+  virtual void onImgui() override;
+
+  void renderEntityEntryRecursive(Entity& e);
+  void clickBehaviour(Entity& e);
+  void dragAndDropBehaviour(Entity& e);
+
+private:
+
+  void setupFrameContext();
+  void handleFrameContext();
+
+private:
+
+  struct FrameContext
+  {
+    struct
+    {
+      Entity parent, child;
+    } RequestHierarchyEdit;
+
+    Scene* activeScene = nullptr;
+    EntityEditor* entityEditor;
+  };
+
+  FrameContext m_frameContext;
+};
+
+} // namespace vrm
