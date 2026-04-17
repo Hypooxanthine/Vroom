@@ -33,6 +33,9 @@ endif()
 
 add_executable(VroomEditor                "main.cpp")
 target_link_libraries(VroomEditor PRIVATE Editor_protected)
+set_target_properties(VroomEditor PROPERTIES
+  VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:VroomEditor>"
+)
 
 if (WIN32)
   set(SCRIPTS_BUILDER ${CMAKE_CURRENT_SOURCE_DIR}/scriptsBuilder.bat)
