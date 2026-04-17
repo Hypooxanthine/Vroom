@@ -55,12 +55,13 @@ add_custom_target(VroomTestsResources
     # Copy shared/runtime libraries
     $<TARGET_RUNTIME_DLLS:VroomTests>
     ${OUTPUT_DIR}
-  COMMAND_EXPAND_LISTS
   
   COMMAND ${CMAKE_COMMAND} -E copy_directory
     # Copy Resources dirs
     ${ENGINE_RESOURCE_DIR}
     ${OUTPUT_RESOURCES_DIR}
+    
+  COMMAND_EXPAND_LISTS
 )
 
 add_dependencies(VroomTests VroomTestsResources)
