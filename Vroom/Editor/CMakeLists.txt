@@ -51,16 +51,28 @@ if (VROOM_ENABLE_EXAMPLE_EDITOR)
   set_scripts_library(DefaultScripts)
 endif()
 
+set(VROOM_EDITOR_RUNTIME_COPY_COMMAND)
+if(WIN32)
+  list(APPEND VROOM_EDITOR_RUNTIME_COPY_COMMAND
+    COMMAND ${CMAKE_COMMAND} -E copy
+      # Shared/runtime libraries
+      $<TARGET_RUNTIME_DLLS:VroomEditor>
+      $<TARGET_FILE_DIR:VroomEditor>
+  )
+endif()
+
 add_custom_target(VroomEditorOtherResources
   COMMAND ${CMAKE_COMMAND} -E make_directory
     # Create dir
     $<TARGET_FILE_DIR:VroomEditor>
+
   COMMAND ${CMAKE_COMMAND} -E copy
-    # Shared/runtime libraries
-    $<TARGET_RUNTIME_DLLS:VroomEditor>
     # Imgui default config
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini
     $<TARGET_FILE_DIR:VroomEditor>
+
+  ${VROOM_EDITOR_RUNTIME_COPY_COMMAND}
+
   COMMAND_EXPAND_LISTS
 )
 

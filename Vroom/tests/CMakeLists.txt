@@ -46,15 +46,22 @@ include(CTest)
 set(OUTPUT_DIR $<TARGET_FILE_DIR:VroomTests>)
 set(OUTPUT_RESOURCES_DIR ${OUTPUT_DIR}/Resources)
 
+set(VROOM_TESTS_RUNTIME_COPY_COMMAND)
+if(WIN32)
+  list(APPEND VROOM_TESTS_RUNTIME_COPY_COMMAND
+    COMMAND ${CMAKE_COMMAND} -E copy
+      # Copy runtime DLLs on Windows only
+      $<TARGET_RUNTIME_DLLS:VroomTests>
+      ${OUTPUT_DIR}
+  )
+endif()
+
 add_custom_target(VroomTestsResources
   COMMAND ${CMAKE_COMMAND} -E make_directory
     # Create /Resources dir
     ${OUTPUT_RESOURCES_DIR}
 
-  COMMAND ${CMAKE_COMMAND} -E copy
-    # Copy shared/runtime libraries
-    $<TARGET_RUNTIME_DLLS:VroomTests>
-    ${OUTPUT_DIR}
+  ${VROOM_TESTS_RUNTIME_COPY_COMMAND}
   
   COMMAND ${CMAKE_COMMAND} -E copy_directory
     # Copy Resources dirs
