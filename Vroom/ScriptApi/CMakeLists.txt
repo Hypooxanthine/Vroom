@@ -52,10 +52,8 @@ endif()
 
 # Compile options
 if (MSVC)
-    target_compile_options(ScriptApi PRIVATE /MP)
+  target_compile_options(ScriptApi PRIVATE /MP)
 endif()
-
-set_scripts_library(DefaultScripts)
 
 # ----- Deps -----
 
