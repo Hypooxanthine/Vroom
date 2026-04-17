@@ -10,15 +10,6 @@ endif(POLICY CMP0072)
 
 # ----- Specific settings -----
 
-file(GLOB_RECURSE ALL_SOURCES ./*.cpp ./*.c)
-file(GLOB_RECURSE ALL_HEADERS ./*.h)
-
-# Visual Studio
-if (CMAKE_GENERATOR MATCHES "Visual Studio")
-  # Grouping project files
-  source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${ALL_SOURCES} ${ALL_HEADERS})
-endif()
-
 # Compile options
 if (MSVC)
   add_compile_options(/MP)

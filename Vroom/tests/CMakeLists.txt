@@ -23,6 +23,9 @@ include_directories(Vroom PUBLIC
 file(GLOB_RECURSE TEST_SOURCES  *.cc)
 
 add_executable(VroomTests ${TEST_SOURCES})
+set_target_properties(VroomTests PROPERTIES
+  VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:VroomTests>"
+)
 
 add_dependencies(VroomTests DummyLib)
 

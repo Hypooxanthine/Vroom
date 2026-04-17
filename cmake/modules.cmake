@@ -20,6 +20,7 @@ function(module_add_public_headers_check MODULE_NAME)
     set_target_properties(${MODULE_NAME}_headers_check PROPERTIES
       EXCLUDE_FROM_ALL TRUE
       EXCLUDE_FROM_DEFAULT_BUILD TRUE
+      FOLDER "_Checks"
     )
     
   endif()
@@ -83,6 +84,8 @@ function(add_module MODULE_NAME)
   set_target_properties(${PRIVATE_TARGET} PROPERTIES
     OUTPUT_NAME_DEBUG "vrm${MODULE_NAME}"
     DEBUG_POSTFIX     "d"
+    PROJECT_LABEL     "${MODULE_NAME}"
+    FOLDER            "Vroom"
   )
 
   add_library(${PUBLIC_TARGET} INTERFACE)
@@ -97,9 +100,36 @@ function(add_module MODULE_NAME)
 
   # ----- Module files -----
 
-  file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+  file(GLOB SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+  file(GLOB_RECURSE PRIVATE_HEADERS CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/private/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/private/*.hpp"
+  )
+  file(GLOB_RECURSE PROTECTED_HEADERS CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/protected/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/protected/*.hpp"
+  )
+  file(GLOB_RECURSE PUBLIC_HEADERS CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/public/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/public/*.hpp"
+  )
 
-  target_sources(${PRIVATE_TARGET} PRIVATE ${SOURCES})
+  target_sources(${PRIVATE_TARGET} PRIVATE
+    ${SOURCES}
+    ${PRIVATE_HEADERS}
+    ${PROTECTED_HEADERS}
+    ${PUBLIC_HEADERS}
+  )
+
+  if (CMAKE_GENERATOR MATCHES "Visual Studio")
+    source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
+      ${SOURCES}
+      ${PRIVATE_HEADERS}
+      ${PROTECTED_HEADERS}
+      ${PUBLIC_HEADERS}
+    )
+  endif()
+
   module_include_dirs(
     ${MODULE_NAME}
     PUBLIC    "${CMAKE_CURRENT_SOURCE_DIR}/public"
