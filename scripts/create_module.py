@@ -61,6 +61,10 @@ def _api_header_content(macro_name: str) -> str:
 """
 
 
+def _write_gitkeep(directory: Path) -> None:
+    (directory / ".gitkeep").write_text("", encoding="utf-8")
+
+
 def _validate_name(module_name: str) -> None:
     if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", module_name):
         raise ValueError(
@@ -96,10 +100,16 @@ def main() -> int:
 
     macro_name = _to_macro_name(module_name)
 
-    (module_dir / "private" / module_name).mkdir(parents=True, exist_ok=False)
-    (module_dir / "protected" / module_name).mkdir(parents=True, exist_ok=False)
-    (module_dir / "public" / module_name).mkdir(parents=True, exist_ok=False)
-    (module_dir / "src").mkdir(parents=True, exist_ok=False)
+    module_directories = [
+      module_dir / "private" / module_name,
+      module_dir / "protected" / module_name,
+      module_dir / "public" / module_name,
+      module_dir / "src",
+    ]
+
+    for directory in module_directories:
+      directory.mkdir(parents=True, exist_ok=False)
+      _write_gitkeep(directory)
 
     (module_dir / "CMakeLists.txt").write_text(
         _cmake_content(module_name, macro_name), encoding="utf-8"
