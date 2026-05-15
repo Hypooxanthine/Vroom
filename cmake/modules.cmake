@@ -82,7 +82,7 @@ function(add_module MODULE_NAME)
 
   add_library(${PRIVATE_TARGET} SHARED)
   set_target_properties(${PRIVATE_TARGET} PROPERTIES
-    OUTPUT_NAME_DEBUG "vrm${MODULE_NAME}"
+    OUTPUT_NAME       "vrm${MODULE_NAME}"
     DEBUG_POSTFIX     "d"
     PROJECT_LABEL     "${MODULE_NAME}"
     FOLDER            "Vroom"
