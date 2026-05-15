@@ -5,62 +5,56 @@
 using namespace vrm;
 
 TextureAsset::TextureAsset()
-{
-}
+{}
 
 TextureAsset::~TextureAsset()
-{
-}
+{}
 
 bool TextureAsset::loadImpl(const std::string& filePath)
 {
   VRM_LOG_TRACE("Loading texture: {}", filePath);
 
+  // Load CPU texture data from file
   if (!m_TextureData.loadFromFile(filePath))
   {
     VRM_LOG_ERROR("Failed to load texture: {}", filePath);
     return false;
   }
-  
-  gl::Texture::Desc desc;
-  {
-    desc.dimension = 2;
-    desc.width = m_TextureData.getWidth();
-    desc.height = m_TextureData.getHeight();
-    desc.mipmapCount = gl::Texture::GetMaxMipMapCount(desc.width, desc.height);
 
-    switch (m_TextureData.getChannels())
+  // Create GPU texture descriptor based on texture data and load descriptor
+  gl::Texture::Desc gpuDesc;
+  {
+    gpuDesc.dimension   = 2;
+    gpuDesc.width       = m_TextureData.getWidth();
+    gpuDesc.height      = m_TextureData.getHeight();
+    gpuDesc.mipmapCount = gl::Texture::GetMaxMipMapCount(gpuDesc.width, gpuDesc.height);
+
+    // Use descriptor's bit depth, or default to 8
+    GLuint bitsPerChannel = m_LoadDescriptor.bitsPerChannel;
+    GLuint channelCount   = m_TextureData.getChannels();
+
+    gpuDesc.internalFormat = gl::Texture::GetBasicColorInternalFormat(channelCount, bitsPerChannel);
+    gpuDesc.format         = gl::Texture::GetBasicColorFormat(channelCount);
+
+    if (gpuDesc.internalFormat < 0 || gpuDesc.format < 0)
     {
-    case 1:
-      desc.internalFormat = GL_R8;
-      desc.format = GL_R;
-      break;
-    case 2:
-      desc.internalFormat = GL_RG8;
-      desc.format = GL_RG;
-      break;
-    case 3:
-      desc.internalFormat = GL_RGB8;
-      desc.format = GL_RGB;
-      break;
-    case 4:
-      desc.internalFormat = GL_RGBA8;
-      desc.format = GL_RGBA;
-      break;
-    default:
-      VRM_ASSERT_MSG(false, "Unexpected texture channel count");
-      break;
+      VRM_LOG_ERROR("Invalid texture format configuration for channels={}, bits={}", channelCount, bitsPerChannel);
+      return false;
     }
   }
 
-  m_GPUTexture.create(desc);
-  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, desc.width, desc.height, desc.format, GL_UNSIGNED_BYTE, m_TextureData.getData());
-  glGenerateMipmap(GL_TEXTURE_2D);
-  
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  // Create GPU texture storage
+  m_GPUTexture.create(gpuDesc);
+  m_GPUTexture.uploadData(m_TextureData.getData(), m_LoadDescriptor.samplingDesc);
+
+  // Optionally release CPU data if not needed
+  if (!m_LoadDescriptor.keepCPUData)
+  {
+    m_TextureData.release();
+  }
+
+  VRM_LOG_TRACE("Texture loaded successfully: {} ({}x{}, channels={})", filePath, gpuDesc.width, gpuDesc.height,
+                m_TextureData.getChannels());
 
   return true;
 }

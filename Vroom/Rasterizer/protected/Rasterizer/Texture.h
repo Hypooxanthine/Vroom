@@ -1,8 +1,5 @@
 #pragma once
 
-#include <array>
-#include <cmath>
-
 #include "Rasterizer/Api.h"
 #include "Rasterizer/GLCore.h"
 
@@ -13,6 +10,17 @@ class VRM_RASTERIZER_API Texture
 {
 public:
 
+  // Texture sampling and wrapping configuration
+  struct SamplingDesc
+  {
+    GLenum minFilter = GL_LINEAR_MIPMAP_LINEAR;
+    GLenum magFilter = GL_LINEAR;
+    GLenum wrapS     = GL_MIRRORED_REPEAT;
+    GLenum wrapT     = GL_MIRRORED_REPEAT;
+    GLenum wrapR     = GL_MIRRORED_REPEAT;
+  };
+
+  // GPU memory layout descriptor
   struct Desc
   {
     GLuint    dimension = 0;
@@ -39,33 +47,26 @@ public:
 
   inline static constexpr GLenum GetBindingTarget(GLuint layers, GLuint samples);
 
-  inline static GLint  GetMaxMipMapCount(GLsizei width, GLsizei height);
-  inline static GLint  GetBasicColorInternalFormat(GLuint channelCount, GLuint bitsPerChannel);
-  inline static GLenum GetBasicColorFormat(GLuint channelCount);
+  static GLint  GetMaxMipMapCount(GLsizei width, GLsizei height);
+  static GLint  GetBasicColorInternalFormat(GLuint channelCount, GLuint bitsPerChannel);
+  static GLenum GetBasicColorFormat(GLuint channelCount);
 
   inline static constexpr GLuint GetChannelCountFromFormat(GLenum format);
 
   void create(const Desc& desc);
   void release();
+
+  // Upload texture data from CPU to GPU and apply sampling parameters
+  void uploadData(const void* data);
+  void uploadData(const void* data, const SamplingDesc& sampling);
+
   void bind(GLenum target) const;
   void bind() const;
 
-  inline bool isCreated() const
-  {
-    return m_renderId != 0;
-  }
-  inline GLuint getRenderId() const
-  {
-    return m_renderId;
-  }
-  inline const Desc& getDescription() const
-  {
-    return m_desc;
-  }
-  inline GLenum getDefaultTarget() const
-  {
-    return m_defaultTarget;
-  }
+  bool        isCreated() const;
+  GLuint      getRenderId() const;
+  const Desc& getDescription() const;
+  GLenum      getDefaultTarget() const;
 
 private:
 
@@ -84,63 +85,6 @@ inline constexpr GLenum Texture::GetBindingTarget(GLuint layers, GLuint samples)
   {
     return samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
   }
-}
-
-inline GLint Texture::GetMaxMipMapCount(GLsizei width, GLsizei height)
-{
-  return 1 + static_cast<GLint>(std::floor(std::log2(std::max(width, height))));
-}
-
-inline GLint Texture::GetBasicColorInternalFormat(GLuint channelCount, GLuint bitsPerChannel)
-{
-  static constexpr std::array<std::array<GLenum, 3>, 4> s_assoc = {
-    { // 1 channel (RED)
-      { GL_R8, GL_R16, GL_R32F },
-     // 2 channels (RG)
-      { GL_RG8, GL_RG16, GL_RG32F },
-     // 3 channels (RGB)
-      { GL_RGB8, GL_RGB16, GL_RGB32F },
-     // 4 channels (RGBA)
-      { GL_RGBA8, GL_RGBA16, GL_RGBA32F } }
-  };
-
-  size_t bitsIndex = 0;
-  switch (bitsPerChannel)
-  {
-  case 8:
-    bitsIndex = 0;
-    break;
-  case 16:
-    bitsIndex = 1;
-    break;
-  case 32:
-    bitsIndex = 2;
-    break;
-  default:
-    assert(false && "bitsPerChannel must be 8, 16 or 32");
-    return -1;
-  }
-
-  if (channelCount < 1 || channelCount > 4)
-  {
-    assert(false && "channelCount must be in [1, 4]");
-    return -1;
-  }
-
-  return s_assoc[channelCount - 1][bitsIndex];
-}
-
-inline GLenum Texture::GetBasicColorFormat(GLuint channelCount)
-{
-  static std::array<GLenum, 4> s_assoc = { GL_RED, GL_RG, GL_RGB, GL_RGBA };
-
-  if (channelCount < 1 || channelCount > 4)
-  {
-    assert(false && "channelCount must be in [1, 4]");
-    return -1;
-  }
-
-  return s_assoc[channelCount - 1];
 }
 
 inline constexpr GLuint Texture::GetChannelCountFromFormat(GLenum format)
