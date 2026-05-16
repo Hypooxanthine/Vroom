@@ -54,12 +54,9 @@ std::string StaticAsset::getExtension(const std::string& filePath)
   return extension;
 }
 
-std::string StaticAsset::applyPathOrder(const std::string& path) const
+std::filesystem::path StaticAsset::applyPathOrder(const std::filesystem::path& path) const
 {
-  std::filesystem::path assetDirAbs = std::filesystem::absolute(getFilePath());
-  assetDirAbs.remove_filename();
-  std::filesystem::path assetDirRel = assetDirAbs.lexically_relative(std::filesystem::current_path());
-  std::filesystem::path relativePath = assetDirRel / path;
+  std::filesystem::path relativePath = (getFilePath().parent_path() / path).lexically_normal();
 
   if (std::filesystem::exists(relativePath)) // Relative to current asset first
   {

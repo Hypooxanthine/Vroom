@@ -3,16 +3,12 @@
 using namespace vrm;
 
 ParticleSystemAsset::ParticleSystemAsset()
-{
-
-}
+{}
 
 ParticleSystemAsset::~ParticleSystemAsset()
-{
+{}
 
-}
-
-bool ParticleSystemAsset::loadImpl(const std::string &filePath)
+bool ParticleSystemAsset::loadImpl(const std::filesystem::path& filePath)
 {
   return false;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AssetManager/Api.h"
+#include "AssetManager/AssetHandle.h"
 #include "AssetManager/CubemapData.h"
 #include "AssetManager/StaticAsset.h"
 #include "RenderObjects/Cubemap.h"
@@ -44,11 +45,11 @@ public:
 
 protected:
 
-  bool loadImpl(const std::string& filePath) override;
+  bool loadImpl(const std::filesystem::path& filePath) override;
 
 private:
 
-  bool _loadTexture(const std::string& filePath, ByteTextureData& textureData);
+  bool _loadTexture(const std::filesystem::path& filePath, ByteTextureData& textureData);
   bool _compareTextureWithNegX(const ByteTextureData& tex) const;
   bool _buildGpuCubemap();
 

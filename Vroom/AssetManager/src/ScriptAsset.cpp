@@ -10,7 +10,7 @@ ScriptAsset::ScriptAsset() : StaticAsset()
 ScriptAsset::~ScriptAsset()
 {}
 
-bool ScriptAsset::loadImpl(const std::string& filePath)
+bool ScriptAsset::loadImpl(const std::filesystem::path& filePath)
 {
-  return ScriptEngine::Get().isScriptRegistered(filePath);
+  return ScriptEngine::Get().isScriptRegistered(filePath.string());
 }

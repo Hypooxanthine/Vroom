@@ -12,6 +12,7 @@
 #include "AssetManager/MaterialData.h"
 
 #include "Editor/AssetUtils.h"
+#include "assimp/material.h"
 
 using namespace vrm;
 
@@ -368,7 +369,7 @@ MaterialData::TextureData ModelImporter::Impl::getTexture(aiMaterial* material, 
   {
     MaterialData::TextureData texData;
     aiString texName;
-    aiTextureMapMode mapMode;
+    aiTextureMapMode mapMode[3];  // Array of 3 for UVW axes
     static const std::unordered_map<aiTextureMapMode, MaterialData::TextureData::EWrappingMode::Type> convTable =
     {
       { aiTextureMapMode_Wrap, MaterialData::TextureData::EWrappingMode::eWrap },
@@ -377,10 +378,14 @@ MaterialData::TextureData ModelImporter::Impl::getTexture(aiMaterial* material, 
     };
 
 
-    material->GetTexture(type, 0, &texName, nullptr, nullptr, nullptr, nullptr, &mapMode);
+    aiTextureMapping mapping;
+    unsigned int uvindex;
+    ai_real blend;
+    aiTextureOp op;
+    material->GetTexture(type, 0, &texName, &mapping, &uvindex, &blend, &op, mapMode);
     texData.resourceName = texName.C_Str();
     
-    auto convIt = convTable.find(mapMode);
+    auto convIt = convTable.find(mapMode[0]);  // Use first element (U axis)
     if (convIt != convTable.end()) texData.wrappingMode = convIt->second;
 
     return texData;

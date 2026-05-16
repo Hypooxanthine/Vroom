@@ -18,14 +18,14 @@ public:
   ScriptAsset();
   ~ScriptAsset();
 
-  inline const std::string& getScriptId() const
+  inline std::string getScriptId() const
   {
-    return getFilePath();
+    return getFilePath().string();
   }
 
 protected:
 
-  bool loadImpl(const std::string& filePath) override;
+  bool loadImpl(const std::filesystem::path& filePath) override;
 };
 
 } // namespace vrm

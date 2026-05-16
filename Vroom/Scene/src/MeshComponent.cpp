@@ -25,7 +25,7 @@ MeshComponent::MeshComponent(const MeshAsset::Handle& meshInstance)
 MeshComponentData MeshComponent::getData() const
 {
   MeshComponentData data;
-  data.resourceName = getMesh()->getFilePath();
+  data.resourceName = getMesh()->getFilePath().string();
   data.castsShadow  = doesCastShadow();
   data.visible      = isVisible();
 

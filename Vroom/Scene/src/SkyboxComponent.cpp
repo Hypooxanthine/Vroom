@@ -28,7 +28,7 @@ SkyboxComponent::~SkyboxComponent()
 SkyboxComponentData SkyboxComponent::getData() const
 {
   SkyboxComponentData data;
-  data.resourceName = getCubemapAsset()->getFilePath();
+  data.resourceName = getCubemapAsset()->getFilePath().string();
 
   return data;
 }

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include "stb_image/stb_image.h"
 #include "stb_image/stb_image_write.h"
@@ -90,13 +91,13 @@ public:
       m_Data.resize(width * height * channels);
   }
 
-  inline bool loadFromFile(const std::string& path, bool flipVertically = true)
+  inline bool loadFromFile(const std::filesystem::path& path, bool flipVertically = true)
   {
     stbi_set_flip_vertically_on_load(flipVertically);
     int width, height;
     int channels;
 
-    T* localBuffer = getSTBIImage(path.c_str(), &width, &height, &channels);
+    T* localBuffer = getSTBIImage(path.string().c_str(), &width, &height, &channels);
 
     if (localBuffer == nullptr)
       return false;

@@ -35,17 +35,18 @@ void MeshAsset::clear()
   m_SubMeshes.clear();
 }
 
-bool MeshAsset::loadImpl(const std::string& filePath)
+bool MeshAsset::loadImpl(const std::filesystem::path& filePath)
 {
-  VRM_LOG_TRACE("Loading mesh: {}", filePath);
+  VRM_LOG_TRACE("Loading mesh: {}", filePath.string());
 
   Assimp::Importer importer;
-  const aiScene*   scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals
-                                                         | aiProcess_CalcTangentSpace | aiProcess_FindInvalidData);
+  const aiScene*   scene =
+    importer.ReadFile(filePath.string(), aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace
+                                           | aiProcess_FindInvalidData);
 
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
   {
-    VRM_LOG_ERROR("Failed to load mesh: {}. Error: {}", filePath, importer.GetErrorString());
+    VRM_LOG_ERROR("Failed to load mesh: {}. Error: {}", filePath.string(), importer.GetErrorString());
     return false;
   }
 
@@ -115,27 +116,26 @@ void MeshAsset::_processMesh(aiMesh* mesh, const aiScene* scene)
 
   MeshData     meshData(std::move(vertices), std::move(indices));
   render::Mesh renderMesh(meshData);
-  std::string  matName = scene->mMaterials[mesh->mMaterialIndex]->GetName().C_Str();
-  if (matName == AI_DEFAULT_MATERIAL_NAME)
+  std::filesystem::path  path = scene->mMaterials[mesh->mMaterialIndex]->GetName().C_Str();
+  if (path == AI_DEFAULT_MATERIAL_NAME)
   {
-    matName = "Resources/Engine/Material/DefaultMaterial.json";
+    path = "Resources/Engine/Material/DefaultMaterial.json";
   }
-  else if (matName.empty())
+  else if (path.empty())
   {
-    matName = applyPathOrder("GenMat_" + std::to_string(mesh->mMaterialIndex));
+    path = applyPathOrder(std::filesystem::path("GenMat_" + std::to_string(mesh->mMaterialIndex)));
   }
   else
   {
-    matName = applyPathOrder(matName);
+    path = applyPathOrder(path);
   }
 
   MaterialAsset::Handle mat;
-  std::string           path = applyPathOrder(matName);
   if (AssetManager::Get().tryLoadAsset<MaterialAsset>(path))
     mat = AssetManager::Get().getAsset<MaterialAsset>(path);
   else
   {
-    VRM_LOG_WARN("Couldn't load material \"{}\", falling back to default material.", matName);
+    VRM_LOG_WARN("Couldn't load material \"{}\", falling back to default material.", path.string());
     mat = AssetManager::Get().getAsset<MaterialAsset>("Resources/Engine/Material/DefaultMaterial.json");
   }
   m_SubMeshes.emplace_back(std::move(renderMesh), std::move(meshData), mat);

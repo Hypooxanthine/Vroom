@@ -8,11 +8,11 @@
 
 using namespace vrm;
 
-bool ShaderAsset::loadImpl(const std::string& filePath)
+bool ShaderAsset::loadImpl(const std::filesystem::path& filePath)
 {
   using json = nlohmann::json;
 
-  VRM_LOG_TRACE("Loading shader: {}", filePath);
+  VRM_LOG_TRACE("Loading shader: {}", filePath.string());
 
   std::ifstream ifs;
   ifs.open(filePath);

@@ -1,38 +1,41 @@
 #pragma once
 
-#include "AssetManager/ParticleSystemData.h"
 #include "AssetManager/AssetHandle.h"
+#include "AssetManager/ParticleSystemData.h"
 #include "AssetManager/StaticAsset.h"
+
 namespace vrm
 {
 
-  class ParticleSystemAsset : public StaticAsset
+class ParticleSystemAsset : public StaticAsset
+{
+public:
+
+  using Handle = AssetHandle<ParticleSystemAsset>;
+
+public:
+
+  ParticleSystemAsset();
+  ~ParticleSystemAsset();
+
+  ParticleSystemAsset& operator=(const ParticleSystemAsset& other) = delete;
+  ParticleSystemAsset(const ParticleSystemAsset& other)            = delete;
+
+  ParticleSystemAsset& operator=(ParticleSystemAsset&& other) = delete;
+  ParticleSystemAsset(ParticleSystemAsset&& other)            = delete;
+
+  inline const ParticleSystemData& getData() const
   {
-  public:
+    return m_data;
+  }
 
-    using Handle = AssetHandle<ParticleSystemAsset>;
+protected:
 
-  public:
+  bool loadImpl(const std::filesystem::path& filePath) override;
 
-    ParticleSystemAsset();
-    ~ParticleSystemAsset();
+private:
 
-    ParticleSystemAsset& operator=(const ParticleSystemAsset& other) = delete;
-    ParticleSystemAsset(const ParticleSystemAsset& other) = delete;
+  ParticleSystemData m_data;
+};
 
-    ParticleSystemAsset& operator=(ParticleSystemAsset&& other) = delete;
-    ParticleSystemAsset(ParticleSystemAsset&& other) = delete;
-
-    inline const ParticleSystemData& getData() const { return m_data; }
-
-  protected:
-
-    bool loadImpl(const std::string &filePath) override;
-
-  private:
-
-    ParticleSystemData m_data;
-
-  };
-
-}
+} // namespace vrm

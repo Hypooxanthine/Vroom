@@ -1,42 +1,56 @@
 #pragma once
 
 #include "AssetManager/Api.h"
-#include "AssetManager/StaticAsset.h"
-#include "AssetManager/TextureAsset.h"
 #include "AssetManager/MaterialData.h"
 #include "AssetManager/ShaderData.h"
+#include "AssetManager/StaticAsset.h"
+#include "AssetManager/TextureAsset.h"
 #include "Rasterizer/Shader.h"
+
 
 namespace vrm
 {
 
-  class VRM_ASSETMANAGER_API MaterialAsset : public StaticAsset
+class VRM_ASSETMANAGER_API MaterialAsset : public StaticAsset
+{
+public:
+
+  using Handle = AssetHandle<MaterialAsset>;
+
+public:
+
+  MaterialAsset();
+  ~MaterialAsset();
+
+  [[nodiscard]] inline const MaterialData& getData() const
   {
-  public:
-    using Handle = AssetHandle<MaterialAsset>;
+    return m_data;
+  }
 
-  public:
-    MaterialAsset();
-    ~MaterialAsset();
+  [[nodiscard]] inline const ShaderData& getShaderData() const
+  {
+    return m_materialShaderData;
+  }
 
-    [[nodiscard]] inline const MaterialData &getData() const { return m_data; }
+  [[nodiscard]] inline const std::vector<TextureAsset::Handle>& getTextures() const
+  {
+    return m_textures;
+  }
 
-    [[nodiscard]] inline const ShaderData& getShaderData() const { return m_materialShaderData; }
+  void applyUniforms(const gl::Shader& shader) const;
 
-    [[nodiscard]] inline const std::vector<TextureAsset::Handle>& getTextures() const { return m_textures; }
+protected:
 
-    void applyUniforms(const gl::Shader& shader) const;
+  bool loadImpl(const std::filesystem::path& filePath) override;
 
-  protected:
-    bool loadImpl(const std::string &filePath) override;
+  bool buildShaderData();
 
-    bool buildShaderData();
+private:
 
-  private:
-    MaterialData m_data;
-    std::vector<TextureAsset::Handle> m_textures;
+  MaterialData                      m_data;
+  std::vector<TextureAsset::Handle> m_textures;
 
-    ShaderData m_materialShaderData;
-  };
+  ShaderData m_materialShaderData;
+};
 
 } // namespace vrm

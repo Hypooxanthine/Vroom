@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AssetManager/Api.h"
+#include "AssetManager/AssetHandle.h"
 #include "AssetManager/StaticAsset.h"
 #include "AssetManager/TextureData.h"
 #include "Rasterizer/Texture.h"
@@ -56,7 +57,7 @@ public:
 
 protected:
 
-  bool loadImpl(const std::string& filePath) override;
+  bool loadImpl(const std::filesystem::path& filePath) override;
 
 private:
 

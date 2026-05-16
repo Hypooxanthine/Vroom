@@ -95,7 +95,7 @@ void AssetSelector<AssetType>::onImgui()
 {
   m_justChanged            = false;
   bool        assetChanged = false;
-  std::string assetName    = m_asset.isValid() ? m_asset->getFilePath() : "";
+  std::string assetName    = m_asset.isValid() ? m_asset->getFilePath().string() : "";
 
   constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll
                        | ImGuiInputTextFlags_EnterReturnsTrue

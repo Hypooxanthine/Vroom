@@ -1,28 +1,37 @@
 #pragma once
 
 #include "AssetManager/Api.h"
-#include "AssetManager/StaticAsset.h"
+#include "AssetManager/AssetHandle.h"
 #include "AssetManager/ShaderData.h"
+#include "AssetManager/StaticAsset.h"
+
 
 namespace vrm
 {
 
-  class VRM_ASSETMANAGER_API ShadingModelAsset : public StaticAsset
+class VRM_ASSETMANAGER_API ShadingModelAsset : public StaticAsset
+{
+public:
+
+  using Handle = AssetHandle<ShadingModelAsset>;
+
+public:
+
+  ShadingModelAsset();
+  ~ShadingModelAsset();
+
+  [[nodiscard]] inline const ShaderData& getData() const
   {
-  public:
-    using Handle = AssetHandle<ShadingModelAsset>;
+    return m_data;
+  }
 
-  public:
-    ShadingModelAsset();
-    ~ShadingModelAsset();
+protected:
 
-    [[nodiscard]] inline const ShaderData &getData() const { return m_data; }
+  bool loadImpl(const std::filesystem::path& filePath) override;
 
-  protected:
-    bool loadImpl(const std::string &filePath) override;
+private:
 
-  private:
-    ShaderData m_data;
-  };
+  ShaderData m_data;
+};
 
 } // namespace vrm

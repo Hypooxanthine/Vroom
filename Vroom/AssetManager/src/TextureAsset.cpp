@@ -10,14 +10,14 @@ TextureAsset::TextureAsset()
 TextureAsset::~TextureAsset()
 {}
 
-bool TextureAsset::loadImpl(const std::string& filePath)
+bool TextureAsset::loadImpl(const std::filesystem::path& filePath)
 {
-  VRM_LOG_TRACE("Loading texture: {}", filePath);
+  VRM_LOG_TRACE("Loading texture: {}", filePath.string());
 
   // Load CPU texture data from file
   if (!m_TextureData.loadFromFile(filePath))
   {
-    VRM_LOG_ERROR("Failed to load texture: {}", filePath);
+    VRM_LOG_ERROR("Failed to load texture: {}", filePath.string());
     return false;
   }
 
@@ -53,7 +53,7 @@ bool TextureAsset::loadImpl(const std::string& filePath)
     m_TextureData.release();
   }
 
-  VRM_LOG_TRACE("Texture loaded successfully: {} ({}x{}, channels={})", filePath, gpuDesc.width, gpuDesc.height,
+  VRM_LOG_TRACE("Texture loaded successfully: {} ({}x{}, channels={})", filePath.string(), gpuDesc.width, gpuDesc.height,
                 m_TextureData.getChannels());
 
   return true;

@@ -17,15 +17,15 @@ SceneAsset::~SceneAsset()
 {
 }
 
-bool SceneAsset::loadImpl(const std::string& filePath)
+bool SceneAsset::loadImpl(const std::filesystem::path& filePath)
 {
   using json = nlohmann::json;
 
-  VRM_LOG_TRACE("Loading scene: {}", filePath);
+  VRM_LOG_TRACE("Loading scene: {}", filePath.string());
 
   std::ifstream ifs;
   ifs.open(filePath);
-  VRM_CHECK_RET_FALSE_MSG(ifs.is_open(), "Could not open {}", filePath);
+  VRM_CHECK_RET_FALSE_MSG(ifs.is_open(), "Could not open {}", filePath.string());
 
   json jsonData;
 

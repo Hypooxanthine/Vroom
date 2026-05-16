@@ -3,27 +3,37 @@
 #include <memory>
 
 #include "AssetManager/Api.h"
-#include "AssetManager/StaticAsset.h"
+#include "AssetManager/AssetHandle.h"
 #include "AssetManager/SceneData.h"
+#include "AssetManager/StaticAsset.h"
+
 
 namespace vrm
 {
 
-  class VRM_ASSETMANAGER_API SceneAsset : public StaticAsset
+class VRM_ASSETMANAGER_API SceneAsset : public StaticAsset
+{
+public:
+
+  using Handle = AssetHandle<SceneAsset>;
+
+public:
+
+  SceneAsset();
+  ~SceneAsset();
+
+  const SceneData& getSceneData() const
   {
-  public:
-    using Handle = AssetHandle<SceneAsset>;
-  public:
-    SceneAsset();
-    ~SceneAsset();
+    return *m_data;
+  }
 
-    const SceneData& getSceneData() const { return *m_data; }
+protected:
 
-  protected:
-    bool loadImpl(const std::string& filePath) override;
+  bool loadImpl(const std::filesystem::path& filePath) override;
 
-  private:
-    std::unique_ptr<SceneData> m_data;
-  };
+private:
+
+  std::unique_ptr<SceneData> m_data;
+};
 
 } // namespace vrm

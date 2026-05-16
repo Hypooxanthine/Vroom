@@ -1,9 +1,8 @@
 #pragma once
 
 #include "AssetManager/Api.h"
-#include "AssetManager/AssetHandle.h"
 
-#include <memory>
+#include <filesystem>
 #include <string>
 
 namespace vrm
@@ -26,7 +25,7 @@ namespace vrm
 
     bool load(const std::string& filePath);
 
-    inline const std::string& getFilePath() const { return m_filePath; }
+    inline std::filesystem::path getFilePath() const { return m_filePath; }
 
   protected:
 
@@ -38,9 +37,9 @@ namespace vrm
      */
     static std::string getExtension(const std::string& filePath);
 
-    virtual bool loadImpl(const std::string& filePath) = 0;
+    virtual bool loadImpl(const std::filesystem::path& filePath) = 0;
 
-    std::string applyPathOrder(const std::string& path) const;
+    std::filesystem::path applyPathOrder(const std::filesystem::path& path) const;
 
   private:
     mutable size_t m_InstanceCount = 0;
