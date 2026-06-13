@@ -25,6 +25,19 @@ public:
   void addEmitter(ParticleEmitter::Specs&& specs);
   void removeEmitter(size_t id);
 
+  inline bool consumeDirtyForRender() const
+  {
+    bool value       = m_dirtyForRender;
+    m_dirtyForRender = false;
+
+    return value;
+  }
+
+  inline void markDirtyForRender() const
+  {
+    m_dirtyForRender = true;
+  }
+
   void update(const DeltaTime& dt);
 
   std::span<ParticleEmitter const> getEmitters() const
@@ -44,6 +57,7 @@ private:
   ParticleSystemAsset::Handle m_asset = {};
 
   std::vector<ParticleEmitter> m_emitters;
+  mutable bool                 m_dirtyForRender = true;
 };
 
 } // namespace vrm

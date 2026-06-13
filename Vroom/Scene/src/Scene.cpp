@@ -338,6 +338,21 @@ void Scene::_updateGlobalTransforms()
   {
     auto& currentTC = current.getComponentInternal<vrm::TransformComponent>();
 
+    if (currentTC.isFrameDirty())
+    {
+      if (auto* dirLight = current.getEnttRegistry().try_get<DirectionalLightComponent>(current.getHandle());
+          dirLight != nullptr)
+      {
+        dirLight->markDirtyForRender();
+      }
+
+      if (auto* pointLight = current.getEnttRegistry().try_get<PointLightComponent>(current.getHandle());
+          pointLight != nullptr)
+      {
+        pointLight->markDirtyForRender();
+      }
+    }
+
     TransformComponent::SceneAttorney::computeGlobals(currentTC,
                                                       parent.getComponentInternal<vrm::TransformComponent>());
 
@@ -369,16 +384,24 @@ void Scene::_submitDirectionalLightsForRender()
   auto viewDirLights = m_Registry.view<DirectionalLightComponent, TransformComponent>();
   for (auto&& [e, dl, t] : viewDirLights.each())
   {
-    const glm::quat& rot     = t.getGlobalRotationQuat();
-    glm::vec4        forward = { 1.f, 0.f, 0.f, 0.f };
+    const size_t id = static_cast<size_t>(e);
+    if (dl.consumeDirtyForRender())
+    {
+      const glm::quat& rot     = t.getGlobalRotationQuat();
+      glm::vec4        forward = { 1.f, 0.f, 0.f, 0.f };
 
-    render::DirectionalLight renderLight;
-    renderLight.direction    = glm::vec3(rot * forward);
-    renderLight.intensity    = dl.intensity;
-    renderLight.color        = dl.color;
-    renderLight.castsShadows = dl.castsShadows;
+      render::DirectionalLight renderLight;
+      renderLight.direction    = glm::vec3(rot * forward);
+      renderLight.intensity    = dl.intensity;
+      renderLight.color        = dl.color;
+      renderLight.castsShadows = dl.castsShadows;
 
-    m_renderer->submitDirectionalLight(static_cast<entt::id_type>(e), renderLight);
+      m_renderer->submitDirectionalLight(id, renderLight);
+    }
+    else
+    {
+      m_renderer->notifyDirectionalLight(id);
+    }
   }
 }
 
@@ -389,17 +412,25 @@ void Scene::_submitPointLightsForRender()
   auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent>();
   for (auto&& [e, pl, t] : viewPointLights.each())
   {
-    render::PointLight renderLight;
-    renderLight.position             = t.getGlobalPosition();
-    renderLight.color                = pl.getColor();
-    renderLight.intensity            = pl.getIntensity();
-    renderLight.radius               = pl.getRadius();
-    renderLight.smoothRadius         = pl.getSmoothRadius();
-    renderLight.constantAttenuation  = pl.getConstantAttenuation();
-    renderLight.linearAttenuation    = pl.getLinearAttenuation();
-    renderLight.quadraticAttenuation = pl.getQuadraticAttenuation();
+    const size_t id = static_cast<size_t>(e);
+    if (pl.consumeDirtyForRender())
+    {
+      render::PointLight renderLight;
+      renderLight.position             = t.getGlobalPosition();
+      renderLight.color                = pl.getColor();
+      renderLight.intensity            = pl.getIntensity();
+      renderLight.radius               = pl.getRadius();
+      renderLight.smoothRadius         = pl.getSmoothRadius();
+      renderLight.constantAttenuation  = pl.getConstantAttenuation();
+      renderLight.linearAttenuation    = pl.getLinearAttenuation();
+      renderLight.quadraticAttenuation = pl.getQuadraticAttenuation();
 
-    m_renderer->submitPointLight(static_cast<entt::id_type>(e), renderLight);
+      m_renderer->submitPointLight(id, renderLight);
+    }
+    else
+    {
+      m_renderer->notifyPointLight(id);
+    }
   }
 }
 
@@ -438,7 +469,15 @@ void Scene::_submitSkyboxesForRender()
   auto viewSkyboxes = m_Registry.view<SkyboxComponent>();
   for (auto&& [e, skybox] : viewSkyboxes.each())
   {
-    m_renderer->submitSkybox(skybox.getCubemapAsset()->getRenderCubemap());
+    (void)e;
+    if (skybox.consumeDirtyForRender())
+    {
+      m_renderer->submitSkybox(skybox.getCubemapAsset()->getRenderCubemap());
+    }
+    else
+    {
+      m_renderer->notifySkybox();
+    }
   }
 }
 
@@ -450,16 +489,24 @@ void Scene::_submitParticleSystemsForRender()
   for (auto&& [e, particleSystem, t] : viewParticles.each())
   {
     const auto& emitters = particleSystem.getEmitters();
+    const bool   dirty    = particleSystem.consumeDirtyForRender();
 
     for (size_t i = 0; i < emitters.size(); ++i)
     {
       const ParticleEmitter* emitter = &emitters[i];
       size_t                 id      = (static_cast<size_t>(e) << 32) | i;
 
-      ParticleSystemRenderInfo info;
-      info.emitter = emitter;
-      info.model   = &t.getGlobalTransform();
-      m_renderer->submitParticleEmitter(id, info);
+      if (dirty)
+      {
+        ParticleSystemRenderInfo info;
+        info.emitter = emitter;
+        info.model   = &t.getGlobalTransform();
+        m_renderer->submitParticleEmitter(id, info);
+      }
+      else
+      {
+        m_renderer->notifyParticleEmitter(static_cast<uint32_t>(id));
+      }
     }
   }
 }

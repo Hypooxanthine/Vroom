@@ -7,9 +7,9 @@ using namespace vrm;
 
 DirectionalLightComponent::DirectionalLightComponent(const DirectionalLightComponentData& data)
 {
-  color        = data.color;
-  intensity    = data.intensity;
-  castsShadows = data.castsShadows;
+  setColor(data.color);
+  setIntensity(data.intensity);
+  setCastsShadows(data.castsShadows);
 }
 
 DirectionalLightComponentData DirectionalLightComponent::getData() const

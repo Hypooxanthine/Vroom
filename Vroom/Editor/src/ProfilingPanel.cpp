@@ -46,6 +46,8 @@ void ProfilingPanel::_showRecorderTree(const PerfRecorder& recorder)
 
   if (ImGui::InputText("##HighlightInputText", &m_highlight, flags)) {}
 
+  ImGui::Checkbox("Freeze", &m_frozen);
+
   static constexpr ImPlotFlags plotFlags =
     ImPlotFlags_NoMouseText | ImPlotFlags_NoTitle;
 
@@ -131,6 +133,9 @@ void ProfilingPanel::_showRecorderTree(const PerfRecorder& recorder)
 
 bool ProfilingPanel::_buildProfileEntriesCheck(const PerfRecorder& recorder)
 {
+  if (m_frozen)
+    return true;
+  
   if (m_timer.isStarted()
       && m_timer.getCurrentDuration<DurationSeconds>().get<float>() < 1.f)
     return true;
