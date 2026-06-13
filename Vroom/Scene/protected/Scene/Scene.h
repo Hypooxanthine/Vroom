@@ -272,6 +272,11 @@ private:
   void destroyEntityRecursive(Entity entity);
 
   void _updateGlobalTransforms();
+  void _submitDirectionalLightsForRender();
+  void _submitPointLightsForRender();
+  void _submitMeshesForRender();
+  void _submitSkyboxesForRender();
+  void _submitParticleSystemsForRender();
 
   // Scene loading
 

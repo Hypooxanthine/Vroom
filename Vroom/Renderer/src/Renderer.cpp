@@ -2,6 +2,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Core/Profiling.h"
 #include "RenderObjects/PointLight.h"
 #include "Renderer/GPURuntimeFeatures.h"
 #include "Renderer/LightClusteringPass.h"
@@ -58,9 +59,12 @@ void Renderer::beginScene(const RenderLayout* layout)
 
 void Renderer::endScene()
 {
-  m_meshRegistry.endRegistering();
-  m_LightRegistry.endRegistering();
-  m_particleEmitterRegistry.endRegistering();
+  {
+    VRM_PROFILE_SCOPE("Renderer::endScene: end registering");
+    m_meshRegistry.endRegistering();
+    m_LightRegistry.endRegistering();
+    m_particleEmitterRegistry.endRegistering();
+  }
 
   RenderPassContext renderContext;
   for (size_t row = 0; row < m_renderLayout->getRows(); ++row)

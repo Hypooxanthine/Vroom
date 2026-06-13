@@ -71,82 +71,11 @@ void Scene::render()
   Renderer& renderer = *m_renderer;
   renderer.beginScene(&m_renderLayout);
 
-  auto viewDirLights = m_Registry.view<DirectionalLightComponent, TransformComponent>();
-  for (auto&& [e, dl, t] : viewDirLights.each())
-  {
-    const glm::quat& rot     = t.getGlobalRotationQuat();
-    glm::vec4        forward = { 1.f, 0.f, 0.f, 0.f };
-
-    render::DirectionalLight renderLight;
-    renderLight.direction    = glm::vec3(rot * forward);
-    renderLight.intensity    = dl.intensity;
-    renderLight.color        = dl.color;
-    renderLight.castsShadows = dl.castsShadows;
-
-    renderer.submitDirectionalLight(static_cast<entt::id_type>(e), renderLight);
-  }
-
-  auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent>();
-  for (auto&& [e, pl, t] : viewPointLights.each())
-  {
-    render::PointLight renderLight;
-    renderLight.position             = t.getGlobalPosition();
-    renderLight.color                = pl.getColor();
-    renderLight.intensity            = pl.getIntensity();
-    renderLight.radius               = pl.getRadius();
-    renderLight.smoothRadius         = pl.getSmoothRadius();
-    renderLight.constantAttenuation  = pl.getConstantAttenuation();
-    renderLight.linearAttenuation    = pl.getLinearAttenuation();
-    renderLight.quadraticAttenuation = pl.getQuadraticAttenuation();
-
-    renderer.submitPointLight(static_cast<entt::id_type>(e), renderLight);
-  }
-
-  auto viewMeshes = m_Registry.view<MeshComponent, TransformComponent>();
-  for (auto&& [e, m, t] : viewMeshes.each())
-  {
-    MeshRenderInfo info;
-    uint32_t       i  = 0;
-    size_t         id = (static_cast<size_t>(e));
-    for (const auto& submesh : m.getMesh()->getSubMeshes())
-    {
-      MeshRenderInfo info;
-      info.renderMeshId = (id << 32) | i; // Id is tracking the mesh component + its submesh
-      info.mesh         = &submesh.renderMesh;
-      info.material     = m.getMaterials().getMaterial(i);
-      info.model        = &t.getGlobalTransform();
-      info.tags.set(EMeshTag::eVisible, m.isVisible());
-      info.tags.set(EMeshTag::eShadowCaster, m.doesCastShadow());
-      info.entityId = id;
-
-      renderer.submitMesh(info);
-
-      ++i;
-    }
-  }
-
-  auto viewSkyboxes = m_Registry.view<SkyboxComponent>();
-  for (auto&& [e, skybox] : viewSkyboxes.each())
-  {
-    renderer.submitSkybox(skybox.getCubemapAsset()->getRenderCubemap());
-  }
-
-  auto viewParticles = m_Registry.view<ParticleSystemComponent, TransformComponent>();
-  for (auto&& [e, particleSystem, t] : viewParticles.each())
-  {
-    const auto& emitters = particleSystem.getEmitters();
-
-    for (size_t i = 0; i < emitters.size(); ++i)
-    {
-      const ParticleEmitter* emitter = &emitters[i];
-      size_t                 id      = (static_cast<size_t>(e) << 32) | i;
-
-      ParticleSystemRenderInfo info;
-      info.emitter = emitter;
-      info.model   = &t.getGlobalTransform();
-      renderer.submitParticleEmitter(id, info);
-    }
-  }
+  _submitDirectionalLightsForRender();
+  _submitPointLightsForRender();
+  _submitMeshesForRender();
+  _submitSkyboxesForRender();
+  _submitParticleSystemsForRender();
 
   onRender();
 
@@ -403,6 +332,8 @@ void Scene::renameRoot(const std::string& rootName)
 
 void Scene::_updateGlobalTransforms()
 {
+  VRM_PROFILE_SCOPE("Scene::_updateGlobalTransforms");
+  
   auto effector = [](Entity& current, Entity& parent) -> bool
   {
     auto& currentTC = current.getComponentInternal<vrm::TransformComponent>();
@@ -429,4 +360,106 @@ void Scene::_updateGlobalTransforms()
   };
 
   DepthFirstTraversal<false>(checker, getRoot());
+}
+
+void Scene::_submitDirectionalLightsForRender()
+{
+  VRM_PROFILE_SCOPE("Scene::_submitDirectionalLightsForRender");
+
+  auto viewDirLights = m_Registry.view<DirectionalLightComponent, TransformComponent>();
+  for (auto&& [e, dl, t] : viewDirLights.each())
+  {
+    const glm::quat& rot     = t.getGlobalRotationQuat();
+    glm::vec4        forward = { 1.f, 0.f, 0.f, 0.f };
+
+    render::DirectionalLight renderLight;
+    renderLight.direction    = glm::vec3(rot * forward);
+    renderLight.intensity    = dl.intensity;
+    renderLight.color        = dl.color;
+    renderLight.castsShadows = dl.castsShadows;
+
+    m_renderer->submitDirectionalLight(static_cast<entt::id_type>(e), renderLight);
+  }
+}
+
+void Scene::_submitPointLightsForRender()
+{
+  VRM_PROFILE_SCOPE("Scene::_submitPointLightsForRender");
+
+  auto viewPointLights = m_Registry.view<PointLightComponent, TransformComponent>();
+  for (auto&& [e, pl, t] : viewPointLights.each())
+  {
+    render::PointLight renderLight;
+    renderLight.position             = t.getGlobalPosition();
+    renderLight.color                = pl.getColor();
+    renderLight.intensity            = pl.getIntensity();
+    renderLight.radius               = pl.getRadius();
+    renderLight.smoothRadius         = pl.getSmoothRadius();
+    renderLight.constantAttenuation  = pl.getConstantAttenuation();
+    renderLight.linearAttenuation    = pl.getLinearAttenuation();
+    renderLight.quadraticAttenuation = pl.getQuadraticAttenuation();
+
+    m_renderer->submitPointLight(static_cast<entt::id_type>(e), renderLight);
+  }
+}
+
+void Scene::_submitMeshesForRender()
+{
+  VRM_PROFILE_SCOPE("Scene::_submitMeshesForRender");
+
+  auto viewMeshes = m_Registry.view<MeshComponent, TransformComponent>();
+  for (auto&& [e, m, t] : viewMeshes.each())
+  {
+    MeshRenderInfo info;
+    uint32_t       i  = 0;
+    size_t         id = (static_cast<size_t>(e));
+    for (const auto& submesh : m.getMesh()->getSubMeshes())
+    {
+      MeshRenderInfo info;
+      info.renderMeshId = (id << 32) | i; // Id is tracking the mesh component + its submesh
+      info.mesh         = &submesh.renderMesh;
+      info.material     = m.getMaterials().getMaterial(i);
+      info.model        = &t.getGlobalTransform();
+      info.tags.set(EMeshTag::eVisible, m.isVisible());
+      info.tags.set(EMeshTag::eShadowCaster, m.doesCastShadow());
+      info.entityId = id;
+
+      m_renderer->submitMesh(info);
+
+      ++i;
+    }
+  }
+}
+
+void Scene::_submitSkyboxesForRender()
+{
+  VRM_PROFILE_SCOPE("Scene::_submitSkyboxesForRender");
+
+  auto viewSkyboxes = m_Registry.view<SkyboxComponent>();
+  for (auto&& [e, skybox] : viewSkyboxes.each())
+  {
+    m_renderer->submitSkybox(skybox.getCubemapAsset()->getRenderCubemap());
+  }
+}
+
+void Scene::_submitParticleSystemsForRender()
+{
+  VRM_PROFILE_SCOPE("Scene::_submitParticleSystemsForRender");
+
+  auto viewParticles = m_Registry.view<ParticleSystemComponent, TransformComponent>();
+  for (auto&& [e, particleSystem, t] : viewParticles.each())
+  {
+    const auto& emitters = particleSystem.getEmitters();
+
+    for (size_t i = 0; i < emitters.size(); ++i)
+    {
+      const ParticleEmitter* emitter = &emitters[i];
+      size_t                 id      = (static_cast<size_t>(e) << 32) | i;
+
+      ParticleSystemRenderInfo info;
+      info.emitter = emitter;
+      info.model   = &t.getGlobalTransform();
+      m_renderer->submitParticleEmitter(id, info);
+    }
+  }
 }
