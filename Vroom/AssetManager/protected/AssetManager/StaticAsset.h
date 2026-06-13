@@ -26,6 +26,7 @@ namespace vrm
     bool load(const std::string& filePath);
 
     inline std::filesystem::path getFilePath() const { return m_filePath; }
+    size_t getGeneration() const;
 
     /**
      * @brief Tries to resolve a path from this asset: local first, relative to the project origin then.
@@ -50,6 +51,7 @@ namespace vrm
   private:
     mutable size_t m_InstanceCount = 0;
     std::string m_filePath;
+    size_t m_generation = 0;
   };
 
 } // namespace vrm

@@ -100,15 +100,13 @@ public:
   template <typename T>
   void loadAsset(const std::filesystem::path& assetID)
   {
-    VRM_ASSERT_MSG(tryLoadAsset<T>(assetID), "Failed to load asset: {}",
-                   assetID.string());
+    VRM_ASSERT_MSG(tryLoadAsset<T>(assetID), "Failed to load asset: {}", assetID.string());
   }
 
   template <typename T>
   void reloadAsset(const std::filesystem::path& assetID)
   {
-    VRM_ASSERT_MSG(tryReloadAsset<T>(assetID), "Failed to load asset: {}",
-                   assetID.string());
+    VRM_ASSERT_MSG(tryReloadAsset<T>(assetID), "Failed to load asset: {}", assetID.string());
   }
 
   template <typename T>
@@ -120,7 +118,6 @@ public:
   template <typename T>
   inline bool tryReloadAsset(const std::filesystem::path& assetID)
   {
-    auto                  asset        = std::make_unique<T>();
     std::filesystem::path resolvedPath = _resolveVirtualPath(assetID);
 
     if (resolvedPath.empty())
@@ -129,29 +126,25 @@ public:
       resolvedPath = assetID;
     }
 
-    if (!asset->load(resolvedPath.string()))
-    {
-      return false;
-    }
-
     std::filesystem::path formattedPath = _formatAssetId(assetID);
-    decltype(m_assets)::iterator assetIt;
 
-    if (auto keyIt = m_keys.find(formattedPath);
-        keyIt != m_keys.end())
+    if (auto keyIt = m_keys.find(formattedPath); keyIt != m_keys.end())
     {
       // Asset is already loaded
-      assetIt = m_assets.begin() + keyIt->second;
-      VRM_CHECK_RET_FALSE_MSG(assetIt->get()->getInstanceCount() == 0,
-                              "Trying to reload an used asset");
+      decltype(m_assets)::iterator assetIt = m_assets.begin() + keyIt->second;
+      if (!assetIt->get()->load(resolvedPath.string()))
+        return false;
     }
     else
     {
-      m_keys.insert({ formattedPath, m_assets.size() });
-      assetIt = m_assets.emplace(m_assets.end());
-    }
+      auto asset = std::make_unique<T>();
+      if (!asset->load(resolvedPath.string()))
+        return false;
 
-    *assetIt = std::move(asset);
+      // Emplacing the asset only if the first load succeeded
+      m_keys.insert({ formattedPath, m_assets.size() });
+      m_assets.emplace_back(std::move(asset));
+    }
 
     return true;
   }
@@ -171,11 +164,9 @@ private:
 
   void _clear();
 
-  std::filesystem::path
-  _resolveVirtualPath(const std::filesystem::path& virtualPath) const;
+  std::filesystem::path _resolveVirtualPath(const std::filesystem::path& virtualPath) const;
 
-  std::filesystem::path
-  _formatAssetId(const std::filesystem::path& assetID) const;
+  std::filesystem::path _formatAssetId(const std::filesystem::path& assetID) const;
 
 private:
 

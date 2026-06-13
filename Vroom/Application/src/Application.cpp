@@ -7,6 +7,7 @@
 #include "Core/Profiler.h"
 #include "Core/Profiling.h"
 #include "Event/GLFWEventsConverter.h"
+#include "RenderObjects/RenderObjectsManager.h"
 #include "Renderer/Renderer.h"
 #include "Scene/Scene.h"
 #include "Window/Window.h"
@@ -44,6 +45,7 @@ Application::Application(int argc, char** argv)
   VRM_ASSERT_MSG(glewStatus == GLEW_OK, "glewInit() failed with error code {}. Message: {}", glewStatus,
                  (const char*)(glewGetErrorString(glewStatus)));
 
+  render::RenderObjectsManager::Init();
   AssetManager::Init();
 
   // Pushing the game layer and storing it in a pointer (GameLayer is a special
@@ -62,6 +64,7 @@ Application::~Application()
                         // rendering context.
 
   AssetManager::Shutdown();
+  render::RenderObjectsManager::Shutdown();
   m_Window->destroy();
   m_Window.reset();
 

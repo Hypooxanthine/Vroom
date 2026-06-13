@@ -16,6 +16,7 @@ void PassMaterial::setMaterialAsset(MaterialAsset::Handle material)
   m_materialAsset = material;
   m_gpuShader.unload();
   m_needsPrepare = true;
+  m_generation = material->getGeneration();
 }
 
 bool PassMaterial::prepare(const MaterialDefines& defines)
@@ -68,6 +69,11 @@ bool PassMaterial::prepare(const MaterialDefines& defines)
   return true;
 }
 
+size_t PassMaterial::getGeneration() const
+{
+  return m_generation;
+}
+
 // PassMaterials
 
 PassMaterials::PassMaterials() {}
@@ -79,7 +85,7 @@ const PassMaterial& PassMaterials::getMaterial(const Key& key)
   auto [it, inserted]    = m_materials.try_emplace(key);
   PassMaterial& material = it->second;
 
-  if (inserted)
+  if (inserted || material.getGeneration() != key.asset->getGeneration())
   {
     material.setMaterialAsset(key.asset);
     if (key.defines) material.prepare(*key.defines);

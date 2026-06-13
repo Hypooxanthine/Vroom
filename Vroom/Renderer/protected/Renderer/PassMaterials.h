@@ -34,10 +34,13 @@ namespace vrm
       return m_gpuShader;
     }
 
+    size_t getGeneration() const;
+
   private:
     MaterialAsset::Handle m_materialAsset;
     gl::Shader m_gpuShader;
     bool m_needsPrepare = true;
+    size_t m_generation = 1;
   };
 
   class PassMaterials

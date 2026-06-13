@@ -1,12 +1,7 @@
 #include "AssetManager/ShadingModelAsset.h"
-#include <fstream>
-#include <unordered_map>
 
 #include "AssetManager/AssetManager.h"
-#include "AssetManager/Json.h"
 #include "AssetManager/ShaderAsset.h"
-#include "AssetManager/ShaderParsing.h"
-
 
 using namespace vrm;
 
@@ -34,10 +29,16 @@ bool ShadingModelAsset::loadImpl(const std::filesystem::path& filePath)
 
   // Implementation of the shading model
   {
-    VRM_CHECK_RET_FALSE_MSG(manager.tryLoadAsset<ShaderAsset>(filePath), "Could not load material specific shader: {}",
-                            filePath.string());
+    // The implementation shader of the shading model must be the name of the shading model with a "Shader" suffix.
+    std::filesystem::path shaderPath = filePath;
+    shaderPath.replace_extension();
+    shaderPath += "Shader";
+    shaderPath += filePath.extension();
 
-    ShaderAsset::Handle specificShader = manager.getAsset<ShaderAsset>(filePath);
+    VRM_CHECK_RET_FALSE_MSG(manager.tryLoadAsset<ShaderAsset>(shaderPath),
+                            "Could not load material specific shader: {}", shaderPath.string());
+
+    ShaderAsset::Handle specificShader = manager.getAsset<ShaderAsset>(shaderPath);
     m_data.absorb(specificShader->getShaderData());
   }
 
