@@ -42,6 +42,7 @@ struct EInterfaceElement
     eEntityEditor,
     eEditorPreferences,
     eParticleSystemEditor,
+    eMaterialEditor,
     eElementCount
   };
 };

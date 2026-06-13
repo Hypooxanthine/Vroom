@@ -5,7 +5,6 @@
 #include <AssetManager/ScriptAsset.h>
 #include <Scene/Scene.h>
 #include <imgui_internal.h>
-#include <misc/cpp/imgui_stdlib.h>
 #include <string_view>
 
 #include "imgui.h"

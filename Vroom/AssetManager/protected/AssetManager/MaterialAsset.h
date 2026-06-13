@@ -3,10 +3,10 @@
 #include "AssetManager/Api.h"
 #include "AssetManager/MaterialData.h"
 #include "AssetManager/ShaderData.h"
+#include "AssetManager/ShadingModelAsset.h"
 #include "AssetManager/StaticAsset.h"
 #include "AssetManager/TextureAsset.h"
 #include "Rasterizer/Shader.h"
-
 
 namespace vrm
 {
@@ -22,17 +22,22 @@ public:
   MaterialAsset();
   ~MaterialAsset();
 
-  [[nodiscard]] inline const MaterialData& getData() const
+  inline const MaterialData& getData() const
   {
     return m_data;
   }
 
-  [[nodiscard]] inline const ShaderData& getShaderData() const
+  inline const ShaderData& getShaderData() const
   {
     return m_materialShaderData;
   }
 
-  [[nodiscard]] inline const std::vector<TextureAsset::Handle>& getTextures() const
+  inline ShadingModelAsset::Handle getShadingModel() const
+  {
+    return m_shadingModel;
+  }
+
+  inline const std::vector<TextureAsset::Handle>& getTextures() const
   {
     return m_textures;
   }
@@ -50,7 +55,8 @@ private:
   MaterialData                      m_data;
   std::vector<TextureAsset::Handle> m_textures;
 
-  ShaderData m_materialShaderData;
+  ShaderData                m_materialShaderData;
+  ShadingModelAsset::Handle m_shadingModel;
 };
 
 } // namespace vrm

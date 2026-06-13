@@ -5,16 +5,15 @@
 namespace vrm
 {
   
-class AssetFileMaterialAsset : public AssetFile
+class AssetFileTextureAsset : public AssetFile
 {
 public:
-  AssetFileMaterialAsset(const std::filesystem::path& path);
-  virtual ~AssetFileMaterialAsset();
+  AssetFileTextureAsset(const std::filesystem::path& path);
+  virtual ~AssetFileTextureAsset();
 
 protected:
   std::string getPictoAssetName() const override;
   void onAddCustomImGuiBehaviour() override;
-  void onDoubleClick() override;
 
 private:
 };

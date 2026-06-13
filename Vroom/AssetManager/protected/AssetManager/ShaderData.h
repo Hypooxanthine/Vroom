@@ -179,11 +179,11 @@ public:
 
   bool       validate() const;
   FullShader combine() const;
+  const ShaderProperties& getProps(const EShaderType& shader) const;
 
 private:
 
   ShaderProperties&       getProps(const EShaderType& shader);
-  const ShaderProperties& getProps(const EShaderType& shader) const;
 
   std::string combine(const ShaderProperties& global, const ShaderProperties& shader, const EShaderType& shaderType,
                       const std::vector<Varying>& varyings = {}) const;

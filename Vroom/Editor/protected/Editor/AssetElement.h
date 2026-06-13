@@ -38,7 +38,7 @@ protected:
   virtual std::string getPictoAssetName() const;
   virtual std::string getText() const;
   virtual void onDoubleClick() {}
-  virtual void onAddCustomBehaviour() {}
+  virtual void onAddCustomImGuiBehaviour() {}
 
   inline AssetBrowser &getBrowser() { return *m_Browser; }
   inline const AssetBrowser &getBrowser() const { return *m_Browser; }

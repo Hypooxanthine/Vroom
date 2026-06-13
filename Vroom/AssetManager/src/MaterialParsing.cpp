@@ -157,7 +157,7 @@ namespace nlohmann
       vrm::MaterialData::Parameter p;
       p = param;
       p.name = name;
-      e.addParameter(p);
+      e.setParameter(p);
     }
   }
 

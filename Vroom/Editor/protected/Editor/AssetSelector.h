@@ -1,15 +1,16 @@
 #pragma once
 
-#include "imgui.h"
-#include "imgui_internal.h"
 
-#include "Editor/ImGuiElement.h"
+#include "imgui.h"
+#include <misc/cpp/imgui_stdlib.h>
+#include "imgui_internal.h"
 
 #include "AssetManager/AssetManager.h"
 #include "AssetManager/CubemapAsset.h"
 #include "AssetManager/MaterialAsset.h"
 #include "AssetManager/MeshAsset.h"
 #include "AssetManager/ScriptAsset.h"
+#include "Editor/ImGuiElement.h"
 #include "misc/cpp/imgui_stdlib.h"
 
 namespace vrm
@@ -19,10 +20,11 @@ class AssetSelector : public ImGuiElement
 {
 public:
 
-  inline AssetSelector() {}
-  inline AssetSelector(const AssetType::Handle& asset) : m_asset(asset) {}
+  inline AssetSelector();
+  inline AssetSelector(const AssetType::Handle& asset);
 
-  inline ~AssetSelector() {}
+  inline ~AssetSelector()
+  {}
 
   AssetSelector& operator=(const AssetSelector& other) = delete;
   AssetSelector(const AssetSelector& other)            = delete;
@@ -30,10 +32,25 @@ public:
   AssetSelector& operator=(AssetSelector&& other) = default;
   AssetSelector(AssetSelector&& other)            = default;
 
-  inline void setAsset(const AssetType::Handle& asset) { m_asset = asset; }
+  inline void setAsset(const AssetType::Handle& asset)
+  {
+    m_asset = asset;
+  }
 
-  inline AssetType::Handle getAsset() const { return m_asset; }
-  inline bool              getChanged() const { return m_justChanged; }
+  inline AssetType::Handle getAsset() const
+  {
+    return m_asset;
+  }
+
+  inline bool getChanged() const
+  {
+    return m_justChanged;
+  }
+
+  inline void setDispayName(const std::string& name)
+  {
+    m_displayName = name;
+  }
 
 protected:
 
@@ -41,14 +58,16 @@ protected:
 
 private:
 
+  std::string       m_displayName;
   AssetType::Handle m_asset       = {};
   bool              m_justChanged = false;
 };
 
-using MeshSelector     = AssetSelector<MeshAsset>;
-using MaterialSelector = AssetSelector<MaterialAsset>;
-using CubemapSelector  = AssetSelector<CubemapAsset>;
-using ScriptSelector   = AssetSelector<ScriptAsset>;
+using MeshSelector     = AssetSelector<vrm::MeshAsset>;
+using MaterialSelector = AssetSelector<vrm::MaterialAsset>;
+using CubemapSelector  = AssetSelector<vrm::CubemapAsset>;
+using ScriptSelector   = AssetSelector<vrm::ScriptAsset>;
+using TextureSelector  = AssetSelector<vrm::TextureAsset>;
 
 template <typename SelectorType>
 struct AssetSelectorTraits;
@@ -56,14 +75,23 @@ struct AssetSelectorTraits;
 template <>
 struct AssetSelectorTraits<MeshAsset>
 {
-  static consteval const char* GetDisplayName() { return "Mesh"; }
-  static consteval const char* GetDragDropTargetName() { return "MeshAsset"; }
+  static consteval const char* GetDisplayName()
+  {
+    return "Mesh";
+  }
+  static consteval const char* GetDragDropTargetName()
+  {
+    return "MeshAsset";
+  }
 };
 
 template <>
 struct AssetSelectorTraits<MaterialAsset>
 {
-  static consteval const char* GetDisplayName() { return "Material"; }
+  static consteval const char* GetDisplayName()
+  {
+    return "Material";
+  }
   static consteval const char* GetDragDropTargetName()
   {
     return "MaterialAsset";
@@ -73,7 +101,10 @@ struct AssetSelectorTraits<MaterialAsset>
 template <>
 struct AssetSelectorTraits<CubemapAsset>
 {
-  static consteval const char* GetDisplayName() { return "Cubemap"; }
+  static consteval const char* GetDisplayName()
+  {
+    return "Cubemap";
+  }
   static consteval const char* GetDragDropTargetName()
   {
     return "CubemapAsset";
@@ -83,12 +114,38 @@ struct AssetSelectorTraits<CubemapAsset>
 template <>
 struct AssetSelectorTraits<ScriptAsset>
 {
-  static consteval const char* GetDisplayName() { return "Script"; }
+  static consteval const char* GetDisplayName()
+  {
+    return "Script";
+  }
   static consteval const char* GetDragDropTargetName()
   {
     return "ScriptAsset";
   }
 };
+
+template <>
+struct AssetSelectorTraits<TextureAsset>
+{
+  static consteval const char* GetDisplayName()
+  {
+    return "Texture";
+  }
+  static consteval const char* GetDragDropTargetName()
+  {
+    return "TextureAsset";
+  }
+};
+
+template <typename AssetType>
+AssetSelector<AssetType>::AssetSelector(const AssetType::Handle& asset) : m_asset(asset)
+{
+  m_displayName = AssetSelectorTraits<AssetType>::GetDisplayName();
+}
+
+template <typename AssetType>
+AssetSelector<AssetType>::AssetSelector() : AssetSelector(AssetType::Handle())
+{}
 
 template <typename AssetType>
 void AssetSelector<AssetType>::onImgui()
@@ -97,12 +154,10 @@ void AssetSelector<AssetType>::onImgui()
   bool        assetChanged = false;
   std::string assetName    = m_asset.isValid() ? m_asset->getFilePath().string() : "";
 
-  constexpr auto flags = ImGuiInputTextFlags_AutoSelectAll
-                       | ImGuiInputTextFlags_EnterReturnsTrue
-                       | ImGuiInputTextFlags_CharsNoBlank;
+  constexpr auto flags =
+    ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsNoBlank;
 
-  if (ImGui::InputText(AssetSelectorTraits<AssetType>::GetDisplayName(),
-                       &assetName, flags))
+  if (ImGui::InputText(m_displayName.c_str(), &assetName, flags))
   {
     if (AssetManager::Get().tryLoadAsset<AssetType>(assetName))
     {
@@ -127,8 +182,8 @@ void AssetSelector<AssetType>::onImgui()
 
   if (ImGui::BeginDragDropTarget())
   {
-    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(
-          AssetSelectorTraits<AssetType>::GetDragDropTargetName()))
+    if (const ImGuiPayload* payload =
+          ImGui::AcceptDragDropPayload(AssetSelectorTraits<AssetType>::GetDragDropTargetName()))
     {
       // Entity* newChild = (Entity*)payload->Data;
       std::filesystem::path meshPath = *(std::filesystem::path*)payload->Data;
@@ -145,8 +200,7 @@ void AssetSelector<AssetType>::onImgui()
 
   if (assetChanged)
   {
-    typename AssetType::Handle requestNewMesh =
-      AssetManager::Get().tryGetAsset<AssetType>(assetName);
+    typename AssetType::Handle requestNewMesh = AssetManager::Get().tryGetAsset<AssetType>(assetName);
 
     if (requestNewMesh.isValid() && requestNewMesh != m_asset)
     {

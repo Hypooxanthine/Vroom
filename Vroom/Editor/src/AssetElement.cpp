@@ -90,7 +90,7 @@ void AssetElement::onImgui()
     }
   }
 
-  onAddCustomBehaviour();
+  onAddCustomImGuiBehaviour();
 
   ImGui::PopID();
 

@@ -27,6 +27,14 @@ namespace vrm
 
     inline std::filesystem::path getFilePath() const { return m_filePath; }
 
+    /**
+     * @brief Tries to resolve a path from this asset: local first, relative to the project origin then.
+     * 
+     * @param path 
+     * @return std::filesystem::path 
+     */
+    std::filesystem::path applyPathOrder(const std::filesystem::path& path) const;
+
   protected:
 
     /**
@@ -38,8 +46,6 @@ namespace vrm
     static std::string getExtension(const std::string& filePath);
 
     virtual bool loadImpl(const std::filesystem::path& filePath) = 0;
-
-    std::filesystem::path applyPathOrder(const std::filesystem::path& path) const;
 
   private:
     mutable size_t m_InstanceCount = 0;

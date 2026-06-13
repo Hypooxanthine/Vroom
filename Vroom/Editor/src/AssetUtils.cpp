@@ -13,6 +13,7 @@
 
 #include "AssetManager/Json.h"
 #include "Core/Log.h"
+#include "Editor/AssetFileTextureAsset.h"
 
 using namespace vrm;
 
@@ -75,6 +76,8 @@ std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const MetaFile&    
     return std::make_unique<AssetFileMeshAsset>(filePath);
   case MetaFile::EType::eMaterial:
     return std::make_unique<AssetFileMaterialAsset>(filePath);
+  case MetaFile::EType::eTexture:
+    return std::make_unique<AssetFileTextureAsset>(filePath);
   case MetaFile::EType::eNone:
   default:
     return nullptr;
@@ -83,6 +86,7 @@ std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const MetaFile&    
 
 bool AssetUtils::CreateMetaFile(const MetaFile& meta, const std::filesystem::path& filePath)
 {
+  std::filesystem::create_directory(filePath.parent_path());
   std::ofstream         ofs;
   std::filesystem::path metaPath = GetMetaName(filePath);
   ofs.open(metaPath, std::fstream::trunc);
