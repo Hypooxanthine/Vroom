@@ -104,6 +104,12 @@ void Renderer::submitMesh(const MeshRenderInfo& meshInfo)
 void Renderer::submitSkybox(const render::Cubemap& skybox)
 {
   m_skybox = &skybox;
+  m_lastSkybox = &skybox;
+}
+
+void Renderer::notifySkybox()
+{
+  m_skybox = m_lastSkybox;
 }
 
 void Renderer::submitPointLight(size_t id, const render::PointLight& pointLight)
@@ -111,9 +117,19 @@ void Renderer::submitPointLight(size_t id, const render::PointLight& pointLight)
   m_LightRegistry.submitLight(pointLight, id);
 }
 
+void Renderer::notifyPointLight(size_t id)
+{
+  m_LightRegistry.notifyPointLight(id);
+}
+
 void Renderer::submitDirectionalLight(size_t id, const render::DirectionalLight& dirLight)
 {
   m_LightRegistry.submitLight(dirLight, id);
+}
+
+void Renderer::notifyDirectionalLight(size_t id)
+{
+  m_LightRegistry.notifyDirectionalLight(id);
 }
 
 void Renderer::submitParticleEmitter(uint32_t id, const ParticleSystemRenderInfo& emitter)
@@ -132,6 +148,11 @@ void Renderer::submitParticleEmitter(uint32_t id, const ParticleSystemRenderInfo
   // }
 
   m_particleEmitterRegistry.submit(id, emitter);
+}
+
+void Renderer::notifyParticleEmitter(uint32_t id)
+{
+  m_particleEmitterRegistry.notifyUsed(id);
 }
 
 void Renderer::setFrameSize(const glm::uvec2& s)

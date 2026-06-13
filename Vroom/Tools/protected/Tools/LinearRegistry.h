@@ -1,6 +1,6 @@
 #pragma once
 
-#include <set>
+#include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -110,18 +110,21 @@ public:
       return;
     }
 
-    m_modified = true;
-    std::set<size_t> sortedIdsToDelete;
+    std::vector<std::pair<size_t, IdType>> idsToDelete;
+    idsToDelete.reserve(m_waitingKeys.size());
 
     for (const auto& missingId : m_waitingKeys)
     {
-      sortedIdsToDelete.emplace(m_indexMap.at(missingId));
+      idsToDelete.emplace_back(m_indexMap.at(missingId), missingId);
       m_indexMap.erase(missingId);
     }
 
-    for (auto it = sortedIdsToDelete.rbegin(); it != sortedIdsToDelete.rend(); ++it)
+    std::sort(idsToDelete.begin(), idsToDelete.end(),
+              [](const auto& lhs, const auto& rhs) { return lhs.first > rhs.first; });
+
+    for (const auto& [location, missingId] : idsToDelete)
     {
-      const size_t location = *it;
+      m_modified = true;
       const size_t end      = m_data.size() - 1;
 
       if (location < end)

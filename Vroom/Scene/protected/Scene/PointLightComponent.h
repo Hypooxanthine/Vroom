@@ -96,6 +96,19 @@ public:
     m_dirtyForRender     = true;
   }
 
+  inline bool consumeDirtyForRender() const
+  {
+    bool value       = m_dirtyForRender;
+    m_dirtyForRender = false;
+
+    return value;
+  }
+
+  inline void markDirtyForRender() const
+  {
+    m_dirtyForRender = true;
+  }
+
 public:
 
   friend struct LightRegistryAttorney;
@@ -110,8 +123,7 @@ public:
 
     static bool getAndResetDirtyForRender(const PointLightComponent& plc)
     {
-      bool value           = plc.m_dirtyForRender;
-      plc.m_dirtyForRender = false;
+      bool value = plc.consumeDirtyForRender();
 
       return value;
     }

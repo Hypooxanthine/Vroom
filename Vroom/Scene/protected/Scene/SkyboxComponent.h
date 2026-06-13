@@ -26,11 +26,26 @@ public:
   inline void setCubemapAsset(CubemapAsset::Handle cubemap)
   {
     m_cubemap = cubemap;
+    m_dirtyForRender = true;
+  }
+
+  inline bool consumeDirtyForRender() const
+  {
+    bool value       = m_dirtyForRender;
+    m_dirtyForRender = false;
+
+    return value;
+  }
+
+  inline void markDirtyForRender() const
+  {
+    m_dirtyForRender = true;
   }
 
 private:
 
   CubemapAsset::Handle m_cubemap;
+  mutable bool         m_dirtyForRender = true;
 };
 
 } // namespace vrm

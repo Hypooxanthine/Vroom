@@ -62,6 +62,16 @@ public:
   void startRegistering();
   void endRegistering();
 
+  inline void notifyDirectionalLight(size_t identifier)
+  {
+    m_dirLightsRegistry.notifyUsed(identifier);
+  }
+
+  inline void notifyPointLight(size_t identifier)
+  {
+    m_pointLightsRegistry.notifyUsed(identifier);
+  }
+
   void submitLight(const render::PointLight& pointLight, size_t identifier);
 
   void submitLight(const render::DirectionalLight& dirLight, size_t identifier);

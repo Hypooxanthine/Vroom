@@ -1,5 +1,6 @@
 #include "Renderer/LightRegistry.h"
 
+#include "Core/Profiling.h"
 #include "RenderObjects/DirectionalLight.h"
 #include "RenderObjects/PointLight.h"
 
@@ -10,8 +11,6 @@ LightRegistry::LightRegistry()
 
 void LightRegistry::submitLight(const render::PointLight& pointLight, size_t identifier)
 {
-  const RawPointLight* retrievedLight = m_pointLightsRegistry.tryGetElement(identifier);
-
   RawPointLight raw;
   raw.position             = glm::vec4(pointLight.position, 1.f);
   raw.color                = glm::vec4(pointLight.color, 1.f);
@@ -44,6 +43,8 @@ void LightRegistry::startRegistering()
 
 void LightRegistry::endRegistering()
 {
+  VRM_PROFILE_SCOPE("LightRegistry::endRegistering");
+
   m_dirLightsRegistry.endRegistering();
   m_pointLightsRegistry.endRegistering();
 

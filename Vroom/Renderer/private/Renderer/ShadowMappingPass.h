@@ -2,6 +2,7 @@
 
 #include "Rasterizer/FrameBuffer.h"
 #include "RenderObjects/Mesh.h"
+#include "Renderer/MeshRegistry.h"
 #include "Renderer/LightRegistry.h"
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/RenderPass.h"
@@ -59,6 +60,7 @@ private:
   LinearRegistry<glm::mat4, size_t> m_lightMatrices;
   std::vector<OrthographicCamera>   m_dirLightCameras;
   std::vector<render::Mesh>         m_debugDirLights;
+  std::vector<glm::vec3>            m_lastDirLightDirections;
 };
 
 } // namespace vrm

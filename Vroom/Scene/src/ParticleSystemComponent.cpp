@@ -21,17 +21,23 @@ void ParticleSystemComponent::setParticleSystem(
   ParticleSystemAsset::Handle asset)
 {
   m_asset = asset;
+  m_dirtyForRender = true;
 }
 
 void ParticleSystemComponent::addEmitter(ParticleEmitter::Specs&& specs)
 {
   ParticleEmitter& emitter = m_emitters.emplace_back();
   emitter.setSpecs(std::move(specs));
+  m_dirtyForRender = true;
 }
 
 void ParticleSystemComponent::removeEmitter(size_t id)
 {
-  if (id < m_emitters.size()) m_emitters.erase(m_emitters.begin() + id);
+  if (id < m_emitters.size())
+  {
+    m_emitters.erase(m_emitters.begin() + id);
+    m_dirtyForRender = true;
+  }
   else VRM_LOG_ERROR("Could not remove emitter:: id {} is out of range", id);
 }
 

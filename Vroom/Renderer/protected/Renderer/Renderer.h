@@ -58,12 +58,20 @@ public:
 
   void submitSkybox(const render::Cubemap& skybox);
 
+  void notifySkybox();
+
   void submitPointLight(size_t id, const render::PointLight& pointLight);
+
+  void notifyPointLight(size_t id);
 
   void submitDirectionalLight(size_t id, const render::DirectionalLight& dirLight);
 
+  void notifyDirectionalLight(size_t id);
+
   // id must be unique for any emitter (e.g entity id + emitter index in its system)
   void submitParticleEmitter(uint32_t id, const ParticleSystemRenderInfo& emitter);
+
+  void notifyParticleEmitter(uint32_t id);
 
   inline const glm::uvec2& getFrameSize() const
   {
@@ -90,7 +98,8 @@ private:
 
   MeshRegistry            m_meshRegistry;
   LightRegistry           m_LightRegistry;
-  const render::Cubemap*  m_skybox;
+  const render::Cubemap*  m_skybox     = nullptr;
+  const render::Cubemap*  m_lastSkybox = nullptr;
   ParticleEmitterRegistry m_particleEmitterRegistry;
 };
 

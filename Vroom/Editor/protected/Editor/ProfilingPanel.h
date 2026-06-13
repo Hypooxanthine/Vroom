@@ -58,6 +58,7 @@ private:
   std::vector<ProfileEntry> m_entries;
   int                       m_maxDepth = 0;
   Timer                     m_timer;
+  bool m_frozen = false;
 
   std::string m_highlight;
 };
