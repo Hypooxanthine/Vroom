@@ -15,7 +15,7 @@ public:
 protected:
 
   virtual std::string getPictoAssetName() const override;
-  virtual void onAddCustomBehaviour() override;
+  virtual void onAddCustomImGuiBehaviour() override;
 };
 
 } // namespace vrm

@@ -70,6 +70,9 @@ namespace vrm
       template <typename T>
       inline const T& getValue() const { return std::get<T>(value); }
 
+      template <typename T>
+      inline T& getValue() { return std::get<T>(value); }
+
       std::string name;
       Type type = Type::eNone;
       std::variant<float, glm::vec2, glm::vec3, glm::vec4, glm::mat4, TextureData> value;
@@ -97,7 +100,7 @@ namespace vrm
     inline const std::string& getCustomShader() const { return m_customShader; }
 
 
-    void addParameter(const Parameter &param);
+    void setParameter(const Parameter &param);
 
     bool hasParameter(const std::string &name) const;
 

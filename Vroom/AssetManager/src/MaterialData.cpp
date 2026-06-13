@@ -1,26 +1,26 @@
 #include "AssetManager/MaterialData.h"
+#include <set>
 
 #include "Core/Assert.h"
 
-#include <set>
 
 using namespace vrm;
 
-static const std::set<MaterialData::EType> s_customShaderSupportedTypes = { MaterialData::EType::eCustomShader, MaterialData::EType::ePostProcess };
- 
+static const std::set<MaterialData::EType> s_customShaderSupportedTypes = { MaterialData::EType::eCustomShader,
+                                                                            MaterialData::EType::ePostProcess };
+
 MaterialData::MaterialData()
-{
-}
+{}
 
 MaterialData::~MaterialData()
-{
-}
+{}
 
 void MaterialData::setType(EType type)
 {
-  if (m_type == type) return;
-  
-  m_type = type;
+  if (m_type == type)
+    return;
+
+  m_type         = type;
   m_shadingModel = EShadingModel::eNone;
   m_customShader = "";
 }
@@ -42,14 +42,21 @@ void MaterialData::setCustomShader(const std::string& customShader)
   m_customShader = customShader;
 }
 
-void MaterialData::addParameter(const Parameter& param)
+void MaterialData::setParameter(const Parameter& param)
 {
   VRM_CHECK_RET_MSG(param.type != Parameter::Type::eNone, "Parameter must have a type");
-  VRM_CHECK_RET_MSG(!m_parameters.contains(param.name), "Material parameter already set !");
 
   if (param.type == Parameter::eSampler2D)
-    ++m_textureCount;
-  
+  {
+    if (!m_parameters.contains(param.name) || m_parameters.at(param.name).type != Parameter::eSampler2D)
+      ++m_textureCount;
+  }
+  else
+  {
+    if (m_parameters.contains(param.name) && m_parameters.at(param.name).type == Parameter::eSampler2D)
+      --m_textureCount;
+  }
+
   m_parameters[param.name] = param;
 }
 

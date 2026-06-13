@@ -19,7 +19,7 @@ std::string AssetFileMeshAsset::getPictoAssetName() const
   return "Resources/Editor/Picto/mesh_asset.png";
 }
 
-void AssetFileMeshAsset::onAddCustomBehaviour()
+void AssetFileMeshAsset::onAddCustomImGuiBehaviour()
 {
   if (ImGui::BeginDragDropSource())
   {

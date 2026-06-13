@@ -13,7 +13,7 @@ namespace vrm
   {
     enum class EType : uint8_t
     {
-      eNone = 0, eScene, eMesh, eMaterial
+      eNone = 0, eScene, eMesh, eMaterial, eTexture
     };
 
     EType Type = EType::eNone;
@@ -69,6 +69,7 @@ namespace nlohmann
     { vrm::MetaFile::EType::eMaterial , "Material" },
     { vrm::MetaFile::EType::eMesh , "Mesh" },
     { vrm::MetaFile::EType::eScene , "Scene" },
+    { vrm::MetaFile::EType::eTexture , "Texture" },
   })
 
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(vrm::MetaFile,

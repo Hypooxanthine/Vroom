@@ -8,7 +8,8 @@
 #include "AssetManager/ShaderAsset.h"
 #include "AssetManager/ShadingModelAsset.h"
 #include "Core/Assert.h"
-
+#include "Core/Log.h"
+#include "Tools/Utility.h"
 
 using namespace vrm;
 
@@ -24,16 +25,6 @@ MaterialAsset::MaterialAsset() : StaticAsset()
 
 MaterialAsset::~MaterialAsset()
 {}
-
-// From https://en.cppreference.com/w/cpp/utility/variant/visit2
-template <class... Ts>
-struct overloaded : Ts...
-{
-  using Ts::operator()...;
-};
-// explicit deduction guide (not needed as of C++20)
-template <class... Ts>
-overloaded(Ts...) -> overloaded<Ts...>;
 
 void MaterialAsset::applyUniforms(const gl::Shader& shader) const
 {
@@ -141,7 +132,8 @@ bool MaterialAsset::loadImpl(const std::filesystem::path& filePath)
     return false;
   }
 
-  VRM_CHECK_RET_FALSE_MSG(MaterialParsing::Parse(j, m_data), "Could not parse MaterialData from file: {}", filePath.string());
+  VRM_CHECK_RET_FALSE_MSG(MaterialParsing::Parse(j, m_data), "Could not parse MaterialData from file: {}",
+                          filePath.string());
 
   AssetManager& manager = AssetManager::Get();
 
@@ -156,14 +148,18 @@ bool MaterialAsset::loadImpl(const std::filesystem::path& filePath)
   }
 
   // Shading model
-  if (m_data.getShadingModel() != MaterialData::EShadingModel::eNone)
+  if (m_data.getType() == MaterialData::EType::eShadingModel)
   {
-    const std::string& ID = S_SHADING_MODEL_SPECIFIC_SHADERS.at(m_data.getShadingModel());
+    auto findIt = S_SHADING_MODEL_SPECIFIC_SHADERS.find(m_data.getShadingModel());
+    VRM_CHECK_RET_FALSE_MSG(findIt != S_SHADING_MODEL_SPECIFIC_SHADERS.end(), "Shading model {} is not supported",
+                            m_data.getShadingModelName());
+
+    const std::string& ID = findIt->second;
     VRM_CHECK_RET_FALSE_MSG(manager.tryLoadAsset<ShadingModelAsset>(ID), "Couldn't load {} shading model at path {}",
                             m_data.getShadingModelName(), ID);
 
-    ShadingModelAsset::Handle shadingModel = manager.getAsset<ShadingModelAsset>(ID);
-    m_materialShaderData.absorb(shadingModel->getData());
+    m_shadingModel = manager.getAsset<ShadingModelAsset>(ID);
+    m_materialShaderData.absorb(m_shadingModel->getData());
     m_materialShaderData.addDefine(ShaderData::EShaderType::eAll, { "VRM_SHADING_MODEL", "1" });
   }
   // Post process material
@@ -195,6 +191,10 @@ bool MaterialAsset::loadImpl(const std::filesystem::path& filePath)
 
     m_materialShaderData.absorb(shader->getShaderData());
     m_materialShaderData.addDefine(ShaderData::EShaderType::eAll, { "VRM_CUSTOM_SHADER", "1" });
+  }
+  else
+  {
+    VRM_LOG_ERROR("Material type {} is not supported", (size_t)m_data.getType());
   }
 
   VRM_CHECK_RET_FALSE_MSG(buildShaderData(), "Could not build material shader data");

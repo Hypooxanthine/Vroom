@@ -22,6 +22,7 @@
 #include "Editor/EntityEditor.h"
 #include "Editor/Json.h"
 #include "Editor/MainMenuBar.h"
+#include "Editor/MaterialEditor.h"
 #include "Editor/ParticleSystemEditor.h"
 #include "Editor/ProfilingPanel.h"
 #include "Editor/RenderSettingsPanel.h"
@@ -86,6 +87,7 @@ void UserInterfaceLayer::onInit()
   emplaceImGuiElement<EditorPreferences>(EInterfaceElement::eEditorPreferences, false);
   emplaceImGuiElement<EntityEditor>(EInterfaceElement::eEntityEditor);
   emplaceImGuiElement<editor::ParticleSystemEditor>(EInterfaceElement::eParticleSystemEditor, false);
+  emplaceImGuiElement<MaterialEditor>(EInterfaceElement::eMaterialEditor, false);
 
   m_CustomEventManager.createCustomEvent("OSFileDrop").bindInput(Event::Type::FileDrop);
   m_CustomEventManager.bindPermanentCallback("OSFileDrop",

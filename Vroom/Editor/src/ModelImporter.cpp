@@ -209,7 +209,7 @@ void ModelImporter::_processMaterialPhong(aiMaterial* material, unsigned int id)
     IMPL.registerTexture(diffuseMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(diffuseMap);
-    data.addParameter(p);
+    data.setParameter(p);
   }
   else
   {
@@ -217,7 +217,7 @@ void ModelImporter::_processMaterialPhong(aiMaterial* material, unsigned int id)
     material->Get(AI_MATKEY_COLOR_DIFFUSE, col);
     p.type = MaterialData::Parameter::eVec3;
     p.setValue(glm::vec3(col.r, col.g, col.b));
-    data.addParameter(p);
+    data.setParameter(p);
   }
   
   p.name = "u_specular";
@@ -226,7 +226,7 @@ void ModelImporter::_processMaterialPhong(aiMaterial* material, unsigned int id)
     IMPL.registerTexture(specularMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(specularMap);
-    data.addParameter(p);
+    data.setParameter(p);
   }
   else
   {
@@ -234,7 +234,7 @@ void ModelImporter::_processMaterialPhong(aiMaterial* material, unsigned int id)
     material->Get(AI_MATKEY_COLOR_SPECULAR, col);
     p.type = MaterialData::Parameter::eVec3;
     p.setValue(glm::vec3(col.r, col.g, col.b));
-    data.addParameter(p);
+    data.setParameter(p);
   }
    
   p.name = "u_shininess";
@@ -243,7 +243,7 @@ void ModelImporter::_processMaterialPhong(aiMaterial* material, unsigned int id)
     IMPL.registerTexture(shininessMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(shininessMap);
-    data.addParameter(p);
+    data.setParameter(p);
   }
   else
   {
@@ -251,7 +251,7 @@ void ModelImporter::_processMaterialPhong(aiMaterial* material, unsigned int id)
     material->Get(AI_MATKEY_SHININESS, col);
     p.type = MaterialData::Parameter::eFloat;
     p.setValue(col);
-    data.addParameter(p);
+    data.setParameter(p);
   }
 
   std::filesystem::path outPath = IMPL.ctx.outDir / matName;
@@ -287,7 +287,7 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
     IMPL.registerTexture(albedoMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(albedoMap);
-    data.addParameter(p);
+    data.setParameter(p);
   }
   else
   {
@@ -295,7 +295,7 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
     material->Get(AI_MATKEY_COLOR_DIFFUSE, col);
     p.type = MaterialData::Parameter::eVec3;
     p.setValue(glm::vec3(col.r, col.g, col.b));
-    data.addParameter(p);
+    data.setParameter(p);
   }
   
   p.name = "u_specular";
@@ -304,7 +304,7 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
     IMPL.registerTexture(specularMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(specularMap);
-    data.addParameter(p);
+    data.setParameter(p);
   }
   else
   {
@@ -312,7 +312,7 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
     material->Get(AI_MATKEY_COLOR_SPECULAR, col);
     p.type = MaterialData::Parameter::eFloat;
     p.setValue(col);
-    data.addParameter(p);
+    data.setParameter(p);
   }
    
   p.name = "u_metalness";
@@ -321,7 +321,7 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
     IMPL.registerTexture(metalnessMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(metalnessMap);
-    data.addParameter(p);
+    data.setParameter(p);
   }
   else
   {
@@ -329,7 +329,7 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
     material->Get(AI_MATKEY_METALLIC_FACTOR, col);
     p.type = MaterialData::Parameter::eFloat;
     p.setValue(col);
-    data.addParameter(p);
+    data.setParameter(p);
   }
    
   p.name = "u_roughness";
@@ -338,7 +338,7 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
     IMPL.registerTexture(roughnessMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(roughnessMap);
-    data.addParameter(p);
+    data.setParameter(p);
   }
   else
   {
@@ -346,7 +346,7 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
     material->Get(AI_MATKEY_ROUGHNESS_FACTOR, col);
     p.type = MaterialData::Parameter::eFloat;
     p.setValue(col);
-    data.addParameter(p);
+    data.setParameter(p);
   }
    
   p.name = "u_normal";
@@ -355,7 +355,7 @@ void ModelImporter::_processMaterialPBR(aiMaterial* material, unsigned int id)
     IMPL.registerTexture(normalMap.resourceName);
     p.type = MaterialData::Parameter::eSampler2D;
     p.setValue(normalMap);
-    data.addParameter(p);
+    data.setParameter(p);
   }
 
   std::filesystem::path outPath = IMPL.ctx.outDir / matName;
@@ -401,4 +401,9 @@ void ModelImporter::Impl::registerTexture(const std::string& texName)
   std::string formatted = texName;
   std::replace(formatted.begin(), formatted.end(), '\\', '/');
   ctx.filesToCopy.emplace(formatted);
+
+  // Texutre metadata file
+  MetaFile metaData;
+  metaData.Type = MetaFile::EType::eTexture;
+  AssetUtils::CreateMetaFile(metaData, ctx.outDir / texName);
 }

@@ -20,7 +20,7 @@ std::string AssetFileScriptAsset::getPictoAssetName() const
   return "Resources/Editor/Picto/file.png";
 }
 
-void AssetFileScriptAsset::onAddCustomBehaviour()
+void AssetFileScriptAsset::onAddCustomImGuiBehaviour()
 {
   if (ImGui::BeginDragDropSource())
   {
