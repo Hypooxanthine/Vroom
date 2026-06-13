@@ -30,6 +30,7 @@ bool StaticAsset::load(const std::string& filePath)
   
   if (loadImpl(applyPathOrder(filePath)))
   {
+    ++m_generation;
     return true;
   }
   else
@@ -66,4 +67,9 @@ std::filesystem::path StaticAsset::applyPathOrder(const std::filesystem::path& p
   {
     return path;
   }
+}
+
+size_t StaticAsset::getGeneration() const
+{
+  return m_generation;
 }
