@@ -5,11 +5,11 @@
 #include <Renderer/Renderer.h>
 #include <Window/Window.h>
 #include <filesystem>
-#include <fstream>
 #include <future>
 
 #include "Application/Layer.h"
 #include "AssetManager/AssetManager.h"
+#include "AssetManager/JsonFile.h"
 #include "AssetManager/SceneAsset.h"
 #include "Core/Profiling.h"
 #include "Editor/SceneGraph.h"
@@ -113,12 +113,8 @@ void EditorLayer::saveScene()
     return;
   }
 
-  {
-    std::ofstream ofs;
-    ofs.open(m_loadedScene, std::ios_base::trunc);
-
-    ofs << j.dump(2);
-  }
+  if (!WriteJsonFile(m_loadedScene, j))
+    return;
 
   AssetManager::Get().reloadAsset<SceneAsset>(m_loadedScene);
 }

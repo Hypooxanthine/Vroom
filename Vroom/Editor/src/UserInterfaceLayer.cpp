@@ -4,7 +4,6 @@
 #include <Core/Assert.h>
 #include <Renderer/Renderer.h>
 #include <Window/Window.h>
-#include <fstream>
 
 #include "imgui.h"
 
@@ -14,6 +13,7 @@
 #include "ImGuizmo.h"
 
 #include "AssetManager/AssetManager.h"
+#include "AssetManager/JsonFile.h"
 #include "AssetManager/VirtualDirectoriesEmulator.h"
 #include "Core/Profiling.h"
 #include "Editor/AssetBrowser.h"
@@ -228,36 +228,18 @@ void UserInterfaceLayer::fileDropCallback(const Event& e)
 
 bool UserInterfaceLayer::_loadImguiStyle()
 {
-  std::ifstream ifs;
-  ifs.open(s_imguiStyleFile);
+  json j;
+  if (!ReadJsonFile(s_imguiStyleFile, j))
+    return false;
 
-  if (ifs.is_open())
+  try
   {
-    json j;
-
-    try
-    {
-      ifs >> j;
-    } catch (const std::exception& e)
-    {
-      VRM_LOG_ERROR("Could not parse imgui style {} into json. Error:\n{}", s_imguiStyleFile.string(), e.what());
-      return false;
-    }
-
-    try
-    {
-      ImGuiStyle& style = ImGui::GetStyle();
-      nlohmann::adl_serializer<ImGuiStyle>().from_json(j, style);
-    } catch (const std::exception& e)
-    {
-      VRM_LOG_ERROR("Could not parse imgui style {} into an ImGuiStyle. Error:\n{}", s_imguiStyleFile.string(),
-                    e.what());
-      return false;
-    }
-  }
-  else
+    ImGuiStyle& style = ImGui::GetStyle();
+    nlohmann::adl_serializer<ImGuiStyle>().from_json(j, style);
+  } catch (const std::exception& e)
   {
-    VRM_LOG_WARN("Imgui style {} not found", s_imguiStyleFile.string());
+    VRM_LOG_ERROR("Could not parse imgui style {} into an ImGuiStyle. Error:\n{}", s_imguiStyleFile.string(),
+                  e.what());
     return false;
   }
 
@@ -276,21 +258,10 @@ void UserInterfaceLayer::saveImguiStyle(const ImGuiStyle& style) const
     return;
   }
 
-  std::ofstream ofs;
-  ofs.open(s_imguiStyleFile, std::ofstream::trunc);
+  json j;
+  nlohmann::adl_serializer<ImGuiStyle>().to_json(j, style);
 
-  if (ofs.is_open())
-  {
-    json j;
-
-    nlohmann::adl_serializer<ImGuiStyle>().to_json(j, style);
-
-    ofs << j;
-  }
-  else
-  {
-    VRM_LOG_WARN("Could not open or create {} file", s_imguiStyleFile.string());
-  }
+  WriteJsonFile(s_imguiStyleFile, j, -1);
 }
 
 Viewport& UserInterfaceLayer::getViewport()

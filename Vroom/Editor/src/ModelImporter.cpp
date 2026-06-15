@@ -1,7 +1,5 @@
 #include "Editor/ModelImporter.h"
 
-#include <fstream>
-
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/SceneCombiner.h>
@@ -9,6 +7,7 @@
 #include <assimp/Exporter.hpp>
 
 #include "AssetManager/Json.h"
+#include "AssetManager/JsonFile.h"
 #include "AssetManager/MaterialData.h"
 
 #include "Editor/AssetUtils.h"
@@ -153,27 +152,16 @@ void ModelImporter::_createFiles()
   for (const auto& [matName, j] : IMPL.ctx.outMaterials)
   {
     std::filesystem::path matPath = IMPL.ctx.outDir / matName;
-    std::ofstream ofs;
-    ofs.open(matPath, std::fstream::trunc);
 
-    if (!ofs.is_open())
+    if (!WriteJsonFile(matPath, j))
     {
-      VRM_LOG_WARN("Could not open/create material file {}", matPath.string());
+      VRM_LOG_WARN("Could not create material file {}", matPath.string());
       continue;
     }
 
-    try
-    {
-      ofs << j;
-      ofs.close();
-      MetaFile metaData;
-      metaData.Type = MetaFile::EType::eMaterial;
-      AssetUtils::CreateMetaFile(metaData, matPath);
-    }
-    catch (const std::exception& e)
-    {
-      VRM_LOG_WARN("Could not create material file {}. Error log: {}", matPath.string(), e.what());
-    }
+    MetaFile metaData;
+    metaData.Type = MetaFile::EType::eMaterial;
+    AssetUtils::CreateMetaFile(metaData, matPath);
   }
 
   // Importing model object

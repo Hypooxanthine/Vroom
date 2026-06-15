@@ -1,35 +1,20 @@
 #include "AssetManager/ShaderAsset.h"
 
 #include "Core/Assert.h"
+#include "AssetManager/JsonFile.h"
 #include "AssetManager/ShaderParsing.h"
 
 #include <nlohmann/json.hpp>
-#include <fstream>
 
 using namespace vrm;
 
 bool ShaderAsset::loadImpl(const std::filesystem::path& filePath)
 {
-  using json = nlohmann::json;
-
   VRM_LOG_TRACE("Loading shader: {}", filePath.string());
 
-  std::ifstream ifs;
-  ifs.open(filePath);
-  if (!ifs.is_open())
+  nlohmann::json j;
+  if (!ReadJsonFile(filePath, j))
     return false;
-
-  json j;
-
-  try
-  {
-    ifs >> j;
-  }
-  catch (const std::exception& e)
-  {
-    VRM_LOG_ERROR("Error while parsing ShaderExec json data:\n{}", e.what());
-    return false;
-  }
 
   return ShaderParsing::Parse(j, m_data);
 }

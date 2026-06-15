@@ -1,9 +1,9 @@
 #include "Editor/AssetBrowser.h"
 #include <filesystem>
-#include <fstream>
 #include <imgui.h>
 #include <imgui_internal.h>
 
+#include "AssetManager/JsonFile.h"
 #include "AssetManager/SceneData.h"
 #include "AssetManager/SceneParsing.h"
 #include "Core/Log.h"
@@ -412,14 +412,10 @@ void AssetBrowser::_handleContextWindow()
         [this](auto& layer)
         {
           std::filesystem::path newScenePath = AssetUtils::FindFreeAssetName(m_currentNode.getPath() / "NewScene.json");
-          std::ofstream         ofs(newScenePath);
 
-          if (ofs.is_open())
+          nlohmann::json j = SceneData();
+          if (WriteJsonFile(newScenePath, j))
           {
-            nlohmann::json j = SceneData();
-            ofs << j.dump(2);
-            ofs.close();
-
             MetaFile meta;
             meta.Type = MetaFile::EType::eScene;
             AssetUtils::CreateMetaFile(meta, newScenePath);

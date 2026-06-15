@@ -1,6 +1,5 @@
 #include "Editor/AssetUtils.h"
 #include <filesystem>
-#include <fstream>
 #include <string>
 #include <thread>
 
@@ -12,6 +11,7 @@
 #include "Editor/AssetFileSceneAsset.h"
 
 #include "AssetManager/Json.h"
+#include "AssetManager/JsonFile.h"
 #include "Core/Log.h"
 #include "Editor/AssetFileTextureAsset.h"
 
@@ -50,19 +50,12 @@ std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const std::filesyst
     return std::make_unique<AssetFile>(path);
   }
 
-  std::ifstream ifs(metaDataPath);
-  if (ifs.is_open())
-  {
-    json j;
-    ifs >> j;
-    MetaFile metaData = j;
-    return CreateAssetElement(metaData, path);
-  }
-  else
-  {
-    VRM_LOG_WARN("Meta file {} exists but could not open it", metaDataPath.string());
+  json j;
+  if (!ReadJsonFile(metaDataPath, j))
     return nullptr;
-  }
+
+  MetaFile metaData = j;
+  return CreateAssetElement(metaData, path);
 }
 
 std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const MetaFile&              meta,
@@ -87,22 +80,16 @@ std::unique_ptr<AssetElement> AssetUtils::CreateAssetElement(const MetaFile&    
 bool AssetUtils::CreateMetaFile(const MetaFile& meta, const std::filesystem::path& filePath)
 {
   std::filesystem::create_directory(filePath.parent_path());
-  std::ofstream         ofs;
   std::filesystem::path metaPath = GetMetaName(filePath);
-  ofs.open(metaPath, std::fstream::trunc);
 
-  if (ofs.is_open())
-  {
-    json j = meta;
-    ofs << j.dump(2);
-
-    return true;
-  }
-  else
+  json j = meta;
+  if (!WriteJsonFile(metaPath, j))
   {
     VRM_LOG_WARN("Could not create meta file {} for file {}.", metaPath.string(), filePath.string());
     return false;
   }
+
+  return true;
 }
 
 static void OpenNativeFileExplorer_Impl(const std::filesystem::path& path)

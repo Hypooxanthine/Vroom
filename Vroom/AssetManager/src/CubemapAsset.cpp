@@ -1,8 +1,8 @@
 #include "AssetManager/CubemapAsset.h"
-#include <fstream>
 
 #include "AssetManager/CubemapParsing.h"
 #include "AssetManager/Json.h"
+#include "AssetManager/JsonFile.h"
 #include "Rasterizer/Texture.h"
 
 
@@ -17,17 +17,14 @@ CubemapAsset::~CubemapAsset()
 bool CubemapAsset::loadImpl(const std::filesystem::path& filePath)
 {
   VRM_LOG_INFO("Loading skybox: {}", filePath.string());
-  std::ifstream ifs;
-  ifs.open(filePath);
 
-  VRM_CHECK_RET_FALSE_MSG(ifs.is_open(), "Could not open {}", filePath.string());
+  json j;
+  VRM_CHECK_RET_FALSE_MSG(ReadJsonFile(filePath, j), "Could not read skybox file: {}", filePath.string());
 
   CubemapData::JsonLayout jdata;
 
   try
   {
-    json j;
-    ifs >> j;
     jdata = j;
   } catch (const std::exception& e)
   {

@@ -1,9 +1,9 @@
 #include "AssetManager/MaterialAsset.h"
 #include <filesystem>
-#include <fstream>
 #include <unordered_map>
 
 #include "AssetManager/AssetManager.h"
+#include "AssetManager/JsonFile.h"
 #include "AssetManager/MaterialParsing.h"
 #include "AssetManager/ShaderAsset.h"
 #include "AssetManager/ShadingModelAsset.h"
@@ -113,24 +113,10 @@ bool MaterialAsset::buildShaderData()
 
 bool MaterialAsset::loadImpl(const std::filesystem::path& filePath)
 {
-  using json = nlohmann::json;
-
   VRM_LOG_TRACE("Loading material: {}", filePath.string());
 
-  std::ifstream ifs;
-  ifs.open(filePath);
-  VRM_CHECK_RET_FALSE_MSG(ifs.is_open(), "Could not open file: {}", filePath.string());
-
-  json j;
-
-  try
-  {
-    ifs >> j;
-  } catch (const std::exception& e)
-  {
-    VRM_LOG_ERROR("Json data from file \"{}\" could not be read. Parser error:\n{}", filePath.string(), e.what());
-    return false;
-  }
+  nlohmann::json j;
+  VRM_CHECK_RET_FALSE_MSG(ReadJsonFile(filePath, j), "Could not read material file: {}", filePath.string());
 
   VRM_CHECK_RET_FALSE_MSG(MaterialParsing::Parse(j, m_data), "Could not parse MaterialData from file: {}",
                           filePath.string());

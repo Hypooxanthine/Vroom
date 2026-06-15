@@ -1,13 +1,13 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include "Editor/MaterialEditor.h"
-#include <fstream>
 #include <misc/cpp/imgui_stdlib.h>
 #include <variant>
 
 #include "imgui.h"
 
 #include "AssetManager/AssetManager.h"
+#include "AssetManager/JsonFile.h"
 #include "AssetManager/MaterialAsset.h"
 #include "AssetManager/MaterialData.h"
 #include "AssetManager/TextureAsset.h"
@@ -206,21 +206,11 @@ void MaterialEditor::_showToolbar()
 
 void MaterialEditor::_save()
 {
-  using json = nlohmann::json;
-
   std::filesystem::path path = m_material->getFilePath();
 
-  std::ofstream ofs;
-  ofs.open(path, std::ofstream::trunc);
-
-  if (!ofs.is_open())
-  {
-    VRM_LOG_ERROR("Could not open material file for saving: {}", path.string());
+  nlohmann::json j = m_data;
+  if (!WriteJsonFile(path, j))
     return;
-  }
-
-  json j = m_data;
-  ofs << j.dump(2);
 
   m_edited          = false;
   m_savedSinceApply = true;
