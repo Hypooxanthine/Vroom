@@ -6,9 +6,12 @@
 #include <Renderer/FirstPersonCamera.h>
 #include <future>
 
+#include <glm/glm.hpp>
+
 #include "Editor/Api.h"
 #include "Editor/EditorCamera.h"
 #include "Editor/UserInterfaceLayer.h"
+
 
 namespace vrm
 {
@@ -77,6 +80,11 @@ private:
   EditorCamera m_EditorCamera;
 
   UserInterfaceLayer::ViewportInfos m_lastViewportInfos;
+
+  // Debounced viewport size: the render pipeline is only rebuilt once the size
+  // has been stable for a frame.
+  glm::ivec2 m_appliedViewportSize = { -1, -1 };
+  glm::ivec2 m_pendingViewportSize = { -1, -1 };
 };
 
 } // namespace vrm

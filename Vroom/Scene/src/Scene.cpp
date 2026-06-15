@@ -333,7 +333,7 @@ void Scene::renameRoot(const std::string& rootName)
 void Scene::_updateGlobalTransforms()
 {
   VRM_PROFILE_SCOPE("Scene::_updateGlobalTransforms");
-  
+
   auto effector = [](Entity& current, Entity& parent) -> bool
   {
     auto& currentTC = current.getComponentInternal<vrm::TransformComponent>();
@@ -489,7 +489,7 @@ void Scene::_submitParticleSystemsForRender()
   for (auto&& [e, particleSystem, t] : viewParticles.each())
   {
     const auto& emitters = particleSystem.getEmitters();
-    const bool   dirty    = particleSystem.consumeDirtyForRender();
+    const bool  dirty    = particleSystem.consumeDirtyForRender();
 
     for (size_t i = 0; i < emitters.size(); ++i)
     {

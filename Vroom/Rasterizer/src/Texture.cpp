@@ -123,6 +123,12 @@ void Texture::release()
 
 void Texture::create(const Desc& desc)
 {
+  if (m_renderId != 0 && m_desc == desc)
+  {
+    bind();
+    return;
+  }
+
   release();
   glGenTextures(1, &m_renderId);
 

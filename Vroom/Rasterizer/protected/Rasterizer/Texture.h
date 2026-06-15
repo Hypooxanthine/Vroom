@@ -32,6 +32,9 @@ public:
     GLboolean fixedSampleLocations = GL_TRUE;
     bool      layered              = false;
     bool      cubemap              = false;
+
+    bool operator==(const Desc& o) const = default;
+    bool operator!=(const Desc& o) const = default;
   };
 
 public:

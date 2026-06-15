@@ -1,5 +1,9 @@
 #pragma once
 
+#include <map>
+#include <string>
+#include <unordered_map>
+
 #include "glm/gtx/hash.hpp"
 
 #include "AssetManager/MaterialAsset.h"
@@ -9,7 +13,7 @@ namespace vrm
 {
 
   class MaterialDefines;
-  
+
   class PassMaterial
   {
   public:
@@ -23,7 +27,7 @@ namespace vrm
     PassMaterial(PassMaterial&& other) = default;
 
     void setMaterialAsset(MaterialAsset::Handle material);
-    
+
     bool prepare(const MaterialDefines& defines);
 
     inline bool needsPrepare() const { return m_needsPrepare; }
@@ -47,38 +51,27 @@ namespace vrm
   {
   public:
 
-    // A pass material is associated with a material asset, and a set of #define's
+    // A pass material is associated with a material asset, and a set of #define's.
     struct Key
     {
       MaterialAsset::Handle asset;
-      const MaterialDefines* defines;
-
-      inline bool operator<(const Key& other) const
-      {
-        return false
-          || asset.getPtr() < other.asset.getPtr()
-          || reinterpret_cast<uintptr_t>(defines) < reinterpret_cast<uintptr_t>(other.defines)
-          ;
-      }
+      std::map<std::string, std::string> defines;
 
       inline bool operator==(const Key& other) const
       {
-        return true
-          && asset == other.asset
-          && defines == other.defines
-          ;
+        return asset == other.asset && defines == other.defines;
       }
 
       struct Hasher
       {
         inline size_t operator()(const Key& key) const
         {
-          size_t seed = std::hash<uintptr_t>()(key.asset.getPtr()); 
-          glm::detail::hash_combine(
-            seed,
-            std::hash<const MaterialDefines*>()(key.defines)
-          );
-          
+          size_t seed = std::hash<uintptr_t>()(key.asset.getPtr());
+          for (const auto& [k, v] : key.defines)
+          {
+            glm::detail::hash_combine(seed, std::hash<std::string>()(k));
+            glm::detail::hash_combine(seed, std::hash<std::string>()(v));
+          }
           return seed;
         }
       };
