@@ -15,8 +15,9 @@ void EditorCamera::onUpdate(const DeltaTime& dt)
   move(m_MoveForwardValue * m_Speed * dt.seconds() * getForwardVector());
   move(m_MoveRightValue * m_Speed * dt.seconds() * getRightVector());
   move(m_MoveUpValue * m_Speed * dt.seconds() * glm::vec3{ 0.f, 1.f, 0.f });
-  addYaw(m_LookRightValue * m_AngularSpeed * dt.seconds());
-  addPitch(m_LookUpValue * m_AngularSpeed * dt.seconds());
+
+  addYaw(m_LookRightValue * m_AngularSpeed);
+  addPitch(m_LookUpValue * m_AngularSpeed);
 
   m_LookUpValue    = 0.f;
   m_LookRightValue = 0.f;
@@ -24,12 +25,12 @@ void EditorCamera::onUpdate(const DeltaTime& dt)
 
 void EditorCamera::submitLookUp(float value)
 {
-  m_LookUpValue = value;
+  m_LookUpValue += value;
 }
 
 void EditorCamera::submitLookRight(float value)
 {
-  m_LookRightValue = value;
+  m_LookRightValue += value;
 }
 
 void EditorCamera::addMoveForward(float value)

@@ -43,8 +43,7 @@ void RenderSettingsPanel::onImgui()
     if (ImGui::SliderInt("##Framerate limit", &framerateLimit, 0, 360, "%d",
                          ImGuiSliderFlags_AlwaysClamp))
     {
-      settings.frameRateLimit = static_cast<uint16_t>(framerateLimit);
-      settingsChanged         = true;
+      Application::Get().setFrameRateLimit(static_cast<uint16_t>(framerateLimit));
     }
 
     ImGui::TextWrapped("Antialiasing:");

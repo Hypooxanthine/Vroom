@@ -34,6 +34,11 @@ void RenderPipeline::generateIfDirty()
 
 void RenderPipeline::generate()
 {
+  // Ensure the GPU has finished with any in-flight resources before we delete them.
+  // Without this, the driver inserts implicit sync points over subsequent frames,
+  // causing stuttering / long SwapBuffers times.
+  glFinish();
+
   m_passManager.reset();
   m_resources.clear();
   m_finalTexture      = nullptr;
@@ -122,15 +127,22 @@ void RenderPipeline::generate()
   // Shadow mapping
   if (m_renderSettings.shadowsEnable)
   {
-    auto& maps = *m_resources.genTexture("DirLightsShadowMaps");
-
+    // The shadow map is resolution-independent, so it lives outside the
+    // per-rebuild RenderResources and persists across rebuilds. Thanks to the
+    // idempotent gl::Texture::create(), its (large) depth array is not
+    // reallocated when the pipeline is rebuilt (e.g. on a viewport resize).
     auto& pass = m_passManager.pushPass<ShadowMappingPass>();
 
     pass.lights              = m_context.lights;
     pass.meshRegistry        = m_context.meshes;
     pass.resolution          = 4096;
-    pass.depthTextureArray   = &maps;
+    pass.depthTextureArray   = &m_dirLightShadowMaps;
     pass.lightMatricesBuffer = m_resources.genAutoBuffer("LightMatricesStorageBuffer");
+  }
+  else
+  {
+    // Free the persistent shadow map when shadows are disabled.
+    m_dirLightShadowMaps.release();
   }
 
   LightClusteringPass* lightClusteringPass = nullptr;
@@ -187,7 +199,7 @@ void RenderPipeline::generate()
     if (m_renderSettings.shadowsEnable)
     {
       pass.addDefine("VRM_DIR_LIGHTS_SHADOWS");
-      pass.dirLightShadowMaps = m_resources.tryGetTexture("DirLightsShadowMaps");
+      pass.dirLightShadowMaps = &m_dirLightShadowMaps;
       pass.storageBufferParameters.emplace_back(
         "LightMatricesBlock", &m_resources.tryGetAutoBuffer("LightMatricesStorageBuffer")->getBuffer());
     }

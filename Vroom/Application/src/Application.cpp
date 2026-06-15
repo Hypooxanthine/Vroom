@@ -1,4 +1,5 @@
 #include "Application/Application.h"
+#include <thread>
 
 #include "Application/GameLayer.h"
 #include "AssetManager/AssetManager.h"
@@ -100,6 +101,8 @@ void Application::run()
 {
   initLayers();
 
+  m_LastFrameTimePoint = std::chrono::high_resolution_clock::now();
+
   // Main loop
   while (!m_PendingKilled)
   {
@@ -110,6 +113,31 @@ void Application::run()
       update();
       draw();
       endFrame();
+
+      {
+        VRM_PROFILE_SCOPE("Frame rate cap");
+        if (m_frameRateLimit > 0)
+        {
+          const auto target = m_LastFrameTimePoint + std::chrono::nanoseconds(m_minFrameTimeNanoseconds);
+
+          // Sleep the bulk of the remaining budget, then spin the last ~1ms: the OS
+          // timer is too coarse (~1-15ms) to sleep the whole duration precisely.
+          for (;;)
+          {
+            const auto now = std::chrono::high_resolution_clock::now();
+            if (now >= target)
+              break;
+
+            const auto remaining = target - now;
+            if (remaining > std::chrono::milliseconds(2))
+              std::this_thread::sleep_for(remaining - std::chrono::milliseconds(1));
+            else
+              std::this_thread::yield();
+          }
+        }
+
+        m_LastFrameTimePoint = std::chrono::high_resolution_clock::now();
+      }
     }
 
     Profiler::Get().newFrame();
@@ -174,7 +202,7 @@ void Application::endFrame()
 void Application::setFrameRateLimit(uint16_t framerate)
 {
   m_frameRateLimit          = framerate;
-  m_minFrameTimeNanoseconds = static_cast<uint64_t>(1.0e9 / static_cast<double>(framerate));
+  m_minFrameTimeNanoseconds = framerate > 0 ? static_cast<uint64_t>(1.0e9 / static_cast<double>(framerate)) : 0;
   m_timeSinceLastFrame      = 0.f;
 }
 

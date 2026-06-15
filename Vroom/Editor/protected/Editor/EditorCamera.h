@@ -33,7 +33,8 @@ public:
 private:
     float m_LookUpValue = 0.f, m_LookRightValue = 0.f;
     float m_MoveForwardValue = 0.f, m_MoveRightValue = 0.f, m_MoveUpValue = 0.f;
-    float m_Speed = 10.f, m_AngularSpeed = 3.f;
+    float m_Speed = 10.f;
+    float m_AngularSpeed = 0.003f;
 };
 
 } // namespace vrm

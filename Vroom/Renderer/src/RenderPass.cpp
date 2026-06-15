@@ -73,9 +73,11 @@ void RenderPass::applyViewportUniforms(const gl::Shader& shader, const render::V
 const PassMaterial& RenderPass::getPassMaterial(MaterialAsset::Handle asset, const MaterialDefines* customDefines) const
 {
   PassMaterials::Key key;
+  key.asset = asset;
+  if (customDefines)
   {
-    key.asset   = asset;
-    key.defines = customDefines;
+    for (const auto& [k, v] : *customDefines)
+      key.defines[k] = v;
   }
   return m_materialsRef->getMaterial(key);
 }

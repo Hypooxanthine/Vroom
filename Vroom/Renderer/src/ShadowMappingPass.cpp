@@ -8,7 +8,6 @@
 #include "Rasterizer/AutoBuffer.h"
 #include "Renderer/CameraBasic.h"
 #include "Renderer/LightRegistry.h"
-#include "Renderer/MeshRegistry.h"
 #include "Renderer/RenderPass.h"
 #include "Renderer/RenderView.h"
 

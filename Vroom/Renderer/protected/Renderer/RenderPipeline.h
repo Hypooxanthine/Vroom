@@ -145,6 +145,12 @@ private:
   DynamicRenderSettings m_dynamicSettings;
 
   RenderResources  m_resources;
+
+  // Resolution-independent (always 4096^2), kept here rather than in the
+  // per-rebuild RenderResources so its large depth array survives pipeline
+  // rebuilds instead of being reallocated on every resize. See generate().
+  gl::Texture      m_dirLightShadowMaps;
+
   gl::Texture*     m_finalTexture      = nullptr;
   gl::FrameBuffer* m_renderFrameBuffer = nullptr;
 

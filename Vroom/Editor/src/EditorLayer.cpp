@@ -20,7 +20,6 @@
 #include "Renderer/RenderSettings.h"
 #include "Scene/Scene.h"
 #include "ScriptEngine/ScriptEngine.h"
-#include "Tools/Os.h"
 
 #ifdef VRM_RUNTIME_SCRIPTS_PATH
 static const std::filesystem::path g_scriptLibraryPath = VRM_RUNTIME_SCRIPTS_PATH;
@@ -210,6 +209,8 @@ void EditorLayer::onInit()
   app.getGameLayer().setShouldUpdate(false);
   app.getGameLayer().setShouldRender(true);
 
+  app.setFrameRateLimit(200);
+
   // Events setup
   m_CustomEventManager.createCustomEvent("Exit").bindInput(Event::Type::Exit);
 
@@ -224,6 +225,8 @@ void EditorLayer::onInit()
   m_CustomEventManager.bindPermanentCallback("EditorCameraRotation",
                                              [this](const Event& e)
                                              {
+                                               if (!UserInterfaceLayer::Get().getViewportInfo().active)
+                                                 return;
                                                m_EditorCamera.submitLookRight(static_cast<float>(e.mouseDeltaX));
                                                m_EditorCamera.submitLookUp(static_cast<float>(-e.mouseDeltaY));
                                                e.handled = true;
@@ -297,8 +300,19 @@ void EditorLayer::onUpdate(const DeltaTime& dt)
 
   const auto& viewportInfo = UserInterfaceLayer::Get().getViewportInfo();
 
-  if (viewportInfo.justChangedSize)
-    onViewportResize(viewportInfo.width, viewportInfo.height);
+  if (viewportInfo.justChangedSize && viewportInfo.width > 0 && viewportInfo.height > 0)
+  {
+    const glm::ivec2 requested = { viewportInfo.width, viewportInfo.height };
+    if (requested != m_appliedViewportSize)
+    {
+      if (requested == m_pendingViewportSize)
+      {
+        onViewportResize(requested.x, requested.y);
+        m_appliedViewportSize = requested;
+      }
+      m_pendingViewportSize = requested;
+    }
+  }
 
   // If the viewport is active, we update the editor camera
   const bool cameraInputs = viewportInfo.active;

@@ -2,8 +2,8 @@
 #include <Application/Application.h>
 #include <Application/GameLayer.h>
 #include <Core/Assert.h>
-#include <Window/Window.h>
 #include <Renderer/Renderer.h>
+#include <Window/Window.h>
 #include <fstream>
 
 #include "imgui.h"
@@ -29,6 +29,7 @@
 #include "Editor/SceneGraph.h"
 #include "Editor/Viewport.h"
 #include "implot.h"
+
 
 using namespace vrm;
 
@@ -154,6 +155,10 @@ void UserInterfaceLayer::onRender()
   }
 
   gl::FrameBuffer::GetDefaultFrameBuffer().bind();
+  glDisable(GL_SCISSOR_TEST);
+  glClearColor(0.f, 0.f, 0.f, 1.f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
   renderImgui();
 }
 

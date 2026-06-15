@@ -21,8 +21,6 @@ void PassMaterial::setMaterialAsset(MaterialAsset::Handle material)
 
 bool PassMaterial::prepare(const MaterialDefines& defines)
 {
-  AssetManager& manager = AssetManager::Get();
-
   ShaderData shaderData = m_materialAsset->getShaderData();
 
   for (const auto& [define, value] : defines)
@@ -61,10 +59,6 @@ bool PassMaterial::prepare(const MaterialDefines& defines)
                  "Could not validate material shader. Error log:\n{}",
                  m_gpuShader.getError());
 
-  // std::string dumpPath = getFilePath() + ".dump.glsl";
-  // rawShaderData.fragment.dump(dumpPath);
-  // VRM_LOG_INFO("Fragment dumped in {}", dumpPath);
-
   m_needsPrepare = false;
   return true;
 }
@@ -88,8 +82,10 @@ const PassMaterial& PassMaterials::getMaterial(const Key& key)
   if (inserted || material.getGeneration() != key.asset->getGeneration())
   {
     material.setMaterialAsset(key.asset);
-    if (key.defines) material.prepare(*key.defines);
-    else material.prepare({});
+    MaterialDefines tempDefines;
+    for (const auto& [k, v] : key.defines)
+      tempDefines.add(k, v);
+    material.prepare(tempDefines);
   }
 
   return material;

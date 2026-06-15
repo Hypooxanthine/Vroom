@@ -60,10 +60,12 @@ void* AutoBuffer::_mapWriteOnly(uint32_t offset, uint32_t size, bool discardData
 {
   VRM_ASSERT(offset + size <= m_buffer.getCapacity());
 
-  GLbitfield flags = 0
-    | GL_MAP_WRITE_BIT
-    | (discardData ? GL_MAP_INVALIDATE_RANGE_BIT : 0)
-  ;
+  GLbitfield flags = GL_MAP_WRITE_BIT;
+  if (discardData)
+  {
+    const bool wholeBuffer = (offset == 0 && size == m_buffer.getCapacity());
+    flags |= wholeBuffer ? GL_MAP_INVALIDATE_BUFFER_BIT : GL_MAP_INVALIDATE_RANGE_BIT;
+  }
 
   void* ptr = glMapNamedBufferRange(m_buffer.getRenderId(), static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(size), flags);
   return ptr;
