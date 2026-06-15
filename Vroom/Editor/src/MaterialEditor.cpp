@@ -1,6 +1,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include "Editor/MaterialEditor.h"
+#include <fstream>
 #include <misc/cpp/imgui_stdlib.h>
 #include <variant>
 
@@ -11,6 +12,7 @@
 #include "AssetManager/MaterialData.h"
 #include "AssetManager/TextureAsset.h"
 #include "Core/DeltaTime.h"
+#include "Core/Log.h"
 #include "Editor/AssetSelector.h"
 #include "Tools/Utility.h"
 
@@ -44,10 +46,16 @@ void MaterialEditor::onImgui()
   if (m_open != nullptr && !(*m_open))
     return;
 
-  constexpr auto flags = ImGuiWindowFlags_None;
+  ImGuiWindowFlags flags = ImGuiWindowFlags_None;
+
+  if (m_edited)
+    flags = flags | ImGuiWindowFlags_UnsavedDocument;
 
   if (ImGui::Begin("Material editor", m_open, flags))
   {
+    _showToolbar();
+    ImGui::Separator();
+
     bool isNode = m_material->getData().getType() != MaterialData::EType::eUndefined;
 
     if (ImGui::TreeNodeEx("Type name", _getTreeNodeFlags(isNode), "Material type: %s",
@@ -92,19 +100,19 @@ void MaterialEditor::_showShadingModelTree()
       auto visitor = overloaded{
         [&, this](float& value)
         {
-          return ImGui::InputFloat(param.name.c_str(), &value);
+          return ImGui::DragFloat(param.name.c_str(), &value, 0.01f);
         },
         [&, this](glm::vec2& value)
         {
-          return ImGui::InputFloat2(param.name.c_str(), &value.x);
+          return ImGui::DragFloat2(param.name.c_str(), &value.x, 0.01f);
         },
         [&, this](glm::vec3& value)
         {
-          return ImGui::InputFloat3(param.name.c_str(), &value.x);
+          return ImGui::DragFloat3(param.name.c_str(), &value.x, 0.01f);
         },
         [&, this](glm::vec4& value)
         {
-          return ImGui::InputFloat4(param.name.c_str(), &value.x);
+          return ImGui::DragFloat4(param.name.c_str(), &value.x, 0.01f);
         },
         [&, this](glm::mat4& value)
         {
@@ -144,7 +152,8 @@ void MaterialEditor::_showShadingModelTree()
 
       if (std::visit(visitor, param.value))
       {
-        
+        m_data.setParameter(param);
+        m_edited = true;
       }
 
       ImGui::PopID();
@@ -165,6 +174,72 @@ void MaterialEditor::_showCustomShaderTree()
 
 void MaterialEditor::_showPostProcessMaterialTree()
 {}
+
+void MaterialEditor::_showToolbar()
+{
+  ImGui::BeginDisabled(!m_edited);
+  if (ImGui::Button("Save"))
+    _save();
+  ImGui::EndDisabled();
+
+  ImGui::SameLine();
+
+  // Apply: reloads the asset from disk so the changes take effect in the
+  // engine. Only clickable when the material has been saved since the last
+  // apply.
+  ImGui::BeginDisabled(!m_savedSinceApply);
+  if (ImGui::Button("Apply"))
+    _apply();
+  ImGui::EndDisabled();
+
+  ImGui::SameLine();
+
+  // Save and apply: writes to disk then reloads, in a single click.
+  ImGui::BeginDisabled(!m_edited);
+  if (ImGui::Button("Save and apply"))
+  {
+    _save();
+    _apply();
+  }
+  ImGui::EndDisabled();
+}
+
+void MaterialEditor::_save()
+{
+  using json = nlohmann::json;
+
+  std::filesystem::path path = m_material->getFilePath();
+
+  std::ofstream ofs;
+  ofs.open(path, std::ofstream::trunc);
+
+  if (!ofs.is_open())
+  {
+    VRM_LOG_ERROR("Could not open material file for saving: {}", path.string());
+    return;
+  }
+
+  json j = m_data;
+  ofs << j.dump(2);
+
+  m_edited          = false;
+  m_savedSinceApply = true;
+}
+
+void MaterialEditor::_apply()
+{
+  // Reloading the static asset re-reads the file we just saved and
+  // increments its generation, so the renderer will use the new data
+  std::filesystem::path path = m_material->getFilePath();
+
+  if (!AssetManager::Get().tryReloadAsset<MaterialAsset>(path))
+  {
+    VRM_LOG_ERROR("Could not apply material (reload failed): {}", path.string());
+    return;
+  }
+
+  m_savedSinceApply = false;
+}
 
 ImGuiTreeNodeFlags MaterialEditor::_getTreeNodeFlags(bool isNode) const
 {

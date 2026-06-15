@@ -34,6 +34,11 @@ private:
   void _showCustomShaderTree();
   void _showPostProcessMaterialTree();
 
+  void _showToolbar();
+
+  void _save();
+  void _apply();
+
   ImGuiTreeNodeFlags _getTreeNodeFlags(bool isNode) const;
 
 public:
@@ -41,6 +46,11 @@ public:
   MaterialAsset::Handle m_material = {};
   MaterialData m_data;
   MaterialDataExtractor m_dataExtractor;
+  // There are unsaved changes in m_data (compared to the file on disk).
+  bool m_edited = false;
+  // The file on disk has been saved since the last apply, so reloading the
+  // asset (apply) would have an effect. Drives the "Apply" button.
+  bool m_savedSinceApply = false;
 };
 
 } // namespace vrm
