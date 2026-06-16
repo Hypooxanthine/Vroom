@@ -22,6 +22,21 @@ public:
   MaterialAsset();
   ~MaterialAsset();
 
+  /**
+   * @brief (Re)builds this material from in-memory data instead of a file.
+   *
+   * Useful for previewing unsaved edits without touching the asset on disk.
+   * Bumps the generation on success so consumers caching by generation refresh.
+   *
+   * @param data        The material data to build from.
+   * @param sourcePath  Path the data originates from, used to resolve relative
+   *                    resources (e.g. textures) the same way a file load would.
+   *                    Optional; leave empty to resolve relative to the working
+   *                    directory.
+   * @return true on success.
+   */
+  bool loadFromData(const MaterialData& data, const std::filesystem::path& sourcePath = {});
+
   inline const MaterialData& getData() const
   {
     return m_data;
@@ -47,6 +62,10 @@ public:
 protected:
 
   bool loadImpl(const std::filesystem::path& filePath) override;
+
+  // Builds all derived state (shaders, textures, ...) from m_data. Shared by
+  // the file-based loadImpl and the in-memory loadFromData.
+  bool buildFromData(const MaterialData& data);
 
   bool buildShaderData();
 

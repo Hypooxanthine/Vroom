@@ -387,8 +387,15 @@ void Scene::_submitDirectionalLightsForRender()
     const size_t id = static_cast<size_t>(e);
     if (dl.consumeDirtyForRender())
     {
-      const glm::quat& rot     = t.getGlobalRotationQuat();
-      glm::vec4        forward = { 1.f, 0.f, 0.f, 0.f };
+      const glm::quat& rot = t.getGlobalRotationQuat();
+
+      // In the render engine, the "light direction" means the direction of the light
+      // from the perspective of an object that is under the influence of the light.
+      // But for the user, it is really more intuitive to define the "light direction"
+      // as the direction of the "photons". That is the reason why we're inverting the
+      // usual forward direction right here: we're assuming the rotation of
+      // the entity is in the described user-friendly definition of "light direction".
+      glm::vec4 forward = -1.f * glm::vec4{ 0.f, 0.f, -1.f, 0.f };
 
       render::DirectionalLight renderLight;
       renderLight.direction    = glm::vec3(rot * forward);

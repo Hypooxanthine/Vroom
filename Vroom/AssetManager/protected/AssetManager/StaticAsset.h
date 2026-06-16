@@ -48,6 +48,20 @@ namespace vrm
 
     virtual bool loadImpl(const std::filesystem::path& filePath) = 0;
 
+    /**
+     * @brief Sets the source path used to resolve relative resources (see
+     * applyPathOrder). load() sets this from the file path; assets that can be
+     * (re)built from in-memory data set it themselves.
+     */
+    void setFilePath(const std::filesystem::path& filePath);
+
+    /**
+     * @brief Bumps the generation counter. load() does this automatically on a
+     * successful file load; in-memory (re)builds must call it so consumers that
+     * cache by generation refresh from the new content.
+     */
+    void incrementGeneration();
+
   private:
     mutable size_t m_InstanceCount = 0;
     std::string m_filePath;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Editor/ImGuiElement.h"
-#define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui.h"
 
 #include <glm/fwd.hpp>

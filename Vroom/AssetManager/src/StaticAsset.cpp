@@ -39,6 +39,16 @@ bool StaticAsset::load(const std::string& filePath)
   }
 }
 
+void StaticAsset::setFilePath(const std::filesystem::path& filePath)
+{
+  m_filePath = filePath.string();
+}
+
+void StaticAsset::incrementGeneration()
+{
+  ++m_generation;
+}
+
 std::string StaticAsset::getExtension(const std::string& filePath)
 {
   // Finding the last dot

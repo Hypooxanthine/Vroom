@@ -1,8 +1,10 @@
-#define IMGUI_DEFINE_MATH_OPERATORS
-
 #include "Editor/MaterialEditor.h"
+
+#include <filesystem>
 #include <misc/cpp/imgui_stdlib.h>
 #include <variant>
+
+#include <glm/glm.hpp>
 
 #include "imgui.h"
 
@@ -10,16 +12,27 @@
 #include "AssetManager/JsonFile.h"
 #include "AssetManager/MaterialAsset.h"
 #include "AssetManager/MaterialData.h"
+#include "AssetManager/MeshAsset.h"
 #include "AssetManager/TextureAsset.h"
 #include "Core/DeltaTime.h"
 #include "Core/Log.h"
 #include "Editor/AssetSelector.h"
+#include "Renderer/RenderPipeline.h"
+#include "Renderer/RenderSettings.h"
+#include "Renderer/Renderer.h"
+#include "Scene/DirectionalLightComponent.h"
+#include "Scene/MeshComponent.h"
+#include "Scene/SkyboxComponent.h"
+#include "Scene/TransformComponent.h"
 #include "Tools/Utility.h"
 
 using namespace vrm;
 
 MaterialEditor::MaterialEditor()
-{}
+  : m_previewCamera(0.1f, 100.f, glm::radians(45.f), 1.f, glm::vec3(0.f, 0.f, 3.f), glm::vec3(0.f))
+{
+  _setupPreviewScene();
+}
 
 MaterialEditor::~MaterialEditor()
 {}
@@ -31,13 +44,51 @@ void MaterialEditor::open(MaterialAsset::Handle material)
   m_dataExtractor.extract(m_data);
   if (m_open)
     *m_open = true;
+
+  // Reflect the freshly opened material immediately, no debounce.
+  m_previewDirty    = false;
+  m_timeSinceChange = 0.f;
+  _rebuildPreviewMaterial();
 }
 
 void MaterialEditor::onUpdate(const DeltaTime& dt)
-{}
+{
+  if (m_open != nullptr && !(*m_open))
+    return;
+  if (!m_material.isValid())
+    return;
+
+  const float seconds = dt.seconds();
+
+  // Spinning the preview sphere.
+  m_previewSpin += seconds * 0.2f;
+  if (m_previewEntity.isValid())
+    m_previewEntity.getComponent<TransformComponent>().setRotation(glm::vec3(0.f, m_previewSpin, 0.f));
+
+  // Debounced preview rebuild -> wait until edits have settled.
+  if (m_previewDirty)
+  {
+    m_timeSinceChange += seconds;
+    if (m_timeSinceChange >= s_previewDelay)
+    {
+      _rebuildPreviewMaterial();
+      m_previewDirty = false;
+    }
+  }
+
+  m_previewScene.update(dt);
+}
 
 void MaterialEditor::onRender()
-{}
+{
+  if (m_open != nullptr && !(*m_open))
+    return;
+  if (!m_material.isValid())
+    return;
+
+  m_previewScene.render();
+  m_previewViewport.setTexture(m_previewScene.getRenderer().getRenderPipeline().getRenderedTexture());
+}
 
 void MaterialEditor::onImgui()
 {
@@ -56,31 +107,49 @@ void MaterialEditor::onImgui()
     _showToolbar();
     ImGui::Separator();
 
-    bool isNode = m_material->getData().getType() != MaterialData::EType::eUndefined;
-
-    if (ImGui::TreeNodeEx("Type name", _getTreeNodeFlags(isNode), "Material type: %s",
-                          m_dataExtractor.m_typeName.c_str()))
+    if (ImGui::BeginTable("MaterialEditorLayout", 2, ImGuiTableFlags_Resizable))
     {
-      switch (m_material->getData().getType())
+      ImGui::TableNextRow();
+
+      if (ImGui::TableNextColumn())
+        _showPreview();
+
+      if (ImGui::TableNextColumn())
       {
-      case MaterialData::EType::eShadingModel:
-        _showShadingModelTree();
-        break;
-      case MaterialData::EType::ePostProcess:
-        _showPostProcessMaterialTree();
-        break;
-      case MaterialData::EType::eCustomShader:
-        _showCustomShaderTree();
-        break;
-      default:
-        break;
+        bool isNode = m_material->getData().getType() != MaterialData::EType::eUndefined;
+
+        if (ImGui::TreeNodeEx("Type name", _getTreeNodeFlags(isNode), "Material type: %s",
+                              m_dataExtractor.m_typeName.c_str()))
+        {
+          switch (m_material->getData().getType())
+          {
+          case MaterialData::EType::eShadingModel:
+            _showShadingModelTree();
+            break;
+          case MaterialData::EType::ePostProcess:
+            _showPostProcessMaterialTree();
+            break;
+          case MaterialData::EType::eCustomShader:
+            _showCustomShaderTree();
+            break;
+          default:
+            break;
+          }
+
+          if (isNode)
+            ImGui::TreePop();
+        }
       }
 
-      if (isNode)
-        ImGui::TreePop();
+      ImGui::EndTable();
     }
   }
   ImGui::End();
+}
+
+void MaterialEditor::_showPreview()
+{
+  m_previewViewport.renderImgui();
 }
 
 void MaterialEditor::_showShadingModelTree()
@@ -154,6 +223,7 @@ void MaterialEditor::_showShadingModelTree()
       {
         m_data.setParameter(param);
         m_edited = true;
+        _markPreviewDirty();
       }
 
       ImGui::PopID();
@@ -241,4 +311,81 @@ ImGuiTreeNodeFlags MaterialEditor::_getTreeNodeFlags(bool isNode) const
     flags = flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
   return flags;
+}
+
+void MaterialEditor::PreviewViewport::onResize(const ImVec2& size)
+{
+  if (resizeCb)
+    resizeCb(glm::uvec2(size.x, size.y));
+}
+
+void MaterialEditor::_setupPreviewScene()
+{
+  m_previewScene.init();
+
+  // Sphere that displays the edited material. It keeps the .obj's default
+  // material until a material is opened and the first preview build succeeds.
+  m_previewEntity = m_previewScene.createEntity("PreviewSphere");
+  m_previewEntity.addComponent<MeshComponent>(
+    AssetManager::Get().getAsset<MeshAsset>("DefaultResources/Tests/Meshes/sphere.obj"));
+
+  // Directional key light so shading models actually shade. Its direction is
+  // the entity's forward (+x) rotated by the transform; this points it down and
+  // into the scene, lighting the side that faces the camera.
+  Entity light    = m_previewScene.createEntity("PreviewLight");
+  auto&  dirLight = light.addComponent<DirectionalLightComponent>();
+  dirLight.setIntensity(3.f);
+  light.getComponent<TransformComponent>().setRotation(glm::vec3{ glm::radians(-45.f), glm::radians(45.f), 0.f });
+
+  // Engine skybox for context.
+  m_previewScene.createEntity("PreviewSkybox").addComponent<SkyboxComponent>();
+
+  m_previewScene.setCamera(&m_previewCamera);
+
+  {
+    RenderSettings settings;
+    settings.shadowsEnable     = false;
+    settings.bloom.activated   = false;
+    settings.antiAliasingLevel = 4;
+    m_previewScene.getRenderer().getRenderPipeline().setRenderSettings(settings);
+  }
+
+  m_previewViewport.setSupportPopup(false);
+  m_previewViewport.resizeCb = [this](const glm::uvec2& size)
+  {
+    if (size.x == 0 || size.y == 0)
+      return;
+    m_previewScene.onWindowResized(size);
+    m_previewCamera.setAspectRatio(static_cast<float>(size.x) / static_cast<float>(size.y));
+  };
+}
+
+void MaterialEditor::_markPreviewDirty()
+{
+  m_previewDirty    = true;
+  m_timeSinceChange = 0.f;
+}
+
+void MaterialEditor::_rebuildPreviewMaterial()
+{
+  if (!m_material.isValid())
+    return;
+
+  // TODO: figure out how to preview other types of material
+  // (post-process ? Custom shader ? If it makes any sense)
+  if (m_data.getType() != MaterialData::EType::eShadingModel)
+    return;
+
+  if (!m_previewMaterial.loadFromData(m_data, m_material->getFilePath()))
+  {
+    VRM_LOG_WARN("Could not build material preview from current edits.");
+    return;
+  }
+
+  // Bind the preview material to the sphere once it holds a valid build.
+  if (!m_previewMaterialBound && m_previewEntity.isValid())
+  {
+    m_previewEntity.getComponent<MeshComponent>().setMaterial(0, MaterialAsset::Handle(m_previewMaterial));
+    m_previewMaterialBound = true;
+  }
 }

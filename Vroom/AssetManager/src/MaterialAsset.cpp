@@ -118,8 +118,32 @@ bool MaterialAsset::loadImpl(const std::filesystem::path& filePath)
   nlohmann::json j;
   VRM_CHECK_RET_FALSE_MSG(ReadJsonFile(filePath, j), "Could not read material file: {}", filePath.string());
 
-  VRM_CHECK_RET_FALSE_MSG(MaterialParsing::Parse(j, m_data), "Could not parse MaterialData from file: {}",
+  MaterialData data;
+  VRM_CHECK_RET_FALSE_MSG(MaterialParsing::Parse(j, data), "Could not parse MaterialData from file: {}",
                           filePath.string());
+
+  return buildFromData(data);
+}
+
+bool MaterialAsset::loadFromData(const MaterialData& data, const std::filesystem::path& sourcePath)
+{
+  // Resolve relative resources (e.g. textures) relative to where the data came
+  // from, exactly as a file-based load would via applyPathOrder().
+  setFilePath(sourcePath);
+
+  VRM_CHECK_RET_FALSE_MSG(buildFromData(data), "Could not build material from in-memory data");
+
+  // load() bumps the generation for us on the file path; do the same here so
+  // consumers caching by generation rebuild from the new data.
+  incrementGeneration();
+  return true;
+}
+
+bool MaterialAsset::buildFromData(const MaterialData& data)
+{
+  m_data = data;
+  // Reset derived state so a rebuild (reload / preview) doesn't accumulate.
+  m_textures.clear();
 
   AssetManager& manager = AssetManager::Get();
 

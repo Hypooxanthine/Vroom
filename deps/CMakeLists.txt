@@ -26,6 +26,7 @@ add_library(ImGuiGLFWGlew
 
 target_include_directories(ImGuiGLFWGlew PUBLIC ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
 target_link_libraries(ImGuiGLFWGlew PUBLIC glfw libglew_shared)
+target_compile_definitions(ImGuiGLFWGlew PUBLIC IMGUI_DEFINE_MATH_OPERATORS)
 
 # ----- IMGUIZMO -----
 
