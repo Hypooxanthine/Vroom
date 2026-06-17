@@ -59,42 +59,17 @@ void ViewportModule::onImgui()
 
       ImVec2 texturePos = { (ImGui::GetMousePos() - rectMin).x, rectSize.y - (ImGui::GetMousePos() - rectMin).y };
 
-      if (m_supportPopup && !ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.01f) && !m_clicking && ImGui::BeginPopupContextItem("popup"))
+      if (m_supportPopup && ImGui::BeginPopupContextItem("popup"))
       {
         onPopupImgui(texturePos);
         ImGui::EndPopup();
       }
 
-      if (!ImGui::IsPopupOpen("popup"))
-      {
-        if (ImGui::IsMouseHoveringRect(rectMin, ImGui::GetItemRectMax()) && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-        {
-          m_clicking = true;
-        }
-        else if (ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.01f) || !ImGui::IsWindowFocused())
-        {
-          m_clicking = false; // Cancels click
-        }
-        else if (m_clicking && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
-        {
-          onLeftClick(texturePos);
-          m_clicking = false;
-        }
-
-        m_lmbDragging = false;
-
-        if (ImGui::IsWindowFocused() && !m_clicking)
-        {
-          if (ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.f))
-          {
-            m_lmbDragging = true;
-            onDrag(ImGuiMouseButton_Left, texturePos);
-          }
-        }
-      }
-
+      bool overGizmoUi = false;
       if (m_supportGuizmo)
       {
+        overGizmoUi = ImGuizmo::IsOver() || ImGuizmo::IsUsing();
+
         ImGuizmo::SetOrthographic(false);
         ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
         const glm::vec2& o = m_guizmoViewport.getOrigin();
@@ -106,12 +81,47 @@ void ViewportModule::onImgui()
         {
           m_localSpace = !m_localSpace;
         }
+        overGizmoUi = overGizmoUi || ImGui::IsItemHovered();
       }
+
+      handleMouseInput(texturePos, overGizmoUi);
     }
 
     ImGui::PopStyleVar();
   }
   ImGui::EndChild();
+}
+
+void ViewportModule::handleMouseInput(const ImVec2& texturePx, bool overGizmoUi)
+{
+  const bool surfaceHovered = ImGui::IsWindowHovered() && !overGizmoUi;
+
+  m_lmbDragging = false;
+
+  if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+  {
+    m_pressedOnViewport = surfaceHovered;
+    m_clicking          = surfaceHovered;
+  }
+  else if (m_pressedOnViewport && ImGui::IsMouseDown(ImGuiMouseButton_Left))
+  {
+    if (m_clicking && ImGui::IsMouseDragging(ImGuiMouseButton_Left, s_clickDragThreshold))
+      m_clicking = false;
+
+    if (!m_clicking)
+    {
+      m_lmbDragging = true;
+      onDrag(ImGuiMouseButton_Left, texturePx);
+    }
+  }
+  else if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+  {
+    if (m_clicking && surfaceHovered)
+      onLeftClick(texturePx);
+
+    m_clicking          = false;
+    m_pressedOnViewport = false;
+  }
 }
 
 void ViewportModule::closePopup()

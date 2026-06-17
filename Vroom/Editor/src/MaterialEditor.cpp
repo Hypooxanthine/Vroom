@@ -319,6 +319,12 @@ void MaterialEditor::PreviewViewport::onResize(const ImVec2& size)
     resizeCb(glm::uvec2(size.x, size.y));
 }
 
+void MaterialEditor::PreviewViewport::onPopupImgui(const ImVec2& texturePx)
+{
+  if (popupCb)
+    popupCb(glm::uvec2(texturePx.x, texturePx.y));
+}
+
 void MaterialEditor::_setupPreviewScene()
 {
   m_previewScene.init();
@@ -332,10 +338,11 @@ void MaterialEditor::_setupPreviewScene()
   // Directional key light so shading models actually shade. Its direction is
   // the entity's forward (+x) rotated by the transform; this points it down and
   // into the scene, lighting the side that faces the camera.
-  Entity light    = m_previewScene.createEntity("PreviewLight");
-  auto&  dirLight = light.addComponent<DirectionalLightComponent>();
+  m_previewDirLightEntity = m_previewScene.createEntity("PreviewLight");
+  auto& dirLight          = m_previewDirLightEntity.addComponent<DirectionalLightComponent>();
   dirLight.setIntensity(3.f);
-  light.getComponent<TransformComponent>().setRotation(glm::vec3{ glm::radians(-45.f), glm::radians(45.f), 0.f });
+  m_previewDirLightEntity.getComponent<TransformComponent>().setRotation(
+    glm::vec3{ glm::radians(-45.f), glm::radians(45.f), 0.f });
 
   // Engine skybox for context.
   m_previewScene.createEntity("PreviewSkybox").addComponent<SkyboxComponent>();
@@ -350,13 +357,24 @@ void MaterialEditor::_setupPreviewScene()
     m_previewScene.getRenderer().getRenderPipeline().setRenderSettings(settings);
   }
 
-  m_previewViewport.setSupportPopup(false);
   m_previewViewport.resizeCb = [this](const glm::uvec2& size)
   {
     if (size.x == 0 || size.y == 0)
       return;
     m_previewScene.onWindowResized(size);
     m_previewCamera.setAspectRatio(static_cast<float>(size.x) / static_cast<float>(size.y));
+  };
+
+  m_previewViewport.setSupportPopup(true);
+  m_previewViewport.popupCb = [this](const glm::uvec2& px)
+  {
+    auto& dirLightComp = m_previewDirLightEntity.getComponent<DirectionalLightComponent>();
+    float intensity    = dirLightComp.getIntensity();
+
+    if (ImGui::DragFloat("Intensity", &intensity, 0.1f, 0.f, 0.f, "%.2f"))
+    {
+      dirLightComp.setIntensity(intensity); 
+    }
   };
 }
 

@@ -18,35 +18,31 @@ using namespace vrm;
 
 void Viewport::MyViewportModule::onPopupImgui(const ImVec2& texturePx)
 {
-  if (m_cachedPopupEntity.isValid())
+  if (ImGui::IsWindowAppearing())
   {
-    EntityEditor::ContextualMenuBehaviour(m_cachedPopupEntity);
-  }
-  else
-  {
-    bool shouldClose = true;
+    m_cachedPopupEntity = {};
 
     if (texturePx.x > -1 && texturePx.y > -1)
     {
-      uint32_t rawId = Application::Get().getMainSceneRenderer().getRenderPipeline().getEntityIndexOnPixel(
-        { texturePx.x, texturePx.y });
+      uint32_t rawId =
+        Application::Get().getMainSceneRenderer().getRenderPipeline().getEntityIndexOnPixel({ texturePx.x, texturePx.y });
       auto& scene = Application::Get().getGameLayer().getScene();
 
       if (scene.entityExists(entt::entity(rawId)))
       {
         m_cachedPopupEntity = scene.getEntity(entt::entity(rawId));
-        EntityEditor::ContextualMenuBehaviour(m_cachedPopupEntity);
+        // Select it, just like a left-click would.
         VRM_EDITOR_UI_ELEMENT(EntityEditor).open(m_cachedPopupEntity);
-        shouldClose = false;
       }
     }
 
-    if (shouldClose)
-    {
-      m_cachedPopupEntity = {};
+    // Right-clicked empty space: nothing to show a context menu for.
+    if (!m_cachedPopupEntity.isValid())
       ImGui::CloseCurrentPopup();
-    }
   }
+
+  if (m_cachedPopupEntity.isValid())
+    EntityEditor::ContextualMenuBehaviour(m_cachedPopupEntity);
 }
 
 void Viewport::MyViewportModule::onLeftClick(const ImVec2& texturePx)
@@ -99,7 +95,9 @@ void Viewport::onImgui()
   UserInterfaceLayer::ViewportInfos& infos = UserInterfaceLayer::Get().getViewportInfo();
 
   ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-  if (ImGui::Begin("Viewport", m_open))
+  const bool visible = ImGui::Begin("Viewport", m_open);
+  infos.viewportVisible = visible;
+  if (visible)
   {
 
     if (ImGui::BeginChild("ViewportTopButtons", ImVec2(0, 30)))

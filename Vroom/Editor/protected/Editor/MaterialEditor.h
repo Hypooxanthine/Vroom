@@ -43,9 +43,11 @@ private:
   struct PreviewViewport : public ViewportModule
   {
     std::function<void(const glm::uvec2&)> resizeCb;
+    std::function<void(const glm::uvec2&)> popupCb;
 
   protected:
     void onResize(const ImVec2& size) override;
+    void onPopupImgui(const ImVec2& texturePx) override;
   };
 
   void _showShadingModelTree();
@@ -89,6 +91,7 @@ private:
   Scene             m_previewScene;
   FirstPersonCamera m_previewCamera;
   Entity            m_previewEntity;
+  Entity            m_previewDirLightEntity;
 
   // Material rebuilt from m_data and applied to the preview sphere. Owned here
   // (not registered in the AssetManager) and built from memory.

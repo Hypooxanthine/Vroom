@@ -50,6 +50,12 @@ namespace vrm
 
   private:
 
+    void handleMouseInput(const ImVec2& texturePx, bool overGizmoUi);
+
+  private:
+
+    static constexpr float s_clickDragThreshold = 5.0f;
+
     const gl::Texture* m_texture = nullptr;
     ImVec2 m_size;
 
@@ -57,6 +63,9 @@ namespace vrm
     bool m_supportGuizmo = false;
     bool m_localSpace = false;
     render::NormalizedViewport m_guizmoViewport = { 0.f, 0.f, 1.f, 1.f };
+    // A left press that landed on the viewport surface is in progress.
+    bool m_pressedOnViewport = false;
+    // The in-progress press is still a candidate pick (hasn't become a drag).
     bool m_clicking = false;
     bool m_lmbDragging = false;
   };

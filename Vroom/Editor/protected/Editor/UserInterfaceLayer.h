@@ -64,6 +64,9 @@ public:
     bool paused             = false;
     bool manipulatingGuizmo = false;
     bool localSpace         = false;
+    // The viewport window is actually being drawn this frame (visible tab, not
+    // collapsed). When false the gizmo must not be drawn.
+    bool viewportVisible = false;
   };
 
 public:

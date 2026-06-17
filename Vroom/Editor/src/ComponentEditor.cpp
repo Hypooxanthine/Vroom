@@ -219,7 +219,8 @@ void TransformComponentEditor::editEntityComponent(Entity& e) const
   auto& ui           = UserInterfaceLayer::Get();
   auto& viewportInfo = ui.getViewportInfo();
 
-  if (ImGuizmo::Manipulate(&camera.getView()[0][0], &camera.getProjection()[0][0],
+  if (viewportInfo.viewportVisible &&
+      ImGuizmo::Manipulate(&camera.getView()[0][0], &camera.getProjection()[0][0],
                            ImGuizmo::OPERATION::TRANSLATE | ImGuizmo::OPERATION::ROTATE,
                            viewportInfo.localSpace ? ImGuizmo::MODE::LOCAL : ImGuizmo::MODE::WORLD, &transform[0][0]))
   {
@@ -232,7 +233,7 @@ void TransformComponentEditor::editEntityComponent(Entity& e) const
     // Cancelling viewport active
     viewportInfo.active = false;
   }
-  else if (ImGuizmo::IsUsing())
+  else if (viewportInfo.viewportVisible && ImGuizmo::IsUsing())
   {
     viewportInfo.manipulatingGuizmo = true;
     viewportInfo.active             = false;

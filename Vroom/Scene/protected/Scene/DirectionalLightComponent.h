@@ -16,6 +16,11 @@ struct VRM_SCENE_API DirectionalLightComponent
 
   DirectionalLightComponentData getData() const;
 
+  inline float getIntensity() const
+  {
+    return intensity;
+  }
+
   inline void setColor(const glm::vec3& newValue)
   {
     color            = newValue;
