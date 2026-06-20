@@ -92,7 +92,7 @@ void Scene::end()
 
 void Scene::onWindowResized(const glm::uvec2& size)
 {
-  m_renderer->setFrameSize(size);
+  m_renderer->getRenderPipeline().setFrameSize(size);
 }
 
 void Scene::spawn()

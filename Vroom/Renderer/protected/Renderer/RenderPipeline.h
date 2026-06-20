@@ -81,6 +81,9 @@ public:
     m_dynamicSettings = settings;
   }
 
+  void setFrameSize(const glm::uvec2& frameSize);
+  glm::uvec2 getFrameSize() const;
+
   inline const RenderSettings& getRenderSettings() const
   {
     return m_renderSettings;

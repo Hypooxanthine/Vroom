@@ -70,7 +70,7 @@ void Renderer::endScene()
   for (size_t row = 0; row < m_renderLayout->getRows(); ++row)
     for (size_t col = 0; col < m_renderLayout->getCols(); ++col)
       if (m_renderLayout->isViewUsed(row, col))
-        renderContext.views.emplace_back(m_renderLayout->getView(row, col), m_frameSize);
+        renderContext.views.emplace_back(m_renderLayout->getView(row, col), m_pipeline.getRenderSettings().frameSize);
 
   if (renderContext.views.size() > 0)
     m_pipeline.execute(renderContext);
@@ -103,7 +103,7 @@ void Renderer::submitMesh(const MeshRenderInfo& meshInfo)
 
 void Renderer::submitSkybox(const render::Cubemap& skybox)
 {
-  m_skybox = &skybox;
+  m_skybox     = &skybox;
   m_lastSkybox = &skybox;
 }
 
@@ -153,15 +153,4 @@ void Renderer::submitParticleEmitter(uint32_t id, const ParticleSystemRenderInfo
 void Renderer::notifyParticleEmitter(uint32_t id)
 {
   m_particleEmitterRegistry.notifyUsed(id);
-}
-
-void Renderer::setFrameSize(const glm::uvec2& s)
-{
-  if (m_frameSize != s)
-  {
-    m_frameSize = s;
-    RenderSettings newSettings = m_pipeline.getRenderSettings();
-    newSettings.frameSize = s;
-    m_pipeline.setRenderSettings(newSettings);
-  }
 }

@@ -73,12 +73,6 @@ public:
 
   void notifyParticleEmitter(uint32_t id);
 
-  inline const glm::uvec2& getFrameSize() const
-  {
-    return m_frameSize;
-  }
-  void setFrameSize(const glm::uvec2& s);
-
   inline RenderPipeline& getRenderPipeline()
   {
     return m_pipeline;
@@ -89,8 +83,6 @@ private:
   void updateFinalTextureWithWatched();
 
 private:
-
-  glm::uvec2 m_frameSize = { 1, 1 };
 
   const RenderLayout* m_renderLayout = nullptr;
 

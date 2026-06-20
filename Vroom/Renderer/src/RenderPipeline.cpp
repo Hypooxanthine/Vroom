@@ -14,6 +14,7 @@
 #include "Renderer/LightClusteringPass.h"
 #include "Renderer/RenderParticlesPass.h"
 #include "Renderer/RenderPassFactory.h"
+#include "Renderer/RenderSettings.h"
 #include "Renderer/RenderSkyboxPass.h"
 #include "Renderer/ShadowMappingPass.h"
 #include "Renderer/ToneMappingPass.h"
@@ -572,6 +573,18 @@ void RenderPipeline::setRenderSettings(const RenderSettings& settings)
     m_renderSettings = settings;
     m_dirty          = true;
   }
+}
+
+void RenderPipeline::setFrameSize(const glm::uvec2& frameSize)
+{
+  RenderSettings settings = m_renderSettings;
+  settings.frameSize = frameSize;
+  setRenderSettings(settings);
+}
+
+glm::uvec2 RenderPipeline::getFrameSize() const
+{
+  return m_renderSettings.frameSize;
 }
 
 void RenderPipeline::watchExposedTexture(const std::string& name)

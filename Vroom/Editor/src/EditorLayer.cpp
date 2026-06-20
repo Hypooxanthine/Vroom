@@ -62,7 +62,7 @@ void EditorLayer::loadScene(const std::string& name, std::unique_ptr<Scene>&& sc
     RenderSettings        settings    = oldPipeline.getRenderSettings();
     DynamicRenderSettings dynSettings = oldPipeline.getDynamicRenderSettings();
 
-    scene->getRenderer().setFrameSize({ m_lastViewportInfos.width, m_lastViewportInfos.height });
+    scene->getRenderer().getRenderPipeline().setFrameSize({ m_lastViewportInfos.width, m_lastViewportInfos.height });
     RenderPipeline& newPipeline = scene->getRenderer().getRenderPipeline();
     newPipeline.setRenderSettings(settings);
     newPipeline.setDynamicRenderSettings(dynSettings);
