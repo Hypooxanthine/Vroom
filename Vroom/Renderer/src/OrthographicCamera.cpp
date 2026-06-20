@@ -7,7 +7,7 @@
 using namespace vrm;
 
 OrthographicCamera::OrthographicCamera(float left, float right, float bottom, float top, float near, float far)
-  : CameraBasic(near, far), m_left(left), m_right(right), m_bottom(bottom), m_top(top)
+  : m_left(left), m_right(right), m_bottom(bottom), m_top(top), m_near(near), m_far(far)
 {
 }
 
@@ -43,6 +43,18 @@ void OrthographicCamera::setViewDir(const glm::vec3& viewDir)
 {
   m_viewDir = viewDir;
   markViewDirty();
+}
+
+void OrthographicCamera::setNear(float near)
+{
+  m_near = near;
+  markProjectionDirty();
+}
+
+void OrthographicCamera::setFar(float far)
+{
+  m_far = far;
+  markProjectionDirty();
 }
 
 void OrthographicCamera::setViewportSize(float width, float height)

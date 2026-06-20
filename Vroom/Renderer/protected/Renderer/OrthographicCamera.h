@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Renderer/Api.h"
-#include "Renderer/CameraBasic.h"
+#include "Renderer/LazyCamera.h"
 
 namespace vrm
 {
 
-  class VRM_RENDERER_API OrthographicCamera : public CameraBasic
+  class VRM_RENDERER_API OrthographicCamera : public LazyCamera
   {
   public:
 
@@ -22,6 +22,11 @@ namespace vrm
     inline const glm::vec3& getViewDir() const { return m_viewDir; }
     void setViewDir(const glm::vec3& viewDir);
 
+    inline float getNear() const override { return m_near; }
+    inline float getFar() const override { return m_far; }
+    void setNear(float near);
+    void setFar(float far);
+
     virtual void setViewportSize(float width, float height) override;
 
   protected:
@@ -34,6 +39,7 @@ namespace vrm
     glm::vec3 m_viewDir = { 1.f, 0.f, 0.f };
 
     float m_left, m_right, m_bottom, m_top;
+    float m_near = 0.f, m_far = 0.f;
   };
 
 } // namespace vrm

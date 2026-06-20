@@ -6,8 +6,20 @@ namespace vrm
 {
 
 PerspectiveCameraBasic::PerspectiveCameraBasic(float near, float far, float fov, float aspectRatio)
-    : CameraBasic(near, far), m_Fov(fov), m_AspectRatio(aspectRatio)
+    : m_Near(near), m_Far(far), m_Fov(fov), m_AspectRatio(aspectRatio)
 {
+    markProjectionDirty();
+}
+
+void PerspectiveCameraBasic::setNear(float near)
+{
+    m_Near = near;
+    markProjectionDirty();
+}
+
+void PerspectiveCameraBasic::setFar(float far)
+{
+    m_Far = far;
     markProjectionDirty();
 }
 

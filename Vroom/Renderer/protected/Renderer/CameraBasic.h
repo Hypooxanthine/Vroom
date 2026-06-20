@@ -6,55 +6,39 @@
 namespace vrm
 {
 
+  /**
+   * @brief Interface shared by every camera kind.
+   *
+   * It only promises that a camera can expose a view, a projection, their
+   * product and a world-space position.
+   */
   class VRM_RENDERER_API CameraBasic
   {
   public:
     CameraBasic() = default;
-    CameraBasic(float near, float far);
     virtual ~CameraBasic() = default;
 
-    void setNear(float near);
-    void setFar(float far);
+    virtual float getNear() const = 0;
+    virtual float getFar() const = 0;
 
-    inline float getNear() const { return m_Near; }
-    inline float getFar() const { return m_Far; }
+    virtual const glm::mat4& getView() const = 0;
+    virtual const glm::mat4& getProjection() const = 0;
+    virtual const glm::mat4& getViewProjection() const = 0;
 
+    /**
+     * @brief World-space position of the camera.
+     *
+     * The default implementation recovers it from the view matrix (translation
+     * column of its inverse), which is correct for any view. Subclasses that
+     * already store a position should override this for precision and speed.
+     */
     virtual glm::vec3 getPosition() const;
 
     virtual void setViewportSize(float width, float height) {}
 
-    const glm::mat4& getView() const;
-    const glm::mat4& getProjection() const;
-    const glm::mat4& getViewProjection() const;
-
     glm::vec3 getForwardVector() const;
     glm::vec3 getUpVector() const;
     glm::vec3 getRightVector() const;
-
-  protected:
-    void markViewDirty() { m_ViewDirty = true; m_ViewProjectionDirty = true; }
-    void markProjectionDirty() { m_ProjectionDirty = true; m_ViewProjectionDirty = true; }
-
-    virtual glm::mat4 onViewComputed() const = 0;
-    virtual glm::mat4 onProjectionComputed() const = 0;
-
-    void setView(const glm::mat4& view);
-    void setProjection(const glm::mat4& projection);
-
-  private:
-    void computeView() const;
-    void computeProjection() const;
-    void computeViewProjection() const;
-
-  private:
-    float m_Near = 0.f, m_Far = 0.f;
-
-    mutable glm::mat4 m_View,
-      m_Projection,
-      m_ViewProjection;
-    mutable bool m_ViewDirty = true,
-      m_ProjectionDirty = true,
-      m_ViewProjectionDirty = true;
   };
 
 } // namespace vrm

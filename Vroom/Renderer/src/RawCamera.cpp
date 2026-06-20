@@ -1,45 +1,31 @@
 #include "Renderer/RawCamera.h"
-#include "Renderer/CameraBasic.h"
-#include "glm/fwd.hpp"
-#include "glm/gtx/hash.hpp"
 
 using namespace vrm;
 
-RawCamera::RawCamera()
-{}
-
-glm::mat4 RawCamera::onViewComputed() const
+RawCamera::RawCamera(const glm::mat4& view, const glm::mat4& projection)
 {
-  // This should never been called at all,
-  // RawCamera never marks view dirty.
-  return {};
-}
-
-glm::mat4 RawCamera::onProjectionComputed() const
-{
-  // This should never been called at all,
-  // RawCamera never marks projection dirty.
-  return {};
+  setViewMatrix(view);
+  setProjectionMatrix(projection);
 }
 
 void RawCamera::setViewMatrix(const glm::mat4& view)
 {
-  CameraBasic::setView(view);
+  m_View = view;
+  updateViewProjection();
 }
 
 void RawCamera::setProjectionMatrix(const glm::mat4& projection)
 {
-  glm::vec4 nearPoint = { 0.f, 0.f, -1.f, 1.f };
-  glm::vec4 farPoint  = { 0.f, 0.f, +1.f, 1.f };
+  m_Projection = projection;
+  updateViewProjection();
 
-  glm::mat4 projInv  = glm::inverse(projection);
-  nearPoint          = projInv * nearPoint;
-  nearPoint         /= nearPoint.w;
-  setNear(nearPoint.z);
+  // Recover the near/far planes from the projection so getNear()/getFar() stay
+  // meaningful for shaders that read them (e.g. depth linearization).
+  const glm::mat4 projInv = glm::inverse(projection);
 
-  farPoint  = projInv * farPoint;
-  farPoint /= farPoint.w;
-  setFar(farPoint.z);
+  glm::vec4 nearPoint = projInv * glm::vec4(0.f, 0.f, -1.f, 1.f);
+  m_Near = nearPoint.z / nearPoint.w;
 
-  CameraBasic::setProjection(projection);
+  glm::vec4 farPoint = projInv * glm::vec4(0.f, 0.f, 1.f, 1.f);
+  m_Far = farPoint.z / farPoint.w;
 }
