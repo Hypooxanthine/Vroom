@@ -2,12 +2,13 @@
 
 #include "Rasterizer/FrameBuffer.h"
 #include "RenderObjects/Mesh.h"
-#include "Renderer/MeshRegistry.h"
 #include "Renderer/LightRegistry.h"
-#include "Renderer/OrthographicCamera.h"
+#include "Renderer/MeshRegistry.h"
+#include "Renderer/RawCamera.h"
 #include "Renderer/RenderPass.h"
 #include "Renderer/RenderViewport.h"
 #include "Tools/LinearRegistry.h"
+
 
 namespace vrm::render
 {
@@ -49,8 +50,6 @@ protected:
 
   void renderMeshes(const CameraBasic& camera, const render::Viewport& viewport) const;
 
-  OrthographicCamera constructViewProjFromDirLight(const glm::vec3& direction);
-
   void renderDirLightsFrustums(const render::View& view) const;
 
 private:
@@ -58,7 +57,7 @@ private:
   std::vector<gl::FrameBuffer>      m_frameBuffers;
   std::vector<size_t>               m_dirLightShadowCasters;
   LinearRegistry<glm::mat4, size_t> m_lightMatrices;
-  std::vector<OrthographicCamera>   m_dirLightCameras;
+  std::vector<RawCamera>            m_dirLightCameras;
   std::vector<render::Mesh>         m_debugDirLights;
   std::vector<glm::vec3>            m_lastDirLightDirections;
 };

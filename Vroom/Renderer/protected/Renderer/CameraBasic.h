@@ -6,8 +6,6 @@
 namespace vrm
 {
 
-  class MeshData;
-
   class VRM_RENDERER_API CameraBasic
   {
   public:
@@ -21,7 +19,7 @@ namespace vrm
     inline float getNear() const { return m_Near; }
     inline float getFar() const { return m_Far; }
 
-    virtual glm::vec3 getPosition() const = 0;
+    virtual glm::vec3 getPosition() const;
 
     virtual void setViewportSize(float width, float height) {}
 
@@ -33,14 +31,15 @@ namespace vrm
     glm::vec3 getUpVector() const;
     glm::vec3 getRightVector() const;
 
-    MeshData generateViewVolumeMesh() const;
-
   protected:
     void markViewDirty() { m_ViewDirty = true; m_ViewProjectionDirty = true; }
     void markProjectionDirty() { m_ProjectionDirty = true; m_ViewProjectionDirty = true; }
 
     virtual glm::mat4 onViewComputed() const = 0;
     virtual glm::mat4 onProjectionComputed() const = 0;
+
+    void setView(const glm::mat4& view);
+    void setProjection(const glm::mat4& projection);
 
   private:
     void computeView() const;

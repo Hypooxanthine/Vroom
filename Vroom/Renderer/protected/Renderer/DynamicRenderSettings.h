@@ -10,6 +10,15 @@ namespace vrm
     struct Shadows
     {
       uint8_t softShadowKernelRadius = 2;
+      bool debugDirLights = false;
+
+      inline constexpr bool operator==(const Shadows& s) const
+      {
+        return true
+          && softShadowKernelRadius == s.softShadowKernelRadius
+          && debugDirLights == s.debugDirLights
+        ;
+      }
     } shadows;
 
     struct Hdr
@@ -43,7 +52,7 @@ namespace vrm
     inline constexpr bool operator==(const DynamicRenderSettings& s) const
     {
       return true
-        && shadows.softShadowKernelRadius == s.shadows.softShadowKernelRadius
+        && shadows == s.shadows
         && hdr == s.hdr
         && bloom == s.bloom
       ;

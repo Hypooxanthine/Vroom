@@ -35,7 +35,8 @@ struct RenderPipeline::PickingState
   std::vector<Request> requests;
 };
 
-RenderPipeline::RenderPipeline() : m_picking(std::make_unique<PickingState>())
+RenderPipeline::RenderPipeline()
+  : m_picking(std::make_unique<PickingState>()), m_dynamicSettings({}), m_renderSettings({})
 {}
 
 RenderPipeline::~RenderPipeline()
@@ -578,7 +579,7 @@ void RenderPipeline::setRenderSettings(const RenderSettings& settings)
 void RenderPipeline::setFrameSize(const glm::uvec2& frameSize)
 {
   RenderSettings settings = m_renderSettings;
-  settings.frameSize = frameSize;
+  settings.frameSize      = frameSize;
   setRenderSettings(settings);
 }
 

@@ -6,12 +6,170 @@
 #include "AssetManager/AssetManager.h"
 #include "Core/Profiling.h"
 #include "Rasterizer/AutoBuffer.h"
+#include "Renderer/Aabb.h"
 #include "Renderer/CameraBasic.h"
+#include "Renderer/Frustum.h"
 #include "Renderer/LightRegistry.h"
+#include "Renderer/OrthographicCamera.h"
+#include "Renderer/RawCamera.h"
 #include "Renderer/RenderPass.h"
 #include "Renderer/RenderView.h"
+#include "glm/ext/matrix_transform.hpp"
 
 using namespace vrm;
+
+namespace
+{
+
+/**
+ * @brief Generates a mesh representing the NDC cube inverse-projected by the suppied viewProj matrix. Helps visualizing
+ * the view-projection matrix of a camera.
+ *
+ * @param viewProj
+ * @return MeshData
+ */
+MeshData GenerateViewVolumeMesh(const glm::mat4& viewProj)
+{
+  std::vector<Vertex>   vertices(6 * 4);
+  std::vector<uint32_t> indices(6 * 2 * 3);
+
+  Frustum   frustum     = Frustum::CreateFromAabb(Aabb::GetNDC(), true);
+  glm::mat4 viewProjInv = glm::inverse(viewProj);
+
+  frustum.transform(viewProjInv);
+
+  auto corner = [&](int x, int y, int z)
+  {
+    return frustum.getCorner(x == 0 ? Frustum::eLeft : Frustum::eRight, y == 0 ? Frustum::eDown : Frustum::eUp,
+                             z == 0 ? Frustum::eNear : Frustum::eFar);
+  };
+
+  int  v       = 0;
+  auto addQuad = [&](glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d, int faceIdx)
+  {
+    int base                    = faceIdx * 4;
+    vertices[base + 0].position = a;
+    vertices[base + 1].position = b;
+    vertices[base + 2].position = c;
+    vertices[base + 3].position = d;
+
+    glm::vec3 normal          = glm::normalize(glm::cross(b - a, d - a));
+    vertices[base + 0].normal = normal;
+    vertices[base + 1].normal = normal;
+    vertices[base + 2].normal = normal;
+    vertices[base + 3].normal = normal;
+
+    int i          = faceIdx * 6;
+    indices[i + 0] = base + 0;
+    indices[i + 1] = base + 1;
+    indices[i + 2] = base + 2;
+    indices[i + 3] = base + 0;
+    indices[i + 4] = base + 2;
+    indices[i + 5] = base + 3;
+  };
+
+  // Near face
+  addQuad(corner(0, 0, 0), // left-down-near
+          corner(1, 0, 0), // right-down-near
+          corner(1, 1, 0), // right-up-near
+          corner(0, 1, 0), // left-up-near
+          0);
+
+  // Far face
+  addQuad(corner(1, 0, 1), // right-down-far
+          corner(0, 0, 1), // left-down-far
+          corner(0, 1, 1), // left-up-far
+          corner(1, 1, 1), // right-up-far
+          1);
+
+  // Left face
+  addQuad(corner(0, 0, 1), // left-down-far
+          corner(0, 0, 0), // left-down-near
+          corner(0, 1, 0), // left-up-near
+          corner(0, 1, 1), // left-up-far
+          2);
+
+  // Right face
+  addQuad(corner(1, 0, 0), // right-down-near
+          corner(1, 0, 1), // right-down-far
+          corner(1, 1, 1), // right-up-far
+          corner(1, 1, 0), // right-up-near
+          3);
+
+  // Top face
+  addQuad(corner(0, 1, 0), // left-up-near
+          corner(1, 1, 0), // right-up-near
+          corner(1, 1, 1), // right-up-far
+          corner(0, 1, 1), // left-up-far
+          4);
+
+  // Bottom face
+  addQuad(corner(0, 0, 1), // left-down-far
+          corner(1, 0, 1), // right-down-far
+          corner(1, 0, 0), // right-down-near
+          corner(0, 0, 0), // left-down-near
+          5);
+
+  return MeshData{ std::move(vertices), std::move(indices) };
+}
+
+RawCamera ConstructViewProjFromDirLight(const render::View& view, const glm::vec3& lightDir)
+{
+  /* Simple algo : light frustum looking towards view position */
+
+  if (false)
+  {
+    glm::vec3 viewPos = view.getCamera()->getPosition();
+
+    float width = 50.f, height = width, depth = 100.f;
+    float near = 0.1f;
+    float far  = depth - near;
+
+    OrthographicCamera orthoCam(width, height, near, far);
+    orthoCam.setWorldPosition(viewPos + lightDir * depth / 2.f);
+    orthoCam.setViewDir(-lightDir);
+
+    RawCamera rawCam;
+    rawCam.setViewMatrix(orthoCam.getView());
+    rawCam.setProjectionMatrix(orthoCam.getProjection());
+    return rawCam;
+  }
+
+  Frustum cameraFrustum = Frustum::CreateFromAabb(Aabb::GetNDC(), true);
+  cameraFrustum.transform(glm::inverse(view.getCamera()->getViewProjection()));
+  // cameraFrustum is now in world space.
+
+  glm::vec3 cameraFrustumCenter = { 0.f, 0.f, 0.f };
+  for (const glm::vec3& corner : cameraFrustum.getCorners())
+  {
+    cameraFrustumCenter += corner;
+  }
+  cameraFrustumCenter /= cameraFrustum.getCorners().size();
+
+  glm::mat4 lightViewMatrix =
+    glm::lookAt(cameraFrustumCenter + lightDir, cameraFrustumCenter, glm::vec3{ 0.f, 1.f, 0.f });
+
+  cameraFrustum.transform(lightViewMatrix);
+  // cameraFrustum is now in the light's view space.
+
+  // aabb is the bounding box of the frustum in the light view space
+  Aabb aabb(cameraFrustum.getCorners().begin(), cameraFrustum.getCorners().end());
+
+  // TODO: is it enough ? We want to be sure to catch every objects between the dir light (located at infinity) and the
+  // viewed fragments.
+  float zfactor = 100.f;
+
+  glm::mat4 lightProjMatrix = glm::ortho(aabb.getMin().x, aabb.getMax().x, aabb.getMin().y, aabb.getMax().y,
+                                         aabb.getMin().z * zfactor, aabb.getMax().z);
+
+  RawCamera camera;
+  camera.setViewMatrix(lightViewMatrix);
+  camera.setProjectionMatrix(lightProjMatrix);
+
+  return camera;
+}
+
+} // namespace
 
 ShadowMappingPass::ShadowMappingPass(const std::string& name) : RenderPass(name)
 {}
@@ -51,9 +209,9 @@ void ShadowMappingPass::onSetup(const RenderPassContext& ctx)
   {
     size_t      shadowCasterId = m_dirLightShadowCasters.at(i);
     const auto& dirLight       = lights->getDirectionalLights().at(shadowCasterId);
-    m_dirLightCameras.emplace_back(constructViewProjFromDirLight(dirLight.direction));
+    m_dirLightCameras.emplace_back(ConstructViewProjFromDirLight(ctx.views.front(), dirLight.direction));
     // VRM_LOG_TRACE("Light direction: {}", glm::to_string(dirLight.direction));
-    m_debugDirLights.emplace_back(m_dirLightCameras.back().generateViewVolumeMesh());
+    m_debugDirLights.emplace_back(GenerateViewVolumeMesh(m_dirLightCameras.back().getViewProjection()));
 
     m_lightMatrices.submit(i, m_dirLightCameras.back().getViewProjection());
   }
@@ -83,8 +241,6 @@ void ShadowMappingPass::onRender(const RenderPassContext& ctx) const
     return;
   }
 
-  bool debugDirLights = false;
-
   glEnable(GL_CULL_FACE);
   glFrontFace(GL_CCW);
   glCullFace(GL_FRONT);
@@ -102,7 +258,7 @@ void ShadowMappingPass::onRender(const RenderPassContext& ctx) const
     renderMeshes(m_dirLightCameras.at(i), render::Viewport({ 0u, 0u }, { resolution, resolution }));
   }
 
-  if (debugDirLights)
+  if (ctx.dynamicSettings->shadows.debugDirLights)
   {
     VRM_ASSERT(ctx.frameBufferTarget != nullptr);
     ctx.frameBufferTarget->bind();
@@ -228,91 +384,6 @@ void ShadowMappingPass::renderMeshes(const CameraBasic& camera, const render::Vi
 
     glDrawElements(GL_TRIANGLES, (GLsizei)mesh.getIndexCount(), GL_UNSIGNED_INT, nullptr);
   }
-}
-
-OrthographicCamera ShadowMappingPass::constructViewProjFromDirLight(const glm::vec3& direction)
-{
-  // {
-  //   const float width = 10.f, height = 10.f, depth = 100.f;
-  //   const float near = 0.1f;
-  //   const float far = near + depth;
-
-  //   OrthographicCamera out(width, height, near, far);
-  //   out.setWorldPosition(direction * depth / 2.f);
-  //   out.setViewDir(-direction);
-
-  //   return out;
-  // }
-
-  /* Simple algo : light frustum looking towards view position */
-
-  // if (false)
-  {
-    glm::vec3 viewPos = { 0.f, 0.f, 0.f };
-
-    float width = 50.f, height = width, depth = 100.f;
-    float near = 0.1f;
-    float far  = depth - near;
-
-    OrthographicCamera out(width, height, near, far);
-    out.setWorldPosition(viewPos + direction * depth / 2.f);
-    out.setViewDir(-direction);
-
-    return out;
-  }
-
-  /* Trying the algorithm "view frustum always inside light frustum". Couldnt
-   * make it work for now :) */
-
-  // const glm::mat4& viewProjInv =
-  // glm::inverse(renderCamera.getViewProjection());
-
-  // Frustum frustum_world = Frustum::CreateFromAabb(Aabb::GetNDC(), true);
-
-  // frustum_world.transform(viewProjInv);
-
-  // glm::vec3 origin = { 0.f, 0.f, 0.f };
-  // glm::vec3 up = { 0.f, 1.f, 0.f };
-
-  // glm::vec3 lightPos_world_space; // Computing this position.
-  // {
-  //   glm::mat4 world_to_light = glm::lookAt(origin, direction, up); // Origin
-  //   is taken instead of real position glm::mat4 light_to_world =
-  //   glm::inverse(world_to_light);
-
-  //   Frustum frustum_light_space = frustum_world;
-  //   frustum_light_space.transform(world_to_light);
-
-  //   Aabb light_aabb = Aabb::CreateFromFrustum(frustum_light_space);
-  //   glm::vec3 light_aabb_center = light_aabb.calcCenter();
-
-  //   glm::vec3 lightPos_light_space = { light_aabb_center.x,
-  //   light_aabb_center.y, light_aabb.getMin().z }; lightPos_world_space =
-  //   light_to_world * glm::vec4(lightPos_light_space, 1.f);
-  // }
-
-  // Aabb finalAabb;
-  // // Computing the real bounding box with the real origin
-  // {
-  //   glm::mat4 world_to_light = glm::lookAt(lightPos_world_space,
-  //   lightPos_world_space + direction, up); // Now we know the real light
-  //   position
-
-  //   Frustum frustum_light_space = frustum_world;
-  //   frustum_light_space.transform(world_to_light);
-
-  //   finalAabb = Aabb::CreateFromFrustum(frustum_light_space);
-  // }
-
-  // const float width = finalAabb.calcWidth(), height = finalAabb.calcHeight(),
-  // depth = finalAabb.calcDepth(); const float near = 0.1f; const float far =
-  // near + depth;
-
-  // OrthographicCamera out(width, height, near, far);
-  // out.setWorldPosition(lightPos_world_space);
-  // out.setViewDir(-direction);
-
-  // return out;
 }
 
 void ShadowMappingPass::renderDirLightsFrustums(const render::View& view) const

@@ -72,6 +72,11 @@ void RenderSettingsPanel::onImgui()
       settingsChanged = true;
     }
 
+    if (ImGui::Checkbox("Debug dir lights", &dynSettings.shadows.debugDirLights))
+    {
+      dynSettingsChanged = true;
+    }
+
     int softShadowKernelRadius =
       static_cast<int>(dynSettings.shadows.softShadowKernelRadius);
 
