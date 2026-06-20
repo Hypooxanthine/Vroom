@@ -38,7 +38,7 @@ namespace vrm
     inline constexpr const glm::vec3& getMax() const { return m_max; }
 
     inline constexpr glm::vec3 calcMinToMaxVector() const { return getMax() - getMin(); }
-    inline constexpr glm::vec3 calcCenter() const { return calcMinToMaxVector() / 2.f; }
+    inline constexpr glm::vec3 calcCenter() const { return (getMin() + getMax()) / 2.f; }
     inline constexpr float calcWidth() const  { return getMax().x - getMin().x; }
     inline constexpr float calcHeight() const { return getMax().y - getMin().y; }
     inline constexpr float calcDepth() const  { return getMax().z - getMin().z; }
