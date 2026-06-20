@@ -10,7 +10,6 @@
 #include "Renderer/CameraBasic.h"
 #include "Renderer/Frustum.h"
 #include "Renderer/LightRegistry.h"
-#include "Renderer/OrthographicCamera.h"
 #include "Renderer/RawCamera.h"
 #include "Renderer/RenderPass.h"
 #include "Renderer/RenderView.h"
@@ -115,26 +114,6 @@ MeshData GenerateViewVolumeMesh(const glm::mat4& viewProj)
 
 RawCamera ConstructViewProjFromDirLight(const render::View& view, const glm::vec3& lightDir)
 {
-  /* Simple algo : light frustum looking towards view position */
-
-  if (false)
-  {
-    glm::vec3 viewPos = view.getCamera()->getPosition();
-
-    float width = 50.f, height = width, depth = 100.f;
-    float near = 0.1f;
-    float far  = depth - near;
-
-    OrthographicCamera orthoCam(width, height, near, far);
-    orthoCam.setWorldPosition(viewPos + lightDir * depth / 2.f);
-    orthoCam.setViewDir(-lightDir);
-
-    RawCamera rawCam;
-    rawCam.setViewMatrix(orthoCam.getView());
-    rawCam.setProjectionMatrix(orthoCam.getProjection());
-    return rawCam;
-  }
-
   Frustum cameraFrustum = Frustum::CreateFromAabb(Aabb::GetNDC(), true);
   cameraFrustum.transform(glm::inverse(view.getCamera()->getViewProjection()));
   // cameraFrustum is now in world space.

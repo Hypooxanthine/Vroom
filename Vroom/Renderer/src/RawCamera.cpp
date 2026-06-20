@@ -1,4 +1,5 @@
 #include "Renderer/RawCamera.h"
+#include "Renderer/CameraBasic.h"
 
 using namespace vrm;
 
@@ -7,6 +8,10 @@ RawCamera::RawCamera(const glm::mat4& view, const glm::mat4& projection)
   setViewMatrix(view);
   setProjectionMatrix(projection);
 }
+
+RawCamera::RawCamera(const CameraBasic& cameraBasic)
+  : vrm::RawCamera(cameraBasic.getView(), cameraBasic.getProjection())
+{}
 
 void RawCamera::setViewMatrix(const glm::mat4& view)
 {
@@ -24,8 +29,8 @@ void RawCamera::setProjectionMatrix(const glm::mat4& projection)
   const glm::mat4 projInv = glm::inverse(projection);
 
   glm::vec4 nearPoint = projInv * glm::vec4(0.f, 0.f, -1.f, 1.f);
-  m_Near = nearPoint.z / nearPoint.w;
+  m_Near              = nearPoint.z / nearPoint.w;
 
   glm::vec4 farPoint = projInv * glm::vec4(0.f, 0.f, 1.f, 1.f);
-  m_Far = farPoint.z / farPoint.w;
+  m_Far              = farPoint.z / farPoint.w;
 }

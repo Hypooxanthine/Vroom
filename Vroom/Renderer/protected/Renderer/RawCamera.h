@@ -17,6 +17,7 @@ public:
 
   RawCamera() = default;
   RawCamera(const glm::mat4& view, const glm::mat4& projection);
+  RawCamera(const CameraBasic& cameraBasic);
   virtual ~RawCamera() = default;
 
   void setViewMatrix(const glm::mat4& view);
