@@ -17,6 +17,7 @@ public:
 
   friend Entity;
   friend class ScriptEngine;
+  friend class ScriptFactory;
 
 public:
 
@@ -62,11 +63,6 @@ public:
   inline const std::string& getScriptName() const
   {
     return m_scriptName;
-  }
-  
-  void setScriptName(const std::string& name)
-  {
-    m_scriptName = name;
   }
 
 protected:

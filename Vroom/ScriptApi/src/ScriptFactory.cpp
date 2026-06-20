@@ -6,7 +6,7 @@ using namespace vrm;
 ScriptComponent* ScriptFactory::create() const
 {
   ScriptComponent* rawPtr = delegateCreate();
-  rawPtr->setScriptName(m_name);
+  rawPtr->m_scriptName = m_name;
 
   return rawPtr;
 }
