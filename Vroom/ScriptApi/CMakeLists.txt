@@ -36,6 +36,12 @@ target_link_libraries(
     Application_public
 )
 
+target_compile_definitions(
+  ScriptApi
+  PRIVATE
+    VRM_SCRIPTAPI_EXPORTS
+)
+
 add_library(Vroom::ScriptApi ALIAS ScriptApi)
 
 # The implementation is meant to be compiled and linked by

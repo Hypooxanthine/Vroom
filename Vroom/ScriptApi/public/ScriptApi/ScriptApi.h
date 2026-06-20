@@ -5,7 +5,6 @@
 
 #include "ScriptApi/ScriptLibrary.h"
 
-
 #define VRM_STRINGIFY(str)                  #str
 #define VRM_GEN_SCRIPT_ID(ScriptClass)      VRM_STRINGIFY(VRM_##ScriptClass##_ID)
 #define VRM_FACTORY_CLASS_NAME(ScriptClass) ScriptClass##_Factory
@@ -27,7 +26,10 @@
     {}                                                                                                    \
     virtual ~VRM_FACTORY_CLASS_NAME(ScriptClass)()                                                        \
     {}                                                                                                    \
-    virtual ScriptClass* create() const override                                                          \
+                                                                                                          \
+  protected:                                                                                              \
+                                                                                                          \
+    virtual ScriptClass* delegateCreate() const override                                                  \
     {                                                                                                     \
       return new ScriptClass();                                                                           \
     }                                                                                                     \

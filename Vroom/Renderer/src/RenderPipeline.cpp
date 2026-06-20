@@ -1,7 +1,11 @@
 #include "Renderer/RenderPipeline.h"
 #include <cstddef>
+#include <cstring>
 #include <memory>
+#include <utility>
+#include <vector>
 
+#include "Rasterizer/Buffer.h"
 #include "Rasterizer/GLCore.h"
 #include "Renderer/BlitFrameBufferPass.h"
 #include "Renderer/ClearFrameBufferPass.h"
@@ -14,14 +18,32 @@
 #include "Renderer/ShadowMappingPass.h"
 #include "Renderer/ToneMappingPass.h"
 
-
 using namespace vrm;
 
-RenderPipeline::RenderPipeline()
+struct RenderPipeline::PickingState
+{
+  struct Request
+  {
+    glm::ivec2       pixel = { 0, 0 };
+    Future<uint32_t> future;
+    gl::Buffer       pbo;
+    GLsync           fence  = nullptr;
+    bool             issued = false;
+  };
+
+  std::vector<Request> requests;
+};
+
+RenderPipeline::RenderPipeline() : m_picking(std::make_unique<PickingState>())
 {}
 
 RenderPipeline::~RenderPipeline()
-{}
+{
+  // GLsync handles outlive RenderResources, release them explicitly.
+  for (auto& req : m_picking->requests)
+    if (req.fence != nullptr)
+      glDeleteSync(req.fence);
+}
 
 void RenderPipeline::generateIfDirty()
 {
@@ -413,6 +435,10 @@ void RenderPipeline::execute(RenderPassContext& context)
   // RenderPass render/cleanup stages
   m_passManager.render(context);
   m_passManager.cleanup(context);
+
+  // The picking framebuffer now holds this frame's entity ids: issue any
+  // queued readbacks and resolve the ones the GPU has finished with.
+  _processEntityPicking();
 }
 
 void RenderPipeline::setEntityPickingEnabled(bool enabled)
@@ -440,6 +466,97 @@ uint32_t RenderPipeline::getEntityIndexOnPixel(const glm::ivec2& px) const
   glReadPixels(px.x, px.y, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &pixel);
   glReadBuffer(GL_NONE);
   return pixel;
+}
+
+Promise<uint32_t> RenderPipeline::pickEntityIndex(const glm::ivec2& px)
+{
+  if (!m_entityPickingEnabled)
+  {
+    Future<uint32_t>  future;
+    Promise<uint32_t> promise = future.createPromise();
+    future.setValue(0u);
+    return promise;
+  }
+
+  PickingState::Request request;
+  request.pixel             = px;
+  Promise<uint32_t> promise = request.future.createPromise();
+
+  m_picking->requests.push_back(std::move(request));
+
+  return promise;
+}
+
+void RenderPipeline::_processEntityPicking()
+{
+  if (m_picking->requests.empty())
+    return;
+
+  const gl::FrameBuffer* fb = m_resources.tryGetFramebuffer("PickingFrameBuffer");
+
+  // Pipeline not built yet (or picking disabled): leave the requests queued,
+  // they will be issued once the picking framebuffer exists.
+  if (fb == nullptr)
+    return;
+
+  // 1: Issue a non-blocking readback for every request that doesn't have one yet.
+  for (auto& request : m_picking->requests)
+  {
+    if (request.issued)
+      continue;
+
+    gl::Buffer::Desc desc;
+    desc.capacity        = sizeof(uint32_t);
+    desc.allowMapReading = true;
+    request.pbo.create(desc);
+
+    fb->bind();
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+    gl::Buffer::Bind(request.pbo, GL_PIXEL_PACK_BUFFER);
+    // Reading into the bound PBO: the last argument is a byte offset.
+    glReadPixels(request.pixel.x, request.pixel.y, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, nullptr);
+    gl::Buffer::Unbind(GL_PIXEL_PACK_BUFFER);
+    glReadBuffer(GL_NONE);
+
+    request.fence  = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    request.issued = true;
+  }
+
+  // 2: Resolve finished requests
+  std::vector<std::pair<Future<uint32_t>, uint32_t>> ready;
+
+  for (auto it = m_picking->requests.begin(); it != m_picking->requests.end();)
+  {
+    if (it->fence == nullptr)
+    {
+      ++it;
+      continue;
+    }
+
+    const GLenum status = glClientWaitSync(it->fence, GL_SYNC_FLUSH_COMMANDS_BIT, 0);
+    if (status != GL_ALREADY_SIGNALED && status != GL_CONDITION_SATISFIED)
+    {
+      ++it; // GL_TIMEOUT_EXPIRED: not ready this frame.
+      continue;
+    }
+
+    uint32_t pixel = 0;
+    gl::Buffer::Bind(it->pbo, GL_PIXEL_PACK_BUFFER);
+    if (const void* mapped = glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, sizeof(uint32_t), GL_MAP_READ_BIT))
+    {
+      std::memcpy(&pixel, mapped, sizeof(uint32_t));
+      glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+    }
+    gl::Buffer::Unbind(GL_PIXEL_PACK_BUFFER);
+
+    glDeleteSync(it->fence);
+
+    ready.emplace_back(std::move(it->future), pixel);
+    it = m_picking->requests.erase(it);
+  }
+
+  for (auto& [future, pixel] : ready)
+    future.setValue(pixel);
 }
 
 void RenderPipeline::addCustomPass(ECustomSlot slot, std::unique_ptr<RenderPassFactory>&& passFactory)

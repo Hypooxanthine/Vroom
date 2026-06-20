@@ -1,14 +1,14 @@
 #pragma once
 
+#include "ScriptApi/Api.h"
 #include <string>
-
 
 namespace vrm
 {
 
 class ScriptComponent;
 
-class ScriptFactory
+class VRM_SCRIPTAPI_API ScriptFactory
 {
 public:
 
@@ -18,12 +18,16 @@ public:
   virtual ~ScriptFactory()
   {}
 
-  virtual ScriptComponent* create() const = 0;
+  ScriptComponent* create() const;
 
   const std::string& getName() const
   {
     return m_name;
   }
+
+protected:
+
+  virtual ScriptComponent* delegateCreate() const = 0;
 
 private:
 

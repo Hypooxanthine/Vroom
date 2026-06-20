@@ -13,7 +13,6 @@
 #include "Editor/SceneGraph.h"
 #include "Editor/UserInterfaceLayer.h"
 
-
 using namespace vrm;
 
 void Viewport::MyViewportModule::onPopupImgui(const ImVec2& texturePx)
@@ -24,8 +23,8 @@ void Viewport::MyViewportModule::onPopupImgui(const ImVec2& texturePx)
 
     if (texturePx.x > -1 && texturePx.y > -1)
     {
-      uint32_t rawId =
-        Application::Get().getMainSceneRenderer().getRenderPipeline().getEntityIndexOnPixel({ texturePx.x, texturePx.y });
+      uint32_t rawId = Application::Get().getMainSceneRenderer().getRenderPipeline().getEntityIndexOnPixel(
+        { texturePx.x, texturePx.y });
       auto& scene = Application::Get().getGameLayer().getScene();
 
       if (scene.entityExists(entt::entity(rawId)))
@@ -49,25 +48,23 @@ void Viewport::MyViewportModule::onLeftClick(const ImVec2& texturePx)
 {
   if (texturePx.x > -1 && texturePx.y > -1)
   {
-    uint32_t rawId =
-      Application::Get().getMainSceneRenderer().getRenderPipeline().getEntityIndexOnPixel({ texturePx.x, texturePx.y });
-    UserInterfaceLayer::Get().pushRoutine(Layer::EFrameLocation::ePreEndFrame,
-                                          [=](Layer& l)
-                                          {
-                                            auto& scene        = Application::Get().getGameLayer().getScene();
-                                            auto& sceneGraph   = VRM_EDITOR_UI_ELEMENT(SceneGraph);
-                                            auto& entityEditor = VRM_EDITOR_UI_ELEMENT(EntityEditor);
+    // Asynchronous readback: the continuation runs once the GPU has produced
+    // the entity id (a few frames later), without stalling the pipeline here.
+    Application::Get()
+      .getMainSceneRenderer()
+      .getRenderPipeline()
+      .pickEntityIndex({ texturePx.x, texturePx.y })
+      .then(
+        [](uint32_t rawId)
+        {
+          auto& scene        = Application::Get().getGameLayer().getScene();
+          auto& entityEditor = VRM_EDITOR_UI_ELEMENT(EntityEditor);
 
-                                            if (scene.entityExists(entt::entity(rawId)))
-                                            {
-                                              Entity e = scene.getEntity(entt::entity(rawId));
-                                              entityEditor.openOrCloseIfSame(e);
-                                            }
-                                            else
-                                            {
-                                              entityEditor.close();
-                                            }
-                                          });
+          if (scene.entityExists(entt::entity(rawId)))
+            entityEditor.openOrCloseIfSame(scene.getEntity(entt::entity(rawId)));
+          else
+            entityEditor.close();
+        });
   }
 }
 
@@ -95,7 +92,7 @@ void Viewport::onImgui()
   UserInterfaceLayer::ViewportInfos& infos = UserInterfaceLayer::Get().getViewportInfo();
 
   ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-  const bool visible = ImGui::Begin("Viewport", m_open);
+  const bool visible    = ImGui::Begin("Viewport", m_open);
   infos.viewportVisible = visible;
   if (visible)
   {

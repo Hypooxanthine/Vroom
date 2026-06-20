@@ -63,6 +63,11 @@ public:
   {
     return m_scriptName;
   }
+  
+  void setScriptName(const std::string& name)
+  {
+    m_scriptName = name;
+  }
 
 protected:
 

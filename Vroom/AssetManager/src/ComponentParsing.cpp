@@ -413,7 +413,7 @@ json ScriptComponentData::serialize() const
     json& scriptNameParam   = params.emplace_back();
     scriptNameParam["name"] = "ScriptName";
     json& scriptName        = scriptNameParam["value"];
-    scriptName              = formatPath(this->resourceName);
+    scriptName              = this->resourceName;
   }
 
   return j;

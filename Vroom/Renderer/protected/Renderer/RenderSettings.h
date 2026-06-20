@@ -49,6 +49,7 @@ namespace vrm
     {
       return true
         && frameRateLimit == s.frameRateLimit
+        && frameSize == s.frameSize
         && antiAliasingLevel == s.antiAliasingLevel
         && shadowsEnable == s.shadowsEnable
         && normalMapping == s.normalMapping

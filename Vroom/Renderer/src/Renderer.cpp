@@ -160,6 +160,8 @@ void Renderer::setFrameSize(const glm::uvec2& s)
   if (m_frameSize != s)
   {
     m_frameSize = s;
-    m_pipeline.getRendererAttorney().setFrameSize(s);
+    RenderSettings newSettings = m_pipeline.getRenderSettings();
+    newSettings.frameSize = s;
+    m_pipeline.setRenderSettings(newSettings);
   }
 }

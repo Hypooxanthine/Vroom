@@ -12,21 +12,21 @@
   static_assert(false, "Unsupported platform");
 #endif
 
-#define VRM_SCRIPTAPI_API extern "C" VRM_EXPORT_SYMBOLS
+#define VRM_CLIENT_SCRIPTAPI_API extern "C" VRM_EXPORT_SYMBOLS
 
 #include "ScriptApi/ScriptLibrary.h"
 
-VRM_SCRIPTAPI_API const char* VRM_ScriptLibrary_GetLibraryName()
+VRM_CLIENT_SCRIPTAPI_API const char* VRM_ScriptLibrary_GetLibraryName()
 {
   return "EditorScriptLibrary";
 }
 
-VRM_SCRIPTAPI_API size_t VRM_ScriptLibrary_GetScriptCount()
+VRM_CLIENT_SCRIPTAPI_API size_t VRM_ScriptLibrary_GetScriptCount()
 {
   return vrm::ScriptLibrary::Get().getFactories().size();
 }
 
-VRM_SCRIPTAPI_API const char* VRM_ScriptLibrary_GetScriptName(size_t index)
+VRM_CLIENT_SCRIPTAPI_API const char* VRM_ScriptLibrary_GetScriptName(size_t index)
 {
   const auto& factories = vrm::ScriptLibrary::Get().getFactories();
 
@@ -40,7 +40,7 @@ VRM_SCRIPTAPI_API const char* VRM_ScriptLibrary_GetScriptName(size_t index)
   }
 }
 
-VRM_SCRIPTAPI_API vrm::ScriptComponent* VRM_ScriptLibrary_CreateScript(size_t index)
+VRM_CLIENT_SCRIPTAPI_API vrm::ScriptComponent* VRM_ScriptLibrary_CreateScript(size_t index)
 {
   const auto& factories = vrm::ScriptLibrary::Get().getFactories();
 
@@ -54,7 +54,7 @@ VRM_SCRIPTAPI_API vrm::ScriptComponent* VRM_ScriptLibrary_CreateScript(size_t in
   }
 }
 
-VRM_SCRIPTAPI_API void VRM_ScriptLibrary_DestroyScript(vrm::ScriptComponent* script)
+VRM_CLIENT_SCRIPTAPI_API void VRM_ScriptLibrary_DestroyScript(vrm::ScriptComponent* script)
 {
   delete script;
 }

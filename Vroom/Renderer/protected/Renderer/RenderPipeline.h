@@ -2,6 +2,10 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
+#include <memory>
+
+#include <glm/glm.hpp>
 
 #include "RenderObjects/fwds.h"
 #include "Renderer/Api.h"
@@ -12,6 +16,7 @@
 #include "Renderer/RenderPassManager.h"
 #include "Renderer/RenderResources.h"
 #include "Renderer/RenderSettings.h"
+#include "Tools/Promise.hpp"
 
 namespace vrm
 {
@@ -100,39 +105,29 @@ public:
     return m_watchedTexture;
   }
 
-  void     setEntityPickingEnabled(bool enabled = true);
+  void setEntityPickingEnabled(bool enabled = true);
+
+  /**
+   * @brief Synchronously reads back the entity index under a pixel.
+   *
+   * Issues a blocking glReadPixels: it stalls the GPU pipeline. Prefer
+   * pickEntityIndex() unless the result is needed within the same call.
+   */
   uint32_t getEntityIndexOnPixel(const glm::ivec2& px) const;
 
-public:
-
-  struct RendererAttorney
-  {
-    friend RenderPipeline;
-    friend class Renderer;
-
-  private:
-
-    RendererAttorney(RenderPipeline& pipeline) : pipeline(pipeline)
-    {}
-
-    RenderPipeline& pipeline;
-
-    inline void setFrameSize(const glm::uvec2& frameSize)
-    {
-      pipeline.m_renderSettings.frameSize = frameSize;
-      pipeline.m_dirty                    = true;
-    }
-  };
-
-  inline RendererAttorney getRendererAttorney()
-  {
-    return RendererAttorney(*this);
-  }
+  /**
+   * @brief Asynchronously reads back the entity index under a pixel, not stalling the GPU.
+   */
+  Promise<uint32_t> pickEntityIndex(const glm::ivec2& px);
 
 private:
 
   void _pushCustomPasses(ECustomSlot slot);
   void _updateFinalTextureWithWatched();
+
+  // Issues pending asynchronous picking readbacks and resolves the ones whose
+  // GPU readback has completed. Called once per frame from execute().
+  void _processEntityPicking();
 
 private:
 
@@ -144,12 +139,12 @@ private:
   RenderSettings        m_renderSettings;
   DynamicRenderSettings m_dynamicSettings;
 
-  RenderResources  m_resources;
+  RenderResources m_resources;
 
   // Resolution-independent (always 4096^2), kept here rather than in the
   // per-rebuild RenderResources so its large depth array survives pipeline
   // rebuilds instead of being reallocated on every resize. See generate().
-  gl::Texture      m_dirLightShadowMaps;
+  gl::Texture m_dirLightShadowMaps;
 
   gl::Texture*     m_finalTexture      = nullptr;
   gl::FrameBuffer* m_renderFrameBuffer = nullptr;
@@ -159,6 +154,10 @@ private:
   std::string m_watchedTexture = "";
 
   bool m_entityPickingEnabled = true;
+
+  // Holds the in-flight asynchronous picking readbacks (PBO + fence + future).
+  struct PickingState;
+  std::unique_ptr<PickingState> m_picking;
 
   bool m_dirty = true;
 };
