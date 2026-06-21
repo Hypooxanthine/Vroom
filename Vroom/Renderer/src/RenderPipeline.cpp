@@ -36,7 +36,7 @@ struct RenderPipeline::PickingState
 };
 
 RenderPipeline::RenderPipeline()
-  : m_picking(std::make_unique<PickingState>()), m_dynamicSettings({}), m_renderSettings({})
+  : m_picking(std::make_unique<PickingState>())
 {}
 
 RenderPipeline::~RenderPipeline()

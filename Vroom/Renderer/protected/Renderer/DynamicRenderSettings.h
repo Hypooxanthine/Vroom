@@ -9,7 +9,7 @@ namespace vrm
   {
     struct Shadows
     {
-      uint8_t softShadowKernelRadius = 2;
+      uint8_t softShadowKernelRadius = 1;
       bool debugDirLights = false;
 
       inline constexpr bool operator==(const Shadows& s) const

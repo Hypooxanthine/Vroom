@@ -1,5 +1,7 @@
 #include "Renderer/ShadowMappingPass.h"
 
+#include <cmath>
+
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
 
@@ -112,34 +114,52 @@ MeshData GenerateViewVolumeMesh(const glm::mat4& viewProj)
   return MeshData{ std::move(vertices), std::move(indices) };
 }
 
-RawCamera ConstructViewProjFromDirLight(const render::View& view, const glm::vec3& lightDir)
+RawCamera ConstructViewProjFromDirLight(const render::View& view, const glm::vec3& lightDir, float resolution)
 {
   Frustum cameraFrustum = Frustum::CreateFromAabb(Aabb::GetNDC(), true);
   cameraFrustum.transform(glm::inverse(view.getCamera()->getViewProjection()));
   // cameraFrustum is now in world space.
 
+  const auto& corners = cameraFrustum.getCorners();
+
   glm::vec3 cameraFrustumCenter = { 0.f, 0.f, 0.f };
-  for (const glm::vec3& corner : cameraFrustum.getCorners())
+  for (const glm::vec3& corner : corners)
   {
     cameraFrustumCenter += corner;
   }
-  cameraFrustumCenter /= cameraFrustum.getCorners().size();
+  cameraFrustumCenter /= corners.size();
 
-  glm::mat4 lightViewMatrix =
-    glm::lookAt(cameraFrustumCenter + lightDir, cameraFrustumCenter, glm::vec3{ 0.f, 1.f, 0.f });
+  float radius = 0.f;
+  for (const glm::vec3& corner : corners)
+  {
+    radius = glm::max(radius, glm::length(corner - cameraFrustumCenter));
+  }
+  // Constant texel size.
+  radius = std::ceil(radius * 16.f) / 16.f;
 
-  cameraFrustum.transform(lightViewMatrix);
-  // cameraFrustum is now in the light's view space.
-
-  // aabb is the bounding box of the frustum in the light view space
-  Aabb aabb(cameraFrustum.getCorners().begin(), cameraFrustum.getCorners().end());
+  // Guard the lookAt up-vector against a near-vertical light direction.
+  glm::vec3 up = glm::abs(glm::normalize(lightDir).y) > 0.99f ? glm::vec3{ 0.f, 0.f, 1.f } : glm::vec3{ 0.f, 1.f, 0.f };
+  glm::mat4 lightViewMatrix = glm::lookAt(cameraFrustumCenter + lightDir, cameraFrustumCenter, up);
 
   // TODO: is it enough ? We want to be sure to catch every objects between the dir light (located at infinity) and the
   // viewed fragments.
   float zfactor = 100.f;
 
-  glm::mat4 lightProjMatrix = glm::ortho(aabb.getMin().x, aabb.getMax().x, aabb.getMin().y, aabb.getMax().y,
-                                         aabb.getMin().z * zfactor, aabb.getMax().z);
+  glm::mat4 lightProjMatrix = glm::ortho(-radius, radius, -radius, radius, -radius * zfactor, radius);
+
+  // Texel snapping: move the shadow box origin in whole-texel increments so that camera translation shifts the
+  // shadow map by integer texels rather than by an arbitrary sub-texel amount. It only works because texel size is kept
+  // constant.
+  glm::mat4 shadowMatrix  = lightProjMatrix * lightViewMatrix;
+  glm::vec4 shadowOrigin  = shadowMatrix * glm::vec4(0.f, 0.f, 0.f, 1.f);
+  shadowOrigin           *= resolution * 0.5f; // NDC -> texel units
+
+  glm::vec4 rounded = glm::round(shadowOrigin);
+  glm::vec4 offset  = (rounded - shadowOrigin) * (2.f / resolution); // back to NDC
+  offset.z          = 0.f;
+  offset.w          = 0.f;
+
+  lightProjMatrix[3] += offset;
 
   RawCamera camera;
   camera.setViewMatrix(lightViewMatrix);
@@ -188,7 +208,8 @@ void ShadowMappingPass::onSetup(const RenderPassContext& ctx)
   {
     size_t      shadowCasterId = m_dirLightShadowCasters.at(i);
     const auto& dirLight       = lights->getDirectionalLights().at(shadowCasterId);
-    m_dirLightCameras.emplace_back(ConstructViewProjFromDirLight(ctx.views.front(), dirLight.direction));
+    m_dirLightCameras.emplace_back(
+      ConstructViewProjFromDirLight(ctx.views.front(), dirLight.direction, static_cast<float>(resolution)));
     // VRM_LOG_TRACE("Light direction: {}", glm::to_string(dirLight.direction));
     m_debugDirLights.emplace_back(GenerateViewVolumeMesh(m_dirLightCameras.back().getViewProjection()));
 

@@ -4,6 +4,8 @@
 #include <Core/Assert.h>
 #include <Renderer/Renderer.h>
 #include <Window/Window.h>
+#include <limits>
+#include <string_view>
 
 #include "imgui.h"
 
@@ -28,6 +30,7 @@
 #include "Editor/RenderSettingsPanel.h"
 #include "Editor/SceneGraph.h"
 #include "Editor/Viewport.h"
+#include "Rasterizer/GLCore.h"
 #include "implot.h"
 
 
@@ -213,8 +216,11 @@ void UserInterfaceLayer::_endImguiFrame()
 {
   VRM_PROFILE_SCOPE("UserInterfaceLayer::_endImguiFrame");
 
+  std::string_view debugGroupMessage = "UserInterfaceLayer::_endImguiFrame()";
+  glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, std::numeric_limits<GLuint>::max(), debugGroupMessage.size(), debugGroupMessage.data());
   ImGui::Render();
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+  glPopDebugGroup();
 }
 
 void UserInterfaceLayer::fileDropCallback(const Event& e)
