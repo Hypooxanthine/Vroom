@@ -11,12 +11,18 @@ namespace vrm
     {
       uint8_t softShadowKernelRadius = 1;
       bool debugDirLights = false;
+      uint8_t cascadeCount = 5;
+      float cascadeSplitLambda = 0.80f; // 0 = uniform splits, 1 = logarithmic splits.
+      float shadowDistance = 200.f;     // 0 = use camera far plane.
 
       inline constexpr bool operator==(const Shadows& s) const
       {
         return true
           && softShadowKernelRadius == s.softShadowKernelRadius
           && debugDirLights == s.debugDirLights
+          && cascadeCount == s.cascadeCount
+          && cascadeSplitLambda == s.cascadeSplitLambda
+          && shadowDistance == s.shadowDistance
         ;
       }
     } shadows;

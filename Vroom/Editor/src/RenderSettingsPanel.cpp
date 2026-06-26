@@ -90,6 +90,49 @@ void RenderSettingsPanel::onImgui()
       dynSettingsChanged = true;
     }
 
+    static constexpr uint32_t shadowResolutions[] = { 1024u, 2048u, 4096u };
+    ImGui::TextWrapped("Shadow map resolution:");
+    if (ImGui::BeginCombo("##Shadow map resolution",
+                          std::to_string(settings.shadowResolution).c_str()))
+    {
+      for (uint32_t res : shadowResolutions)
+      {
+        bool selected = (settings.shadowResolution == res);
+        if (ImGui::Selectable(std::to_string(res).c_str(), &selected))
+        {
+          settings.shadowResolution = res;
+          settingsChanged           = true;
+        }
+      }
+      ImGui::EndCombo();
+    }
+
+    int shadowCascadeCount = static_cast<int>(dynSettings.shadows.cascadeCount);
+    ImGui::TextWrapped("Shadow cascades:");
+    // Upper bound mirrors ShadowMappingPass::kMaxShadowCascades; the pass clamps regardless.
+    if (ImGui::SliderInt("##Shadow cascades", &shadowCascadeCount, 1, 5, "%d",
+                         ImGuiSliderFlags_AlwaysClamp))
+    {
+      dynSettings.shadows.cascadeCount = static_cast<uint8_t>(shadowCascadeCount);
+      dynSettingsChanged               = true;
+    }
+
+    ImGui::TextWrapped("Cascade split lambda (0 = uniform, 1 = logarithmic):");
+    if (ImGui::SliderFloat("##Cascade split lambda",
+                           &dynSettings.shadows.cascadeSplitLambda, 0.f, 1.f,
+                           "%.2f", ImGuiSliderFlags_AlwaysClamp))
+    {
+      dynSettingsChanged = true;
+    }
+
+    ImGui::TextWrapped("Shadow distance (0 = camera far plane):");
+    if (ImGui::SliderFloat("##Shadow distance",
+                           &dynSettings.shadows.shadowDistance, 0.f, 2000.f,
+                           "%.0f", ImGuiSliderFlags_AlwaysClamp))
+    {
+      dynSettingsChanged = true;
+    }
+
     if (ImGui::SliderFloat("exposure", &dynSettings.hdr.exposure, 0.f, 10.f,
                            "%.2f", ImGuiSliderFlags_AlwaysClamp))
     {

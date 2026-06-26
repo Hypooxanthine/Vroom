@@ -7,7 +7,6 @@
 #include "Renderer/RawCamera.h"
 #include "Renderer/RenderPass.h"
 #include "Renderer/RenderViewport.h"
-#include "Tools/LinearRegistry.h"
 
 
 namespace vrm::render
@@ -29,6 +28,11 @@ public:
 
   ShadowMappingPass(const std::string& name = "ShadowMappingPass");
   virtual ~ShadowMappingPass();
+
+  // Maximum number of cascades per directional light. Must stay in sync with
+  // VRM_MAX_SHADOW_CASCADES in Resources/Engine/Shader/CommonLights.glsl, which
+  // sizes the u_cascadeSplits array of the LightMatricesBlock SSBO.
+  static constexpr uint32_t kMaxShadowCascades = 5;
 
   uint32_t            resolution;
   LightRegistry*      lights              = nullptr;
@@ -54,12 +58,21 @@ protected:
 
 private:
 
-  std::vector<gl::FrameBuffer>      m_frameBuffers;
-  std::vector<size_t>               m_dirLightShadowCasters;
-  LinearRegistry<glm::mat4, size_t> m_lightMatrices;
-  std::vector<RawCamera>            m_dirLightCameras;
-  std::vector<render::Mesh>         m_debugDirLights;
-  std::vector<glm::vec3>            m_lastDirLightDirections;
+  // Cascades are flat-indexed as (lightIndex * m_cascadeCount + cascade) across
+  // the framebuffers, cameras, depth-array layers and matrices.
+  std::vector<gl::FrameBuffer> m_frameBuffers;
+  std::vector<size_t>          m_dirLightShadowCasters;
+  std::vector<glm::mat4>       m_lightMatrices;
+  std::vector<RawCamera>       m_dirLightCameras;
+  std::vector<render::Mesh>    m_debugDirLights;
+
+  uint32_t m_cascadeCount = 0;
+
+  // Signature of the currently allocated depth array / framebuffers. When any of
+  // these change, the GPU resources are rebuilt.
+  uint32_t m_builtResolution   = 0;
+  uint32_t m_builtCascadeCount = 0;
+  size_t   m_builtCasterCount  = 0;
 };
 
 } // namespace vrm

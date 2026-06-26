@@ -12,6 +12,7 @@ namespace vrm
     glm::uvec2 frameSize = { 512, 512 };
     uint8_t antiAliasingLevel = 8;
     bool shadowsEnable = true;
+    uint32_t shadowResolution = 2048; // Per-cascade shadow map resolution.
 
     struct NormalMappingSettings
     {
@@ -52,6 +53,7 @@ namespace vrm
         && frameSize == s.frameSize
         && antiAliasingLevel == s.antiAliasingLevel
         && shadowsEnable == s.shadowsEnable
+        && shadowResolution == s.shadowResolution
         && normalMapping == s.normalMapping
         && bloom == s.bloom
         && clusteredShading == s.clusteredShading

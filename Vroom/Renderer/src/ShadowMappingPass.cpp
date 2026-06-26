@@ -1,6 +1,10 @@
 #include "Renderer/ShadowMappingPass.h"
 
+#include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstring>
+#include <span>
 
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -8,6 +12,7 @@
 #include "AssetManager/AssetManager.h"
 #include "Core/Profiling.h"
 #include "Rasterizer/AutoBuffer.h"
+#include "Rasterizer/SSBO430Layout.h"
 #include "Renderer/Aabb.h"
 #include "Renderer/CameraBasic.h"
 #include "Renderer/Frustum.h"
@@ -114,32 +119,86 @@ MeshData GenerateViewVolumeMesh(const glm::mat4& viewProj)
   return MeshData{ std::move(vertices), std::move(indices) };
 }
 
-RawCamera ConstructViewProjFromDirLight(const render::View& view, const glm::vec3& lightDir, float resolution)
+/**
+ * @brief World-space corners of a camera's view frustum, recovered by inverse-projecting the NDC cube. Indices 0-3 are
+ * the near-plane corners and 4-7 the far-plane corners (corner k pairs with corner k+4 along the same view ray).
+ */
+std::array<glm::vec3, 8> ComputeFrustumCornersWorld(const render::View& view)
 {
-  Frustum cameraFrustum = Frustum::CreateFromAabb(Aabb::GetNDC(), true);
-  cameraFrustum.transform(glm::inverse(view.getCamera()->getViewProjection()));
-  // cameraFrustum is now in world space.
+  Frustum frustum = Frustum::CreateFromAabb(Aabb::GetNDC(), true);
+  frustum.transform(glm::inverse(view.getCamera()->getViewProjection()));
+  // frustum is now in world space.
 
-  const auto& corners = cameraFrustum.getCorners();
+  std::array<glm::vec3, 8>      out;
+  std::span<const glm::vec3, 8> corners = frustum.getCorners();
+  std::copy(corners.begin(), corners.end(), out.begin());
+  return out;
+}
 
-  glm::vec3 cameraFrustumCenter = { 0.f, 0.f, 0.f };
+/**
+ * @brief Corners of the sub-frustum covering the view-space linear depth range [splitNear, splitFar].
+ *
+ * World position is an affine function of linear view depth along each frustum edge, so the sub-frustum corners are an
+ * exact lerp between the full frustum's near and far corners.
+ */
+std::array<glm::vec3, 8> ComputeCascadeCornersWorld(const std::array<glm::vec3, 8>& full, float camNear, float camFar,
+                                                    float splitNear, float splitFar)
+{
+  const float tNear = (splitNear - camNear) / (camFar - camNear);
+  const float tFar  = (splitFar - camNear) / (camFar - camNear);
+
+  std::array<glm::vec3, 8> out;
+  for (int k = 0; k < 4; ++k)
+  {
+    const glm::vec3& nearCorner = full[k];
+    const glm::vec3& farCorner  = full[k + 4];
+    out[k]                      = glm::mix(nearCorner, farCorner, tNear);
+    out[k + 4]                  = glm::mix(nearCorner, farCorner, tFar);
+  }
+  return out;
+}
+
+/**
+ * @brief View-space far depth of each cascade, using the practical CSM blend between uniform and logarithmic splits.
+ *        splits.back() == far. lambda: 0 = uniform, 1 = logarithmic.
+ */
+std::vector<float> ComputeCascadeSplits(float nearPlane, float farPlane, uint32_t count, float lambda)
+{
+  std::vector<float> splits(count);
+  for (uint32_t i = 1; i <= count; ++i)
+  {
+    const float p            = static_cast<float>(i) / static_cast<float>(count);
+    const float logSplit     = nearPlane * std::pow(farPlane / nearPlane, p);
+    const float uniformSplit = nearPlane + (farPlane - nearPlane) * p;
+    splits[i - 1]            = lambda * logSplit + (1.f - lambda) * uniformSplit;
+  }
+  return splits;
+}
+
+/**
+ * @brief Fits a tight, texel-snapped ortho light camera around the supplied world-space frustum corners.
+ */
+RawCamera ConstructViewProjFromCorners(const std::array<glm::vec3, 8>& corners, const glm::vec3& lightDir,
+                                       float resolution)
+{
+  glm::vec3 frustumCenter = { 0.f, 0.f, 0.f };
   for (const glm::vec3& corner : corners)
   {
-    cameraFrustumCenter += corner;
+    frustumCenter += corner;
   }
-  cameraFrustumCenter /= corners.size();
+  frustumCenter /= corners.size();
 
   float radius = 0.f;
   for (const glm::vec3& corner : corners)
   {
-    radius = glm::max(radius, glm::length(corner - cameraFrustumCenter));
+    radius = glm::max(radius, glm::length(corner - frustumCenter));
   }
   // Constant texel size.
   radius = std::ceil(radius * 16.f) / 16.f;
 
   // Guard the lookAt up-vector against a near-vertical light direction.
   glm::vec3 up = glm::abs(glm::normalize(lightDir).y) > 0.99f ? glm::vec3{ 0.f, 0.f, 1.f } : glm::vec3{ 0.f, 1.f, 0.f };
-  glm::mat4 lightViewMatrix = glm::lookAt(cameraFrustumCenter + lightDir, cameraFrustumCenter, up);
+  glm::mat4 lightViewMatrix = glm::lookAt(frustumCenter + lightDir, frustumCenter, up);
 
   // TODO: is it enough ? We want to be sure to catch every objects between the dir light (located at infinity) and the
   // viewed fragments.
@@ -187,46 +246,89 @@ void ShadowMappingPass::onSetup(const RenderPassContext& ctx)
 {
   VRM_PROFILE_SCOPE("ShadowMappingPass::onSetup");
 
-  bool dirShadowCastersChanged = updateShadowCasters();
-  if (dirShadowCastersChanged)
+  const auto& shadowSettings = ctx.dynamicSettings->shadows;
+  m_cascadeCount             = std::clamp<uint32_t>(shadowSettings.cascadeCount, 1u, kMaxShadowCascades);
+
+  updateShadowCasters();
+
+  const size_t casterCount = m_dirLightShadowCasters.size();
+
+  // The depth array / framebuffers only depend on the resolution, cascade count and number of casters.
+  if (resolution != m_builtResolution || m_cascadeCount != m_builtCascadeCount || casterCount != m_builtCasterCount)
   {
     resetDepthMapsAndFramebuffers();
   }
 
-  if (m_dirLightShadowCasters.size() == 0)
+  if (casterCount == 0)
   {
     return;
   }
 
-  m_lightMatrices.startRegistering();
+  const size_t totalCascades = casterCount * m_cascadeCount;
+
+  m_lightMatrices.clear();
   m_dirLightCameras.clear();
   m_debugDirLights.clear();
-  m_dirLightCameras.reserve(m_dirLightShadowCasters.size());
-  m_debugDirLights.reserve(m_dirLightShadowCasters.size());
+  m_lightMatrices.reserve(totalCascades);
+  m_dirLightCameras.reserve(totalCascades);
+  m_debugDirLights.reserve(totalCascades);
 
-  for (size_t i = 0; i < m_dirLightShadowCasters.size(); ++i)
+  // Cascades are fit to the first view's frustum (the engine assumes a single main view for shadows).
+  const render::View& view    = ctx.views.front();
+  const float         camNear = view.getCamera()->getNear();
+  const float         camFar  = view.getCamera()->getFar();
+  const float         shadowFar =
+    shadowSettings.shadowDistance > 0.f ? glm::min(camFar, camNear + shadowSettings.shadowDistance) : camFar;
+
+  const std::array<glm::vec3, 8> fullCorners = ComputeFrustumCornersWorld(view);
+  const std::vector<float>       splits =
+    ComputeCascadeSplits(camNear, shadowFar, m_cascadeCount, shadowSettings.cascadeSplitLambda);
+
+  for (size_t i = 0; i < casterCount; ++i)
   {
     size_t      shadowCasterId = m_dirLightShadowCasters.at(i);
     const auto& dirLight       = lights->getDirectionalLights().at(shadowCasterId);
-    m_dirLightCameras.emplace_back(
-      ConstructViewProjFromDirLight(ctx.views.front(), dirLight.direction, static_cast<float>(resolution)));
-    // VRM_LOG_TRACE("Light direction: {}", glm::to_string(dirLight.direction));
-    m_debugDirLights.emplace_back(GenerateViewVolumeMesh(m_dirLightCameras.back().getViewProjection()));
 
-    m_lightMatrices.submit(i, m_dirLightCameras.back().getViewProjection());
+    for (uint32_t c = 0; c < m_cascadeCount; ++c)
+    {
+      const float splitNear = (c == 0) ? camNear : splits.at(c - 1);
+      const float splitFar  = splits.at(c);
+
+      const std::array<glm::vec3, 8> cascadeCorners =
+        ComputeCascadeCornersWorld(fullCorners, camNear, camFar, splitNear, splitFar);
+
+      m_dirLightCameras.emplace_back(
+        ConstructViewProjFromCorners(cascadeCorners, dirLight.direction, static_cast<float>(resolution)));
+      m_debugDirLights.emplace_back(GenerateViewVolumeMesh(m_dirLightCameras.back().getViewProjection()));
+      m_lightMatrices.emplace_back(m_dirLightCameras.back().getViewProjection());
+    }
   }
 
-  m_lightMatrices.endRegistering();
+  // std430 layout of LightMatricesBlock (ShadingModelBase_Shader.json):
+  render::SSBO430Layout layout;
+  const auto            aLightCount   = layout.push<glm::uint>();
+  const auto            aCascadeCount = layout.push<glm::uint>();
+  const auto            aSplits       = layout.push<glm::vec4>(); // u_cascadeSplits[0]
+  for (uint32_t c = 1; c < kMaxShadowCascades; ++c)
+    layout.push<glm::vec4>(); // remaining split slots (no array-push on the layout)
+  const size_t matricesOffset = layout.getAlignedSize();
 
-  lightMatricesBuffer->ensureCapacity(sizeof(glm::vec4) + m_lightMatrices.getElementCount() * sizeof(glm::mat4));
+  lightMatricesBuffer->ensureCapacity(matricesOffset + m_lightMatrices.size() * sizeof(glm::mat4));
   {
     std::span<uint8_t> map = lightMatricesBuffer->mapWriteOnly(true);
 
-    glm::uint* lightCount = reinterpret_cast<glm::uint*>(map.data());
-    *lightCount           = static_cast<glm::uint>(m_lightMatrices.getElementCount());
+    std::memset(map.data(), 0, matricesOffset); // Zero the header and any unused split slots.
 
-    glm::mat4* matrices = reinterpret_cast<glm::mat4*>(map.data() + sizeof(glm::vec4));
-    std::memcpy(matrices, m_lightMatrices.getRawData(), m_lightMatrices.getElementCount() * sizeof(glm::mat4));
+    *reinterpret_cast<glm::uint*>(map.data() + aLightCount.getLocation())   = static_cast<glm::uint>(casterCount);
+    *reinterpret_cast<glm::uint*>(map.data() + aCascadeCount.getLocation()) = static_cast<glm::uint>(m_cascadeCount);
+
+    for (uint32_t c = 0; c < m_cascadeCount; ++c)
+    {
+      *reinterpret_cast<float*>(map.data() + aSplits.getLocation() + c * sizeof(glm::vec4)) = splits.at(c);
+    }
+
+    glm::mat4* matrices = reinterpret_cast<glm::mat4*>(map.data() + matricesOffset);
+    std::memcpy(matrices, m_lightMatrices.data(), m_lightMatrices.size() * sizeof(glm::mat4));
 
     lightMatricesBuffer->unmap();
   }
@@ -248,14 +350,16 @@ void ShadowMappingPass::onRender(const RenderPassContext& ctx) const
 
   for (size_t i = 0; i < m_dirLightShadowCasters.size(); ++i)
   {
-    size_t      shadowCasterId = m_dirLightShadowCasters.at(i);
-    const auto& dirLight       = lights->getDirectionalLights().at(shadowCasterId);
+    for (uint32_t c = 0; c < m_cascadeCount; ++c)
+    {
+      const size_t idx = i * m_cascadeCount + c;
 
-    const auto& framebuffer = m_frameBuffers.at(i);
-    framebuffer.bind();
-    framebuffer.clearDepth();
+      const auto& framebuffer = m_frameBuffers.at(idx);
+      framebuffer.bind();
+      framebuffer.clearDepth();
 
-    renderMeshes(m_dirLightCameras.at(i), render::Viewport({ 0u, 0u }, { resolution, resolution }));
+      renderMeshes(m_dirLightCameras.at(idx), render::Viewport({ 0u, 0u }, { resolution, resolution }));
+    }
   }
 
   if (ctx.dynamicSettings->shadows.debugDirLights)
@@ -316,9 +420,16 @@ bool ShadowMappingPass::updateShadowCasters()
 void ShadowMappingPass::resetDepthMapsAndFramebuffers()
 {
   VRM_ASSERT(depthTextureArray != nullptr);
-  size_t shadowCasters = m_dirLightShadowCasters.size();
 
-  if (shadowCasters == 0)
+  // One depth-array layer / framebuffer per (light, cascade).
+  const size_t layerCount = m_dirLightShadowCasters.size() * m_cascadeCount;
+
+  // Record the signature the resources are now built for.
+  m_builtResolution   = resolution;
+  m_builtCascadeCount = m_cascadeCount;
+  m_builtCasterCount  = m_dirLightShadowCasters.size();
+
+  if (layerCount == 0)
   {
     depthTextureArray->release();
     m_frameBuffers.clear();
@@ -332,7 +443,7 @@ void ShadowMappingPass::resetDepthMapsAndFramebuffers()
     desc.dimension      = 2;
     desc.width          = res;
     desc.height         = res;
-    desc.depth          = shadowCasters;
+    desc.depth          = layerCount;
     desc.internalFormat = GL_DEPTH_COMPONENT24;
     desc.format         = GL_DEPTH_COMPONENT;
     desc.layered        = true;
@@ -345,17 +456,13 @@ void ShadowMappingPass::resetDepthMapsAndFramebuffers()
   static constexpr float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
   glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
 
-  m_frameBuffers.resize(shadowCasters);
+  m_frameBuffers.resize(layerCount);
 
-  // static gl::ArrayTexture2D debugColors;
-  // debugColors.createColor(res, res, 4, static_cast<GLsizei>(shadowCasters));
-
-  for (size_t i = 0; i < shadowCasters; ++i)
+  for (size_t i = 0; i < layerCount; ++i)
   {
     auto& fb = m_frameBuffers.at(i);
     fb.create(res, res, 1);
     fb.setDepthAttachment(*depthTextureArray, static_cast<GLuint>(i), 0, 1.f);
-    // fb.setColorAttachment(0, debugColors, static_cast<GLuint>(i));
     fb.validate();
   }
 }

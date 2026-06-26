@@ -209,18 +209,31 @@ float linearizeDepth(float depth)
 
 float ComputeDirectionalShadowFactor(in uint shadowCasterId, in float lightDotNormal)
 {
-  const mat4 lightMatrix = g_directionalLightMatrices[shadowCasterId];
+  // Select the closest cascade whose far split still covers this fragment's view-space depth.
+  uint cascade = u_shadowCascadeCount - 1u;
+  for (uint c = 0u; c < u_shadowCascadeCount; ++c)
+  {
+    if (v_CameraDepth < u_cascadeSplits[c].x)
+    {
+      cascade = c;
+      break;
+    }
+  }
+
+  const uint layer = shadowCasterId * u_shadowCascadeCount + cascade;
+
+  const mat4 lightMatrix = g_directionalLightMatrices[layer];
   const vec4 pos_clipspace_light = lightMatrix * vec4(v_Position, 1.f);
   const vec4 pos_ndc_light = pos_clipspace_light / pos_clipspace_light.w;
 
   if(pos_ndc_light.z >= 1.0)
     return 0.f;
-  
+
   const vec3 texCoords = vec3
   (
     pos_ndc_light.x / 2.f + 0.5f,
     pos_ndc_light.y / 2.f + 0.5f,
-    float(shadowCasterId)
+    float(layer)
   );
 
   const float fragDepth = pos_ndc_light.z / 2.f + 0.5f;

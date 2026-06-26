@@ -141,8 +141,16 @@
         "Layout": "std430",
         "Variables": [
           {
-            "Name": "g_directionalLightMatrixCount",
+            "Name": "u_dirShadowLightCount",
             "Type": "uint"
+          },
+          {
+            "Name": "u_shadowCascadeCount",
+            "Type": "uint"
+          },
+          {
+            "Name": "u_cascadeSplits[VRM_MAX_SHADOW_CASCADES]",
+            "Type": "vec4"
           },
           {
             "Name": "g_directionalLightMatrices[]",

@@ -159,7 +159,7 @@ void RenderPipeline::generate()
 
     pass.lights              = m_context.lights;
     pass.meshRegistry        = m_context.meshes;
-    pass.resolution          = 4096;
+    pass.resolution          = m_renderSettings.shadowResolution;
     pass.depthTextureArray   = &m_dirLightShadowMaps;
     pass.lightMatricesBuffer = m_resources.genAutoBuffer("LightMatricesStorageBuffer");
   }
