@@ -5,7 +5,7 @@ add_module(Scene)
 
 # ----- Compile definitions -----
 
-module_link_modules(Scene Core Tools ScriptEngine AssetManager Renderer Event)
+module_link_modules(Scene Core Tools ScriptEngine AssetManager Renderer Event Physics)
 module_link_library(
   Scene
   PRIVATE

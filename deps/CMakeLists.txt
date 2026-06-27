@@ -73,3 +73,11 @@ set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "" FORCE)
 set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(assimp)
+
+# ----- Jolt Physics -----
+
+# Match Vroom's runtime library (dynamic /MD[d]). By default Jolt forces the
+# static MSVC runtime (/MT[d]) on Windows, which causes RuntimeLibrary mismatch
+# (LNK2038) and duplicate-symbol (LNK2005) errors when linking vrmPhysics.
+set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF CACHE BOOL "" FORCE)
+add_subdirectory(jolt/Build)

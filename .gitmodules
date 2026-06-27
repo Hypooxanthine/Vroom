@@ -27,3 +27,6 @@
 [submodule "implot"]
 	path = deps/implot
 	url = git@github.com:epezent/implot.git
+[submodule "deps/jolt"]
+	path = deps/jolt
+	url = git@github.com:jrouwe/JoltPhysics.git
