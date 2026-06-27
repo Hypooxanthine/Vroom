@@ -33,7 +33,6 @@ add_subdirectory("tests")
 add_subdirectory("Editor")
 add_subdirectory("ScriptApi")
 add_subdirectory("Physics")
-add_subdirectory("EditorModules")
 # VRM-SUBDIRS-MARKERS
 # Don't touch the line above, it is used as a marker
 # for the module-creator script
