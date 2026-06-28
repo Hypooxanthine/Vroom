@@ -213,3 +213,30 @@ function(module_compile_definition MODULE_NAME)
   endif()
 
 endfunction()
+
+# clangd inserts an #include with <> only when the header is reached through a
+# SYSTEM include path (on MSVC, /external:I); a plain -I yields "". Promoting our
+# third-party dependencies to system includes therefore gives <lib/...> auto-
+# insertion and, as a bonus, silences their warnings. CMake's
+# `add_subdirectory(... SYSTEM)` / SYSTEM target property does not propagate through
+# this project's module link graph, so promote the dependency targets directly by
+# copying their interface includes into INTERFACE_SYSTEM_INCLUDE_DIRECTORIES.
+#
+# Pass the targets that actually CARRY the include dirs (resolve aliases yourself if
+# unsure): e.g. glm exposes its includes on `glm-header-only`, not `glm`.
+function(vrm_promote_system_includes)
+  foreach(_tgt IN LISTS ARGN)
+    if(NOT TARGET ${_tgt})
+      message(WARNING "vrm_promote_system_includes: no such target '${_tgt}', skipping")
+      continue()
+    endif()
+    get_target_property(_alias ${_tgt} ALIASED_TARGET)
+    if(_alias)
+      set(_tgt ${_alias})
+    endif()
+    get_target_property(_dirs ${_tgt} INTERFACE_INCLUDE_DIRECTORIES)
+    if(_dirs)
+      set_target_properties(${_tgt} PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${_dirs}")
+    endif()
+  endforeach()
+endfunction()

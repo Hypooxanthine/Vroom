@@ -24,7 +24,7 @@ add_library(ImGuiGLFWGlew
     ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
 )
 
-target_include_directories(ImGuiGLFWGlew PUBLIC ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
+target_include_directories(ImGuiGLFWGlew SYSTEM PUBLIC ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
 target_link_libraries(ImGuiGLFWGlew PUBLIC glfw libglew_shared)
 target_compile_definitions(ImGuiGLFWGlew PUBLIC IMGUI_DEFINE_MATH_OPERATORS)
 
@@ -40,7 +40,7 @@ add_library(ImGuizmo
   ${imguizmo_SOURCE_DIR}/ImSequencer.cpp
 )
 
-target_include_directories(ImGuizmo PUBLIC ${imguizmo_SOURCE_DIR})
+target_include_directories(ImGuizmo SYSTEM PUBLIC ${imguizmo_SOURCE_DIR})
 target_link_libraries(ImGuizmo PUBLIC ImGuiGLFWGlew)
 
 # ----- IMPLOT -----
@@ -52,7 +52,7 @@ add_library(ImPlot
   ${ImPlot_SOURCE_DIR}/implot_items.cpp
 )
 
-target_include_directories(ImPlot PUBLIC ${ImPlot_SOURCE_DIR})
+target_include_directories(ImPlot SYSTEM PUBLIC ${ImPlot_SOURCE_DIR})
 target_link_libraries(ImPlot PUBLIC ImGuiGLFWGlew)
 
 # ----- GLM -----
@@ -81,3 +81,15 @@ add_subdirectory(assimp)
 # (LNK2038) and duplicate-symbol (LNK2005) errors when linking vrmPhysics.
 set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF CACHE BOOL "" FORCE)
 add_subdirectory(jolt/Build)
+
+# ----- Treat third-party headers as system (see vrm_promote_system_includes) -----
+
+vrm_promote_system_includes(
+  glfw
+  libglew_shared
+  glm-header-only   # glm exposes its include dir here, not on glm/glm::glm
+  spdlog::spdlog
+  EnTT::EnTT
+  assimp
+  Jolt::Jolt
+)

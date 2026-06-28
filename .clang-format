@@ -48,8 +48,8 @@ AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakBeforeMultilineStrings: false
 AttributeMacros:
   - __capability
-BinPackArguments: true
-BinPackParameters: BinPack
+BinPackArguments: false
+BinPackParameters: false
 BitFieldColonSpacing: Both
 BraceWrapping:
   AfterCaseLabel:  true
@@ -104,22 +104,47 @@ ForEachMacros:
   - BOOST_FOREACH
 IfMacros:
   - KJ_IF_MAYBE
-IncludeBlocks:   Preserve
+SortIncludes:    CaseInsensitive
+IncludeBlocks:   Regroup
+#
+# NOTE: clang-format matches includes against the FIRST regex in this list that
+# matches (list order), but emits groups ordered by Priority (output order).
+# That is why the broad '^<' STL catch-all is listed LAST yet sorts early, and
+# the imgui-family rules are listed before the generic project catch-alls.
+#
+# Output order (Priority): main header (auto, see IncludeIsMainRegex) -> STL ->
+# imgui -> backends/imgui -> imguizmo -> Jolt/Jolt.h -> rest of Jolt -> glm ->
+# then all module-relative project includes together, sorted alphabetically.
+#
 IncludeCategories:
-  - Regex:           '^"VroomEditor/'
-    Priority:    20
-  - Regex:           '^<Vroom/'
-    Priority:    10
-  - Regex:           '^<glm/'
+  # imgui ecosystem. NOTE: these regexes are case-INSENSITIVE by default, so a
+  # plain 'imgui' also matches 'ImGuizmo' -- list the specific rules first.
+  - Regex:           '^[<"]backends/imgui'
+    Priority:    4
+  - Regex:           '^[<"]ImGuizmo'
     Priority:    5
-  - Regex:           '^"imguizmo'
-    Priority:    17
-  - Regex:           '^"imgui'
-    Priority:    15
-  - Regex:           '^"backends/imgui'
-    Priority:    16
+  - Regex:           '^[<"](misc/cpp/)?imgui'
+    Priority:    3
+  # Jolt: one block, with the Jolt/Jolt.h umbrella header always sorted first.
+  # Same Priority keeps them in a single group; SortPriority orders within it.
+  - Regex:           '^[<"]Jolt/Jolt\.h'
+    Priority:    6
+    SortPriority: 6
+  - Regex:           '^[<"]Jolt/'
+    Priority:    6
+    SortPriority: 7
+  # glm
+  - Regex:           '^[<"]glm/'
+    Priority:    8
+  # Project: all remaining module-relative includes (any quoted, or angle with a
+  # slash) in one group, sorted alphabetically among themselves
+  - Regex:           '^"'
+    Priority:    9
+  - Regex:           '^<.*/'
+    Priority:    9
+  # C++ STL / system: angle include without a slash (e.g. <vector>) -- catch-all, MUST be last
   - Regex:           '^<'
-    Priority:    0
+    Priority:    2
 IncludeIsMainRegex: '(Test)?$'
 IncludeIsMainSourceRegex: ''
 IndentAccessModifiers: false
@@ -188,7 +213,6 @@ RequiresExpressionIndentation: OuterScope
 SeparateDefinitionBlocks: Leave
 ShortNamespaceLines: 1
 SkipMacroDefinitionBody: false
-SortIncludes:    CaseSensitive
 SortJavaStaticImport: Before
 SortUsingDeclarations: LexicographicNumeric
 SpaceAfterCStyleCast: false
