@@ -17,14 +17,22 @@ endif(POLICY CMP0072)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(CMAKE_EXPORT_COMPILE_COMMANDS AND EXISTS "${CMAKE_BINARY_DIR}/compile_commands.json")
-  file(COPY "${CMAKE_BINARY_DIR}/compile_commands.json" DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}")
+  # Copy compile_commands.json to the source root so clangd finds it automatically.
+  # On Windows, lowercase the drive letter (C: -> c:) so clangd's edit URIs match the
+  # casing VS Code uses for opened documents. Without this, cross-file "Rename" fails
+  # with "Rename failed to apply edits" because the drive-letter case differs. Everything
+  # here lives on C:; on other platforms/drives the replace is simply a no-op.
+  file(READ "${CMAKE_BINARY_DIR}/compile_commands.json" _vrm_ccjson)
+  string(REPLACE "C:" "c:" _vrm_ccjson "${_vrm_ccjson}")
+  file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json" "${_vrm_ccjson}")
+  unset(_vrm_ccjson)
 endif()
 
 
 # ----- General compiler settings -----
 
 # C++ standard
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)

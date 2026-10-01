@@ -1,0 +1,35 @@
+# .clangd — language-server configuration for this project.
+# Docs: https://clangd.llvm.org/config
+
+CompileFlags:
+  # A copy of compile_commands.json lives at the repo root, so clangd finds it
+  # automatically. Uncomment to pin a specific build dir instead:
+  # CompilationDatabase: build/x64-debug
+  Add:
+    - -Wno-unknown-warning-option   # don't choke on MSVC warning flags
+    - "/std:c++latest"
+
+Diagnostics:
+  UnusedIncludes: None
+  MissingIncludes: None
+  ClangTidy:
+    Add:
+      - bugprone-*
+      - readability-*
+      - performance-*
+    Remove:
+      - readability-magic-numbers
+      - readability-uppercase-literal-suffix
+
+InlayHints:
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
+  Designators: Yes
+
+Hover:
+  ShowAKA: Yes
+
+Index:
+  Background: Build
+  StandardLibrary: Yes
