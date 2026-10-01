@@ -12,7 +12,10 @@ MeshComponent::MeshComponent()
 MeshComponent::MeshComponent(const MeshComponentData& data)
 {
   if (!data.resourceName.empty())
+  {
     setMesh(AssetManager::Get().getAsset<MeshAsset>(data.resourceName));
+  }
+
   setCastsShadow(data.castsShadow);
   setVisible(data.visible);
 }
@@ -26,8 +29,8 @@ MeshComponentData MeshComponent::getData() const
 {
   MeshComponentData data;
   data.resourceName = getMesh()->getFilePath().string();
-  data.castsShadow  = doesCastShadow();
-  data.visible      = isVisible();
+  data.castsShadow = doesCastShadow();
+  data.visible = isVisible();
 
   return data;
 }
@@ -51,7 +54,7 @@ void MeshComponent::setMesh(const MeshAsset::Handle& meshInstance)
   }
 }
 
-void MeshComponent::setMaterial(size_t slot, MaterialAsset::Handle mat)
+void MeshComponent::setMaterial(size_t slot, const MaterialAsset::Handle& mat)
 {
   m_Materials.setMaterial(slot, mat);
 }

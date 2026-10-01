@@ -3,9 +3,9 @@
 #include <span>
 #include <vector>
 
-#include "Scene/Api.h"
 #include "AssetManager/ParticleSystemAsset.h"
 #include "Renderer/ParticleEmitter.h"
+#include "Scene/Api.h"
 
 namespace vrm
 {
@@ -17,23 +17,23 @@ class VRM_SCENE_API ParticleSystemComponent
 public:
 
   ParticleSystemComponent();
-  ParticleSystemComponent(ParticleSystemAsset::Handle asset);
+  ParticleSystemComponent(const ParticleSystemAsset::Handle& asset);
   ~ParticleSystemComponent();
 
-  void setParticleSystem(ParticleSystemAsset::Handle asset);
+  void setParticleSystem(const ParticleSystemAsset::Handle& asset);
 
   void addEmitter(ParticleEmitter::Specs&& specs);
   void removeEmitter(size_t id);
 
-  inline bool consumeDirtyForRender() const
+  bool consumeDirtyForRender() const
   {
-    bool value       = m_dirtyForRender;
+    bool value = m_dirtyForRender;
     m_dirtyForRender = false;
 
     return value;
   }
 
-  inline void markDirtyForRender() const
+  void markDirtyForRender() const
   {
     m_dirtyForRender = true;
   }
@@ -44,12 +44,15 @@ public:
   {
     return std::span{ m_emitters };
   }
-  std::span<ParticleEmitter> getEmitters() { return std::span{ m_emitters }; }
+  std::span<ParticleEmitter> getEmitters()
+  {
+    return std::span{ m_emitters };
+  }
 
-  ParticleSystemComponent(const ParticleSystemComponent&)            = delete;
+  ParticleSystemComponent(const ParticleSystemComponent&) = delete;
   ParticleSystemComponent& operator=(const ParticleSystemComponent&) = delete;
 
-  ParticleSystemComponent(ParticleSystemComponent&&)            = delete;
+  ParticleSystemComponent(ParticleSystemComponent&&) = delete;
   ParticleSystemComponent& operator=(ParticleSystemComponent&&) = delete;
 
 private:
@@ -57,7 +60,7 @@ private:
   ParticleSystemAsset::Handle m_asset = {};
 
   std::vector<ParticleEmitter> m_emitters;
-  mutable bool                 m_dirtyForRender = true;
+  mutable bool m_dirtyForRender = true;
 };
 
 } // namespace vrm

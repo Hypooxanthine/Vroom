@@ -16,45 +16,45 @@ struct VRM_SCENE_API DirectionalLightComponent
 
   DirectionalLightComponentData getData() const;
 
-  inline float getIntensity() const
+  float getIntensity() const
   {
     return intensity;
   }
 
-  inline void setColor(const glm::vec3& newValue)
+  void setColor(const glm::vec3& newValue)
   {
-    color            = newValue;
+    color = newValue;
     m_dirtyForRender = true;
   }
 
-  inline void setIntensity(float newValue)
+  void setIntensity(float newValue)
   {
-    intensity        = newValue;
+    intensity = newValue;
     m_dirtyForRender = true;
   }
 
-  inline void setCastsShadows(bool newValue)
+  void setCastsShadows(bool newValue)
   {
-    castsShadows     = newValue;
+    castsShadows = newValue;
     m_dirtyForRender = true;
   }
 
-  inline bool consumeDirtyForRender() const
+  bool consumeDirtyForRender() const
   {
-    bool value       = m_dirtyForRender;
+    bool value = m_dirtyForRender;
     m_dirtyForRender = false;
 
     return value;
   }
 
-  inline void markDirtyForRender() const
+  void markDirtyForRender() const
   {
     m_dirtyForRender = true;
   }
 
-  glm::vec3 color        = glm::vec3(1.0f);
-  float     intensity    = 0.5f;
-  bool      castsShadows = true;
+  glm::vec3 color = glm::vec3(1.0f);
+  float intensity = 0.5f;
+  bool castsShadows = true;
 
 private:
 

@@ -21,12 +21,12 @@ PointLightComponent::PointLightComponent(const PointLightComponentData& data)
 PointLightComponentData PointLightComponent::getData() const
 {
   PointLightComponentData data;
-  data.color                = getColor();
-  data.intensity            = getIntensity();
-  data.radius               = getRadius();
-  data.smoothRadius         = getSmoothRadius();
-  data.constantAttenuation  = getConstantAttenuation();
-  data.linearAttenuation    = getLinearAttenuation();
+  data.color = getColor();
+  data.intensity = getIntensity();
+  data.radius = getRadius();
+  data.smoothRadius = getSmoothRadius();
+  data.constantAttenuation = getConstantAttenuation();
+  data.linearAttenuation = getLinearAttenuation();
   data.quadraticAttenuation = getQuadraticAttenuation();
 
   return data;

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <entt/entt.hpp>
 #include <memory>
 #include <unordered_map>
 
@@ -10,6 +9,7 @@
 #include "Renderer/RenderLayout.h"
 #include "Scene/Api.h"
 #include "Scene/Entity.h"
+#include <entt/entt.hpp>
 
 namespace vrm
 {
@@ -64,7 +64,7 @@ public:
    */
   void spawn();
 
-  inline bool hasSpawned() const
+  bool hasSpawned() const
   {
     return m_spawned;
   }
@@ -78,7 +78,7 @@ public:
 
   SceneData getSceneData() const;
 
-  inline Renderer& getRenderer()
+  Renderer& getRenderer()
   {
     return *m_renderer;
   }
@@ -155,12 +155,12 @@ public:
    *
    * @return Entity The entity.
    */
-  inline Entity& getRoot()
+  Entity& getRoot()
   {
     return m_Root;
   }
 
-  inline const Entity& getRoot() const
+  const Entity& getRoot() const
   {
     return m_Root;
   }
@@ -244,7 +244,9 @@ protected:
     if constexpr (CallOnFirst)
     {
       if (!function(first, first.getParent()))
+      {
         return;
+      }
     }
 
     auto& children = first.getChildren();
@@ -252,7 +254,9 @@ protected:
     for (auto& child : children)
     {
       if (function(child, first))
+      {
         DepthFirstTraversal<false>(std::forward<Fn>(function), child);
+      }
     }
   }
 
@@ -282,7 +286,9 @@ private:
 
   bool loadFromAsset2(const SceneData& data);
 
-  void addNodeRecursive(const Entity& e, SceneData& data, const std::string& parent,
+  void addNodeRecursive(const Entity& e,
+                        SceneData& data,
+                        const std::string& parent,
                         const SceneNodeData::EType& nodetype) const;
 
   void addNodeComponents(const Entity& e, SceneNodeData& data) const;
@@ -291,14 +297,14 @@ private:
 
   CustomEventBinder m_windowResizeBinder;
 
-  entt::registry                          m_Registry;
-  size_t                                  m_EntityCounter = 0;
+  entt::registry m_Registry;
+  size_t m_EntityCounter = 0;
   std::unordered_map<std::string, Entity> m_EntitiesByName;
 
   bool m_spawned = false;
 
   std::unique_ptr<Renderer> m_renderer;
-  FirstPersonCamera         m_defaultCamera = {
+  FirstPersonCamera m_defaultCamera = {
     0.1f, 100.f, glm::radians(90.f), 0.f, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f)
   };
   RenderLayout m_renderLayout;

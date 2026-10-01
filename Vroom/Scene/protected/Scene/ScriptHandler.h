@@ -21,11 +21,11 @@ public:
 
   explicit ScriptHandler(const ScriptComponentData& data);
 
-  ScriptHandler(const ScriptHandler&)            = delete;
+  ScriptHandler(const ScriptHandler&) = delete;
   ScriptHandler& operator=(const ScriptHandler&) = delete;
-  ScriptHandler(ScriptHandler&&)                 = delete;
-  ScriptHandler& operator=(ScriptHandler&&)      = delete;
-  virtual ~ScriptHandler()                       = default;
+  ScriptHandler(ScriptHandler&&) = delete;
+  ScriptHandler& operator=(ScriptHandler&&) = delete;
+  virtual ~ScriptHandler() = default;
 
   ScriptComponentData getData() const;
 

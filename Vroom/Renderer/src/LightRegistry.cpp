@@ -12,13 +12,13 @@ LightRegistry::LightRegistry()
 void LightRegistry::submitLight(const render::PointLight& pointLight, size_t identifier)
 {
   RawPointLight raw;
-  raw.position             = glm::vec4(pointLight.position, 1.f);
-  raw.color                = glm::vec4(pointLight.color, 1.f);
-  raw.intensity            = pointLight.intensity;
-  raw.radius               = pointLight.radius;
-  raw.smoothRadius         = pointLight.smoothRadius;
-  raw.constantAttenuation  = pointLight.constantAttenuation;
-  raw.linearAttenuation    = pointLight.linearAttenuation;
+  raw.position = glm::vec4(pointLight.position, 1.f);
+  raw.color = glm::vec4(pointLight.color, 1.f);
+  raw.intensity = pointLight.intensity;
+  raw.radius = pointLight.radius;
+  raw.smoothRadius = pointLight.smoothRadius;
+  raw.constantAttenuation = pointLight.constantAttenuation;
+  raw.linearAttenuation = pointLight.linearAttenuation;
   raw.quadraticAttenuation = pointLight.quadraticAttenuation;
 
   m_pointLightsRegistry.submit(identifier, raw);
@@ -27,10 +27,10 @@ void LightRegistry::submitLight(const render::PointLight& pointLight, size_t ide
 void LightRegistry::submitLight(const render::DirectionalLight& dirLight, size_t identifier)
 {
   RawDirLight raw;
-  raw.direction    = glm::vec4(dirLight.direction, 1.f);
-  raw.color        = glm::vec4(dirLight.color, 1.f);
-  raw.intensity    = dirLight.intensity;
-  raw.castsShadows = dirLight.castsShadows;
+  raw.direction = glm::vec4(dirLight.direction, 1.f);
+  raw.color = glm::vec4(dirLight.color, 1.f);
+  raw.intensity = dirLight.intensity;
+  raw.castsShadows = (uint32_t)dirLight.castsShadows;
 
   m_dirLightsRegistry.submit(identifier, raw);
 }
@@ -57,8 +57,8 @@ void LightRegistry::_updateGpuDirLights()
   if (!m_dirLightsRegistry.wasJustModified())
     return;
 
-  DirLightRegistry&   registry = m_dirLightsRegistry;
-  render::AutoBuffer& buffer   = m_dirLightsBuffer;
+  DirLightRegistry& registry = m_dirLightsRegistry;
+  render::AutoBuffer& buffer = m_dirLightsBuffer;
 
   // std430 rule : the first array element is aligned on the size of its biggest
   // attribute (here, vec4)
@@ -70,7 +70,7 @@ void LightRegistry::_updateGpuDirLights()
     std::span<uint8_t> map = buffer.mapWriteOnly();
 
     glm::uint* header = reinterpret_cast<glm::uint*>(map.data());
-    *header           = static_cast<glm::uint>(registry.getElementCount());
+    *header = static_cast<glm::uint>(registry.getElementCount());
 
     RawDirLight* lights = reinterpret_cast<RawDirLight*>(map.data() + headerSizeBytes);
     std::memcpy(lights, registry.getRawData(), lightsSizeBytes);
@@ -85,7 +85,7 @@ void LightRegistry::_updateGpuPointLights()
     return;
 
   PointLightRegistry& registry = m_pointLightsRegistry;
-  render::AutoBuffer& buffer   = m_pointLightsBuffer;
+  render::AutoBuffer& buffer = m_pointLightsBuffer;
 
   // std430 rule : the first array element is aligned on the size of its biggest
   // attribute (here, vec4)
@@ -97,7 +97,7 @@ void LightRegistry::_updateGpuPointLights()
     std::span<uint8_t> map = buffer.mapWriteOnly();
 
     uint32_t* header = reinterpret_cast<uint32_t*>(map.data());
-    *header          = static_cast<uint32_t>(registry.getElementCount());
+    *header = static_cast<uint32_t>(registry.getElementCount());
 
     RawPointLight* lights = reinterpret_cast<RawPointLight*>(map.data() + headerSizeBytes);
     std::memcpy(lights, registry.getRawData(), lightsSizeBytes);

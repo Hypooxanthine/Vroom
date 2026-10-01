@@ -17,7 +17,7 @@ SkyboxComponent::SkyboxComponent(const SkyboxComponentData& data)
   setCubemapAsset(AssetManager::Get().getAsset<CubemapAsset>(data.resourceName));
 }
 
-SkyboxComponent::SkyboxComponent(CubemapAsset::Handle cubemap)
+SkyboxComponent::SkyboxComponent(const CubemapAsset::Handle& cubemap)
 {
   setCubemapAsset(cubemap);
 }

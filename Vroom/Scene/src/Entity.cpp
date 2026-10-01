@@ -20,16 +20,16 @@ Entity& Entity::operator=(const Entity& other)
   if (this != &other)
   {
     m_Handle = other.m_Handle;
-    m_Scene  = other.m_Scene;
+    m_Scene = other.m_Scene;
   }
 
   return *this;
 }
 
-Entity::Entity(Entity&& other) : m_Handle(other.m_Handle), m_Scene(other.m_Scene)
+Entity::Entity(Entity&& other) noexcept : m_Handle(other.m_Handle), m_Scene(other.m_Scene)
 {
   other.m_Handle = entt::null;
-  other.m_Scene  = nullptr;
+  other.m_Scene = nullptr;
 }
 
 const std::string& Entity::getName() const
@@ -65,20 +65,22 @@ const std::list<Entity>& Entity::getChildren() const
 bool Entity::isRoot() const
 {
   if (!isValid())
+  {
     return false;
+  }
 
   return getScene()->getRoot() == *this;
 }
 
-Entity& Entity::operator=(Entity&& other)
+Entity& Entity::operator=(Entity&& other) noexcept
 {
   if (this != &other)
   {
     m_Handle = other.m_Handle;
-    m_Scene  = other.m_Scene;
+    m_Scene = other.m_Scene;
 
     other.m_Handle = entt::null;
-    other.m_Scene  = nullptr;
+    other.m_Scene = nullptr;
   }
 
   return *this;

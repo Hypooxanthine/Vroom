@@ -10,7 +10,7 @@ struct DirectionalLight
   glm::vec3 direction;
   glm::vec3 color;
   float intensity;
-  uint32_t castsShadows;
+  bool castsShadows;
 };
-  
-}
+
+} // namespace vrm::render

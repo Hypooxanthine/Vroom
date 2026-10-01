@@ -2,7 +2,6 @@
 
 #include "AssetManager/ComponentData.h"
 
-
 using namespace vrm;
 
 DirectionalLightComponent::DirectionalLightComponent(const DirectionalLightComponentData& data)
@@ -15,8 +14,8 @@ DirectionalLightComponent::DirectionalLightComponent(const DirectionalLightCompo
 DirectionalLightComponentData DirectionalLightComponent::getData() const
 {
   DirectionalLightComponentData data;
-  data.color        = color;
-  data.intensity    = intensity;
+  data.color = color;
+  data.intensity = intensity;
   data.castsShadows = castsShadows;
 
   return data;

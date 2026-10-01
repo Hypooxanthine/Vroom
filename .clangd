@@ -20,6 +20,11 @@ Diagnostics:
     Remove:
       - readability-magic-numbers
       - readability-uppercase-literal-suffix
+      - readability-redundant-access-specifiers
+      - readability-redundant-member-init
+      - readability-identifier-length
+      - readability-redundant-string-init
+      - readability-simplify-boolean-expr
 
 InlayHints:
   Enabled: Yes

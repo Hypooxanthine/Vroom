@@ -23,7 +23,7 @@ if(CMAKE_EXPORT_COMPILE_COMMANDS AND EXISTS "${CMAKE_BINARY_DIR}/compile_command
   # with "Rename failed to apply edits" because the drive-letter case differs. Everything
   # here lives on C:; on other platforms/drives the replace is simply a no-op.
   file(READ "${CMAKE_BINARY_DIR}/compile_commands.json" _vrm_ccjson)
-  string(REPLACE "C:" "c:" _vrm_ccjson "${_vrm_ccjson}")
+  # string(REPLACE "C:" "c:" _vrm_ccjson "${_vrm_ccjson}")
   file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json" "${_vrm_ccjson}")
   unset(_vrm_ccjson)
 endif()

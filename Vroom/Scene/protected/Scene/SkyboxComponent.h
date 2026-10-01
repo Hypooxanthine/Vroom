@@ -4,7 +4,6 @@
 #include "AssetManager/CubemapAsset.h"
 #include "Scene/Api.h"
 
-
 namespace vrm
 {
 
@@ -14,30 +13,30 @@ public:
 
   SkyboxComponent();
   explicit SkyboxComponent(const SkyboxComponentData& data);
-  SkyboxComponent(CubemapAsset::Handle cubemap);
+  SkyboxComponent(const CubemapAsset::Handle& cubemap);
   ~SkyboxComponent();
 
   SkyboxComponentData getData() const;
 
-  inline CubemapAsset::Handle getCubemapAsset() const
+  CubemapAsset::Handle getCubemapAsset() const
   {
     return m_cubemap;
   }
-  inline void setCubemapAsset(CubemapAsset::Handle cubemap)
+  void setCubemapAsset(const CubemapAsset::Handle& cubemap)
   {
     m_cubemap = cubemap;
     m_dirtyForRender = true;
   }
 
-  inline bool consumeDirtyForRender() const
+  bool consumeDirtyForRender() const
   {
-    bool value       = m_dirtyForRender;
+    bool value = m_dirtyForRender;
     m_dirtyForRender = false;
 
     return value;
   }
 
-  inline void markDirtyForRender() const
+  void markDirtyForRender() const
   {
     m_dirtyForRender = true;
   }
@@ -45,7 +44,7 @@ public:
 private:
 
   CubemapAsset::Handle m_cubemap;
-  mutable bool         m_dirtyForRender = true;
+  mutable bool m_dirtyForRender = true;
 };
 
 } // namespace vrm

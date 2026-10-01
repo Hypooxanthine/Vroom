@@ -15,7 +15,7 @@ TransformComponentData TransformComponent::getData() const
 {
   TransformComponentData data;
   data.position = getPosition();
-  data.scale    = getScale();
+  data.scale = getScale();
   data.rotation = getRotation();
 
   return data;

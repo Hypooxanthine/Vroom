@@ -1,10 +1,10 @@
 #pragma once
 
+#include "glm/ext/vector_float3.hpp"
 #include <glm/glm.hpp>
 
 #include "AssetManager/ComponentDataFwds.h"
 #include "Scene/Api.h"
-#include "glm/ext/vector_float3.hpp"
 
 namespace vrm
 {
@@ -19,92 +19,92 @@ public:
 
   PointLightComponentData getData() const;
 
-  inline const glm::vec3& getColor() const
+  const glm::vec3& getColor() const
   {
     return color;
   }
 
-  inline void setColor(const glm::vec3& newValue)
+  void setColor(const glm::vec3& newValue)
   {
-    color            = newValue;
+    color = newValue;
     m_dirtyForRender = true;
   }
 
-  inline float getIntensity() const
+  float getIntensity() const
   {
     return intensity;
   }
 
-  inline void setIntensity(float newValue)
+  void setIntensity(float newValue)
   {
-    intensity        = newValue;
+    intensity = newValue;
     m_dirtyForRender = true;
   }
 
-  inline float getRadius() const
+  float getRadius() const
   {
     return radius;
   }
 
-  inline void setRadius(float newValue)
+  void setRadius(float newValue)
   {
-    radius           = newValue;
+    radius = newValue;
     m_dirtyForRender = true;
   }
 
-  inline float getSmoothRadius() const
+  float getSmoothRadius() const
   {
     return smoothRadius;
   }
 
-  inline void setSmoothRadius(float newValue)
+  void setSmoothRadius(float newValue)
   {
-    smoothRadius     = newValue;
+    smoothRadius = newValue;
     m_dirtyForRender = true;
   }
 
-  inline float getConstantAttenuation() const
+  float getConstantAttenuation() const
   {
     return constantAttenuation;
   }
 
-  inline void setConstantAttenuation(float newValue)
+  void setConstantAttenuation(float newValue)
   {
     constantAttenuation = newValue;
-    m_dirtyForRender    = true;
+    m_dirtyForRender = true;
   }
 
-  inline float getLinearAttenuation() const
+  float getLinearAttenuation() const
   {
     return linearAttenuation;
   }
 
-  inline void setLinearAttenuation(float newValue)
+  void setLinearAttenuation(float newValue)
   {
     linearAttenuation = newValue;
-    m_dirtyForRender  = true;
+    m_dirtyForRender = true;
   }
 
-  inline float getQuadraticAttenuation() const
+  float getQuadraticAttenuation() const
   {
     return quadraticAttenuation;
   }
 
-  inline void setQuadraticAttenuation(float newValue)
+  void setQuadraticAttenuation(float newValue)
   {
     quadraticAttenuation = newValue;
-    m_dirtyForRender     = true;
+    m_dirtyForRender = true;
   }
 
-  inline bool consumeDirtyForRender() const
+  bool consumeDirtyForRender() const
   {
-    bool value       = m_dirtyForRender;
+    bool value = m_dirtyForRender;
     m_dirtyForRender = false;
 
     return value;
   }
 
-  inline void markDirtyForRender() const
+  void markDirtyForRender() const
   {
     m_dirtyForRender = true;
   }
@@ -133,13 +133,13 @@ private:
 
   mutable bool m_dirtyForRender = true;
 
-  glm::vec3 color                = glm::vec3(1.0f);
-  float     intensity            = 5.0f;
-  float     radius               = 30.0f;
-  float     smoothRadius         = 0.8f;
-  float     constantAttenuation  = 1.0f;
-  float     linearAttenuation    = 0.0f;
-  float     quadraticAttenuation = 0.1f;
+  glm::vec3 color = glm::vec3(1.0f);
+  float intensity = 5.0f;
+  float radius = 30.0f;
+  float smoothRadius = 0.8f;
+  float constantAttenuation = 1.0f;
+  float linearAttenuation = 0.0f;
+  float quadraticAttenuation = 0.1f;
 };
 
 } // namespace vrm

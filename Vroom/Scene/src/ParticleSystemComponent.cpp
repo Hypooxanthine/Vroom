@@ -1,5 +1,7 @@
 #include "Scene/ParticleSystemComponent.h"
+
 #include <cstddef>
+#include <cstdint>
 
 #include "AssetManager/ParticleSystemAsset.h"
 #include "Core/Log.h"
@@ -7,18 +9,18 @@
 
 using namespace vrm;
 
-ParticleSystemComponent::ParticleSystemComponent() {}
+ParticleSystemComponent::ParticleSystemComponent()
+{}
 
-ParticleSystemComponent::ParticleSystemComponent(
-  ParticleSystemAsset::Handle asset)
+ParticleSystemComponent::ParticleSystemComponent(const ParticleSystemAsset::Handle& asset)
 {
   setParticleSystem(asset);
 }
 
-ParticleSystemComponent::~ParticleSystemComponent() {}
+ParticleSystemComponent::~ParticleSystemComponent()
+{}
 
-void ParticleSystemComponent::setParticleSystem(
-  ParticleSystemAsset::Handle asset)
+void ParticleSystemComponent::setParticleSystem(const ParticleSystemAsset::Handle& asset)
 {
   m_asset = asset;
   m_dirtyForRender = true;
@@ -35,10 +37,13 @@ void ParticleSystemComponent::removeEmitter(size_t id)
 {
   if (id < m_emitters.size())
   {
-    m_emitters.erase(m_emitters.begin() + id);
+    m_emitters.erase(m_emitters.begin() + (int64_t)id);
     m_dirtyForRender = true;
   }
-  else VRM_LOG_ERROR("Could not remove emitter:: id {} is out of range", id);
+  else
+  {
+    VRM_LOG_ERROR("Could not remove emitter:: id {} is out of range", id);
+  }
 }
 
 void ParticleSystemComponent::update(const DeltaTime& dt)

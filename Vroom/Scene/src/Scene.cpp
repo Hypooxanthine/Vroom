@@ -3,11 +3,11 @@
 #include <glm/gtx/euler_angles.hpp>
 
 #include "Core/Profiling.h"
-#include "RenderObjects/DirectionalLight.h"
-#include "RenderObjects/PointLight.h"
 #include "Renderer/CameraBasic.h"
 #include "Renderer/MeshRegistry.h"
 #include "Renderer/Renderer.h"
+#include "RenderObjects/DirectionalLight.h"
+#include "RenderObjects/PointLight.h"
 #include "Scene/DirectionalLightComponent.h"
 #include "Scene/Entity.h"
 #include "Scene/HierarchyComponent.h"
@@ -25,7 +25,7 @@ Scene::Scene()
 {
   m_renderer.reset(new Renderer());
 
-  m_Root                                                      = createRoot();
+  m_Root = createRoot();
   getRoot().getComponentInternal<HierarchyComponent>().parent = Entity();
 
   // Setting a default camera
@@ -144,10 +144,10 @@ void Scene::setCamera(CameraBasic* camera)
 
 void Scene::setCamera(CameraBasic* camera, size_t row, size_t col)
 {
-  VRM_ASSERT_MSG(row < m_renderLayout.getRows(), "Row {} is out of bounds. Row count is {}", row,
-                 m_renderLayout.getRows());
-  VRM_ASSERT_MSG(col < m_renderLayout.getCols(), "Column {} is out of bounds. Column count is {}", col,
-                 m_renderLayout.getCols());
+  VRM_ASSERT_MSG(
+    row < m_renderLayout.getRows(), "Row {} is out of bounds. Row count is {}", row, m_renderLayout.getRows());
+  VRM_ASSERT_MSG(
+    col < m_renderLayout.getCols(), "Column {} is out of bounds. Column count is {}", col, m_renderLayout.getCols());
 
   render::NormalizedView view(camera);
   m_renderLayout.setView(row, col, view);
@@ -160,8 +160,8 @@ CameraBasic* Scene::getCamera() const
 
 Entity Scene::createEntity(const std::string& nameTag)
 {
-  auto  e          = createRawEntity(nameTag);
-  auto& hierarchy  = e.getComponentInternal<HierarchyComponent>();
+  auto e = createRawEntity(nameTag);
+  auto& hierarchy = e.getComponentInternal<HierarchyComponent>();
   hierarchy.parent = m_Root;
   getRoot().getComponentInternal<HierarchyComponent>().children.emplace_back(e.clone());
 
@@ -171,7 +171,9 @@ Entity Scene::createEntity(const std::string& nameTag)
 Entity Scene::createEntity()
 {
   while (entityExists("NewEntity_" + std::to_string(m_EntityCounter)))
+  {
     ++m_EntityCounter;
+  }
 
   return createEntity("NewEntity_" + std::to_string(m_EntityCounter++));
 }
@@ -186,7 +188,7 @@ void Scene::renameEntity(Entity& e, const std::string& name)
                  name);
   VRM_ASSERT_MSG(e.isValid(), "Entity is not valid.");
   m_EntitiesByName.erase(e.getName());
-  m_EntitiesByName[name]                       = e.clone();
+  m_EntitiesByName[name] = e.clone();
   e.getComponentInternal<NameComponent>().name = name;
 
   // @todo Keep entities sorted by name in HierarchyComponent
@@ -227,9 +229,13 @@ bool Scene::checkEntitiesRelation(const Entity& parent, const Entity& child) con
 bool Scene::checkEntityAncestor(const Entity& ancestor, const Entity& child) const
 {
   if (child.getParent() == ancestor)
+  {
     return true;
+  }
   if (child.isRoot())
+  {
     return false;
+  }
 
   return checkEntityAncestor(ancestor, child.getParent());
 }
@@ -242,10 +248,12 @@ void Scene::setEntitiesRelation(const Entity& parent, const Entity& child)
   VRM_ASSERT_MSG(child != m_Root, "You cannot set Root node's parent");
 
   if (checkEntitiesRelation(parent, child))
+  {
     return;
+  }
 
-  auto& hParent   = parent.getComponentInternal<HierarchyComponent>();
-  auto& hChild    = child.getComponentInternal<HierarchyComponent>();
+  auto& hParent = parent.getComponentInternal<HierarchyComponent>();
+  auto& hChild = child.getComponentInternal<HierarchyComponent>();
   auto& hExParent = hChild.parent.getComponentInternal<HierarchyComponent>();
 
   hExParent.children.remove(child);
@@ -272,10 +280,10 @@ void Scene::destroyEntity(const Entity& entity)
 
 void Scene::destroyEntityRecursive(Entity entity)
 {
-  auto& h        = entity.getComponentInternal<HierarchyComponent>();
-  auto  children = std::move(h.children);
+  auto& h = entity.getComponentInternal<HierarchyComponent>();
+  auto children = std::move(h.children);
 
-  for (auto child : children)
+  for (const auto& child : children)
   {
     destroyEntityRecursive(child);
   }
@@ -309,7 +317,7 @@ Entity Scene::createRawEntity(const std::string& nameTag)
   auto e = getEntity(m_Registry.create());
   e.addComponent<NameComponent>(nameTag);
   e.addComponent<TransformComponent>();
-  auto& hierarchy           = e.addComponent<HierarchyComponent>();
+  auto& hierarchy = e.addComponent<HierarchyComponent>();
   m_EntitiesByName[nameTag] = e;
 
   return e;
@@ -317,7 +325,7 @@ Entity Scene::createRawEntity(const std::string& nameTag)
 
 Entity Scene::createRoot()
 {
-  auto e                                              = createRawEntity("Root");
+  auto e = createRawEntity("Root");
   e.getComponentInternal<HierarchyComponent>().parent = Entity();
 
   return e;
@@ -326,7 +334,7 @@ Entity Scene::createRoot()
 void Scene::renameRoot(const std::string& rootName)
 {
   m_EntitiesByName.erase(m_Root.getName());
-  m_EntitiesByName[rootName]                        = m_Root.clone();
+  m_EntitiesByName[rootName] = m_Root.clone();
   m_Root.getComponentInternal<NameComponent>().name = rootName;
 }
 
@@ -398,9 +406,9 @@ void Scene::_submitDirectionalLightsForRender()
       glm::vec4 forward = -1.f * glm::vec4{ 0.f, 0.f, -1.f, 0.f };
 
       render::DirectionalLight renderLight;
-      renderLight.direction    = glm::vec3(rot * forward);
-      renderLight.intensity    = dl.intensity;
-      renderLight.color        = dl.color;
+      renderLight.direction = glm::vec3(rot * forward);
+      renderLight.intensity = dl.intensity;
+      renderLight.color = dl.color;
       renderLight.castsShadows = dl.castsShadows;
 
       m_renderer->submitDirectionalLight(id, renderLight);
@@ -423,13 +431,13 @@ void Scene::_submitPointLightsForRender()
     if (pl.consumeDirtyForRender())
     {
       render::PointLight renderLight;
-      renderLight.position             = t.getGlobalPosition();
-      renderLight.color                = pl.getColor();
-      renderLight.intensity            = pl.getIntensity();
-      renderLight.radius               = pl.getRadius();
-      renderLight.smoothRadius         = pl.getSmoothRadius();
-      renderLight.constantAttenuation  = pl.getConstantAttenuation();
-      renderLight.linearAttenuation    = pl.getLinearAttenuation();
+      renderLight.position = t.getGlobalPosition();
+      renderLight.color = pl.getColor();
+      renderLight.intensity = pl.getIntensity();
+      renderLight.radius = pl.getRadius();
+      renderLight.smoothRadius = pl.getSmoothRadius();
+      renderLight.constantAttenuation = pl.getConstantAttenuation();
+      renderLight.linearAttenuation = pl.getLinearAttenuation();
       renderLight.quadraticAttenuation = pl.getQuadraticAttenuation();
 
       m_renderer->submitPointLight(id, renderLight);
@@ -449,15 +457,15 @@ void Scene::_submitMeshesForRender()
   for (auto&& [e, m, t] : viewMeshes.each())
   {
     MeshRenderInfo info;
-    uint32_t       i  = 0;
-    size_t         id = (static_cast<size_t>(e));
+    uint32_t i = 0;
+    size_t id = (static_cast<size_t>(e));
     for (const auto& submesh : m.getMesh()->getSubMeshes())
     {
       MeshRenderInfo info;
       info.renderMeshId = (id << 32) | i; // Id is tracking the mesh component + its submesh
-      info.mesh         = &submesh.renderMesh;
-      info.material     = m.getMaterials().getMaterial(i);
-      info.model        = &t.getGlobalTransform();
+      info.mesh = &submesh.renderMesh;
+      info.material = m.getMaterials().getMaterial(i);
+      info.model = &t.getGlobalTransform();
       info.tags.set(EMeshTag::eVisible, m.isVisible());
       info.tags.set(EMeshTag::eShadowCaster, m.doesCastShadow());
       info.entityId = id;
@@ -496,18 +504,18 @@ void Scene::_submitParticleSystemsForRender()
   for (auto&& [e, particleSystem, t] : viewParticles.each())
   {
     const auto& emitters = particleSystem.getEmitters();
-    const bool  dirty    = particleSystem.consumeDirtyForRender();
+    const bool dirty = particleSystem.consumeDirtyForRender();
 
     for (size_t i = 0; i < emitters.size(); ++i)
     {
       const ParticleEmitter* emitter = &emitters[i];
-      size_t                 id      = (static_cast<size_t>(e) << 32) | i;
+      size_t id = (static_cast<size_t>(e) << 32) | i;
 
       if (dirty)
       {
         ParticleSystemRenderInfo info;
         info.emitter = emitter;
-        info.model   = &t.getGlobalTransform();
+        info.model = &t.getGlobalTransform();
         m_renderer->submitParticleEmitter(id, info);
       }
       else

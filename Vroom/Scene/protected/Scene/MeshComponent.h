@@ -1,82 +1,99 @@
 #pragma once
 
 #include "AssetManager/ComponentDataFwds.h"
-#include "Scene/Api.h"
 #include "AssetManager/MeshAsset.h"
 #include "Renderer/MeshMaterials.h"
+#include "Scene/Api.h"
 
 namespace vrm
 {
 
-  class MeshData;
+class MeshData;
+
+/**
+ * @brief Mesh component.
+ *
+ * A mesh component is a component that stores the mesh of an entity.
+ */
+class VRM_SCENE_API MeshComponent
+{
+public:
+
+  MeshComponent();
+
+  explicit MeshComponent(const MeshComponentData& data);
 
   /**
-   * @brief Mesh component.
+   * @brief Constructor.
    *
-   * A mesh component is a component that stores the mesh of an entity.
+   * @param meshInstance The mesh instance.
    */
-  class VRM_SCENE_API MeshComponent
+  MeshComponent(const MeshAsset::Handle& meshInstance);
+
+  MeshComponentData getData() const;
+
+  /**
+   * @brief Get the mesh instance.
+   *
+   * @return The mesh instance.
+   */
+  const MeshAsset::Handle& getMesh() const;
+
+  /**
+   * @brief Set the mesh instance.
+   *
+   * @param meshInstance The mesh instance.
+   */
+  void setMesh(const MeshAsset::Handle& meshInstance);
+
+  /**
+   * @brief Get materials of this mesh component. Could be default ones, or overriden.
+   *
+   * @return const MeshMaterials& The materials.
+   */
+  const MeshMaterials& getMaterials() const
   {
-  public:
-    MeshComponent();
+    return m_Materials;
+  }
 
-    explicit MeshComponent(const MeshComponentData& data);
+  void setMaterial(size_t slot, const MaterialAsset::Handle& mat);
 
-    /**
-     * @brief Constructor.
-     *
-     * @param meshInstance The mesh instance.
-     */
-    MeshComponent(const MeshAsset::Handle &meshInstance);
+  /**
+   * @brief Set the visibility of the mesh.
+   *
+   * @param visible True if the mesh is visible, false otherwise.
+   */
+  void setVisible(bool visible)
+  {
+    m_IsVisible = visible;
+  }
 
-    MeshComponentData getData() const;
+  /**
+   * @brief Check if the mesh is visible.
+   *
+   * @return True if the mesh is visible, false otherwise.
+   */
+  bool isVisible() const
+  {
+    return m_IsVisible;
+  }
 
-    /**
-     * @brief Get the mesh instance.
-     *
-     * @return The mesh instance.
-     */
-    const MeshAsset::Handle &getMesh() const;
+  void setCastsShadow(bool value)
+  {
+    m_castsShadow = value;
+  }
 
-    /**
-     * @brief Set the mesh instance.
-     *
-     * @param meshInstance The mesh instance.
-     */
-    void setMesh(const MeshAsset::Handle &meshInstance);
+  bool doesCastShadow() const
+  {
+    return m_castsShadow;
+  }
 
-    /**
-     * @brief Get materials of this mesh component. Could be default ones, or overriden.
-     * 
-     * @return const MeshMaterials& The materials.
-     */
-    inline const MeshMaterials& getMaterials() const { return m_Materials; }
+private:
 
-    void setMaterial(size_t slot, MaterialAsset::Handle mat);
-
-    /**
-     * @brief Set the visibility of the mesh.
-     *
-     * @param visible True if the mesh is visible, false otherwise.
-     */
-    inline void setVisible(bool visible) { m_IsVisible = visible; }
-
-    /**
-     * @brief Check if the mesh is visible.
-     *
-     * @return True if the mesh is visible, false otherwise.
-     */
-    inline bool isVisible() const { return m_IsVisible; }
-
-    inline void setCastsShadow(bool value) { m_castsShadow = value; }
-
-    inline bool doesCastShadow() const { return m_castsShadow; }
-
-  private:
-    MeshAsset::Handle m_MeshInstance;
-    MeshMaterials m_Materials;
-    bool m_IsVisible = true;
-    bool m_castsShadow = true;
-  };
+  MeshAsset::Handle m_MeshInstance;
+  MeshMaterials m_Materials;
+  bool m_IsVisible = true;
+  bool m_castsShadow = true;
+};
 
 } // namespace vrm

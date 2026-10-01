@@ -24,7 +24,9 @@ class IEmitterField
 {
 public:
 
-  inline bool structureDifferent(const IEmitterField& other) const
+  virtual ~IEmitterField() = default;
+
+  bool structureDifferent(const IEmitterField& other) const
   {
     return getType() != other.getType();
   }

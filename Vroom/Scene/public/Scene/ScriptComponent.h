@@ -60,7 +60,7 @@ public:
   virtual void onDestroy()
   {}
 
-  inline const std::string& getScriptName() const
+  const std::string& getScriptName() const
   {
     return m_scriptName;
   }
@@ -88,7 +88,7 @@ private:
 template <typename ScriptClass>
 struct ScriptComponentTraits
 {
-  inline static constexpr std::string_view scriptId = "";
+  static constexpr std::string_view scriptId = "";
 };
 
 } // namespace vrm

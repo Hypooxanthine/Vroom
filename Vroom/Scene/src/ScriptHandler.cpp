@@ -11,10 +11,10 @@ ScriptHandler::ScriptHandler(const ScriptComponentData& data)
     return;
   }
 
-  VRM_CHECK_MSG(ScriptEngine::Get().isScriptRegistered(data.resourceName), "Script {} is not registered",
-                data.resourceName);
+  VRM_CHECK_MSG(
+    ScriptEngine::Get().isScriptRegistered(data.resourceName), "Script {} is not registered", data.resourceName);
   ScriptComponentPtr sc = ScriptEngine::Get().createScriptComponent(data.resourceName);
-  m_script              = std::move(sc);
+  m_script = std::move(sc);
 }
 
 ScriptComponentData ScriptHandler::getData() const

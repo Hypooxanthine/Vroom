@@ -82,7 +82,8 @@ bool Scene::loadFromAsset2(const SceneData& data)
 
     if (const auto* compData = node.tryGetComponent<ScriptComponentData>(); compData != nullptr)
     {
-      VRM_CHECK_MSG(ScriptEngine::Get().isScriptRegistered(compData->resourceName), "Script {} is not registered",
+      VRM_CHECK_MSG(ScriptEngine::Get().isScriptRegistered(compData->resourceName),
+                    "Script {} is not registered",
                     compData->resourceName);
       entity.addScriptComponent(compData->resourceName);
     }
@@ -141,12 +142,14 @@ void Scene::addNodeComponents(const Entity& e, SceneNodeData& data) const
   }
 }
 
-void Scene::addNodeRecursive(const Entity& e, SceneData& data, const std::string& parent,
+void Scene::addNodeRecursive(const Entity& e,
+                             SceneData& data,
+                             const std::string& parent,
                              const SceneNodeData::EType& nodetype) const
 {
   SceneNodeData nodeData;
-  nodeData.name   = e.getName();
-  nodeData.type   = nodetype;
+  nodeData.name = e.getName();
+  nodeData.type = nodetype;
   nodeData.parent = parent;
 
   addNodeComponents(e, nodeData);
