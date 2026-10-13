@@ -347,6 +347,11 @@ void ShadowMappingPass::onRender(const RenderPassContext& ctx) const
   glFrontFace(GL_CCW);
   glCullFace(GL_FRONT);
   glEnable(GL_DEPTH_TEST);
+  // Push stored caster depth slightly away from the light. Without a
+  // slope-aware offset, quantization of a receiver's light-space depth causes
+  // scale-dependent self-shadowing (visible as alternating bands).
+  glEnable(GL_POLYGON_OFFSET_FILL);
+  glPolygonOffset(1.5f, 2.0f);
 
   for (size_t i = 0; i < m_dirLightShadowCasters.size(); ++i)
   {
@@ -361,6 +366,8 @@ void ShadowMappingPass::onRender(const RenderPassContext& ctx) const
       renderMeshes(m_dirLightCameras.at(idx), render::Viewport({ 0u, 0u }, { resolution, resolution }));
     }
   }
+
+  glDisable(GL_POLYGON_OFFSET_FILL);
 
   if (ctx.dynamicSettings->shadows.debugDirLights)
   {

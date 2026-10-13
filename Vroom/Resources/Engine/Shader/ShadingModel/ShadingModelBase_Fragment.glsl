@@ -237,7 +237,7 @@ float ComputeDirectionalShadowFactor(in uint shadowCasterId, in float lightDotNo
   );
 
   const float fragDepth = pos_ndc_light.z / 2.f + 0.5f;
-  const float bias = 0.f;//mix(0.001f, 0.f, lightDotNormal);
+  const float bias = max(0.0001f * (1.f - lightDotNormal), 0.000001f);
   const vec2 pxSize = 1.f / textureSize(u_DirectionalShadowMaps, 0).xy;
 
   const int kernelRadius = int(u_SoftShadowKernelRadius);
